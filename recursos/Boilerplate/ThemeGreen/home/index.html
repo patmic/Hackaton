@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ThemeGreen · Home base (validación de animación)</title>
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../components/components.css">
+<style>
+  /* Home de prueba: solo layout. Colores, tipos y componentes vienen de los tokens. */
+  .tg-page{max-width:1180px;margin:0 auto;padding:0 var(--gutter) 40px}
+  .tg-hero{padding:clamp(40px,8vh,96px) 0 clamp(28px,5vh,56px);display:flex;flex-direction:column;gap:clamp(10px,1.9vh,20px)}
+  .tg-hero__actions{display:flex;flex-wrap:wrap;gap:clamp(12px,1.4vw,20px);margin-top:clamp(2px,1vh,10px)}
+  .tg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.4vw,20px);margin-top:clamp(8px,2.2vh,26px)}
+  .tg-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(16px,3vw,40px);margin-top:clamp(28px,5vh,56px);align-items:center}
+  .tg-status{position:fixed;right:16px;bottom:16px;z-index:60;font:500 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface-menu);color:var(--ink-dim)}
+  .tg-status[data-state="ok"]{color:var(--lime);border-color:var(--lime-a30)}
+  .tg-status[data-state="error"]{color:var(--live);border-color:rgba(255,77,109,.4)}
+  /* Con motion activo, motion controla transform: quitamos la transición CSS que pelearía con él */
+  .js-motion .tg-linkcard,.js-motion .tg-btn{transition:none}
+  @media (max-width:900px){.tg-grid{grid-template-columns:1fr}.tg-split{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="tg-body">
+
+<div class="tg-page">
+
+  <header class="tg-nav" style="padding-left:0;padding-right:0">
+    <div class="tg-nav__brand"><span class="tg-label" style="color:var(--ink)">Home base · ThemeGreen</span></div>
+    <nav class="tg-pillnav" aria-label="Principal">
+      <a href="#evento">Evento</a>
+      <a href="#home" aria-current="page">Inicio</a>
+      <a href="#comite">Comité</a>
+      <button type="button" id="btnMenu" aria-expanded="false" aria-controls="menu">Precedentes ▾</button>
+    </nav>
+  </header>
+  <div class="tg-drop" style="float:right;margin-top:-6px">
+    <ul class="tg-drop__menu" id="menu" hidden>
+      <li><a href="#">XII JISIC</a></li>
+      <li><a href="#">XIII JISIC</a></li>
+    </ul>
+  </div>
+
+  <section class="tg-hero" id="home">
+    <span class="tg-eyebrow js-anim">XIV Jornadas JISIC · Octubre 2026 a diciembre 2027</span>
+    <h1 class="tg-display js-anim">La IA transformando <em>el mundo</em></h1>
+    <p class="tg-sub js-anim">Conferencias, workshops y un concurso de inteligencia artificial.</p>
+    <p class="tg-lead js-anim">La entrada a charlas y concurso es gratuita. La programación se confirma durante la temporada.</p>
+    <div class="tg-hero__actions js-anim">
+      <a class="tg-btn tg-btn--solid" href="#evento">Ver el evento</a>
+      <a class="tg-btn tg-btn--ghost" href="#comite">Conocer al comité</a>
+    </div>
+  </section>
+
+  <section class="tg-grid" aria-label="Accesos">
+    <a class="tg-linkcard tg-linkcard--green js-card" href="#">
+      <span class="tg-linkcard__ico" aria-hidden="true">◆</span>
+      <span class="tg-linkcard__txt"><b>Workshop</b><span>Taller práctico con cupo limitado.</span></span>
+      <span class="tg-linkcard__go" aria-hidden="true">↗</span>
+    </a>
+    <a class="tg-linkcard tg-linkcard--violet js-card" href="#">
+      <span class="tg-linkcard__ico" aria-hidden="true">✦</span>
+      <span class="tg-linkcard__txt"><b>Networking</b><span>Contacto entre asistentes y empresas.</span></span>
+      <span class="tg-linkcard__go" aria-hidden="true">↗</span>
+    </a>
+    <a class="tg-linkcard tg-linkcard--amber js-card" href="#">
+      <span class="tg-linkcard__ico" aria-hidden="true">★</span>
+      <span class="tg-linkcard__txt"><b>Concurso de IA</b><span>Competencia abierta a participantes.</span></span>
+      <span class="tg-linkcard__go" aria-hidden="true">↗</span>
+    </a>
+  </section>
+
+  <section class="tg-split" id="evento">
+    <div class="tg-card js-anim">
+      <span class="tg-cat tg-cat--workshop"><i></i>Workshop</span>
+      <h2 class="tg-h3" style="font-size:var(--fs-h2)">Próximo evento</h2>
+      <p class="tg-body-lg" style="margin:0">Lunes 14 de diciembre de 2026 · Sede por confirmar.</p>
+      <div class="tg-countdown" id="countdown" aria-live="polite">
+        <div class="tg-countdown__box"><b id="cd-d">--</b><span>días</span></div>
+        <div class="tg-countdown__box"><b id="cd-h">--</b><span>horas</span></div>
+        <div class="tg-countdown__box tg-countdown__box--accent"><b id="cd-m">--</b><span>min</span></div>
+      </div>
+    </div>
+    <div class="tg-card tg-card--plain js-anim">
+      <span class="tg-label">Agenda</span>
+      <ul class="tg-agenda">
+        <li><time>Por definir</time><div><b>Workshop</b><span>Taller práctico con cupo limitado.</span></div></li>
+        <li><time>24 abr 2027</time><div><b>Conferencia</b><span>Conferencias magistrales con expertos.</span></div></li>
+      </ul>
+      <div class="tg-hero__actions" style="margin-top:16px">
+        <button class="tg-btn tg-btn--outline js-card" type="button">Inscribirme</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="tg-status" id="status" data-state="idle">motion: cargando…</div>
+
+<script type="module">
+  /* ---------------------------------------------------------------
+     Validación de motion en ThemeGreen.
+     Carga motion desde CDN con la versión fijada (14.14.0).
+     Si la carga falla, la página se ve igual, sin animación, y el
+     indicador de abajo a la derecha muestra el error.
+     --------------------------------------------------------------- */
+  const status = document.getElementById('status');
+  const setStatus = (state, text) => { status.dataset.state = state; status.textContent = text; };
+
+  // Orden de carga: 1) CDN ESM fijado a 14.14.0; 2) copia local de node_modules (dist/motion.js, UMD).
+  // La ruta local asume que esta carpeta está en epnHackaton/recursos/Boilerplate/ThemeGreen/home/.
+  async function loadMotion() {
+    try { return await import('https://cdn.jsdelivr.net/npm/motion@14.14.0/+esm'); }
+    catch (e) { console.warn('[ThemeGreen] CDN no disponible, pruebo copia local', e); }
+    try {
+      await new Promise((ok, fail) => {
+        const s = document.createElement('script');
+        s.src = '../../../../node_modules/motion/dist/motion.js';
+        s.onload = ok; s.onerror = fail;
+        document.head.append(s);
+      });
+      return window.Motion ?? null;
+    } catch (e) { console.error('[ThemeGreen] no se pudo cargar motion', e); return null; }
+  }
+
+  const motion = await loadMotion();
+  if (!motion) setStatus('error', 'motion: no cargó (sin animación)');
+
+  if (motion) {
+    const { animate, stagger, inView } = motion;
+    document.documentElement.classList.add('js-motion');
+
+    // 1) Entrada escalonada de los bloques marcados con .js-anim
+    const items = document.querySelectorAll('.js-anim');
+    items.forEach(el => { el.style.opacity = '0'; });
+    animate(items, { opacity: [0, 1], transform: ['translateY(24px)', 'translateY(0px)'] },
+      { duration: 0.7, delay: stagger(0.08), ease: [0.16, 0.9, 0.3, 1] });
+
+    // 2) Tarjetas de acceso: aparecen al entrar en pantalla
+    document.querySelectorAll('.js-card').forEach(el => {
+      el.style.opacity = '0';
+      inView(el, () => {
+        animate(el, { opacity: [0, 1], transform: ['translateY(18px)', 'translateY(0px)'] },
+          { duration: 0.6, ease: [0.16, 0.9, 0.3, 1] });
+      });
+    });
+
+    // 3) Hover: elevar tarjetas y botones con motion (y volver al reposo al salir)
+    document.querySelectorAll('.js-card, .tg-btn').forEach(el => {
+      el.addEventListener('pointerenter', () => animate(el, { transform: 'translateY(-3px) scale(1.01)' }, { duration: 0.2 }));
+      el.addEventListener('pointerleave', () => animate(el, { transform: 'translateY(0px) scale(1)' }, { duration: 0.25 }));
+      el.addEventListener('pointerdown', () => animate(el, { transform: 'scale(0.98)' }, { duration: 0.1 }));
+      el.addEventListener('pointerup', () => animate(el, { transform: 'translateY(-3px) scale(1.01)' }, { duration: 0.15 }));
+    });
+
+    setStatus('ok', 'motion 14.14.0: OK');
+  }
+
+  // Menú de precedentes (sin dependencia de motion)
+  const btn = document.getElementById('btnMenu');
+  const menu = document.getElementById('menu');
+  btn.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', String(open));
+    menu.hidden = !open;
+  });
+
+  // Cuenta regresiva al 14 de diciembre de 2026
+  const target = new Date('2026-12-14T00:00:00-05:00').getTime();
+  const tick = () => {
+    const diff = Math.max(0, target - Date.now());
+    document.getElementById('cd-d').textContent = Math.floor(diff / 86400000);
+    document.getElementById('cd-h').textContent = Math.floor(diff / 3600000) % 24;
+    document.getElementById('cd-m').textContent = Math.floor(diff / 60000) % 60;
+  };
+  tick(); setInterval(tick, 30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+/* =====================================================================
+   ThemeGreen · Design tokens
+   Fuente: epnJISIC/frontend/src/css/style.css (+ estilos inline de
+   pages/inicio, pages/comite y pages/XIV_JISIC). Valores reales.
+   Tema oscuro, acento verde lima, superficies "glass".
+   ===================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+:root{
+  /* ---------- Color · base ---------- */
+  --bg:#070807;              /* fondo principal */
+  --bg-2:#0b0d0a;            /* fondo secundario / tarjetas sólidas */
+  --ink:#f4f6f1;             /* texto principal */
+  --ink-dim:#8b918a;         /* texto secundario */
+  --ink-faint:#4a4f49;       /* texto terciario, placeholders */
+  --ink-soft:#dfe3dc;        /* texto de párrafo destacado (hero lead) */
+  --line:rgba(255,255,255,.10);
+
+  /* ---------- Color · marca ---------- */
+  --lime:#9dff32;            /* acento primario */
+  --lime-soft:#6fd21a;       /* acento primario atenuado */
+  --on-lime:#0c1206;         /* texto sobre lima */
+  --lime-a06:rgba(157,255,50,.06);
+  --lime-a10:rgba(157,255,50,.10);
+  --lime-a14:rgba(157,255,50,.14);
+  --lime-a30:rgba(157,255,50,.30);
+  --lime-a45:rgba(157,255,50,.45);
+
+  /* ---------- Color · secundarios ---------- */
+  --blue:#4c8dff;
+  --sky:#8ec6ea;
+  --cyan:#4fd3e6;
+  --live:#ff4d6d;            /* estado "en vivo" / peligro */
+  --warn:#ff8b6b;            /* sin resultados / aviso */
+  --gradient-brand:linear-gradient(90deg,#2FC5B4,#4C7AD1 60%,#9B5BC5);
+
+  /* ---------- Color · categorías (eventos) ---------- */
+  --cat-conferencia:#6ea8ff;
+  --cat-workshop:#ffb454;
+  --cat-networking:#ff7ab8;
+  --cat-concurso:#ffd84d;
+  --cat-podcast:#2fe0c8;
+  /* acentos de tarjetas del hero */
+  --acc-green:#3ddc4a;
+  --acc-violet:#d24bff;
+  --acc-amber:#ffb020;
+
+  /* ---------- Superficies ---------- */
+  --surface-glass:rgba(255,255,255,.045);   /* barras, segmented */
+  --surface-ghost:rgba(255,255,255,.03);    /* botones contorno */
+  --surface-field:rgba(10,13,9,.72);        /* campo de búsqueda */
+  --surface-panel:rgba(10,12,9,.74);        /* tarjeta grande */
+  --surface-menu:rgba(12,14,12,.96);        /* dropdown */
+  --surface-tip:rgba(9,12,8,.94);           /* tooltip */
+  --surface-sunken:rgba(0,0,0,.38);         /* cajas de cuenta regresiva */
+  --blur-sm:10px;
+  --blur-md:14px;
+  --blur-lg:16px;
+
+  /* ---------- Tipografía ---------- */
+  --font:"Plus Jakarta Sans", ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", "Roboto Mono", Menlo, monospace;
+
+  --fs-display:clamp(46px,7.4vw,108px);   /* hero__title · 800 · lh .95 · ls -.045em */
+  --fs-h1:clamp(32px,4vw,56px);           /* stage__title · 500 · lh 1.04 · ls -.028em */
+  --fs-h2:clamp(30px,4.4vw,58px);         /* xj__year · 700 */
+  --fs-h3:clamp(20px,2vw,28px);           /* xj h3 · 600 */
+  --fs-sub:clamp(19px,2.3vw,34px);        /* hero__sub · 600 · lh 1.2 */
+  --fs-body-lg:19px;                      /* stage__body · lh 1.55 */
+  --fs-body:clamp(14px,1.25vw,18px);      /* hero__lead · lh 1.55 */
+  --fs-body-sm:clamp(14px,1vw,16px);
+  --fs-btn:15px;
+  --fs-nav:clamp(11px,.85vw,14px);
+  --fs-label:13px;                        /* eyebrow / hint (mono, .14em, MAYÚS) */
+  --fs-caption:12px;                      /* chip / tooltip (mono) */
+
+  --lh-tight:1.04;
+  --lh-snug:1.2;
+  --lh-normal:1.4;
+  --lh-relaxed:1.55;
+
+  --ls-display:-.045em;
+  --ls-title:-.028em;
+  --ls-tight:-.02em;
+  --ls-body:-.006em;
+  --ls-label:.14em;                       /* etiquetas mono en mayúsculas */
+
+  --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700; --fw-black:800;
+
+  /* ---------- Espaciado (valores usados en el código) ---------- */
+  --sp-0:2px;  --sp-1:4px;  --sp-2:6px;  --sp-3:8px;  --sp-4:10px;
+  --sp-5:12px; --sp-6:14px; --sp-7:16px; --sp-8:18px; --sp-9:20px;
+  --sp-10:22px; --sp-11:26px; --sp-12:28px; --sp-13:32px;
+  --gutter:clamp(20px,6vw,64px);          /* padding lateral del nav */
+
+  /* ---------- Radios ---------- */
+  --r-pill:999px;
+  --r-xl:26px;    /* tarjeta grande (.pc) */
+  --r-lg:18px;    /* tarjeta enlace (.hcard) */
+  --r-md:16px;    /* menú, cajas de cuenta regresiva */
+  --r-sm:12px;    /* tarjeta de foto */
+  --r-xs:10px;    /* ítem de menú */
+  --r-2xs:4px;    /* tooltip */
+
+  /* ---------- Sombras / glow ---------- */
+  --shadow-field:0 26px 60px -22px rgba(0,0,0,.72);
+  --shadow-card:0 30px 70px -30px rgba(0,0,0,.85);
+  --shadow-menu:0 18px 40px -16px rgba(0,0,0,.8);
+  --shadow-photo:0 14px 30px -14px rgba(0,0,0,.8);
+  --glow-sm:0 6px 18px -8px rgba(157,255,50,.8);      /* pestaña activa */
+  --glow-md:0 10px 28px -12px rgba(157,255,50,.9);    /* botón sólido */
+  --glow-lg:0 14px 32px -10px rgba(157,255,50,1);     /* botón sólido hover */
+  --glow-node:0 0 0 5px rgba(157,255,50,.10), 0 0 26px rgba(157,255,50,.55);
+  --ring-focus:0 0 0 3px rgba(157,255,50,.14);
+
+  /* ---------- Movimiento ---------- */
+  --dur-fast:.18s;
+  --dur:.2s;
+  --dur-slow:.3s;
+  --ease:ease;
+  --ease-rise:cubic-bezier(.16,.9,.3,1);
+
+  /* ---------- Controles ---------- */
+  --field-h:clamp(37px,4vw,54px);
+  --submit:clamp(27px,3vw,40px);
+
+  /* ---------- Breakpoints (referencia, usar en @media) ----------
+     mobile ≤ 760px · tablet ≤ 820px · cards ≤ 900px */
+}
