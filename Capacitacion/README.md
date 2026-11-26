@@ -40,6 +40,11 @@ Fuente de las reglas: `CLAUDE.md` de esta carpeta (lo marcado [DECIDIDO] manda) 
 | Análisis de la IA | `domain/verificacion.dart` | Lo envía el servidor (otro bloque); la app lo muestra y sugiere el microcurso del indicio |
 | Actividad tras verificar | `application/logica/actividad_para_verificacion.dart` | Primero la que trabaja el indicio del análisis (en el módulo de su microcurso); si no, la de la tipología suplantada. Siempre del tipo del usuario, pendiente y corta |
 | Progreso | `data/progreso_repository.dart` | Solo en el dispositivo (shared_preferences) |
+| Sesión (`GET /api/v1/me`) | `domain/sesion.dart`, `providers.dart` | El tipo, el perfil y el rango salen de la sesión, nunca de lo que declara el usuario. En la demo se elige un usuario ficticio por tipo |
+| «Quiero capacitarme» | `data/capacitacion_api.dart`, `presentation/screens/capacitacion_screen.dart` | Consentimiento, doble opt-in sin cuenta, «Revisa tu correo como lo harías cualquier día», pausa y salida |
+| Escalera y límites | `domain/escalera.dart` | Diagnóstico (reporta → Avanzado, ignora → Intermedio, clic → Básico), nivel ±1, mapa de indicios, Centinela tras dos reportes en nivel 3, 1 correo por semana y nunca 2 en 48 h |
+| Eventos (`POST /api/v1/eventos`) | `domain/evento_app.dart`, `application/logica/registro_eventos.dart` | Contexto anónimo (tipo, perfil, rango, cuidador). Si la API falla, se reintenta sin interrumpir la app |
+| RoleGuard | `application/logica/role_guard.dart` | Externos a la app; IN2-IN4 en la web, a la consola (fuera de alcance) |
 
 Privacidad: el rango de edad es opcional y anonimizado; no se pide cédula ni nombre.
 

@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/actividad_repository.dart';
 import '../data/adaptador_verificacion.dart';
+import '../data/capacitacion_api.dart';
 import '../data/nucleo_api.dart';
 import '../data/progreso_repository.dart';
 import '../domain/domain.dart';
@@ -40,28 +43,141 @@ final alertasProvider = FutureProvider<List<AlertaObservatorio>>((ref) async {
   }
 });
 
+/// Reloj de la app. Se sobrescribe en las pruebas.
+final relojProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+
+/// API de Capacitación simulada hasta que el otro bloque publique la suya.
+final capacitacionApiProvider = Provider<CapacitacionApi>(
+  (ref) => MockCapacitacionApi(reloj: ref.watch(relojProvider)),
+);
+
+// ---------- Sesión (GET /api/v1/me) ----------
+
+class SesionController extends AsyncNotifier<SesionUsuario> {
+  @override
+  Future<SesionUsuario> build() => ref.watch(capacitacionApiProvider).me();
+
+  /// Solo demo: simula el inicio de sesión con un usuario ficticio. Con la
+  /// API real, la sesión viene del proveedor de identidad.
+  Future<void> iniciarSesionDemo(SesionUsuario sesion) async {
+    final api = ref.read(capacitacionApiProvider);
+    if (api is MockCapacitacionApi) api.iniciarSesion(sesion);
+    state = await AsyncValue.guard(api.me);
+  }
+}
+
+final sesionProvider = AsyncNotifierProvider<SesionController, SesionUsuario>(
+  SesionController.new,
+);
+
 // ---------- Perfil ----------
 
+/// El tipo, el perfil de conducta y el rango vienen de la sesión. Si `/me`
+/// falla, la app sigue como EX5 (sin cuenta).
 class PerfilNotifier extends Notifier<Perfil> {
   @override
-  Perfil build() => const Perfil();
+  Perfil build() {
+    final sesion = ref.watch(sesionProvider).value ?? SesionUsuario.sinCuenta;
+    return Perfil(
+      tipos: sesion.tipos,
+      perfilConducta: sesion.perfilConducta,
+      rangoEtario: sesion.rangoEtario,
+    );
+  }
 
   void elegirRango(RangoEtario? rango) => state = state.conRango(rango);
 
   void marcarCuidador(bool valor) =>
       state = state.copyWith(esCuidador: valor);
-
-  /// Los tipos y el perfil de conducta vienen de una fuente oficial
-  /// (`GET /api/v1/me`), nunca de lo que declara el usuario.
-  void asignarTipos(
-    Set<TipoUsuario> tipos, {
-    PerfilConducta perfilConducta = PerfilConducta.sinPerfil,
-  }) => state = state.copyWith(tipos: tipos, perfilConducta: perfilConducta);
 }
 
 final perfilProvider = NotifierProvider<PerfilNotifier, Perfil>(
   PerfilNotifier.new,
 );
+
+// ---------- Eventos (POST /api/v1/eventos) ----------
+
+final registroEventosProvider = Provider<RegistroEventos>(
+  (ref) => RegistroEventos(
+    api: ref.watch(capacitacionApiProvider),
+    contexto: () => ContextoEvento.desdePerfil(ref.read(perfilProvider)),
+    reloj: ref.watch(relojProvider),
+  ),
+);
+
+// ---------- «Quiero capacitarme» ----------
+
+class CapacitacionController extends AsyncNotifier<EstadoCapacitacion> {
+  @override
+  Future<EstadoCapacitacion> build() {
+    // Al cambiar de sesión se vuelve a cargar el estado.
+    ref.watch(sesionProvider);
+    return ref.watch(capacitacionApiProvider).estadoCapacitacion();
+  }
+
+  CapacitacionApi get _api => ref.read(capacitacionApiProvider);
+
+  /// El mock, si la API es simulada. Habilita el panel de demostración.
+  MockCapacitacionApi? get demo {
+    final api = ref.read(capacitacionApiProvider);
+    return api is MockCapacitacionApi ? api : null;
+  }
+
+  /// Acepta el consentimiento e inscribe. Devuelve un mensaje si el correo
+  /// no es válido; en ese caso el estado no cambia.
+  Future<String?> inscribir({String? correo}) async {
+    final consentimiento = Consentimiento(
+      version: Consentimiento.versionActual,
+      aceptadoEn: ref.read(relojProvider)(),
+    );
+    try {
+      final nuevo = await _api.inscribir(
+        consentimiento: consentimiento,
+        correo: correo,
+      );
+      state = AsyncData(nuevo);
+      return null;
+    } on FormatException catch (e) {
+      return e.message;
+    }
+  }
+
+  Future<void> pausar() async => state = await AsyncValue.guard(_api.pausar);
+
+  Future<void> reanudar() async =>
+      state = await AsyncValue.guard(_api.reanudar);
+
+  Future<void> salir() async => state = await AsyncValue.guard(_api.salir);
+
+  // ---------- Panel de demostración ----------
+
+  void confirmarCorreoDemo() => _demo((d) => d.confirmarCorreo());
+
+  void simularReaccionDemo(ResultadoSimulacro resultado) =>
+      _demo((d) => d.simularReaccion(resultado));
+
+  /// Deja vencer la ventana de reacción: el correo queda IGNORO.
+  void dejarVencerDemo() =>
+      _demo((d) => d.pasarTiempo(d.entorno.ventanaReaccion * 2));
+
+  /// Simula que pasó una semana y pide el siguiente correo.
+  void siguienteCorreoDemo() => _demo((d) {
+    d.pasarTiempo(LimitesEnvio.unoPorSemana);
+    d.enviarSiguiente();
+    return d.estado;
+  });
+
+  void _demo(EstadoCapacitacion Function(MockCapacitacionApi) accion) {
+    final d = demo;
+    if (d == null) return;
+    state = AsyncData(accion(d));
+  }
+}
+
+final capacitacionProvider =
+    AsyncNotifierProvider<CapacitacionController, EstadoCapacitacion>(
+      CapacitacionController.new,
+    );
 
 // ---------- Catálogo ----------
 
@@ -191,12 +307,27 @@ class RealOEstafaController extends Notifier<RealOEstafaEstado> {
   RealOEstafaController(this.actividad);
 
   final Actividad actividad;
+  late DateTime _inicio;
 
   List<TarjetaRealOEstafa> get tarjetas =>
       EvaluadorRealOEstafa.tarjetasDe(actividad);
 
+  RegistroEventos get _registro => ref.read(registroEventosProvider);
+
   @override
-  RealOEstafaEstado build() => const RealOEstafaEstado();
+  RealOEstafaEstado build() {
+    _inicio = _registro.ahora();
+    unawaited(
+      _registro.registrar(
+        EventoApp.actividadIniciada(
+          actividadId: actividad.id,
+          modulo: actividad.modulo,
+          momento: _inicio,
+        ),
+      ),
+    );
+    return const RealOEstafaEstado();
+  }
 
   TarjetaRealOEstafa? get tarjetaActual =>
       state.terminado || state.indice >= tarjetas.length
@@ -206,12 +337,23 @@ class RealOEstafaController extends Notifier<RealOEstafaEstado> {
   void responder({required bool esEstafa}) {
     final tarjeta = tarjetaActual;
     if (tarjeta == null || state.respondida) return;
+    final retro = ref
+        .read(evaluadorRealOEstafaProvider)
+        .evaluar(tarjeta, respondioEstafa: esEstafa);
     state = RealOEstafaEstado(
       indice: state.indice,
       respuestas: {...state.respuestas, tarjeta.id: esEstafa},
-      retroActual: ref
-          .read(evaluadorRealOEstafaProvider)
-          .evaluar(tarjeta, respondioEstafa: esEstafa),
+      retroActual: retro,
+    );
+    unawaited(
+      _registro.registrar(
+        EventoApp.decisionTomada(
+          itemId: tarjeta.id,
+          opcion: esEstafa ? 'ESTAFA' : 'REAL',
+          esCorrecta: retro.acerto,
+          momento: _registro.ahora(),
+        ),
+      ),
     );
   }
 
@@ -229,6 +371,18 @@ class RealOEstafaController extends Notifier<RealOEstafaEstado> {
       indice: state.indice,
       respuestas: state.respuestas,
       resultado: resultado,
+    );
+    final fin = _registro.ahora();
+    unawaited(
+      _registro.registrar(
+        EventoApp.actividadCompletada(
+          actividadId: actividad.id,
+          aciertos: resultado.aciertos,
+          total: resultado.total,
+          duracionSeg: fin.difference(_inicio).inSeconds,
+          momento: fin,
+        ),
+      ),
     );
     await ref.read(progresoProvider.notifier).registrarResultado(resultado);
   }

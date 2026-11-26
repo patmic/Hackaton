@@ -207,6 +207,13 @@ Capacitacion/
 | Tras verificar: rango opcional y, para EX5, «¿verificas por otra persona?» (marca cuidador) | `resultado_verificacion_view.dart` |
 | Pregunta opcional de rango de edad de 1 clic después de verificar; nunca se pide cédula ni nombre (Fallo 3, LOPDP) | `resultado_verificacion_view.dart` |
 | El progreso se guarda solo en el dispositivo | `progreso_repository.dart` |
+| El perfil (tipos, perfil de conducta, rango) sale de `GET /api/v1/me`; si falla, la app sigue como EX5 | `providers.dart` (`sesionProvider`, `perfilProvider`) |
+| «Quiero capacitarme»: consentimiento (qué se mide, frecuencia, cómo salir); con cuenta usa el correo de la cuenta (enmascarado); sin cuenta pide correo y doble opt-in | `capacitacion_api.dart`, `capacitacion_screen.dart` |
+| Diagnóstico por la primera reacción; si reporta después de un clic, el nivel sigue siendo Básico | `escalera.dart` |
+| Escalera sobre el nivel real del correo enviado: reporta +1, ignora igual, clic −1; el siguiente correo trae al menos un indicio DEBIL o SIN_PROBAR y prefiere plantillas no enviadas | `escalera.dart`, `capacitacion_api.dart` |
+| Límites: 1 por semana, nunca 2 en 48 h, 1 al mes para Centinela; en pausa no se envía | `escalera.dart` (`LimitesEnvio`) |
+| Mapa de indicios: reporta → DOMINADO, clic → DEBIL (se muestra «Para practicar»), ignora → igual | `escalera.dart`, `capacitacion.dart` |
+| Eventos de §12 con contexto anónimo; nunca cédula, nombre, correo ni `id_seudonimo`. A2 registra inicio, decisiones y cierre | `evento_app.dart`, `registro_eventos.dart`, `providers.dart` |
 
 ### Formato del catálogo (`assets/data/actividades.json`)
 
@@ -229,8 +236,20 @@ Las pruebas de `test/domain/modelos_test.dart` validan que el catálogo cumpla e
 - Código revocado (T1, Dirección de Afiliación): `1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b`
 - Cualquier otro código de 64 caracteres hexadecimales: inexistente (ROJO).
 - `MockNucleoApi(sinConexion: true)` simula que el Núcleo no responde.
+- Sesiones de demo (`domain/sesion.dart`): sin cuenta (EX5), EX1, EX2, EX3, EX4 y cuatro colaboradores (IN1-IN4, también afiliados). Correos enmascarados en `practica.ejemplo` (ficticio).
+- Panel de demostración en «Mi capacitación»: confirmar correo, «Lo reportó», «Hizo clic», «No hizo nada» y «Pasa una semana: siguiente correo».
 - Alerta activa: +40 % de phishing T2 dirigido a 65+.
 - Para probar el App Link en Android: `adb shell am start -a android.intent.action.VIEW -d "https://app.iess.gob.ec/verificar/<código>"` (sin `assetlinks.json` el sistema pregunta con qué app abrirlo).
+
+### Contratos propuestos a los otros bloques (regla 9)
+
+| Endpoint | Estado | Qué espera la app |
+|---|---|---|
+| `GET /verificar/{hash_2}` | Del diagrama | `valido`, `remitente`, `fecha`, `emisor_nombre`, `tipologia`, `asunto_resumen`, `motivo` y `analisis_ia` (`nivel_riesgo`, `explicacion`, `indicios`). Parámetros anónimos: `canal`, `origen`, `rango_etario`, `tipologia_percibida` |
+| `GET /api/v1/me` | §12 | `tipos`, `perfil_conducta`, `rango_etario`, `correo_enmascarado` |
+| `POST /api/v1/eventos` | §12 | Lista de eventos `{evento, momento, tipo_usuario, perfil_conducta, rango_etario, es_cuidador, canal, datos}` |
+| `POST /api/v1/capacitacion/inscribir` | §12 | `consentimiento` (`version`, `aceptado_en`) y `correo` solo sin cuenta |
+| `GET /api/v1/capacitacion/estado`, `POST …/pausar`, `…/reanudar`, `…/salir` | **Nuevos [PROPUESTO]** | Estado: fase, nivel inicial, nivel del próximo correo, último desenlace, mapa de indicios |
 
 ### Pendiente para la fase 7 (App Links en producción)
 
