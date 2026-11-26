@@ -17,11 +17,22 @@ Hackatón del IESS (Ecuador), reto **«Seguridad inteligente, cultura consciente
 
 Rangos de edad anonimizados: `18-29`, `30-49`, `50-64` y `65+`.
 
-**Fuentes de contexto en el repo:**
+**Fuentes de contexto en el repo (en orden de prioridad):**
+- `Capacitacion/CLAUDE.md`: contexto completo del producto (indicios I1-I11, tipos de usuario EX/IN, módulos M1-M14, mecánicas A1-A9, flujo «Quiero capacitarme», contratos). **Manda lo marcado [DECIDIDO].** Reemplaza a la carpeta `Clasificacion/`, que no existe en el repo.
+- `diagramas/diagrama.drawio.xml`: arquitectura del equipo. Proxy SMTP con Hash 1 (identidad del remitente) y Hash 2 (contenido), botón «Verificar en App» que abre la app con el Hash 2 por App Link, `GET /verificar/{hash_2}`, IA de análisis y «API de Capacitación».
 - `inteligencia_colectiva_flujos_t_cnicos_mvp_y_an_lisis_del_d_cimo_hombre.md`: documento técnico del MVP, contratos de API y los 6 fallos del Décimo Hombre.
 - `obsidian/`: investigación. Las notas más útiles son `1-Investigacion/07 Evidencia cientifica.md` y `1-Investigacion/09 Criterios de diseno.md`.
-- `Clasificacion/`: contexto principal del módulo. **Todavía no se ha revisado.**
 - `recursos/Boilerplate/ThemeGreen/`: sistema de diseño que se usará en la etapa visual.
+
+### Decisiones del 2026-11-26
+
+| Tema | Decisión |
+|---|---|
+| Ubicación | Todo va en `Capacitacion/`. La app Flutter queda en la raíz de esa carpeta. |
+| Verificación | La app consume `GET /verificar/{hash_2}` (el del diagrama) con un **adaptador** que lo traduce al semáforo del dominio. Si el Núcleo pasa a `POST /api/v1/verify`, solo cambia el adaptador. |
+| API de Capacitación | Solo **cliente + mock** en Flutter. La API real la construye otro bloque. |
+| IA de análisis | La hace **otro bloque**. La app solo muestra la explicación que devuelve el servidor. |
+| Fuera de alcance | Consola interna web (emitir, observatorio, revocación, roles) y mecánicas A8/A9 para internos. |
 
 ### División del equipo
 
@@ -45,7 +56,9 @@ Rangos de edad anonimizados: `18-29`, `30-49`, `50-64` y `65+`.
 
 ---
 
-## 3. Recuperar el trabajo ya hecho (PRIMER PASO)
+## 3. Recuperar el trabajo ya hecho (HECHO el 2026-11-26)
+
+Los commits del bundle ya están en la rama local `capacitacion-flutter`, integrada con `main` (merge `6ce9a72`) y con `origin/main` (merge `631361a`). Esta sección queda como referencia por si otro integrante necesita repetirlo.
 
 Hay 7 commits que se hicieron en una sesión en la nube y **no se pudieron subir a GitHub** (error 403 por permisos). Vienen en el archivo `capacitacion.bundle`, que acompaña a este documento.
 
@@ -111,7 +124,7 @@ flutter run
 flutter build web --no-web-resources-cdn
 ```
 
-**Estado actual:** `flutter analyze` no reporta problemas y las **40 pruebas pasan**.
+**Estado actual:** en la sesión en la nube, `flutter analyze` no reportó problemas y las **40 pruebas pasaron**. Desde el 2026-11-26 se trabaja en una máquina sin Flutter (la red no permitió descargar el SDK), así que los commits marcados **«sin verificar»** todavía no pasaron por `dart format`, `flutter analyze` ni `flutter test`. En cuanto haya Flutter, hay que correr los tres comandos y corregir en un commit aparte.
 
 ### Cosas a tener en cuenta
 
@@ -193,55 +206,45 @@ Capacitacion/
 
 ---
 
-## 7. Supuestos que hay que revisar
+## 7. Diferencias encontradas al revisar contra `Capacitacion/CLAUDE.md` y el diagrama
 
-La carpeta `Clasificacion/` **no estaba disponible** cuando se escribió el código. Todo lo siguiente es propuesta y se debe validar contra ella:
+| # | Código recuperado | Lo que piden CLAUDE.md o el diagrama |
+|---|---|---|
+| 1 | 7 «cápsulas» con señales en texto libre | Módulos M1-M14, actividades en el JSON de la §12, indicios I1-I11 y mecánicas A1-A9 |
+| 2 | Segmenta solo por rango de edad | Tipo de usuario EX1-EX5 / IN1-IN4 (desde `GET /api/v1/me`, nunca autodeclarado) y perfil de conducta |
+| 3 | Audio para 65+ | Audio para **EX2** por tipo, no por edad declarada (§14) |
+| 4 | Pesos de recomendación por rango | Rutas por tipo (§10.4) y refuerzo según el ataque activo |
+| 5 | `POST /api/v1/verify` y Black List por remitente | `GET /verificar/{hash_2}`, con entrada por App Link desde el botón del correo |
+| 6 | Sin flujo de capacitación | Flujo «Quiero capacitarme», consentimiento, eventos, mapa de indicios, «Expuesto» mostrado como «en aprendizaje», pregunta de cuidador |
 
-- Las 7 cápsulas de `assets/data/capsulas.json`: títulos, textos, señales y casos del quiz.
-- Los pesos del motor de recomendación.
-- Los formatos (TEXTO / AUDIO / QUIZ). El audio todavía no reproduce nada: solo es una etiqueta.
-- Si «clasificación» se refiere a otra cosa, como clasificar correos o usuarios, hay que replantear el dominio.
+### Avisos del Décimo Hombre
+
+- **El botón «Verificar en App» es un enlace dentro del correo.** Un atacante puede copiarlo y apuntarlo a su sitio. Se acepta solo como **App Link verificado** (Android `autoVerify`, iOS Universal Links) sobre un dominio oficial, y la app siempre muestra remitente, fecha y asunto sellados para comparar (Fallo 2). Un esquema propio (`iess://`) lo puede capturar otra app: solo para desarrollo. Hay que validarlo con el equipo, porque la §5.2 de CLAUDE.md dice «nunca deep links».
+- **Cambios de contrato que hay que avisar a los Bloques 1 y 3 (regla 9):** que `GET /verificar/{hash_2}` responda con remitente, fecha, tipología, asunto y el análisis de la IA, y endpoints para consultar el estado de la capacitación, pausarla y salir (no están en la §12).
 
 ---
 
-## 8. Próximas fases (proponer al usuario antes de implementar)
+## 8. Fases (confirmadas el 2026-11-26)
 
-**Fase A. Revisar `Clasificacion/`**
-- Leer toda la carpeta y compararla con las secciones 6 y 7.
-- Presentar al usuario la lista de diferencias y los cambios propuestos.
-- Ajustar el dominio, el catálogo y las pruebas.
+Cada fase termina con `dart format`, `flutter analyze`, `flutter test` y un commit cuyo hash se comunica.
 
-**Fase B. Diseño móvil con ThemeGreen**
-- Traducir `recursos/Boilerplate/ThemeGreen/tokens/tokens.json` a un `ThemeData` oscuro, por ejemplo en `lib/src/presentation/theme/theme_green.dart`:
-  - **Colores:** fondo `--bg #070807`; texto `--ink #f4f6f1`, `--ink-dim #8b918a` y `--ink-faint #4a4f49`.
-  - **Acento:** lima `#9dff32`, con texto encima `--on-lime #0c1206`. Se usa **solo para la acción principal y el estado activo**.
-  - **Colores secundarios:** blue `#4c8dff`, sky `#8ec6ea`, cyan `#4fd3e6`, live `#ff4d6d` y warn `#ff8b6b`.
-  - **Tipografía:** Plus Jakarta Sans y, para códigos y hashes, IBM Plex Mono. Usar el paquete `google_fonts` o incluir las fuentes como assets.
-  - **Radios y formas:** pill 999, xl 26, lg 18, md 16, sm 12. Los botones van en forma de píldora (`tg-btn`). Las tarjetas son de vidrio con gradiente azul y verde (`tg-card`, `tg-linkcard`).
-- Mapear tipologías a colores, en una propuesta coherente con ThemeGreen.
-- Para el semáforo: VERDE = lima, AMARILLO = warn, ROJO = live.
-- Accesibilidad para 65+: texto grande, buen contraste, objetivos táctiles de al menos 48 px y respeto de las animaciones reducidas.
-- Revisar el README de ThemeGreen, que tiene las reglas de uso, y el `home/index.html` de referencia.
-
-**Fase C. Diseño web**
-- Versión web adaptable (puntos de corte de 760 y 820 px, como ThemeGreen). Puede ser la misma app Flutter web o una página HTML con `tokens.css` y `components.css` de ThemeGreen. Hay que preguntar al usuario qué prefiere.
-
-**Fase D. Integración real**
-- Implementar `HttpNucleoApi` contra la API del Bloque 3 y sobrescribir `nucleoApiProvider`.
-- Si el Núcleo expone un endpoint de alertas, consumirlo desde `alertasProvider`.
-- Opcional: escáner de QR dentro de la app (el payload es texto, nunca una URL).
-
-**Fase E. Contenido**
-- Reproductor real para cápsulas de audio.
-- Más cápsulas y más casos de quiz.
-- Revisión de textos con el equipo de Comunicación.
+| Fase | Contenido |
+|---|---|
+| 0 · Base | Mover esta guía a `Capacitacion/docs/` y anotar las decisiones. |
+| 1 · Dominio | Indicios I1-I11 con su microcurso, tipos EX/IN y zona, perfil de conducta, módulos M1-M14, mecánicas A1-A9, modelo 4R. `Actividad` (JSON §12) reemplaza a `Capsula`. Recomendación por la ruta del tipo (§10.4), audio para EX2. |
+| 2 · Verificación | Adaptador `GET /verificar/{hash_2}` → semáforo. Entrada por App Link (`go_router`) y por código pegado. Explicación de la IA del servidor y microcurso del indicio. Rango opcional y «¿verificas por otra persona?». |
+| 3 · API de Capacitación | Cliente + mock de `/me`, `/eventos` y `/capacitacion/inscribir`. Sesión simulada por tipo. Flujo «Quiero capacitarme» con consentimiento, pausa y salida. El mock aplica diagnóstico, escalera y límites, con un panel de demo. |
+| 4 · Mecánicas | Componentes A1, A2, A3, A6 y A7 que leen el JSON de actividad y emiten eventos. |
+| 5 · Diseño móvil | ThemeGreen como `ThemeData` oscuro, fuentes como assets, semáforo lima/warn/live, tipologías T1 blue, T2 violet, T3 cyan, modo EX2 accesible. |
+| 6 · Diseño web | Cortes 760 y 820 px. Preguntar al usuario: Flutter web o HTML con `tokens.css`. |
+| 7 · Integración y contenido | Clientes HTTP reales (`--dart-define`), archivos de App Links documentados, audio real, A4, A5, más actividades. |
 
 ---
 
 ## 9. Cómo trabajar
 
-1. Recupera los commits del bundle (sección 3) y comprueba que `flutter analyze` y `flutter test` pasan.
-2. Revisa `Clasificacion/` (Fase A) y **presenta las fases** al usuario antes de tocar código.
+1. Comprueba que `flutter analyze` y `flutter test` pasan (los commits «sin verificar» pueden necesitar correcciones).
+2. Sigue las fases de la sección 8 y **presenta al usuario** cualquier fase nueva antes de tocar código.
 3. Por cada fase: implementa, ejecuta `dart format`, `flutter analyze` y `flutter test`, haz el commit y **comunica el hash y el mensaje**.
 4. Mantén separadas la lógica (`domain`, `application`) y la presentación. El diseño no debe cambiar las reglas de negocio.
 5. No guardes datos personales. El rango de edad es opcional y anonimizado.
