@@ -1,4 +1,5 @@
-export 'capsula_para_verificacion.dart';
-export 'evaluador_quiz.dart';
-export 'filtro_capsulas.dart';
+export 'actividad_para_verificacion.dart';
+export 'evaluador_real_o_estafa.dart';
+export 'filtro_actividades.dart';
 export 'motor_recomendacion.dart';
+export 'plan_capacitacion.dart';

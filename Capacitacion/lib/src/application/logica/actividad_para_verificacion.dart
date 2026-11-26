@@ -1,11 +1,11 @@
 import '../../domain/domain.dart';
 
-/// Elige la cápsula que se ofrece después de verificar un correo:
-/// la de la tipología suplantada, dirigida al rango del usuario y,
-/// si es posible, pendiente.
-Capsula? capsulaParaVerificacion({
+/// Elige la actividad que se ofrece después de verificar un correo: la de la
+/// tipología suplantada, que le corresponda al usuario y, si es posible,
+/// pendiente y corta.
+Actividad? actividadParaVerificacion({
   required ResultadoVerificacion resultado,
-  required List<Capsula> capsulas,
+  required List<Actividad> actividades,
   required Perfil perfil,
   required Progreso progreso,
 }) {
@@ -15,11 +15,9 @@ Capsula? capsulaParaVerificacion({
           ? resultado.metadatosOficiales?.tipologia
           : null);
 
-  final rango = perfil.rangoEtario;
-  final candidatas = capsulas.where((c) {
-    if (tipologia != null && c.tipologia != tipologia) return false;
-    if (rango != null && !c.dirigidaA(rango)) return false;
-    return true;
+  final candidatas = actividades.where((a) {
+    if (!a.elegiblePara(perfil)) return false;
+    return tipologia == null || a.tipologia == tipologia;
   }).toList();
   if (candidatas.isEmpty) return null;
 

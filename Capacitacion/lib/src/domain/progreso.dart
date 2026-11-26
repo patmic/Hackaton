@@ -15,33 +15,33 @@ class Progreso {
         ),
   );
 
-  /// Ids de cápsulas vistas hasta el final.
+  /// Ids de actividades terminadas.
   final Set<String> completadas;
 
-  /// Mejor puntaje (0.0 a 1.0) por id de cápsula con quiz.
+  /// Mejor puntaje (0.0 a 1.0) por id de actividad evaluada.
   final Map<String, double> mejoresPuntajes;
 
-  bool estaCompletada(String capsulaId) => completadas.contains(capsulaId);
+  bool estaCompletada(String actividadId) => completadas.contains(actividadId);
 
-  Progreso marcarCompletada(String capsulaId) => Progreso(
-    completadas: {...completadas, capsulaId},
+  Progreso marcarCompletada(String actividadId) => Progreso(
+    completadas: {...completadas, actividadId},
     mejoresPuntajes: mejoresPuntajes,
   );
 
-  Progreso registrarPuntaje(String capsulaId, double puntaje) {
-    final anterior = mejoresPuntajes[capsulaId] ?? 0;
+  Progreso registrarPuntaje(String actividadId, double puntaje) {
+    final anterior = mejoresPuntajes[actividadId] ?? 0;
     return Progreso(
-      completadas: {...completadas, capsulaId},
+      completadas: {...completadas, actividadId},
       mejoresPuntajes: {
         ...mejoresPuntajes,
-        capsulaId: puntaje > anterior ? puntaje : anterior,
+        actividadId: puntaje > anterior ? puntaje : anterior,
       },
     );
   }
 
-  /// Porcentaje (0.0 a 1.0) de cápsulas completadas sobre un total.
-  double avance(int totalCapsulas) =>
-      totalCapsulas == 0 ? 0 : completadas.length / totalCapsulas;
+  /// Porcentaje (0.0 a 1.0) de actividades completadas sobre un total.
+  double avance(int totalActividades) =>
+      totalActividades == 0 ? 0 : completadas.length / totalActividades;
 
   Map<String, dynamic> toJson() => {
     'completadas': completadas.toList()..sort(),

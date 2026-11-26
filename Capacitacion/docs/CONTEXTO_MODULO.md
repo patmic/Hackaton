@@ -134,53 +134,56 @@ flutter build web --no-web-resources-cdn
 
 ---
 
-## 5. Arquitectura
+## 5. Arquitectura (actualizada en la fase 1)
 
 ```
 Capacitacion/
-├── assets/data/capsulas.json          # catálogo (7 cápsulas)
+├── CLAUDE.md                          # contexto del producto (fuente principal)
+├── docs/CONTEXTO_MODULO.md            # esta guía
+├── assets/data/actividades.json       # catálogo: 9 actividades (M1-M7), JSON de CLAUDE.md §12
 ├── lib/
 │   ├── main.dart                      # ProviderScope + arranque
 │   └── src/
 │       ├── app.dart                   # MaterialApp (aquí irá el ThemeData de ThemeGreen)
 │       ├── domain/                    # Dart puro, sin Flutter
-│       │   ├── tipologia.dart         # enum T1/T2/T3
-│       │   ├── rango_etario.dart      # enum 18-29…65+, esAdultoMayor
-│       │   ├── formato_capsula.dart   # TEXTO / AUDIO / QUIZ
-│       │   ├── capsula.dart           # micro-cápsula + fromJson
-│       │   ├── correo_ejemplo.dart    # correo ficticio del quiz
-│       │   ├── pregunta_quiz.dart
-│       │   ├── resultado_quiz.dart    # Retroalimentacion, ResultadoQuiz
-│       │   ├── progreso.dart          # completadas + mejores puntajes (JSON)
-│       │   ├── perfil.dart            # rango opcional (anónimo)
-│       │   ├── alerta_observatorio.dart
-│       │   ├── verificacion.dart      # Semaforo, Solicitud/ResultadoVerificacion, MetadatosOficiales
+│       │   ├── indicio.dart           # I1-I11 (§6)
+│       │   ├── microcurso.dart        # microcurso por indicio (§11)
+│       │   ├── tipo_usuario.dart      # EX1-EX5, IN1-IN4 y Zona (§7)
+│       │   ├── perfil_conducta.dart   # Centinela, Prudente, Expuesto («En aprendizaje»)…
+│       │   ├── mecanica.dart          # A1-A9 y Paso4R
+│       │   ├── modulo.dart            # M1-M14 (§10.2), catálogo constante
+│       │   ├── ruta.dart              # rutas por tipo (§10.4)
+│       │   ├── mensaje_simulado.dart  # mensaje ficticio y zonas de señal (A1)
+│       │   ├── contenido_actividad.dart # contenido por mecánica (sealed)
+│       │   ├── actividad.dart         # actividad + elegibilidad por tipo
+│       │   ├── perfil.dart            # tipos, perfil de conducta, rango opcional, cuidador
+│       │   ├── progreso.dart, resultado_actividad.dart, alerta_observatorio.dart
+│       │   ├── verificacion.dart      # Semaforo, Solicitud/ResultadoVerificacion
+│       │   ├── tipologia.dart, rango_etario.dart, json.dart
 │       │   └── domain.dart            # barrel
 │       ├── data/
-│       │   ├── capsula_repository.dart   # interfaz + Asset (JSON) + Memoria
+│       │   ├── actividad_repository.dart # interfaz + Asset (JSON) + Memoria
 │       │   ├── progreso_repository.dart  # interfaz + SharedPreferencesAsync + Memoria
 │       │   └── nucleo_api.dart           # interfaz NucleoApi + MockNucleoApi
 │       ├── application/
-│       │   ├── logica/
-│       │   │   ├── filtro_capsulas.dart
-│       │   │   ├── motor_recomendacion.dart
-│       │   │   ├── evaluador_quiz.dart
-│       │   │   └── capsula_para_verificacion.dart
+│       │   ├── logica/  plan_capacitacion, motor_recomendacion, filtro_actividades,
+│       │   │            evaluador_real_o_estafa, actividad_para_verificacion
 │       │   └── providers.dart         # todos los providers de Riverpod
 │       └── presentation/
-│           ├── screens/  inicio_screen (NavigationBar con 4 pestañas), para_ti_tab,
-│           │             verificar_tab, catalogo_tab, progreso_tab, capsula_screen, quiz_screen
-│           └── widgets/  capsula_tile, selector_rango, vista_async
-└── test/  domain/, logica/, data/, presentation/flujos_test.dart, widget_test.dart, helpers.dart
+│           ├── screens/  inicio_screen (4 pestañas), para_ti_tab, verificar_tab,
+│           │             catalogo_tab, progreso_tab, actividad_screen, real_o_estafa_screen
+│           └── widgets/  actividad_tile, mensaje_card, selector_rango, vista_async
+└── test/  domain/ (modelos, rutas), logica/, data/, presentation/flujos_test.dart, widget_test.dart
 ```
 
 ### Providers principales (`application/providers.dart`)
 
-- **Dependencias:** `capsulaRepositoryProvider`, `progresoRepositoryProvider` y `nucleoApiProvider`. Se sobrescriben en las pruebas.
-- **Catálogo y filtros:** `catalogoProvider`, `capsulaPorIdProvider(id)`, `filtroProvider` y `capsulasFiltradasProvider`.
-- **Usuario:** `perfilProvider` y `progresoProvider` (AsyncNotifier que persiste el progreso).
-- **Recomendaciones:** `alertasProvider` (si el Núcleo falla, devuelve una lista vacía) y `recomendacionesProvider`.
-- **Quiz y verificación:** `quizProvider(capsula)` (family autoDispose) y `verificacionProvider`.
+- **Dependencias:** `actividadRepositoryProvider`, `progresoRepositoryProvider` y `nucleoApiProvider`. Se sobrescriben en las pruebas.
+- **Perfil:** `perfilProvider` (tipos, perfil de conducta, rango, cuidador). `asignarTipos` lo usará la sesión de la fase 3.
+- **Catálogo:** `catalogoProvider`, `actividadPorIdProvider(id)`, `actividadesDelPerfilProvider`, `filtroProvider` y `actividadesFiltradasProvider`.
+- **Progreso:** `progresoProvider` (AsyncNotifier que persiste en el dispositivo).
+- **Recomendaciones:** `alertasProvider` (si el Núcleo falla, lista vacía) y `recomendacionesProvider`.
+- **Mecánicas y verificación:** `realOEstafaProvider(actividad)` (family autoDispose) y `verificacionProvider`.
 
 ---
 
@@ -188,14 +191,34 @@ Capacitacion/
 
 | Regla | Dónde |
 |---|---|
-| Filtro por tipología, rango, formato y solo pendientes | `filtro_capsulas.dart` |
-| Recomendación por puntaje: alerta del Observatorio (+100 + % de incremento) > rango del usuario (+30) > pendiente (+20); audio para 65+ (+15); repaso si el puntaje es < 50 % (+25); completada (−50). Con rango conocido se excluyen las cápsulas de otros rangos | `motor_recomendacion.dart` |
-| Quiz **formativo, no punitivo**: siempre muestra la explicación; marcar un correo real como estafa se trata como prudencia. El castigo reduce el reporte (ver evidencia en Obsidian) | `evaluador_quiz.dart` |
-| Verificación simulada (`POST /api/v1/verify`): dominio en Black List → ROJO (aunque traiga un hash válido); hash válido → VERDE **con metadatos sellados** (Fallo 2: nunca decir solo «es válido»); revocado → ROJO; vencido, sin sello, desconocido o mal formado → AMARILLO | `nucleo_api.dart` |
-| Tras verificar se sugiere la cápsula de la tipología suplantada, del rango del usuario, pendiente y más corta | `capsula_para_verificacion.dart` |
+| Sin sesión el usuario es EX5; el tipo nunca se autodeclara | `perfil.dart` |
+| Un EX2 usa la interfaz simplificada y ve la `variante_ex2` en audio; lo decide el tipo, no la edad (§14) | `perfil.dart`, `actividad.dart` |
+| Una actividad le corresponde al usuario si su módulo y sus `tipos` lo incluyen; M10 y M14 también se abren a Centinelas | `actividad.dart`, `modulo.dart` |
+| Rutas de arranque y refuerzo por tipo; con varios tipos se juntan sin repetir; Centinela suma M14 | `ruta.dart`, `plan_capacitacion.dart` |
+| Recomendación: alerta del Observatorio (+100 + % de incremento) > paso de la ruta de inicio (80, 70, 60…, mínimo 50) > refuerzo (+40) > pendiente (+20); repaso si el puntaje es < 50 % (+25); completada (−50). Desempate por duración y luego por id | `motor_recomendacion.dart` |
+| EX1 refuerza con M4, M5 o M6 según la tipología del ataque activo; EX2 suma M4 si la campaña es T2; EX5 recibe M10 si verifica por otra persona | `ruta.dart` |
+| Microcurso por indicio (§11). I8: M7 para EX2, M4 los demás. I5: M11 internos, M9 EX4, M8 EX3; **[SUPUESTO]** M1 para EX1, EX2 y EX5 | `microcurso.dart` |
+| «Expuesto» se muestra como «En aprendizaje» (regla 7) | `perfil_conducta.dart` |
+| A2 **formativo, no punitivo**: siempre muestra la explicación; marcar un correo real como estafa se trata como prudencia | `evaluador_real_o_estafa.dart` |
+| Verificación simulada (`POST /api/v1/verify`): dominio en Black List → ROJO (aunque traiga un hash válido); hash válido → VERDE **con metadatos sellados** (Fallo 2); revocado → ROJO; vencido, sin sello, desconocido o mal formado → AMARILLO | `nucleo_api.dart` |
+| Tras verificar se sugiere la actividad de la tipología suplantada que le corresponda al tipo, pendiente y más corta | `actividad_para_verificacion.dart` |
 | Pregunta opcional de rango de edad de 1 clic después de verificar; nunca se pide cédula ni nombre (Fallo 3, LOPDP) | `verificar_tab.dart` |
-| La verificación ocurre dentro de la app, nunca en la página que abre un QR (Fallo 1) | `verificar_tab.dart`, cápsula `t1-qr-falso` |
-| El progreso se guarda solo en el dispositivo y no se envía al Núcleo | `progreso_repository.dart` |
+| El progreso se guarda solo en el dispositivo | `progreso_repository.dart` |
+
+### Formato del catálogo (`assets/data/actividades.json`)
+
+Cada actividad sigue el JSON de CLAUDE.md §12 (`id`, `modulo`, `mecanica`, `paso_4r`, `tipos`, `tipologia`, `indicios`, `variante_ex2`, `duracion_seg`, `mensaje_clave`) más dos campos para listarla (`titulo`, `resumen`) y el contenido de su mecánica:
+
+| Mecánica | Campos |
+|---|---|
+| A1 Caza la señal | `mensaje` (`remitente`, `asunto`, `cuerpo` con párrafos separados por `
+`, y opcionales `boton`, `adjunto`, `qr`, `codigo_verificacion`) y `senales` (`id` del indicio, `zona`: `remitente`, `asunto`, `cuerpo:N`, `boton`, `adjunto` o `qr`, y `feedback`) |
+| A2 ¿Real o estafa? | `tarjetas`: 5, cada una con `mensaje`, `es_estafa`, `explicacion`, `indicios` |
+| A3 Bandeja simulada | `bandeja`: 5, cada una con `mensaje`, `accion_correcta` (`CONFIAR`, `VERIFICAR`, `REPORTAR`), `explicacion`, `indicios` |
+| A6 Verifica en 3 pasos | `casos`: cada uno con `mensaje` (con `codigo_verificacion`), `es_estafa`, `explicacion`, `indicios` |
+| A7 Audio-reto | `audio` (`guion`, `url`) y `opciones`: 2, una correcta |
+
+Las pruebas de `test/domain/modelos_test.dart` validan que el catálogo cumpla estas reglas.
 
 ### Datos de prueba del Núcleo simulado
 

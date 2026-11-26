@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/capsula_repository.dart';
+import '../data/actividad_repository.dart';
 import '../data/nucleo_api.dart';
 import '../data/progreso_repository.dart';
 import '../domain/domain.dart';
@@ -8,8 +8,8 @@ import 'logica/logica.dart';
 
 // ---------- Dependencias (se sobrescriben en pruebas) ----------
 
-final capsulaRepositoryProvider = Provider<CapsulaRepository>(
-  (ref) => AssetCapsulaRepository(),
+final actividadRepositoryProvider = Provider<ActividadRepository>(
+  (ref) => AssetActividadRepository(),
 );
 
 final progresoRepositoryProvider = Provider<ProgresoRepository>(
@@ -20,7 +20,9 @@ final motorRecomendacionProvider = Provider(
   (ref) => const MotorRecomendacion(),
 );
 
-final evaluadorQuizProvider = Provider((ref) => const EvaluadorQuiz());
+final evaluadorRealOEstafaProvider = Provider(
+  (ref) => const EvaluadorRealOEstafa(),
+);
 
 /// Núcleo simulado hasta que el Bloque 3 publique su API.
 final nucleoApiProvider = Provider<NucleoApi>(
@@ -37,51 +39,6 @@ final alertasProvider = FutureProvider<List<AlertaObservatorio>>((ref) async {
   }
 });
 
-// ---------- Catálogo ----------
-
-final catalogoProvider = FutureProvider<List<Capsula>>(
-  (ref) => ref.watch(capsulaRepositoryProvider).obtenerTodas(),
-);
-
-final capsulaPorIdProvider = FutureProvider.family<Capsula?, String>((
-  ref,
-  id,
-) async {
-  final catalogo = await ref.watch(catalogoProvider.future);
-  for (final c in catalogo) {
-    if (c.id == id) return c;
-  }
-  return null;
-});
-
-class FiltroNotifier extends Notifier<FiltroCapsulas> {
-  @override
-  FiltroCapsulas build() => const FiltroCapsulas();
-
-  void tipologia(Tipologia? valor) =>
-      state = state.copyWith(tipologia: () => valor);
-
-  void rango(RangoEtario? valor) => state = state.copyWith(rango: () => valor);
-
-  void formato(FormatoCapsula? valor) =>
-      state = state.copyWith(formato: () => valor);
-
-  void soloPendientes(bool valor) =>
-      state = state.copyWith(soloPendientes: valor);
-
-  void limpiar() => state = const FiltroCapsulas();
-}
-
-final filtroProvider = NotifierProvider<FiltroNotifier, FiltroCapsulas>(
-  FiltroNotifier.new,
-);
-
-final capsulasFiltradasProvider = FutureProvider<List<Capsula>>((ref) async {
-  final catalogo = await ref.watch(catalogoProvider.future);
-  final progreso = await ref.watch(progresoProvider.future);
-  return ref.watch(filtroProvider).aplicar(catalogo, progreso);
-});
-
 // ---------- Perfil ----------
 
 class PerfilNotifier extends Notifier<Perfil> {
@@ -89,11 +46,79 @@ class PerfilNotifier extends Notifier<Perfil> {
   Perfil build() => const Perfil();
 
   void elegirRango(RangoEtario? rango) => state = state.conRango(rango);
+
+  void marcarCuidador(bool valor) =>
+      state = state.copyWith(esCuidador: valor);
+
+  /// Los tipos y el perfil de conducta vienen de una fuente oficial
+  /// (`GET /api/v1/me`), nunca de lo que declara el usuario.
+  void asignarTipos(
+    Set<TipoUsuario> tipos, {
+    PerfilConducta perfilConducta = PerfilConducta.sinPerfil,
+  }) => state = state.copyWith(tipos: tipos, perfilConducta: perfilConducta);
 }
 
 final perfilProvider = NotifierProvider<PerfilNotifier, Perfil>(
   PerfilNotifier.new,
 );
+
+// ---------- Catálogo ----------
+
+final catalogoProvider = FutureProvider<List<Actividad>>(
+  (ref) => ref.watch(actividadRepositoryProvider).obtenerTodas(),
+);
+
+final actividadPorIdProvider = FutureProvider.family<Actividad?, String>((
+  ref,
+  id,
+) async {
+  final catalogo = await ref.watch(catalogoProvider.future);
+  for (final a in catalogo) {
+    if (a.id == id) return a;
+  }
+  return null;
+});
+
+/// Actividades que le corresponden al usuario por su tipo y perfil.
+final actividadesDelPerfilProvider = FutureProvider<List<Actividad>>((
+  ref,
+) async {
+  final perfil = ref.watch(perfilProvider);
+  final catalogo = await ref.watch(catalogoProvider.future);
+  return catalogo.where((a) => a.elegiblePara(perfil)).toList();
+});
+
+class FiltroNotifier extends Notifier<FiltroActividades> {
+  @override
+  FiltroActividades build() => const FiltroActividades();
+
+  void tipologia(Tipologia? valor) =>
+      state = state.copyWith(tipologia: () => valor);
+
+  void modulo(String? valor) => state = state.copyWith(modulo: () => valor);
+
+  void mecanica(Mecanica? valor) =>
+      state = state.copyWith(mecanica: () => valor);
+
+  void soloPendientes(bool valor) =>
+      state = state.copyWith(soloPendientes: valor);
+
+  void limpiar() => state = const FiltroActividades();
+}
+
+final filtroProvider = NotifierProvider<FiltroNotifier, FiltroActividades>(
+  FiltroNotifier.new,
+);
+
+final actividadesFiltradasProvider = FutureProvider<List<Actividad>>((
+  ref,
+) async {
+  final perfil = ref.watch(perfilProvider);
+  final filtro = ref.watch(filtroProvider);
+  final catalogo = await ref.watch(catalogoProvider.future);
+  final progreso = await ref.watch(progresoProvider.future);
+  return filtro.aplicar(catalogo, perfil: perfil, progreso: progreso);
+});
 
 // ---------- Progreso ----------
 
@@ -101,11 +126,11 @@ class ProgresoNotifier extends AsyncNotifier<Progreso> {
   @override
   Future<Progreso> build() => ref.watch(progresoRepositoryProvider).cargar();
 
-  Future<void> marcarCompletada(String capsulaId) =>
-      _actualizar((p) => p.marcarCompletada(capsulaId));
+  Future<void> marcarCompletada(String actividadId) =>
+      _actualizar((p) => p.marcarCompletada(actividadId));
 
-  Future<void> registrarResultado(ResultadoQuiz resultado) => _actualizar(
-    (p) => p.registrarPuntaje(resultado.capsulaId, resultado.puntaje),
+  Future<void> registrarResultado(ResultadoActividad resultado) => _actualizar(
+    (p) => p.registrarPuntaje(resultado.actividadId, resultado.puntaje),
   );
 
   Future<void> _actualizar(Progreso Function(Progreso) cambio) async {
@@ -125,23 +150,23 @@ final progresoProvider = AsyncNotifierProvider<ProgresoNotifier, Progreso>(
 final recomendacionesProvider = FutureProvider<List<Recomendacion>>((
   ref,
 ) async {
+  final perfil = ref.watch(perfilProvider);
+  final motor = ref.watch(motorRecomendacionProvider);
   final catalogo = await ref.watch(catalogoProvider.future);
   final progreso = await ref.watch(progresoProvider.future);
   final alertas = await ref.watch(alertasProvider.future);
-  return ref
-      .watch(motorRecomendacionProvider)
-      .recomendar(
-        capsulas: catalogo,
-        perfil: ref.watch(perfilProvider),
-        progreso: progreso,
-        alertas: alertas,
-      );
+  return motor.recomendar(
+    actividades: catalogo,
+    perfil: perfil,
+    progreso: progreso,
+    alertas: alertas,
+  );
 });
 
-// ---------- Quiz ----------
+// ---------- A2 · ¿Real o estafa? ----------
 
-class QuizEstado {
-  const QuizEstado({
+class RealOEstafaEstado {
+  const RealOEstafaEstado({
     this.indice = 0,
     this.respuestas = const {},
     this.retroActual,
@@ -151,52 +176,55 @@ class QuizEstado {
   final int indice;
   final Map<String, bool> respuestas;
 
-  /// Retroalimentación de la pregunta actual, ya respondida.
-  final Retroalimentacion? retroActual;
+  /// Retroalimentación de la tarjeta actual, ya respondida.
+  final RetroTarjeta? retroActual;
 
-  /// No null cuando el quiz terminó.
-  final ResultadoQuiz? resultado;
+  /// No null cuando la ronda terminó.
+  final ResultadoActividad? resultado;
 
   bool get terminado => resultado != null;
   bool get respondida => retroActual != null;
 }
 
-class QuizController extends Notifier<QuizEstado> {
-  QuizController(this.capsula);
+class RealOEstafaController extends Notifier<RealOEstafaEstado> {
+  RealOEstafaController(this.actividad);
 
-  final Capsula capsula;
+  final Actividad actividad;
+
+  List<TarjetaRealOEstafa> get tarjetas =>
+      EvaluadorRealOEstafa.tarjetasDe(actividad);
 
   @override
-  QuizEstado build() => const QuizEstado();
+  RealOEstafaEstado build() => const RealOEstafaEstado();
 
-  PreguntaQuiz? get preguntaActual =>
-      state.terminado || state.indice >= capsula.preguntas.length
+  TarjetaRealOEstafa? get tarjetaActual =>
+      state.terminado || state.indice >= tarjetas.length
       ? null
-      : capsula.preguntas[state.indice];
+      : tarjetas[state.indice];
 
   void responder({required bool esEstafa}) {
-    final pregunta = preguntaActual;
-    if (pregunta == null || state.respondida) return;
-    state = QuizEstado(
+    final tarjeta = tarjetaActual;
+    if (tarjeta == null || state.respondida) return;
+    state = RealOEstafaEstado(
       indice: state.indice,
-      respuestas: {...state.respuestas, pregunta.id: esEstafa},
+      respuestas: {...state.respuestas, tarjeta.id: esEstafa},
       retroActual: ref
-          .read(evaluadorQuizProvider)
-          .evaluar(pregunta, respondioEstafa: esEstafa),
+          .read(evaluadorRealOEstafaProvider)
+          .evaluar(tarjeta, respondioEstafa: esEstafa),
     );
   }
 
   Future<void> siguiente() async {
     if (!state.respondida) return;
     final proximo = state.indice + 1;
-    if (proximo < capsula.preguntas.length) {
-      state = QuizEstado(indice: proximo, respuestas: state.respuestas);
+    if (proximo < tarjetas.length) {
+      state = RealOEstafaEstado(indice: proximo, respuestas: state.respuestas);
       return;
     }
     final resultado = ref
-        .read(evaluadorQuizProvider)
-        .evaluarCapsula(capsula, state.respuestas);
-    state = QuizEstado(
+        .read(evaluadorRealOEstafaProvider)
+        .evaluarRonda(actividad, state.respuestas);
+    state = RealOEstafaEstado(
       indice: state.indice,
       respuestas: state.respuestas,
       resultado: resultado,
@@ -204,21 +232,23 @@ class QuizController extends Notifier<QuizEstado> {
     await ref.read(progresoProvider.notifier).registrarResultado(resultado);
   }
 
-  void reiniciar() => state = const QuizEstado();
+  void reiniciar() => state = const RealOEstafaEstado();
 }
 
-final quizProvider = NotifierProvider.autoDispose
-    .family<QuizController, QuizEstado, Capsula>(QuizController.new);
+final realOEstafaProvider = NotifierProvider.autoDispose
+    .family<RealOEstafaController, RealOEstafaEstado, Actividad>(
+      RealOEstafaController.new,
+    );
 
 // ---------- Verificación ----------
 
 class VerificacionEstado {
-  const VerificacionEstado({required this.resultado, this.capsula});
+  const VerificacionEstado({required this.resultado, this.actividad});
 
   final ResultadoVerificacion resultado;
 
-  /// Cápsula sugerida tras verificar.
-  final Capsula? capsula;
+  /// Actividad sugerida tras verificar.
+  final Actividad? actividad;
 }
 
 class VerificacionController extends AsyncNotifier<VerificacionEstado?> {
@@ -248,13 +278,13 @@ class VerificacionController extends AsyncNotifier<VerificacionEstado?> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final resultado = await ref.read(nucleoApiProvider).verificar(solicitud);
-      final capsula = capsulaParaVerificacion(
+      final actividad = actividadParaVerificacion(
         resultado: resultado,
-        capsulas: await ref.read(catalogoProvider.future),
+        actividades: await ref.read(catalogoProvider.future),
         perfil: perfil,
         progreso: await ref.read(progresoProvider.future),
       );
-      return VerificacionEstado(resultado: resultado, capsula: capsula);
+      return VerificacionEstado(resultado: resultado, actividad: actividad);
     });
   }
 

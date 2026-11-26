@@ -1,33 +1,45 @@
 import 'dart:io';
 
-import 'package:capacitacion/src/data/capsula_repository.dart';
+import 'package:capacitacion/src/data/actividad_repository.dart';
 import 'package:capacitacion/src/domain/domain.dart';
 
-List<Capsula> catalogoReal() =>
-    parsearCatalogo(File('assets/data/capsulas.json').readAsStringSync());
-
-Capsula capsula(
-  String id, {
-  Tipologia tipologia = Tipologia.t1,
-  List<RangoEtario> rangos = RangoEtario.values,
-  FormatoCapsula formato = FormatoCapsula.texto,
-  int duracion = 60,
-  List<PreguntaQuiz> preguntas = const [],
-}) => Capsula(
-  id: id,
-  titulo: id,
-  resumen: '',
-  tipologia: tipologia,
-  rangos: rangos,
-  formato: formato,
-  duracionSegundos: duracion,
-  mensajeClave: 'clave $id',
-  preguntas: preguntas,
+List<Actividad> catalogoReal() => parsearActividades(
+  File('assets/data/actividades.json').readAsStringSync(),
 );
 
-PreguntaQuiz pregunta(String id, {required bool esEstafa}) => PreguntaQuiz(
+Actividad actividad(
+  String id, {
+  String modulo = 'M1',
+  Mecanica mecanica = Mecanica.a1,
+  Tipologia? tipologia = Tipologia.t1,
+  Set<TipoUsuario> tipos = const {},
+  int duracion = 60,
+  String? varianteEx2,
+  ContenidoActividad contenido = const ContenidoPendiente(),
+}) => Actividad(
   id: id,
-  correo: const CorreoEjemplo(remitente: 'a@b.c', asunto: 's', cuerpo: 'c'),
-  esEstafa: esEstafa,
-  explicacion: 'exp $id',
+  modulo: modulo,
+  mecanica: mecanica,
+  titulo: id,
+  tipologia: tipologia,
+  tipos: tipos,
+  duracionSegundos: duracion,
+  varianteEx2: varianteEx2,
+  mensajeClave: 'clave $id',
+  contenido: contenido,
+);
+
+TarjetaRealOEstafa tarjeta(String id, {required bool esEstafa}) =>
+    TarjetaRealOEstafa(
+      id: id,
+      mensaje: const MensajeSimulado(remitente: 'a@b.c', asunto: 's', cuerpo: 'c'),
+      esEstafa: esEstafa,
+      explicacion: 'exp $id',
+      indicios: esEstafa ? const [Indicio.i7] : const [],
+    );
+
+Actividad rondaA2(String id, List<TarjetaRealOEstafa> tarjetas) => actividad(
+  id,
+  mecanica: Mecanica.a2,
+  contenido: ContenidoRealOEstafa(tarjetas: tarjetas),
 );

@@ -6,51 +6,55 @@ import '../helpers.dart';
 
 void main() {
   final lista = [
-    capsula('a', tipologia: Tipologia.t1),
-    capsula('b', tipologia: Tipologia.t2, rangos: [RangoEtario.r65mas]),
-    capsula('c', tipologia: Tipologia.t2, formato: FormatoCapsula.audio),
+    actividad('a', tipologia: Tipologia.t1),
+    actividad(
+      'b',
+      modulo: 'M4',
+      mecanica: Mecanica.a2,
+      tipologia: Tipologia.t2,
+    ),
+    actividad('c', modulo: 'M3', mecanica: Mecanica.a3, tipologia: null),
   ];
 
+  List<String> ids(List<Actividad> l) => l.map((a) => a.id).toList();
+
   test('sin filtros devuelve todo', () {
-    expect(const FiltroCapsulas().aplicar(lista), hasLength(3));
-    expect(const FiltroCapsulas().estaVacio, isTrue);
+    expect(const FiltroActividades().aplicar(lista), hasLength(3));
+    expect(const FiltroActividades().estaVacio, isTrue);
   });
 
-  test('combina tipología, rango y formato', () {
+  test('combina tipología, módulo y mecánica', () {
     expect(
-      const FiltroCapsulas(tipologia: Tipologia.t2)
-          .aplicar(lista)
-          .map((c) => c.id),
-      ['b', 'c'],
+      ids(const FiltroActividades(tipologia: Tipologia.t2).aplicar(lista)),
+      ['b'],
     );
+    expect(ids(const FiltroActividades(modulo: 'M3').aplicar(lista)), ['c']);
     expect(
-      const FiltroCapsulas(rango: RangoEtario.r18a29)
-          .aplicar(lista)
-          .map((c) => c.id),
-      ['a', 'c'],
+      ids(const FiltroActividades(mecanica: Mecanica.a1).aplicar(lista)),
+      ['a'],
     );
-    expect(
-      const FiltroCapsulas(
-        tipologia: Tipologia.t2,
-        formato: FormatoCapsula.audio,
-      ).aplicar(lista).map((c) => c.id),
-      ['c'],
-    );
+  });
+
+  test('con perfil deja solo lo que le corresponde', () {
+    // M4 es para EX1 y EX2: un EX5 no lo ve.
+    expect(ids(const FiltroActividades().aplicar(lista, perfil: const Perfil())), [
+      'a',
+      'c',
+    ]);
   });
 
   test('solo pendientes excluye completadas', () {
     final p = const Progreso().marcarCompletada('a');
     expect(
-      const FiltroCapsulas(soloPendientes: true)
-          .aplicar(lista, p)
-          .map((c) => c.id),
+      ids(const FiltroActividades(soloPendientes: true).aplicar(lista, progreso: p)),
       ['b', 'c'],
     );
   });
 
   test('copyWith permite volver a null', () {
-    const f = FiltroCapsulas(tipologia: Tipologia.t1);
+    const f = FiltroActividades(tipologia: Tipologia.t1, modulo: 'M1');
     expect(f.copyWith(tipologia: () => null).tipologia, isNull);
+    expect(f.copyWith(modulo: () => null).modulo, isNull);
     expect(f.copyWith(soloPendientes: true).tipologia, Tipologia.t1);
   });
 }

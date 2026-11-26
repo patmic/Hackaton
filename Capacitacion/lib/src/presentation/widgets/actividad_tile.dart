@@ -1,34 +1,34 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../domain/domain.dart';
-import '../screens/capsula_screen.dart';
+import '../screens/actividad_screen.dart';
 
 String duracionLegible(int segundos) =>
     segundos < 60 ? '$segundos s' : '${(segundos / 60).ceil()} min';
 
-class CapsulaTile extends StatelessWidget {
-  const CapsulaTile({
+class ActividadTile extends StatelessWidget {
+  const ActividadTile({
     super.key,
-    required this.capsula,
+    required this.actividad,
     this.completada = false,
     this.motivo,
   });
 
-  final Capsula capsula;
+  final Actividad actividad;
   final bool completada;
   final String? motivo;
 
   @override
   Widget build(BuildContext context) {
     final detalle = [
-      capsula.tipologia.codigo,
-      capsula.formato.etiqueta,
-      duracionLegible(capsula.duracionSegundos),
+      actividad.modulo,
+      actividad.mecanica.nombre,
+      duracionLegible(actividad.duracionSegundos),
     ].join(' · ');
     return Card(
       child: ListTile(
-        key: ValueKey('capsula-${capsula.id}'),
-        title: Text(capsula.titulo),
+        key: ValueKey('actividad-${actividad.id}'),
+        title: Text(actividad.titulo),
         subtitle: Text(motivo == null ? detalle : '$detalle\n$motivo'),
         isThreeLine: motivo != null,
         trailing: completada
@@ -36,7 +36,7 @@ class CapsulaTile extends StatelessWidget {
             : const Icon(Icons.chevron_right),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute<void>(
-            builder: (_) => CapsulaScreen(capsulaId: capsula.id),
+            builder: (_) => ActividadScreen(actividadId: actividad.id),
           ),
         ),
       ),

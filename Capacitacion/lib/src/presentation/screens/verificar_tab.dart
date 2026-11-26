@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../application/providers.dart';
 import '../../domain/domain.dart';
-import '../widgets/capsula_tile.dart';
+import '../widgets/actividad_tile.dart';
 import '../widgets/selector_rango.dart';
 
 /// Verificación de un correo dentro de la app oficial (nunca desde la
@@ -153,7 +153,7 @@ class _Resultado extends ConsumerWidget {
             ),
           ),
         ),
-        if (perfil.esAnonimo) ...[
+        if (perfil.sinRango) ...[
           const SizedBox(height: 16),
           const Text(
             'Para ayudarnos a proteger a más personas como tú, '
@@ -166,10 +166,10 @@ class _Resultado extends ConsumerWidget {
             permitirTodos: false,
           ),
         ],
-        if (estado.capsula != null) ...[
+        if (estado.actividad != null) ...[
           const SizedBox(height: 16),
           Text('Aprende a reconocerlo', style: textos.titleMedium),
-          CapsulaTile(capsula: estado.capsula!),
+          ActividadTile(actividad: estado.actividad!),
         ],
       ],
     );

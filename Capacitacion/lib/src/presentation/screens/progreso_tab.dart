@@ -9,38 +9,40 @@ class ProgresoTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final catalogo = ref.watch(catalogoProvider);
+    final actividades = ref.watch(actividadesDelPerfilProvider);
     final progreso = ref.watch(progresoProvider);
 
     return VistaAsync(
-      valor: catalogo,
-      datos: (capsulas) => VistaAsync(
+      valor: actividades,
+      datos: (lista) => VistaAsync(
         valor: progreso,
         datos: (p) {
-          final avance = p.avance(capsulas.length);
+          final hechas = lista.where((a) => p.estaCompletada(a.id)).length;
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
               Text(
-                '${p.completadas.length} de ${capsulas.length} cápsulas vistas',
+                '$hechas de ${lista.length} actividades hechas',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
-              LinearProgressIndicator(value: avance),
+              LinearProgressIndicator(
+                value: lista.isEmpty ? 0 : hechas / lista.length,
+              ),
               const SizedBox(height: 24),
-              for (final c in capsulas)
+              for (final a in lista)
                 ListTile(
                   leading: Icon(
-                    p.estaCompletada(c.id)
+                    p.estaCompletada(a.id)
                         ? Icons.check_circle
                         : Icons.radio_button_unchecked,
                   ),
-                  title: Text(c.titulo),
-                  subtitle: p.mejoresPuntajes[c.id] == null
-                      ? null
+                  title: Text(a.titulo),
+                  subtitle: p.mejoresPuntajes[a.id] == null
+                      ? Text(a.moduloInfo.nombre)
                       : Text(
-                          'Mejor resultado: '
-                          '${(p.mejoresPuntajes[c.id]! * 100).round()} %',
+                          '${a.moduloInfo.nombre} · Mejor resultado: '
+                          '${(p.mejoresPuntajes[a.id]! * 100).round()} %',
                         ),
                 ),
             ],

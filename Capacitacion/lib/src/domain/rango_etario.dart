@@ -1,5 +1,9 @@
-/// Rangos de edad anonimizados (buckets). Nunca se guarda la edad exacta
-/// ni la cédula (mitigación del Fallo 3, LOPDP).
+/// Rangos de edad anonimizados. Nunca se guarda la edad exacta ni la cédula
+/// (mitigación del Fallo 3, LOPDP).
+///
+/// El rango alimenta al Observatorio y a las alertas por segmento. No decide
+/// el formato de las actividades: eso lo hace el tipo de usuario (EX2 usa
+/// audio, CLAUDE.md §14).
 enum RangoEtario {
   r18a29('18-29'),
   r30a49('30-49'),
@@ -9,9 +13,6 @@ enum RangoEtario {
   const RangoEtario(this.codigo);
 
   final String codigo;
-
-  /// Adultos mayores: se priorizan formatos de audio y textos cortos.
-  bool get esAdultoMayor => this == RangoEtario.r65mas;
 
   static RangoEtario desdeCodigo(String codigo) => values.firstWhere(
     (r) => r.codigo == codigo,

@@ -6,9 +6,9 @@ import '../helpers.dart';
 
 void main() {
   final catalogo = [
-    capsula('t2-larga', tipologia: Tipologia.t2, duracion: 120),
-    capsula('t2-corta', tipologia: Tipologia.t2, duracion: 60),
-    capsula('t3', tipologia: Tipologia.t3, rangos: [RangoEtario.r65mas]),
+    actividad('t2-larga', tipologia: Tipologia.t2, duracion: 120),
+    actividad('t2-corta', tipologia: Tipologia.t2, duracion: 60),
+    actividad('t3-ex1', modulo: 'M5', tipologia: Tipologia.t3),
   ];
 
   ResultadoVerificacion rojo(Tipologia? t) => ResultadoVerificacion(
@@ -19,27 +19,28 @@ void main() {
   );
 
   test('elige la tipología suplantada, pendiente y más corta', () {
-    final c = capsulaParaVerificacion(
+    final a = actividadParaVerificacion(
       resultado: rojo(Tipologia.t2),
-      capsulas: catalogo,
+      actividades: catalogo,
       perfil: const Perfil(),
       progreso: const Progreso().marcarCompletada('t2-corta'),
     );
-    expect(c?.id, 't2-larga');
+    expect(a?.id, 't2-larga');
   });
 
-  test('respeta el rango del usuario', () {
-    final c = capsulaParaVerificacion(
+  test('solo ofrece lo que le corresponde al tipo', () {
+    // M5 es para EX1, EX2 y EX4: un EX5 no lo ve.
+    final a = actividadParaVerificacion(
       resultado: rojo(Tipologia.t3),
-      capsulas: catalogo,
-      perfil: const Perfil(rangoEtario: RangoEtario.r18a29),
+      actividades: catalogo,
+      perfil: const Perfil(),
       progreso: const Progreso(),
     );
-    expect(c, isNull);
+    expect(a, isNull);
   });
 
   test('en verde usa la tipología de los metadatos', () {
-    final c = capsulaParaVerificacion(
+    final a = actividadParaVerificacion(
       resultado: ResultadoVerificacion(
         estado: 'LEGITIMO',
         semaforo: Semaforo.verde,
@@ -51,10 +52,10 @@ void main() {
           fecha: DateTime.utc(2026),
         ),
       ),
-      capsulas: catalogo,
-      perfil: const Perfil(),
+      actividades: catalogo,
+      perfil: const Perfil(tipos: {TipoUsuario.ex1}),
       progreso: const Progreso(),
     );
-    expect(c?.id, 't3');
+    expect(a?.id, 't3-ex1');
   });
 }
