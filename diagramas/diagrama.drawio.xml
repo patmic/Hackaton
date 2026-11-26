@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Página-1" id="t8KVqOeQ9VkIlx8RDyJj">
+    <mxGraphModel dx="1272" dy="926" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="zone_iess" parent="1" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;startSize=30;rounded=1;fontSize=13;" value="&lt;b&gt;ZONA INTERNA IESS (Intercepción, Doble Fase de Seguridad, Firma Digital y Auditoría)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="450" width="1170" x="30" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="funcionario" parent="zone_iess" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=12;" value="&lt;b&gt;Funcionario IESS&lt;/b&gt;&lt;br&gt;(Servidor Correo Interno)&lt;br&gt;&lt;br&gt;Envía correo dirigido&lt;br&gt;al ciudadano" vertex="1">
+          <mxGeometry height="95" width="165" x="30" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="proxy" parent="zone_iess" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0050ef;strokeWidth=2;fontSize=11;spacing=6;" value="&lt;b&gt;Proxy SMTP Interceptor&lt;/b&gt;&lt;br&gt;(Corta el envío antes de salir a Internet)&lt;br&gt;&lt;hr&gt;&lt;div align=&quot;left&quot;&gt;&lt;b&gt;Fase 1:&lt;/b&gt; Valida remitente en &lt;b&gt;Whitelist&lt;/b&gt;&lt;br&gt;&lt;b&gt;Fase 2:&lt;/b&gt; Revisa &lt;b&gt;topología limpia&lt;/b&gt; (anti-phishing)&lt;br&gt;&lt;b&gt;Firma Digital:&lt;/b&gt;&lt;br&gt;  • &lt;b&gt;Hash 1:&lt;/b&gt; Identidad del remitente&lt;br&gt;  • &lt;b&gt;Hash 2:&lt;/b&gt; Contenido completo del correo&lt;br&gt;&lt;b&gt;Inyecta:&lt;/b&gt; Hash 2 + Botón &quot;Verificar en App&quot;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="180" width="310" x="290" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="bloqueado" parent="zone_iess" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#7a1c1c;strokeWidth=2;fontSize=11;" value="&lt;b&gt;CORREO BLOQUEADO (550)&lt;/b&gt;&lt;br&gt;Falla Fase 1 (Whitelist) o&lt;br&gt;Fase 2 (Topología/Phishing)" vertex="1">
+          <mxGeometry height="75" width="165" x="30" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="smtp" parent="zone_iess" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=12;" value="&lt;b&gt;Servidor SMTP Externo&lt;/b&gt;&lt;br&gt;(Salida a Internet)&lt;br&gt;&lt;br&gt;Despacha el correo firmado&lt;br&gt;con Hash 2 y Botón oficial" vertex="1">
+          <mxGeometry height="95" width="190" x="950" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="db" parent="zone_iess" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Base de Datos IESS&lt;/b&gt;&lt;br&gt;(SQLite / PostgreSQL)&lt;br&gt;&lt;hr&gt;• Whitelist funcionarios&lt;br&gt;• Hash 1 y Hash 2&lt;br&gt;• Logs de auditoría" vertex="1">
+          <mxGeometry height="135" width="180" x="710" y="275" as="geometry" />
+        </mxCell>
+        <mxCell id="api" parent="zone_iess" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;strokeWidth=2;fontSize=11;spacing=6;" value="&lt;b&gt;API REST de Verificación&lt;/b&gt;&lt;br&gt;(FastAPI - HTTP / JSON)&lt;br&gt;&lt;hr&gt;&lt;div align=&quot;left&quot;&gt;• &lt;b&gt;GET /verificar/{hash_2}&lt;/b&gt;&lt;br&gt;• &lt;b&gt;GET /logs&lt;/b&gt; (Auditoría)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="105" width="220" x="335" y="305" as="geometry" />
+        </mxCell>
+        <mxCell id="logs_ui" parent="zone_iess" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" value="&lt;b&gt;Panel de Auditoría / Logs&lt;/b&gt;&lt;br&gt;Trazabilidad de envíos&lt;br&gt;aprobados y bloqueados" vertex="1">
+          <mxGeometry height="75" width="165" x="30" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="edge1" edge="1" parent="zone_iess" source="funcionario" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;fontSize=11;" target="proxy" value="&lt;b&gt;1. Envío SMTP&lt;/b&gt;&lt;br&gt;interceptado">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2a" edge="1" parent="zone_iess" source="proxy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;endArrow=classic;strokeWidth=2;fontSize=11;strokeColor=#d6b656;" target="db" value="&lt;b&gt;2. Consulta Whitelist&lt;/b&gt;&lt;br&gt;&lt;b&gt;3. Guarda Hash 1, Hash 2 y Logs&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2b" edge="1" parent="zone_iess" source="proxy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#b85450;fontSize=11;" target="bloqueado" value="&lt;b&gt;Falla Fase 1 o 2&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" edge="1" parent="zone_iess" source="proxy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0050ef;fontSize=11;" target="smtp" value="&lt;b&gt;4. Pasa ambas fases:&lt;/b&gt;&lt;br&gt;Envía con Hash 2 + Botón">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" edge="1" parent="zone_iess" source="api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;endArrow=classic;strokeWidth=2;strokeColor=#9673a6;fontSize=11;" target="db" value="&lt;b&gt;Consulta Hash 2&lt;/b&gt;&lt;br&gt;y Logs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_logs" edge="1" parent="zone_iess" source="logs_ui" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;endArrow=classic;strokeWidth=2;strokeColor=#666666;fontSize=11;" target="api" value="&lt;b&gt;GET /logs&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y-SMOEw0dRZQqDw-F6az-6" edge="1" parent="zone_iess" source="bloqueado" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0;entryDx=0;entryDy=12;entryPerimeter=0;defaultLabelBackgroundColor=page;labelPadding=0 4;" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_ext" parent="1" style="swimlane;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;startSize=30;rounded=1;fontSize=13;" value="&lt;b&gt;ZONA EXTERNA (Ciudadano, App Oficial en Play Store e Inteligencia Artificial)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="420" width="1170" x="30" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="ciudadano" parent="zone_ext" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;" value="&lt;b&gt;Destinatario Externo&lt;/b&gt;&lt;br&gt;(Ciudadano)&lt;br&gt;&lt;br&gt;Recibe correo con &lt;b&gt;Hash 2&lt;/b&gt;&lt;br&gt;y pulsa botón &lt;b&gt;&quot;Verificar&quot;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="110" width="190" x="950" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="app_ia" parent="zone_ext" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=11;spacing=6;" value="&lt;b&gt;App Oficial IESS (Play Store)&lt;/b&gt;&lt;br&gt;+ &lt;b&gt;IA Propia Entrenada&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;div align=&quot;left&quot;&gt;• Recibe Hash 2 vía App Link&lt;br&gt;• Compara contra hash almacenado&lt;br&gt;• IA analiza riesgo y educa al usuario&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="230" x="330" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="res_ok" parent="zone_ext" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#2d7600;fontColor=#1a4d00;strokeWidth=2;fontSize=11;" value="&lt;b&gt;CORREO AUTÉNTICO&lt;/b&gt;&lt;br&gt;Hash 2 coincide con el servidor.&lt;br&gt;Muestra remitente verificado y fecha." vertex="1">
+          <mxGeometry height="80" width="200" x="30" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="res_err" parent="zone_ext" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#7a1c1c;strokeWidth=2;fontSize=11;" value="&lt;b&gt;ALERTA DE PHISHING&lt;/b&gt;&lt;br&gt;Hash inexistente o correo alterado.&lt;br&gt;IA explica señales de alerta." vertex="1">
+          <mxGeometry height="85" width="200" x="30" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" edge="1" parent="zone_ext" source="ciudadano" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#82b366;fontSize=11;" target="app_ia" value="&lt;b&gt;6. Pulsa botón &quot;Verificar&quot;&lt;/b&gt;&lt;br&gt;(Abre App Oficial con Hash 2)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge9a" edge="1" parent="zone_ext" source="app_ia" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#2d7600;fontSize=11;" target="res_ok" value="&lt;b&gt;8a. Coincide&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge9b" edge="1" parent="zone_ext" source="app_ia" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#b85450;fontSize=11;" target="res_err" value="&lt;b&gt;8b. No coincide&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" edge="1" parent="1" source="smtp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;fontSize=11;" target="ciudadano" value="&lt;b&gt;5. Entrega correo&lt;/b&gt;&lt;br&gt;con firma digital (Hash 2)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" edge="1" parent="1" source="app_ia" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;endArrow=classic;strokeWidth=2;strokeColor=#9673a6;fontSize=11;" target="api" value="&lt;b&gt;7. GET /verificar/{hash_2}&lt;/b&gt;&lt;br&gt;Compara contra hash almacenado">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y-SMOEw0dRZQqDw-F6az-2" edge="1" parent="1" source="y-SMOEw0dRZQqDw-F6az-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;labelPadding=0 4;" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y-SMOEw0dRZQqDw-F6az-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;strokeWidth=2;fontSize=11;spacing=6;" value="&lt;b&gt;API de Capacitación&lt;/b&gt;" vertex="1">
+          <mxGeometry height="105" width="220" x="720" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="y-SMOEw0dRZQqDw-F6az-5" edge="1" parent="1" source="app_ia" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;labelPadding=0 4;" target="y-SMOEw0dRZQqDw-F6az-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="475" y="862.5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
