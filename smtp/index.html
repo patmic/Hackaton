@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IESS · Generador de Firma Digital y Sello de Cera (SHA-256 + Salt)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="../recursos/Boilerplate/ThemeGreen/tokens/tokens.css">
+  <link rel="stylesheet" href="../recursos/Boilerplate/ThemeGreen/components/components.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="tg-body">
+
+  <div class="smtp-bg-glow" aria-hidden="true"></div>
+
+  <div class="smtp-page">
+    <header class="tg-nav smtp-nav">
+      <div class="smtp-brand">
+        <div class="smtp-brand__seal" aria-hidden="true">
+          <svg viewBox="0 0 40 40" width="36" height="36" fill="none">
+            <circle cx="20" cy="20" r="18" fill="url(#navWaxGrad)" stroke="#c7ff7a" stroke-width="1.5"/>
+            <circle cx="20" cy="20" r="13.5" stroke="#2c5905" stroke-opacity=".5" stroke-width="1" stroke-dasharray="2 2"/>
+            <text x="20" y="23.5" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-weight="800" font-size="10.5" fill="#0d1a03" letter-spacing="-0.03em">IESS</text>
+            <defs>
+              <radialGradient id="navWaxGrad" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#c4ff6b"/>
+                <stop offset="55%" stop-color="#9dff32"/>
+                <stop offset="100%" stop-color="#58ad0e"/>
+              </radialGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <span class="smtp-brand__title">IESS · Escudo Cognitivo</span>
+          <span class="smtp-brand__sub">Bloque 1 · Emisión y Sellado Criptográfico</span>
+        </div>
+      </div>
+
+      <nav class="tg-pillnav" aria-label="Modos de herramienta">
+        <button type="button" id="tabGenerar" aria-current="page">Generar sello</button>
+        <button type="button" id="tabVerificar">Verificar integridad</button>
+      </nav>
+    </header>
+
+    <section class="smtp-hero">
+      <span class="tg-eyebrow">SHA-256 + Salt Criptográfico · Privacidad por Diseño (LOPDP)</span>
+      <h1 class="smtp-hero__title">Firma digital y <em>sello de cera</em> para correos IESS</h1>
+      <p class="tg-lead">
+        Genera una huella criptográfica única con <code>SHA-256 + Salt</code> sin almacenar el contenido del correo.
+        Copia el sello institucional verde limón y pégalo directamente en tu correo saliente.
+      </p>
+    </section>
+
+    <!-- MODO 1: GENERADOR DE SELLO -->
+    <main id="panelGenerar" class="smtp-grid">
+      <!-- Columna izquierda: Formulario de emisión -->
+      <section class="tg-card smtp-form-card" aria-labelledby="form-heading">
+        <div class="smtp-card-head">
+          <div>
+            <span class="tg-label"><b>01</b> · Datos del correo institucional</span>
+            <h2 id="form-heading" class="tg-h3">Redacción y parámetros de seguridad</h2>
+          </div>
+          <span class="tg-chip tg-chip--soon">SHA-256</span>
+        </div>
+
+        <form id="sealForm" class="smtp-form" novalidate>
+          <div class="smtp-row-2">
+            <label class="smtp-field">
+              <span class="smtp-field__label">Área / Colaborador Emisor</span>
+              <select id="emisorId" class="smtp-input">
+                <option value="E1_COMUNICACION" data-nombre="Dirección de Comunicación Social">E1 · Comunicación Social</option>
+                <option value="E2_PRESTACIONES" data-nombre="Dirección de Prestaciones y Pensiones" selected>E2 · Prestaciones y Pensiones</option>
+                <option value="E3_SALUD" data-nombre="Dirección del Seguro General de Salud">E3 · Seguro General de Salud</option>
+                <option value="E4_AFILIACION" data-nombre="Dirección de Afiliación y Cobertura">E4 · Afiliación y Cobertura</option>
+                <option value="E5_BIESS" data-nombre="Unidad de Créditos y Servicios BIESS">E5 · Créditos y Servicios BIESS</option>
+              </select>
+            </label>
+
+            <label class="smtp-field">
+              <span class="smtp-field__label">Tipología Oficial</span>
+              <select id="tipologia" class="smtp-input">
+                <option value="T1">T1 · Informativo</option>
+                <option value="T2" selected>T2 · Financiero / Previsional</option>
+                <option value="T3">T3 · Trámites / Clínico</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="smtp-field">
+            <span class="smtp-field__label">Asunto del correo</span>
+            <input
+              id="asunto"
+              type="text"
+              class="smtp-input"
+              placeholder="Ej. Notificación de rol de pensión mensual — Noviembre 2026"
+              value="Notificación de rol de pensión mensual — Noviembre 2026"
+              required
+            >
+          </label>
+
+          <label class="smtp-field">
+            <span class="smtp-field__label">Contenido / Cuerpo del mensaje (solo se hashea localmente)</span>
+            <textarea
+              id="cuerpo"
+              rows="4"
+              class="smtp-input smtp-textarea"
+              placeholder="Pega o escribe el texto principal del correo que deseas firmar..."
+              required
+            >Estimado asegurado, le informamos que su comprobante de pensión mensual correspondiente al periodo actual ya se encuentra disponible en el portal oficial iess.gob.ec. Recuerde que el IESS nunca solicita claves ni transferencias por correo electrónico.</textarea>
+          </label>
+
+          <div class="smtp-salt-box">
+            <div class="smtp-salt-box__head">
+              <span class="smtp-field__label">Salt criptográfico (aleatorio de 128 bits)</span>
+              <div class="smtp-salt-actions">
+                <button type="button" id="btnToggleSalt" class="tg-btn tg-btn--outline tg-btn--sm">Ocultar</button>
+                <button type="button" id="btnNewSalt" class="tg-btn tg-btn--outline tg-btn--key tg-btn--sm">↻ Nuevo Salt</button>
+              </div>
+            </div>
+            <input
+              id="saltInput"
+              type="text"
+              class="smtp-input smtp-mono-input"
+              spellcheck="false"
+              autocomplete="off"
+              aria-label="Salt de seguridad"
+            >
+            <p class="smtp-hint">
+              El <strong>Salt</strong> añade entropía única a cada correo para evitar ataques de diccionario o tablas arcoíris sobre el hash SHA-256.
+            </p>
+          </div>
+
+          <div class="smtp-form-actions">
+            <button type="submit" id="btnGenerar" class="tg-btn tg-btn--solid">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+              Sellar y generar firma SHA-256
+            </button>
+            <button type="button" id="btnLimpiar" class="tg-btn tg-btn--outline">Limpiar</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Columna derecha: Sello de cera verde limón + Tarjeta copiable para correo -->
+      <section class="tg-card smtp-preview-card" aria-labelledby="preview-heading">
+        <div class="smtp-card-head">
+          <div>
+            <span class="tg-label"><b>02</b> · Sello de cera listo para correo</span>
+            <h2 id="preview-heading" class="tg-h3">Firma Digital Institucional</h2>
+          </div>
+          <span id="badgeEstado" class="smtp-status-pill">Activo</span>
+        </div>
+
+        <!-- Escenario del sello de cera verde limón -->
+        <div class="wax-stage" id="waxStage">
+          <div class="wax-stage__halo" aria-hidden="true"></div>
+          <a id="waxSealContainer" class="wax-seal-wrap" title="Sello de cera digital IESS (verde limón)" aria-label="Verificar el sello digital IESS">
+            <!-- El SVG del sello de cera se inyecta dinámicamente aquí -->
+          </a>
+          <div class="wax-stage__meta">
+            <span class="wax-code-label">Código corto de verificación</span>
+            <strong id="shortCode" class="wax-code-value">IESS-0000-0000</strong>
+            <span id="timestampLabel" class="wax-time-label">—</span>
+          </div>
+        </div>
+
+        <!-- Botones principales de copiado para pegar en el correo -->
+        <div class="copy-toolbar">
+          <button type="button" id="btnCopyEmailBlock" class="tg-btn tg-btn--solid copy-btn-main">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copiar sello + firma para pegar en correo
+          </button>
+
+          <div class="copy-toolbar__secondary">
+            <button type="button" id="btnCopyPng" class="tg-btn tg-btn--ghost tg-btn--sm">
+              Copiar solo imagen sello
+            </button>
+            <button type="button" id="btnDownloadPng" class="tg-btn tg-btn--outline tg-btn--sm">
+              Descargar PNG
+            </button>
+            <button type="button" id="btnCopyHash" class="tg-btn tg-btn--outline tg-btn--sm">
+              Copiar Hash
+            </button>
+            <button type="button" id="btnCopyJson" class="tg-btn tg-btn--outline tg-btn--sm">
+              Copiar JSON API
+            </button>
+          </div>
+        </div>
+
+        <!-- Vista previa exacta de cómo se verá pegado en un correo (fondo claro estilo cliente de correo) -->
+        <div class="email-preview-wrap">
+          <div class="email-preview-wrap__bar">
+            <span>Vista previa al pegar en Gmail / Outlook</span>
+            <span class="email-preview-wrap__tip">Ctrl + V en el pie del correo</span>
+          </div>
+          <div id="emailSignaturePreview" class="email-signature-box">
+            <!-- Se renderiza la firma HTML compatible con correos -->
+          </div>
+        </div>
+
+        <!-- Detalle técnico SHA-256 + Salt -->
+        <details class="tech-details">
+          <summary>Ver detalles criptográficos (SHA-256 + Salt + Payload)</summary>
+          <div class="tech-details__body">
+            <div class="tech-kv">
+              <span>Hash SHA-256 (64 hex):</span>
+              <code id="fullHashOutput">—</code>
+            </div>
+            <div class="tech-kv">
+              <span>Salt aplicado:</span>
+              <code id="saltOutput">—</code>
+            </div>
+            <div class="tech-kv">
+              <span>Huella del contenido (interno):</span>
+              <code id="contentHashOutput">—</code>
+            </div>
+            <div class="tech-kv">
+              <span>Payload registro White List (<code>POST /api/v1/hashes/register</code>):</span>
+              <pre id="jsonPayloadOutput">{}</pre>
+            </div>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <!-- MODO 2: VERIFICADOR DE INTEGRIDAD -->
+    <section id="panelVerificar" class="tg-card smtp-verify-card" hidden aria-labelledby="verify-heading">
+      <div class="smtp-card-head">
+        <div>
+          <span class="tg-label"><b>Verificador</b> · Comprobación de firma SHA-256 + Salt</span>
+          <h2 id="verify-heading" class="tg-h3">Comprobar si un correo fue alterado</h2>
+        </div>
+        <button type="button" id="btnCargarActual" class="tg-btn tg-btn--outline tg-btn--key tg-btn--sm">
+          Cargar último sello generado
+        </button>
+      </div>
+
+      <p class="tg-lead" style="max-width:none">
+        Si cambia una sola letra del asunto, cuerpo, tipología o salt, el hash SHA-256 cambia por completo y el sello queda invalidado.
+      </p>
+
+      <div class="smtp-form">
+        <div class="smtp-row-2">
+          <label class="smtp-field">
+            <span class="smtp-field__label">Emisor ID</span>
+            <input id="vEmisorId" type="text" class="smtp-input smtp-mono-input" placeholder="E2_PRESTACIONES">
+          </label>
+          <label class="smtp-field">
+            <span class="smtp-field__label">Tipología</span>
+            <select id="vTipologia" class="smtp-input">
+              <option value="T1">T1 · Informativo</option>
+              <option value="T2">T2 · Financiero / Previsional</option>
+              <option value="T3">T3 · Trámites / Clínico</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="smtp-row-2">
+          <label class="smtp-field">
+            <span class="smtp-field__label">Timestamp UTC exacto</span>
+            <input id="vTimestamp" type="text" class="smtp-input smtp-mono-input" placeholder="2026-11-26T21:45:00.000Z">
+          </label>
+          <label class="smtp-field">
+            <span class="smtp-field__label">Salt usado al firmar</span>
+            <input id="vSalt" type="text" class="smtp-input smtp-mono-input" placeholder="Salt hexadecimal...">
+          </label>
+        </div>
+
+        <label class="smtp-field">
+          <span class="smtp-field__label">Asunto recibido</span>
+          <input id="vAsunto" type="text" class="smtp-input">
+        </label>
+
+        <label class="smtp-field">
+          <span class="smtp-field__label">Cuerpo del correo recibido</span>
+          <textarea id="vCuerpo" rows="3" class="smtp-input smtp-textarea"></textarea>
+        </label>
+
+        <label class="smtp-field">
+          <span class="smtp-field__label">Hash SHA-256 esperado (del sello)</span>
+          <input id="vHashEsperado" type="text" class="smtp-input smtp-mono-input" placeholder="64 caracteres hexadecimales">
+        </label>
+
+        <div class="smtp-form-actions">
+          <button type="button" id="btnEjecutarVerificacion" class="tg-btn tg-btn--solid">
+            Verificar firma SHA-256
+          </button>
+        </div>
+
+        <div id="verifyResult" class="verify-banner" hidden role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <footer class="tg-foot smtp-foot">
+      <span><strong>AIESS · Escudo Cognitivo</strong></span>
+      <span class="tg-foot__sep" aria-hidden="true"></span>
+      <span class="tg-foot__muted">Cálculo 100% local en el navegador · Sin almacenamiento de contenido sensible</span>
+    </footer>
+  </div>
+
+  <!-- Toast de confirmación -->
+  <div id="toast" class="smtp-toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
