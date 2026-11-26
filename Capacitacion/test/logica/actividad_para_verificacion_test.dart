@@ -39,6 +39,56 @@ void main() {
     expect(a, isNull);
   });
 
+  group('con el análisis de la IA', () {
+    ResultadoVerificacion conIndicios(List<Indicio> indicios) =>
+        ResultadoVerificacion(
+          estado: 'SELLO_INEXISTENTE',
+          semaforo: Semaforo.rojo,
+          motivo: '',
+          tipologiaSuplantada: Tipologia.t2,
+          analisis: AnalisisRiesgo(explicacion: '', indicios: indicios),
+        );
+
+    final conIndiciosCatalogo = [
+      actividad('t2-general', tipologia: Tipologia.t2),
+      actividad('m1-qr', tipologia: Tipologia.t1, indicios: const [Indicio.i11]),
+      actividad(
+        'm6-qr',
+        modulo: 'M6',
+        tipologia: Tipologia.t1,
+        indicios: const [Indicio.i11],
+      ),
+    ];
+
+    test('prefiere el módulo del microcurso del indicio', () {
+      // I11 → «No confíes en la página que abre un QR» (M6).
+      final r = conIndicios(const [Indicio.i11]);
+      expect(microcursoParaVerificacion(r), Microcurso.paginaDelQr);
+      final a = actividadParaVerificacion(
+        resultado: r,
+        actividades: conIndiciosCatalogo,
+        perfil: const Perfil(),
+        progreso: const Progreso(),
+      );
+      expect(a?.id, 'm6-qr');
+    });
+
+    test('si nadie trabaja el indicio, vuelve a la tipología', () {
+      final r = conIndicios(const [Indicio.i5]);
+      final a = actividadParaVerificacion(
+        resultado: r,
+        actividades: conIndiciosCatalogo,
+        perfil: const Perfil(),
+        progreso: const Progreso(),
+      );
+      expect(a?.id, 't2-general');
+    });
+
+    test('sin indicios no hay microcurso', () {
+      expect(microcursoParaVerificacion(rojo(Tipologia.t2)), isNull);
+    });
+  });
+
   test('en verde usa la tipología de los metadatos', () {
     final a = actividadParaVerificacion(
       resultado: ResultadoVerificacion(

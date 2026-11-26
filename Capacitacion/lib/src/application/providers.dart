@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/actividad_repository.dart';
+import '../data/adaptador_verificacion.dart';
 import '../data/nucleo_api.dart';
 import '../data/progreso_repository.dart';
 import '../domain/domain.dart';
@@ -242,53 +243,126 @@ final realOEstafaProvider = NotifierProvider.autoDispose
 
 // ---------- Verificación ----------
 
+final adaptadorVerificacionProvider = Provider(
+  (ref) => const AdaptadorVerificacion(),
+);
+
 class VerificacionEstado {
-  const VerificacionEstado({required this.resultado, this.actividad});
+  const VerificacionEstado({
+    required this.resultado,
+    this.actividad,
+    this.microcurso,
+    this.coincidenciaConfirmada = false,
+  });
 
   final ResultadoVerificacion resultado;
 
   /// Actividad sugerida tras verificar.
   final Actividad? actividad;
+
+  /// Microcurso del primer indicio que explica el análisis.
+  final Microcurso? microcurso;
+
+  /// El usuario confirmó que lo que muestra la app coincide con el correo.
+  final bool coincidenciaConfirmada;
+
+  /// En VERDE, falta que el usuario compare los datos sellados con el
+  /// correo que lee (Fallo 2).
+  bool get faltaComparar => resultado.esAutentico && !coincidenciaConfirmada;
 }
 
 class VerificacionController extends AsyncNotifier<VerificacionEstado?> {
   @override
   Future<VerificacionEstado?> build() async => null;
 
+  /// Verifica un código pegado o recibido por App Link. Un código con mal
+  /// formato no se envía al servidor; si el servidor no responde, el
+  /// resultado es AMARILLO.
   Future<void> verificar({
     String? codigo,
-    String? remitente,
     Tipologia? tipologiaPercibida,
+    OrigenCodigo origen = OrigenCodigo.pegado,
   }) async {
-    final perfil = ref.read(perfilProvider);
-    final solicitud = SolicitudVerificacion(
-      hashRecibido: codigo,
-      remitenteReportado: remitente,
-      tipologiaPercibida: tipologiaPercibida,
-      rangoEtario: perfil.rangoEtario,
-      canal: CanalVerificacion.app,
-    );
-    if (solicitud.estaVacia) {
+    final texto = codigo?.trim() ?? '';
+    if (texto.isEmpty) {
       state = AsyncError(
-        const FormatException('Ingresa el código o el remitente.'),
+        const FormatException('Ingresa el código de verificación.'),
         StackTrace.current,
       );
       return;
     }
+    final perfil = ref.read(perfilProvider);
+    final adaptador = ref.read(adaptadorVerificacionProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final resultado = await ref.read(nucleoApiProvider).verificar(solicitud);
-      final actividad = actividadParaVerificacion(
-        resultado: resultado,
-        actividades: await ref.read(catalogoProvider.future),
-        perfil: perfil,
-        progreso: await ref.read(progresoProvider.future),
-      );
-      return VerificacionEstado(resultado: resultado, actividad: actividad);
+      final hash = CodigoVerificacion.normalizar(texto);
+      final resultado = hash == null
+          ? adaptador.codigoInvalido(tipologiaPercibida: tipologiaPercibida)
+          : await _consultar(
+              SolicitudVerificacion(
+                canal: CanalVerificacion.app,
+                hashRecibido: hash,
+                tipologiaPercibida: tipologiaPercibida,
+                rangoEtario: perfil.rangoEtario,
+                origen: origen,
+              ),
+              adaptador,
+            );
+      return _conSugerencia(resultado);
     });
   }
 
+  /// Respuesta del usuario tras comparar los datos sellados con el correo.
+  /// Si no coinciden, el sello fue copiado de otro correo: pasa a ROJO.
+  Future<void> confirmarCoincidencia({required bool coincide}) async {
+    final actual = state.value;
+    if (actual == null || !actual.faltaComparar) return;
+    if (coincide) {
+      state = AsyncData(
+        VerificacionEstado(
+          resultado: actual.resultado,
+          actividad: actual.actividad,
+          microcurso: actual.microcurso,
+          coincidenciaConfirmada: true,
+        ),
+      );
+      return;
+    }
+    state = await AsyncValue.guard(
+      () => _conSugerencia(actual.resultado.marcarComoCopiado()),
+    );
+  }
+
   void limpiar() => state = const AsyncData(null);
+
+  Future<ResultadoVerificacion> _consultar(
+    SolicitudVerificacion solicitud,
+    AdaptadorVerificacion adaptador,
+  ) async {
+    try {
+      return await ref.read(nucleoApiProvider).verificar(solicitud);
+    } on Exception {
+      return adaptador.sinConexion(
+        tipologiaPercibida: solicitud.tipologiaPercibida,
+      );
+    }
+  }
+
+  Future<VerificacionEstado> _conSugerencia(
+    ResultadoVerificacion resultado,
+  ) async {
+    final actividad = actividadParaVerificacion(
+      resultado: resultado,
+      actividades: await ref.read(catalogoProvider.future),
+      perfil: ref.read(perfilProvider),
+      progreso: await ref.read(progresoProvider.future),
+    );
+    return VerificacionEstado(
+      resultado: resultado,
+      actividad: actividad,
+      microcurso: microcursoParaVerificacion(resultado),
+    );
+  }
 }
 
 final verificacionProvider =

@@ -2,51 +2,43 @@ import 'package:capacitacion/src/data/nucleo_api.dart';
 import 'package:capacitacion/src/domain/domain.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-void main() {
-  const hashValido =
-      '8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4';
-  const hashRevocado =
-      '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b';
+import '../helpers.dart';
 
+void main() {
   final api = MockNucleoApi(reloj: () => DateTime.utc(2026, 11, 27));
 
-  Future<ResultadoVerificacion> verificar({String? hash, String? remitente}) =>
-      api.verificar(
-        SolicitudVerificacion(
-          canal: CanalVerificacion.app,
-          hashRecibido: hash,
-          remitenteReportado: remitente,
-        ),
-      );
+  Future<ResultadoVerificacion> verificar(String? hash) => api.verificar(
+    SolicitudVerificacion(canal: CanalVerificacion.app, hashRecibido: hash),
+  );
 
-  test('sello auténtico devuelve VERDE con metadatos sellados', () async {
-    final r = await verificar(hash: hashValido.toUpperCase());
+  test('código auténtico: VERDE con remitente, fecha y asunto sellados', () async {
+    final r = await verificar(hashValido.toUpperCase());
     expect(r.semaforo, Semaforo.verde);
-    expect(
-      r.metadatosOficiales?.emisorNombre,
-      'Dirección de Prestaciones y Pensiones',
-    );
-    expect(r.metadatosOficiales?.tipologia, Tipologia.t2);
+    final m = r.metadatosOficiales!;
+    expect(m.remitente, 'notificaciones@iess.gob.ec');
+    expect(m.emisorNombre, 'Dirección de Prestaciones y Pensiones');
+    expect(m.tipologia, Tipologia.t2);
+    expect(m.asuntoResumen, 'Notificación de rol de pensión mensual');
+    expect(m.fecha, DateTime.utc(2026, 11, 26, 15, 30));
     expect(r.capsulaEducativa, contains('ESTAFA'));
+    expect(r.analisis?.nivel, NivelRiesgo.bajo);
   });
 
-  test('dominio en Black List es ROJO aunque traiga un hash válido', () async {
-    final r = await verificar(
-      hash: hashValido,
-      remitente: 'reembolsos@iess-tramites-ec.com',
-    );
+  test('código inexistente: ROJO con análisis e indicios', () async {
+    final r = await verificar('a' * 64);
     expect(r.semaforo, Semaforo.rojo);
-    expect(r.estado, 'PHISHING_CONFIRMADO');
-    expect(r.tipologiaSuplantada, Tipologia.t2);
+    expect(r.estado, 'SELLO_INEXISTENTE');
+    expect(r.analisis?.indicios, [Indicio.i7, Indicio.i2]);
   });
 
-  test('sello revocado es ROJO', () async {
-    final r = await verificar(hash: hashRevocado);
+  test('sello revocado: ROJO con la tipología del registro', () async {
+    final r = await verificar(hashRevocado);
     expect(r.semaforo, Semaforo.rojo);
     expect(r.estado, 'SELLO_REVOCADO');
+    expect(r.tipologiaSuplantada, Tipologia.t1);
   });
 
-  test('sello vencido es AMARILLO', () async {
+  test('sello vencido: AMARILLO', () async {
     final tarde = MockNucleoApi(reloj: () => DateTime.utc(2027, 2));
     final r = await tarde.verificar(
       const SolicitudVerificacion(
@@ -58,24 +50,22 @@ void main() {
     expect(r.estado, 'SELLO_VENCIDO');
   });
 
-  test('hash inexistente es ROJO y mal formado es AMARILLO', () async {
-    expect((await verificar(hash: 'a' * 64)).estado, 'SELLO_INEXISTENTE');
-    expect((await verificar(hash: 'abc')).estado, 'CODIGO_INVALIDO');
+  test('sin código o mal formado: AMARILLO', () async {
+    expect((await verificar(null)).estado, 'SIN_SELLO');
+    expect((await verificar('abc')).estado, 'CODIGO_INVALIDO');
   });
 
-  test('remitente oficial sin sello es AMARILLO', () async {
-    final r = await verificar(remitente: 'notificaciones@iess.gob.ec');
-    expect(r.semaforo, Semaforo.amarillo);
-    expect(r.estado, 'SIN_SELLO');
-  });
-
-  test('extraerDominio', () {
-    expect(MockNucleoApi.extraerDominio('A@Biess-EC.net '), 'biess-ec.net');
-    expect(
-      MockNucleoApi.extraerDominio('https://www.iess-agenda.com/x?y=1'),
-      'iess-agenda.com',
+  test('sin conexión lanza NucleoNoDisponible', () async {
+    final caido = MockNucleoApi(sinConexion: true);
+    await expectLater(
+      caido.verificar(
+        const SolicitudVerificacion(
+          canal: CanalVerificacion.app,
+          hashRecibido: hashValido,
+        ),
+      ),
+      throwsA(isA<NucleoNoDisponible>()),
     );
-    expect(MockNucleoApi.extraerDominio('  '), isNull);
   });
 
   test('alertas de demostración', () async {

@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import 'presentation/rutas.dart';
 import 'presentation/screens/inicio_screen.dart';
 
 /// Raíz del módulo de capacitaciones del Escudo Cognitivo IESS.
@@ -14,6 +15,8 @@ class CapacitacionApp extends StatelessWidget {
       title: 'Capacitación IESS',
       debugShowCheckedModeBanner: false,
       home: InicioScreen(),
+      onGenerateRoute: generarRuta,
+      onUnknownRoute: rutaDesconocida,
     );
   }
 }

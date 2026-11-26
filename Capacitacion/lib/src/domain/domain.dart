@@ -1,6 +1,8 @@
 export 'actividad.dart';
 export 'alerta_observatorio.dart';
+export 'canales_oficiales.dart';
 export 'contenido_actividad.dart';
+export 'enlace_verificacion.dart';
 export 'indicio.dart';
 export 'mecanica.dart';
 export 'mensaje_simulado.dart';

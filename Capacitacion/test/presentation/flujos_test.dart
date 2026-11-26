@@ -96,25 +96,57 @@ void main() {
     expect(guardado.estaCompletada('M1-A2-01'), isTrue);
   });
 
-  testWidgets('verificar un remitente de la Black List', (tester) async {
+  testWidgets('código auténtico pegado: comparar y descubrir un sello copiado', (
+    tester,
+  ) async {
     await abrirApp(tester);
     await tocar(tester, find.text('Verificar').last);
 
     await tester.enterText(
-      find.byKey(const ValueKey('campo-remitente')),
-      'reembolsos@iess-tramites-ec.com',
+      find.byKey(const ValueKey('campo-codigo')),
+      hashValido,
     );
     await tocar(tester, find.byKey(const ValueKey('boton-verificar')));
 
-    expect(find.text('ROJO · Es una estafa'), findsOneWidget);
-    expect(find.textContaining('en qué rango de edad'), findsOneWidget);
+    expect(find.text('VERDE · Correo auténtico'), findsOneWidget);
+    expect(
+      find.text('Remitente verificado: notificaciones@iess.gob.ec'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Asunto oficial: «Notificación de rol de pensión mensual»'),
+      findsOneWidget,
+    );
+
+    // El correo que lee el usuario habla de otra cosa: el sello es copiado.
+    await tocar(tester, find.byKey(const ValueKey('boton-no-coincide')));
+    expect(find.text('ROJO · Alerta de phishing'), findsOneWidget);
+    expect(find.byKey(const ValueKey('correo-reportes')), findsOneWidget);
     expect(find.text('Aprende a reconocerlo'), findsOneWidget);
+    expect(find.textContaining('en qué rango de edad'), findsOneWidget);
   });
 
-  testWidgets('verificar sin datos muestra un aviso', (tester) async {
+  testWidgets('verificar sin código muestra un aviso', (tester) async {
     await abrirApp(tester);
     await tocar(tester, find.text('Verificar').last);
     await tocar(tester, find.byKey(const ValueKey('boton-verificar')));
-    expect(find.text('Ingresa el código o el remitente.'), findsOneWidget);
+    expect(find.text('Ingresa el código de verificación.'), findsOneWidget);
+  });
+
+  testWidgets('el botón «Verificar en App» abre la app y verifica sola', (
+    tester,
+  ) async {
+    tester.binding.platformDispatcher.defaultRouteNameTestValue =
+        '/verificar/$hashRevocado';
+    addTearDown(
+      tester.binding.platformDispatcher.clearDefaultRouteNameTestValue,
+    );
+    await abrirApp(tester);
+
+    expect(find.text('Verificación del correo'), findsOneWidget);
+    expect(find.text('ROJO · Alerta de phishing'), findsOneWidget);
+    expect(find.text('Análisis de riesgo: Alto'), findsOneWidget);
+    expect(find.byKey(const ValueKey('correo-reportes')), findsOneWidget);
+    expect(find.byKey(const ValueKey('switch-cuidador')), findsOneWidget);
   });
 }

@@ -200,9 +200,12 @@ Capacitacion/
 | Microcurso por indicio (§11). I8: M7 para EX2, M4 los demás. I5: M11 internos, M9 EX4, M8 EX3; **[SUPUESTO]** M1 para EX1, EX2 y EX5 | `microcurso.dart` |
 | «Expuesto» se muestra como «En aprendizaje» (regla 7) | `perfil_conducta.dart` |
 | A2 **formativo, no punitivo**: siempre muestra la explicación; marcar un correo real como estafa se trata como prudencia | `evaluador_real_o_estafa.dart` |
-| Verificación simulada (`POST /api/v1/verify`): dominio en Black List → ROJO (aunque traiga un hash válido); hash válido → VERDE **con metadatos sellados** (Fallo 2); revocado → ROJO; vencido, sin sello, desconocido o mal formado → AMARILLO | `nucleo_api.dart` |
-| Tras verificar se sugiere la actividad de la tipología suplantada que le corresponda al tipo, pendiente y más corta | `actividad_para_verificacion.dart` |
-| Pregunta opcional de rango de edad de 1 clic después de verificar; nunca se pide cédula ni nombre (Fallo 3, LOPDP) | `verificar_tab.dart` |
+| Verificación (`GET /verificar/{hash_2}`, adaptador en `adaptador_verificacion.dart`): `valido: true` con remitente y fecha → VERDE con los datos sellados; sin remitente o fecha → AMARILLO (Fallo 2); `HASH_INEXISTENTE`, `REVOCADO`, `CONTENIDO_ALTERADO` → ROJO; `VENCIDO`, respuesta ilegible, sin conexión o código mal formado → AMARILLO. Nunca VERDE sin respuesta del servidor | `adaptador_verificacion.dart`, `providers.dart` |
+| Entrada por App Link: solo `https://app.iess.gob.ec/verificar/<código>`, la ruta `/verificar/<código>` y el esquema de desarrollo `iessverifica://`; cualquier otro enlace abre «Enlace no reconocido» (Fallo 1) | `enlace_verificacion.dart`, `rutas.dart`, `AndroidManifest.xml` |
+| En VERDE el usuario compara remitente y asunto con el correo; si no coinciden, ROJO `SELLO_COPIADO` (Fallo 2) | `verificacion.dart`, `resultado_verificacion_view.dart` |
+| El análisis de la IA llega del servidor; la app sugiere el microcurso de su primer indicio y una actividad que lo trabaje | `actividad_para_verificacion.dart` |
+| Tras verificar: rango opcional y, para EX5, «¿verificas por otra persona?» (marca cuidador) | `resultado_verificacion_view.dart` |
+| Pregunta opcional de rango de edad de 1 clic después de verificar; nunca se pide cédula ni nombre (Fallo 3, LOPDP) | `resultado_verificacion_view.dart` |
 | El progreso se guarda solo en el dispositivo | `progreso_repository.dart` |
 
 ### Formato del catálogo (`assets/data/actividades.json`)
@@ -222,10 +225,18 @@ Las pruebas de `test/domain/modelos_test.dart` validan que el catálogo cumpla e
 
 ### Datos de prueba del Núcleo simulado
 
-- Sello válido (T2, Dirección de Prestaciones y Pensiones): `8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4`
-- Sello revocado (T1, Dirección de Afiliación): `1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b`
-- Dominios en Black List: `iess-tramites-ec.com` y `biess-ec.net` (T2), `iess-gob-ec.info` (T1), `iess-agenda.com` (T3)
-- Alerta activa: +40 % de phishing T2 dirigido a 65+
+- Código válido (T2, Dirección de Prestaciones y Pensiones, `notificaciones@iess.gob.ec`): `8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4`
+- Código revocado (T1, Dirección de Afiliación): `1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b`
+- Cualquier otro código de 64 caracteres hexadecimales: inexistente (ROJO).
+- `MockNucleoApi(sinConexion: true)` simula que el Núcleo no responde.
+- Alerta activa: +40 % de phishing T2 dirigido a 65+.
+- Para probar el App Link en Android: `adb shell am start -a android.intent.action.VIEW -d "https://app.iess.gob.ec/verificar/<código>"` (sin `assetlinks.json` el sistema pregunta con qué app abrirlo).
+
+### Pendiente para la fase 7 (App Links en producción)
+
+- El IESS publica `https://app.iess.gob.ec/.well-known/assetlinks.json` con la huella SHA-256 del certificado de la app (`ec.iess.capacitacion`).
+- iOS: capacidad *Associated Domains* (`applinks:app.iess.gob.ec`) en Xcode y `apple-app-site-association` en el dominio. No se tocó el proyecto de Xcode sin poder compilarlo.
+- Web: la ruta `/#/verificar/<código>` ya funciona con la estrategia de URL por defecto.
 
 ---
 

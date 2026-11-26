@@ -34,8 +34,11 @@ Fuente de las reglas: `CLAUDE.md` de esta carpeta (lo marcado [DECIDIDO] manda) 
 | Actividades | `domain/actividad.dart`, `domain/contenido_actividad.dart` | JSON de §12 + contenido por mecánica. Un EX2 ve la `variante_ex2` en audio |
 | Recomendación | `application/logica/motor_recomendacion.dart` | Alerta activa > paso de la ruta de arranque > refuerzo según el ataque activo > pendientes; repaso si el puntaje fue < 50 % |
 | ¿Real o estafa? (A2) | `application/logica/evaluador_real_o_estafa.dart` | Siempre explica; nunca castiga. Marcar un correo real como estafa es prudencia |
-| Verificación | `data/nucleo_api.dart` | Mock de `POST /api/v1/verify` (la fase 2 lo cambia por `GET /verificar/{hash_2}` del diagrama) |
-| Actividad tras verificar | `application/logica/actividad_para_verificacion.dart` | Misma tipología suplantada, que le corresponda al tipo, pendiente y más corta |
+| App Link | `domain/enlace_verificacion.dart`, `presentation/rutas.dart` | El botón «Verificar en App» abre `https://app.iess.gob.ec/verificar/<hash_2>`; Flutter lo entrega como ruta y se abre la verificación. Otros dominios se rechazan (Fallo 1) |
+| Verificación | `data/adaptador_verificacion.dart`, `data/nucleo_api.dart` | `GET /verificar/{hash_2}` del diagrama → semáforo. VERDE solo con remitente y fecha; sin conexión, AMARILLO; código mal formado no se envía |
+| Sello copiado | `domain/verificacion.dart` | En VERDE el usuario compara; si «No coincide», pasa a ROJO `SELLO_COPIADO` (Fallo 2) |
+| Análisis de la IA | `domain/verificacion.dart` | Lo envía el servidor (otro bloque); la app lo muestra y sugiere el microcurso del indicio |
+| Actividad tras verificar | `application/logica/actividad_para_verificacion.dart` | Primero la que trabaja el indicio del análisis (en el módulo de su microcurso); si no, la de la tipología suplantada. Siempre del tipo del usuario, pendiente y corta |
 | Progreso | `data/progreso_repository.dart` | Solo en el dispositivo (shared_preferences) |
 
 Privacidad: el rango de edad es opcional y anonimizado; no se pide cédula ni nombre.

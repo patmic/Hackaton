@@ -74,8 +74,17 @@ enum Indicio {
   final String nombre;
   final String queSeRevisa;
 
-  static Indicio desdeCodigo(String codigo) => values.firstWhere(
-    (i) => i.codigo == codigo.trim().toUpperCase(),
-    orElse: () => throw FormatException('Indicio desconocido: $codigo'),
-  );
+  static Indicio desdeCodigo(String codigo) =>
+      tryDesdeCodigo(codigo) ??
+      (throw FormatException('Indicio desconocido: $codigo'));
+
+  /// Igual que [desdeCodigo], pero devuelve null si el código no existe.
+  /// Se usa con datos del servidor, para que un código nuevo no rompa la app.
+  static Indicio? tryDesdeCodigo(String codigo) {
+    final c = codigo.trim().toUpperCase();
+    for (final i in values) {
+      if (i.codigo == c) return i;
+    }
+    return null;
+  }
 }

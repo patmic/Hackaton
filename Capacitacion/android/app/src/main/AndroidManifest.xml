@@ -24,6 +24,19 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- App Link del botón «Verificar en App» (diagrama, paso 6).
+                 autoVerify exige que el dominio publique
+                 /.well-known/assetlinks.json con la huella de la app.
+                 [PROPUESTO] El dominio lo define el IESS. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="https"
+                    android:host="app.iess.gob.ec"
+                    android:pathPrefix="/verificar/"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
