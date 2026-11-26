@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/capsula_repository.dart';
+import '../data/nucleo_api.dart';
 import '../data/progreso_repository.dart';
 import '../domain/domain.dart';
 import 'logica/logica.dart';
@@ -21,10 +22,20 @@ final motorRecomendacionProvider = Provider(
 
 final evaluadorQuizProvider = Provider((ref) => const EvaluadorQuiz());
 
-/// Alertas activas del Observatorio. Vacías hasta conectar el Núcleo.
-final alertasProvider = FutureProvider<List<AlertaObservatorio>>(
-  (ref) async => const [],
+/// Núcleo simulado hasta que el Bloque 3 publique su API.
+final nucleoApiProvider = Provider<NucleoApi>(
+  (ref) => MockNucleoApi(latencia: const Duration(milliseconds: 300)),
 );
+
+/// Alertas activas del Observatorio. Si el Núcleo falla, la app sigue
+/// funcionando sin alertas.
+final alertasProvider = FutureProvider<List<AlertaObservatorio>>((ref) async {
+  try {
+    return await ref.watch(nucleoApiProvider).alertasActivas();
+  } on Exception {
+    return const [];
+  }
+});
 
 // ---------- Catálogo ----------
 
@@ -198,3 +209,59 @@ class QuizController extends Notifier<QuizEstado> {
 
 final quizProvider = NotifierProvider.autoDispose
     .family<QuizController, QuizEstado, Capsula>(QuizController.new);
+
+// ---------- Verificación ----------
+
+class VerificacionEstado {
+  const VerificacionEstado({required this.resultado, this.capsula});
+
+  final ResultadoVerificacion resultado;
+
+  /// Cápsula sugerida tras verificar.
+  final Capsula? capsula;
+}
+
+class VerificacionController extends AsyncNotifier<VerificacionEstado?> {
+  @override
+  Future<VerificacionEstado?> build() async => null;
+
+  Future<void> verificar({
+    String? codigo,
+    String? remitente,
+    Tipologia? tipologiaPercibida,
+  }) async {
+    final perfil = ref.read(perfilProvider);
+    final solicitud = SolicitudVerificacion(
+      hashRecibido: codigo,
+      remitenteReportado: remitente,
+      tipologiaPercibida: tipologiaPercibida,
+      rangoEtario: perfil.rangoEtario,
+      canal: CanalVerificacion.app,
+    );
+    if (solicitud.estaVacia) {
+      state = AsyncError(
+        const FormatException('Ingresa el código o el remitente.'),
+        StackTrace.current,
+      );
+      return;
+    }
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final resultado = await ref.read(nucleoApiProvider).verificar(solicitud);
+      final capsula = capsulaParaVerificacion(
+        resultado: resultado,
+        capsulas: await ref.read(catalogoProvider.future),
+        perfil: perfil,
+        progreso: await ref.read(progresoProvider.future),
+      );
+      return VerificacionEstado(resultado: resultado, capsula: capsula);
+    });
+  }
+
+  void limpiar() => state = const AsyncData(null);
+}
+
+final verificacionProvider =
+    AsyncNotifierProvider<VerificacionController, VerificacionEstado?>(
+      VerificacionController.new,
+    );
