@@ -1,1 +1,203 @@
-[]
+[
+  {
+    "id": "t2-reembolso-24h",
+    "titulo": "El falso reembolso en 24 horas",
+    "resumen": "Correos que prometen devolver dinero si ingresas tus claves hoy.",
+    "tipologia": "T2",
+    "rangos": ["50-64", "65+"],
+    "formato": "AUDIO",
+    "duracion_segundos": 90,
+    "mensaje_clave": "El IESS nunca te pedirá claves por correo para cobrar un reembolso.",
+    "contenido": [
+      "Los estafadores usan la urgencia: «tienes 24 horas o pierdes tu dinero».",
+      "Un correo real del IESS sobre pagos no te pide ingresar contraseñas ni datos bancarios desde un enlace.",
+      "Si dudas, no hagas clic. Verifica el código del correo dentro de la app oficial."
+    ],
+    "senales": [
+      "Plazo muy corto para actuar",
+      "Enlace para ingresar claves o datos bancarios",
+      "Dominio que no es iess.gob.ec"
+    ],
+    "preguntas": [
+      {
+        "id": "t2-reembolso-24h-q1",
+        "correo": {
+          "remitente": "reembolsos@iess-tramites-ec.com",
+          "asunto": "Su reembolso de $320 vence HOY",
+          "cuerpo": "Estimado afiliado, tiene un reembolso pendiente. Ingrese su usuario y clave en el enlace en las próximas 24 horas o perderá el valor."
+        },
+        "es_estafa": true,
+        "explicacion": "El dominio no es oficial, hay un plazo de horas y pide tu clave. Son tres señales de estafa.",
+        "senales_clave": ["Dominio falso", "Urgencia", "Pide la clave"]
+      },
+      {
+        "id": "t2-reembolso-24h-q2",
+        "correo": {
+          "remitente": "notificaciones@iess.gob.ec",
+          "asunto": "Rol de pensión de noviembre disponible",
+          "cuerpo": "Su rol de pensión ya está disponible. Puede consultarlo ingresando por su cuenta en el portal oficial. Este correo incluye código de verificación.",
+          "tiene_sello": true
+        },
+        "es_estafa": false,
+        "explicacion": "Es informativo, no pide datos ni dinero, viene del dominio oficial y trae sello. Igual puedes verificar el código en la app.",
+        "senales_clave": ["Dominio oficial", "No pide datos", "Tiene sello verificable"]
+      }
+    ]
+  },
+  {
+    "id": "t2-credito-biess",
+    "titulo": "Créditos BIESS que nunca pediste",
+    "resumen": "Ofertas de crédito preaprobado que piden un pago previo.",
+    "tipologia": "T2",
+    "rangos": ["30-49", "50-64"],
+    "formato": "QUIZ",
+    "duracion_segundos": 120,
+    "mensaje_clave": "Ningún crédito legítimo te pide pagar antes para desembolsarlo.",
+    "contenido": [
+      "El engaño ofrece un crédito «preaprobado» y pide un pago por «gastos de trámite».",
+      "El BIESS no cobra anticipos por correo ni por WhatsApp."
+    ],
+    "senales": ["Pago anticipado", "Crédito que no solicitaste", "Cuenta bancaria de una persona"],
+    "preguntas": [
+      {
+        "id": "t2-credito-biess-q1",
+        "correo": {
+          "remitente": "creditos.biess@gmail.com",
+          "asunto": "Crédito preaprobado de $15.000",
+          "cuerpo": "Felicidades, su crédito fue aprobado. Para desembolsar deposite $85 de gastos administrativos a la cuenta indicada."
+        },
+        "es_estafa": true,
+        "explicacion": "Usa un correo gratuito y pide un depósito previo. Ninguna institución pública trabaja así.",
+        "senales_clave": ["Correo gratuito", "Pago anticipado"]
+      },
+      {
+        "id": "t2-credito-biess-q2",
+        "correo": {
+          "remitente": "biess-pagos@biess-ec.net",
+          "asunto": "Último aviso: su crédito será cancelado",
+          "cuerpo": "Actualice sus datos bancarios en el siguiente enlace para no perder su crédito aprobado.",
+          "tiene_sello": true
+        },
+        "es_estafa": true,
+        "explicacion": "Un sello pegado en el correo no basta: el atacante puede copiar uno real. Verifica dentro de la app y compara el asunto oficial con lo que lees.",
+        "senales_clave": ["Dominio no oficial", "Pide datos bancarios", "Sello copiado"]
+      }
+    ]
+  },
+  {
+    "id": "t1-qr-falso",
+    "titulo": "El QR que te lleva a otra página",
+    "resumen": "Por qué no debes confiar en la página que abre un QR.",
+    "tipologia": "T1",
+    "rangos": ["18-29", "30-49", "50-64", "65+"],
+    "formato": "TEXTO",
+    "duracion_segundos": 60,
+    "mensaje_clave": "Nunca confíes en la página que abre un QR: verifica siempre dentro de tu canal oficial.",
+    "contenido": [
+      "Un QR puede llevarte a una página falsa que muestra un sello verde «verificado».",
+      "El código del IESS se escanea desde dentro de la app oficial, no con la cámara del teléfono."
+    ],
+    "senales": ["QR que abre el navegador", "Página que dice «100 % verificado»"],
+    "preguntas": []
+  },
+  {
+    "id": "t1-actualizacion-datos",
+    "titulo": "«Actualice sus datos o su cuenta será bloqueada»",
+    "resumen": "El boletín falso que pide tus datos personales.",
+    "tipologia": "T1",
+    "rangos": ["18-29", "30-49"],
+    "formato": "QUIZ",
+    "duracion_segundos": 90,
+    "mensaje_clave": "Un correo informativo (T1) nunca pide claves ni amenaza con bloquear tu cuenta.",
+    "contenido": [
+      "Los correos T1 son comunicados y recordatorios. No llevan formularios para ingresar datos.",
+      "Las amenazas de bloqueo son una técnica para que actúes sin pensar."
+    ],
+    "senales": ["Amenaza de bloqueo", "Formulario de datos en un T1"],
+    "preguntas": [
+      {
+        "id": "t1-actualizacion-datos-q1",
+        "correo": {
+          "remitente": "soporte@iess-gob-ec.info",
+          "asunto": "Su cuenta será suspendida",
+          "cuerpo": "Detectamos datos desactualizados. Complete el formulario con su cédula, clave y número de tarjeta para evitar la suspensión."
+        },
+        "es_estafa": true,
+        "explicacion": "Imita el dominio oficial con guiones y pide tarjeta y clave en un correo que dice ser informativo.",
+        "senales_clave": ["Dominio parecido", "Amenaza", "Pide tarjeta y clave"]
+      },
+      {
+        "id": "t1-actualizacion-datos-q2",
+        "correo": {
+          "remitente": "comunicacion@iess.gob.ec",
+          "asunto": "Recordatorio: feria de salud preventiva",
+          "cuerpo": "Te invitamos a la feria de salud preventiva este sábado en tu unidad médica. No necesitas registrarte.",
+          "tiene_sello": true
+        },
+        "es_estafa": false,
+        "explicacion": "Es un comunicado sin enlaces para datos, sin urgencia y con dominio oficial.",
+        "senales_clave": ["Dominio oficial", "Sin pedido de datos"]
+      }
+    ]
+  },
+  {
+    "id": "t3-cita-medica",
+    "titulo": "La cita médica que hay que «confirmar» pagando",
+    "resumen": "Mensajes de agendamiento que piden un pago para no perder la cita.",
+    "tipologia": "T3",
+    "rangos": ["50-64", "65+"],
+    "formato": "AUDIO",
+    "duracion_segundos": 75,
+    "mensaje_clave": "Las citas del IESS no se confirman con pagos ni recargas.",
+    "contenido": [
+      "Te escriben que tu cita será cancelada si no pagas una «tasa de confirmación».",
+      "El agendamiento del IESS no cobra por confirmar. Si dudas, llama a la línea oficial."
+    ],
+    "senales": ["Pago para confirmar cita", "Recarga o transferencia", "Número de teléfono desconocido"],
+    "preguntas": [
+      {
+        "id": "t3-cita-medica-q1",
+        "correo": {
+          "remitente": "citas@iess-agenda.com",
+          "asunto": "Confirme su cita de cardiología",
+          "cuerpo": "Su cita será cancelada. Para mantenerla realice una recarga de $10 al número indicado."
+        },
+        "es_estafa": true,
+        "explicacion": "Pedir una recarga para mantener una cita es estafa. El dominio tampoco es oficial.",
+        "senales_clave": ["Pide recarga", "Dominio falso"]
+      }
+    ]
+  },
+  {
+    "id": "t3-certificado",
+    "titulo": "Certificados que llegan como archivo adjunto",
+    "resumen": "Adjuntos que dicen ser tu certificado pero instalan programas.",
+    "tipologia": "T3",
+    "rangos": ["18-29", "30-49", "50-64"],
+    "formato": "TEXTO",
+    "duracion_segundos": 60,
+    "mensaje_clave": "Descarga tus certificados solo desde el portal oficial, no desde adjuntos inesperados.",
+    "contenido": [
+      "Un adjunto con extensión .zip, .exe o .html que dice ser «tu certificado» puede ser un programa malicioso.",
+      "Si no pediste el certificado, no abras el adjunto."
+    ],
+    "senales": ["Adjunto que no pediste", "Extensiones .zip, .exe o .html"],
+    "preguntas": []
+  },
+  {
+    "id": "general-reportar",
+    "titulo": "Reportar también protege a otros",
+    "resumen": "Por qué tu reporte ayuda a frenar una campaña de estafa.",
+    "tipologia": "T1",
+    "rangos": ["18-29", "30-49", "50-64", "65+"],
+    "formato": "TEXTO",
+    "duracion_segundos": 45,
+    "mensaje_clave": "Si te llega algo raro, repórtalo: basta que pocos avisen para alertar a todos.",
+    "contenido": [
+      "Cuando reportas un correo sospechoso, el Observatorio detecta la campaña y avisa a quienes aún no la recibieron.",
+      "Equivocarte no tiene consecuencias. Reportar un correo real como sospechoso es mejor que no reportar."
+    ],
+    "senales": [],
+    "preguntas": []
+  }
+]
