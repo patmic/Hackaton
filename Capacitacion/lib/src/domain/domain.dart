@@ -1,0 +1,11 @@
+export 'alerta_observatorio.dart';
+export 'capsula.dart';
+export 'correo_ejemplo.dart';
+export 'formato_capsula.dart';
+export 'perfil.dart';
+export 'pregunta_quiz.dart';
+export 'progreso.dart';
+export 'rango_etario.dart';
+export 'resultado_quiz.dart';
+export 'tipologia.dart';
+export 'verificacion.dart';
