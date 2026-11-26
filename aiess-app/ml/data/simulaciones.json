@@ -1,0 +1,3249 @@
+{
+ "version": 1,
+ "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+ "pistas": {
+  "I1": "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+  "I2": "Mira el dominio: no termina en iess.gob.ec.",
+  "I3": "Pide tu clave o códigos. El IESS nunca los pide.",
+  "I4": "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+  "I5": "Trae un archivo o pide instalar una app. No lo abras.",
+  "I6": "Ofrece dinero que no pediste.",
+  "I7": "El remitente no es una dirección oficial del IESS.",
+  "I8": "Te amenaza con suspender o quitar un beneficio.",
+  "I9": "Pide tu cédula, fecha de nacimiento o una selfie.",
+  "I10": "Pide pagar una tasa o transferir dinero.",
+  "I11": "Pide escanear un código QR desconocido."
+ },
+ "indicios": {
+  "I1": "Urgencia artificial",
+  "I2": "Enlace a dominio no oficial",
+  "I3": "Pide credenciales, claves, códigos o tarjeta",
+  "I4": "Enlace acortado u oculto",
+  "I5": "Adjunto o instalación sospechosa",
+  "I6": "Premio, bono o reembolso inesperado",
+  "I7": "Remitente no oficial",
+  "I8": "Amenaza o pérdida de beneficio",
+  "I9": "Pide datos personales o documentos",
+  "I10": "Pide pago o transferencia",
+  "I11": "Código QR hacia sitio no verificable"
+ },
+ "contacto": {
+  "portal": "www.iess.gob.ec",
+  "aplicaciones": "app.iess.gob.ec",
+  "denuncias_web": "denuncias.iess.gob.ec",
+  "denuncias_correo": "gestiondenuncias@iess.gob.ec",
+  "whatsapp": "+593 9 62532338",
+  "atencion_correo": "atencionalusuario@iess.gob.ec",
+  "atencion_telefono": "593 2 3945666",
+  "seguridad_informacion": "seguridad.informacion@iess.gob.ec",
+  "tramites_estado": "www.gob.ec/iess"
+ },
+ "ejercicios": [
+  {
+   "id": "ej_E963",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Documento Importante Adjunto 7728",
+   "cuerpo": "Estimado/a María Lara Sandoval:\n\nSu caso ha sido seleccionado para una revisión de cumplimiento tributario y administrativo.\n\nEste acto notifica una pausa temporal en obligaciones administrativas y requiere que usted descargue el documento en el enlace facilitado.\n\nPara continuar, abone $38,00 como garantía del trámite.\n\nAdjuntamos el documento «Comprobante_7728.zip» para su revisión. Ábralo desde su computador.\n\n[Solicitar el reembolso]\n\nAgradecemos su atención.\n\nReciba un cordial saludo.\n\nUnidad de Servicios al Asegurado\n\nMensaje generado automáticamente. No responda este correo.",
+   "adjuntos": [
+    "zip"
+   ],
+   "enlaces": [
+    {
+     "url": "https://funcion-judicial-notificaciones-2g4.net/validar/6plut",
+     "host": "funcion-judicial-notificaciones-2g4.net",
+     "clicable": false,
+     "alertas": [
+      "funcion-judicial-notificaciones-2g4.net no es un dominio del IESS ni de una entidad conocida",
+      "la ruta pide verificar, actualizar o ingresar datos"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I5",
+    "I7",
+    "I10"
+   ],
+   "resaltados": [],
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Trae un archivo o pide instalar una app. No lo abras.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E295",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Inconsistencias en su historia laboral",
+   "cuerpo": "Estimado afiliado:\n\n[Imagen: logotipo]\n\nHemos detectado inconsistencias en su historia laboral que afectan el registro de sus aportes.\n\nAcceda con su cuenta para revisar el detalle de la novedad.\n\nIngrese su usuario, contraseña y el PIN de su cuenta para continuar.\n\nAdjunte una fotografía de su documento de identidad para completar la verificación.\n\nPara continuar ingrese aquí: https://www.iess.gob.ec/verificar\n\nTiene 24 horas a partir de la recepción de este aviso.\n\nEn caso de no atender este aviso, su acceso será cancelado y se aplicarán multas.\n\nGracias por su comprensión.\n\nAtentamente,\n\nDirección de Seguro de Pensiones\n\nEste correo y sus anexos son confidenciales y están dirigidos únicamente a su destinatario.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://iessseguro-4vh.top/verificar/85hwibwma",
+     "host": "iessseguro-4vh.top",
+     "clicable": false,
+     "alertas": [
+      "la terminacion .top es frecuente en sitios de estafa",
+      "iessseguro-4vh.top no es un dominio del IESS ni de una entidad conocida",
+      "la ruta pide verificar, actualizar o ingresar datos"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I3",
+    "I4",
+    "I7",
+    "I8",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 416,
+     "fin": 470,
+     "texto": "Tiene 24 horas a partir de la recepción de este aviso."
+    },
+    {
+     "indicio": "I3",
+     "inicio": 197,
+     "fin": 265,
+     "texto": "Ingrese su usuario, contraseña y el PIN de su cuenta para continuar."
+    },
+    {
+     "indicio": "I8",
+     "inicio": 472,
+     "fin": 553,
+     "texto": "En caso de no atender este aviso, su acceso será cancelado y se aplicarán multas."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 267,
+     "fin": 350,
+     "texto": "Adjunte una fotografía de su documento de identidad para completar la verificación."
+    }
+   ],
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide.",
+    "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E885",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Invitación a charla de 15 minutos",
+   "cuerpo": "Lo invitamos a una charla rápida de 15 minutos para presentarle una oportunidad de formación.\n\nReserve su cupo en el siguiente enlace.\n\nComo solo encontramos su correo corporativo, le agradeceríamos que actualice sus datos y reserve un horario aquí.\n\nHaga clic en el botón: [Ver detalle]\n\nResponda con urgencia, el plazo vence hoy a las 17h00.\n\nRosa Freire Ulloa\nGestión de Talento",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://q7tepxhxb4lvb0.jimdofree.com",
+     "host": "q7tepxhxb4lvb0.jimdofree.com",
+     "clicable": false,
+     "alertas": [
+      "jimdofree.com no es un dominio del IESS ni de una entidad conocida"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I7"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 0,
+     "fin": 93,
+     "texto": "Lo invitamos a una charla rápida de 15 minutos para presentarle una oportunidad de formación."
+    },
+    {
+     "indicio": "I1",
+     "inicio": 289,
+     "fin": 343,
+     "texto": "Responda con urgencia, el plazo vence hoy a las 17h00."
+    }
+   ],
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El remitente no es una dirección oficial del IESS."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E737",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Confirme su reembolso de USD 652,00",
+   "cuerpo": "Buenas tardes, Lucía:\n\nNos gustaría informarle que, tras el procesamiento de sus datos y la finalización del periodo de seguro, usted tiene derecho a recibir un reembolso único (devolución de un pago en exceso de la prima del seguro) por parte del IESS.\n\nMonto aprobado: USD 652,00 — Referencia SOL-2025-89381.\n\nPara validar su identidad, ingrese su usuario y contraseña en el portal.\n\nResponda con su número de cédula y su fecha de nacimiento.\n\nRevise el documento adjunto «Resolucion_8878.iso» con el detalle del caso.\n\nPulse aquí: https://shorturl.at/4bhwr6\n\nEs indispensable que lo haga de inmediato.\n\nAtentamente,\n\nDirección de Seguro de Pensiones\n\nEste correo y sus anexos son confidenciales y están dirigidos únicamente a su destinatario.",
+   "adjuntos": [
+    "iso"
+   ],
+   "enlaces": [
+    {
+     "url": "https://shorturl.at/4bhwr6",
+     "host": "shorturl.at",
+     "clicable": false,
+     "alertas": [
+      "shorturl.at es un acortador: oculta el destino real",
+      "shorturl.at no es un dominio del IESS ni de una entidad conocida"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I3",
+    "I4",
+    "I5",
+    "I6",
+    "I7",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 562,
+     "fin": 604,
+     "texto": "Es indispensable que lo haga de inmediato."
+    },
+    {
+     "indicio": "I3",
+     "inicio": 312,
+     "fin": 384,
+     "texto": "Para validar su identidad, ingrese su usuario y contraseña en el portal."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 23,
+     "fin": 253,
+     "texto": "Nos gustaría informarle que, tras el procesamiento de sus datos y la finalización del periodo de seguro, usted tiene derecho a recibir un reembolso único (devolución de un pago en exceso de la prima del seguro) por parte del IESS."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 255,
+     "fin": 310,
+     "texto": "Monto aprobado: USD 652,00 — Referencia SOL-2025-89381."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 386,
+     "fin": 444,
+     "texto": "Responda con su número de cédula y su fecha de nacimiento."
+    }
+   ],
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide.",
+    "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+    "Trae un archivo o pide instalar una app. No lo abras.",
+    "Ofrece dinero que no pediste.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E913",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Actualizacion de invitacion",
+   "cuerpo": "Se actualizo la hora del evento al 23 de septiembre de 2025, 15h30.\n\nLos detalles del evento estan en el calendario compartido.\n\nSi no puede asistir, indiquelo en la invitacion.\n\nPortal: https://calendar.google.com/calendar/event?eid=rhhi6a57fc2digsox5yms7on\n\nEl equipo de Cuentas de Google",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://calendar.google.com/calendar/event?eid=rhhi6a57fc2digsox5yms7on",
+     "host": "calendar.google.com",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E085",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Te contacto por roles en Alba Digital",
+   "cuerpo": "Estimados senores:\n\nNos comunicamos anteriormente porque su perfil aparece relacionado con una plataforma utilizada por empresas de publicidad digital. Queria hacer un breve seguimiento por si nuestro mensaje anterior no llego.\n\nComo solo encontramos su correo corporativo, le agradeceriamos que actualice sus datos y reserve un horario aqui.\n\nAdjunte una fotografia de su documento de identidad para completar la verificacion.\n\nAcceda desde el siguiente enlace: https://portal-seguro-fxj.info/acceso/7o8ks6c\n\nPolitica de privacidad: https://portal-seguro-fxj.info/terminos\n\nCon sentimientos de consideracion,\n\nGabriela Tapia Landazuri\nTalent Acquisition Specialist\n\nEste mensaje fue enviado a gabriela.r8gs5@correo.test. Por favor no responda a esta direccion.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://portal-seguro-fxj.info/acceso/7o8ks6c",
+     "host": "portal-seguro-fxj.info",
+     "clicable": false,
+     "alertas": [
+      "la terminacion .info es frecuente en sitios de estafa",
+      "portal-seguro-fxj.info no es un dominio del IESS ni de una entidad conocida"
+     ]
+    },
+    {
+     "url": "https://portal-seguro-fxj.info/terminos",
+     "host": "portal-seguro-fxj.info",
+     "clicable": false,
+     "alertas": [
+      "la terminacion .info es frecuente en sitios de estafa",
+      "portal-seguro-fxj.info no es un dominio del IESS ni de una entidad conocida"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I7",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I9",
+     "inicio": 344,
+     "fin": 427,
+     "texto": "Adjunte una fotografia de su documento de identidad para completar la verificacion."
+    }
+   ],
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E649",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Su declaración fue recibida",
+   "cuerpo": "Buen día,\n\nLe recordamos las próximas fechas del calendario tributario según el noveno dígito del RUC.\n\nPuede consultar el comprobante en el portal oficial: https://www.sri.gob.ec\n\nConserve el comprobante en sus archivos.\n\nEl archivo «Comprobante_declaracion_5812.pdf» va adjunto.\n\nEste mensaje es informativo y no requiere respuesta.\n\nServicio de Rentas Internas",
+   "adjuntos": [
+    "pdf"
+   ],
+   "enlaces": [
+    {
+     "url": "https://www.sri.gob.ec",
+     "host": "www.sri.gob.ec",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E574",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Aviso de embargo: expediente TR-2026-53346",
+   "cuerpo": "Estimado jubilado:\n\nEstimado/a Mónica Landázuri Tapia, en mi calidad de Analista de Cumplimiento Tributario, le notifico la disponibilidad de la Resolución de Suspensión Provisional dentro del expediente TR-2026-53346.\n\nLos términos del proceso y la multa correspondiente constan en el expediente digital.\n\nEs fundamental descargar y leer el documento en formato PDF para comprender los términos y plazos de la suspensión.\n\nResponda con su número de cédula y su fecha de nacimiento.\n\nEl detalle completo está en el archivo comprimido adjunto («Resolucion_5729.docm»). Descomprímalo y ábralo.\n\n[Ver detalle]\n\nAgradecemos su atención.\n\nQuedamos atentos a sus consultas.\n\nDirección de Seguro de Pensiones\n\nTodos los derechos reservados.",
+   "adjuntos": [
+    "docm"
+   ],
+   "enlaces": [
+    {
+     "url": "https://unidad-judicial-virtual.test/reembolso/59a7lp",
+     "host": "unidad-judicial-virtual.test",
+     "clicable": false,
+     "alertas": [
+      "unidad-judicial-virtual.test no es un dominio del IESS ni de una entidad conocida",
+      "la ruta pide verificar, actualizar o ingresar datos"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I5",
+    "I8",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 20,
+     "fin": 218,
+     "texto": "Estimado/a Mónica Landázuri Tapia, en mi calidad de Analista de Cumplimiento Tributario, le notifico la disponibilidad de la Resolución de Suspensión Provisional dentro del expediente TR-2026-53346."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 424,
+     "fin": 482,
+     "texto": "Responda con su número de cédula y su fecha de nacimiento."
+    }
+   ],
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Trae un archivo o pide instalar una app. No lo abras.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E160",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Recordatorio de su cita médica",
+   "cuerpo": "Señor(a) Washington Intriago Falconí:\n\nLe confirmamos su cita de Odontología el 8 de mayo de 2026, a las 15h00, en el Centro de Atención Ambulatoria Centro.\n\nSi no puede asistir, cancele su turno con anticipación para que otra persona pueda utilizarlo.\n\nLleve sus exámenes anteriores, si los tiene.\n\nPuede consultar o cancelar su turno en el portal oficial: https://app.iess.gob.ec/iess-gestion-turnero-enlinea-web/\n\nUnidad de Servicios al Asegurado",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://app.iess.gob.ec/iess-gestion-turnero-enlinea-web/",
+     "host": "app.iess.gob.ec",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E500",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Su declaración fue recibida",
+   "cuerpo": "Estimado usuario:\n\nLe recordamos las próximas fechas del calendario tributario según el noveno dígito del RUC.\n\nConserve el comprobante en sus archivos.\n\nSe adjunta el documento «Comprobante_declaracion_3198.pdf».\n\nPuede consultar el comprobante en el portal oficial: [Ver detalle]\n\nQuedamos atentos a sus consultas.\n\nServicio de Rentas Internas",
+   "adjuntos": [
+    "pdf"
+   ],
+   "enlaces": [
+    {
+     "url": "https://www.sri.gob.ec",
+     "host": "www.sri.gob.ec",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E301",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Pago de aportes: escanee para pagar",
+   "cuerpo": "Apreciado asegurado:\n\nLa actualización de datos del afiliado ahora se realiza con el código QR de este mensaje.\n\nEl proceso toma menos de un minuto.\n\nEscanee el código QR y siga los pasos que aparecerán en pantalla.\n\n[Imagen adjunta: codigo_qr_8145.png]\n\nNo necesita acudir a ninguna oficina.\n\nConfirme su número de cédula, fecha de nacimiento y dirección.\n\nSaludos cordiales,",
+   "adjuntos": [
+    "png"
+   ],
+   "enlaces": [],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I7",
+    "I9",
+    "I11"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I9",
+     "inicio": 294,
+     "fin": 356,
+     "texto": "Confirme su número de cédula, fecha de nacimiento y dirección."
+    },
+    {
+     "indicio": "I11",
+     "inicio": 22,
+     "fin": 111,
+     "texto": "La actualización de datos del afiliado ahora se realiza con el código QR de este mensaje."
+    },
+    {
+     "indicio": "I11",
+     "inicio": 150,
+     "fin": 215,
+     "texto": "Escanee el código QR y siga los pasos que aparecerán en pantalla."
+    }
+   ],
+   "pistas": [
+    "El remitente no es una dirección oficial del IESS.",
+    "Pide tu cédula, fecha de nacimiento o una selfie.",
+    "Pide escanear un código QR desconocido."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E647",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Aviso importante para jubilados",
+   "cuerpo": "Estimado/a Ricardo Quishpe Falconí:\n\nPara continuar recibiendo su pensión, los jubilados deben realizar la prueba de vida en línea.\n\nPuede realizar el trámite en línea sin acudir a una oficina.\n\nPara evitar inconvenientes, regularice su situación desde el siguiente enlace.\n\nDigite el código de seguridad enviado a su celular para confirmar el proceso.\n\nPara liberar el trámite deberá cancelar una tasa administrativa de $75,00 mediante transferencia.\n\nHaga clic en el botón: [Verificar mi cuenta]\n\nTiene 12 horas a partir de la recepción de este aviso.\n\nEl incumplimiento generará el bloqueo de su afiliación y una sanción económica.\n\nCon sentimientos de consideración,\n\nTodos los derechos reservados.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://seguro-iess.example/cuenta/frc6r",
+     "host": "seguro-iess.example",
+     "clicable": false,
+     "alertas": [
+      "seguro-iess.example no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'iess' pero no es el sitio oficial",
+      "la ruta pide verificar, actualizar o ingresar datos"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I3",
+    "I7",
+    "I8",
+    "I10"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 499,
+     "fin": 553,
+     "texto": "Tiene 12 horas a partir de la recepción de este aviso."
+    },
+    {
+     "indicio": "I3",
+     "inicio": 275,
+     "fin": 352,
+     "texto": "Digite el código de seguridad enviado a su celular para confirmar el proceso."
+    },
+    {
+     "indicio": "I8",
+     "inicio": 555,
+     "fin": 634,
+     "texto": "El incumplimiento generará el bloqueo de su afiliación y una sanción económica."
+    },
+    {
+     "indicio": "I10",
+     "inicio": 354,
+     "fin": 451,
+     "texto": "Para liberar el trámite deberá cancelar una tasa administrativa de $75,00 mediante transferencia."
+    }
+   ],
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E126",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Su declaración fue recibida",
+   "cuerpo": "Estimado(a) Washington Sandoval Herrera:\n\nLe recordamos las próximas fechas del calendario tributario según el noveno dígito del RUC.\n\nConserve el comprobante en sus archivos.\n\nEste mensaje es informativo y no requiere respuesta.\n\nEl archivo «Comprobante_declaracion_816.xlsx» va adjunto.\n\nEnlace: https://www.sri.gob.ec\n\nMuchas gracias.\n\nServicio de Rentas Internas\n\nSi no desea recibir más avisos, comuníquese con atención al usuario.",
+   "adjuntos": [
+    "xlsx"
+   ],
+   "enlaces": [
+    {
+     "url": "https://www.sri.gob.ec",
+     "host": "www.sri.gob.ec",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E305",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "SRI: devolución de impuestos disponible",
+   "cuerpo": "Estimados señores:\n\nServicio de Rentas Internas: se ha registrado una devolución de impuestos a su favor por USD 439,99.\n\nPara recibir la devolución, confirme sus datos en el siguiente enlace.\n\nRevise el detalle y regularice su situación en el enlace.\n\n¡Felicidades! Ha ganado USD 439,99 en nuestro sorteo.\n\nTransfiera $49,00 a la cuenta que le indicaremos para activar el servicio.\n\nhttps://rentas-internas-portal-xqv.xyz/validar/o0xn\n\nDejar de recibir correos: https://rentas-internas-portal-xqv.xyz/terminos\n\nDispone de 24 horas para realizar este proceso.\n\nDepartamento de Cobranzas y Facturación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://rentas-internas-portal-xqv.xyz/validar/o0xn",
+     "host": "rentas-internas-portal-xqv.xyz",
+     "clicable": false,
+     "alertas": [
+      "la terminacion .xyz es frecuente en sitios de estafa",
+      "rentas-internas-portal-xqv.xyz no es un dominio del IESS ni de una entidad conocida",
+      "la ruta pide verificar, actualizar o ingresar datos"
+     ]
+    },
+    {
+     "url": "https://rentas-internas-portal-xqv.xyz/terminos",
+     "host": "rentas-internas-portal-xqv.xyz",
+     "clicable": false,
+     "alertas": [
+      "la terminacion .xyz es frecuente en sitios de estafa",
+      "rentas-internas-portal-xqv.xyz no es un dominio del IESS ni de una entidad conocida"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I6",
+    "I7",
+    "I10"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 512,
+     "fin": 559,
+     "texto": "Dispone de 24 horas para realizar este proceso."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 20,
+     "fin": 120,
+     "texto": "Servicio de Rentas Internas: se ha registrado una devolución de impuestos a su favor por USD 439,99."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 122,
+     "fin": 192,
+     "texto": "Para recibir la devolución, confirme sus datos en el siguiente enlace."
+    }
+   ],
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Ofrece dinero que no pediste.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E358",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Reunión: avance del proyecto",
+   "cuerpo": "Estimados:\n\nBuen día, les comparto la convocatoria a reunión.\n\nPueden unirse desde: https://teams.microsoft.com/l/meetup-join/ssh5g4dm3au1ezqggyo7\n\nLuis Valarezo Almeida\nAnalista\n\nEste correo y sus anexos son confidenciales y están dirigidos únicamente a su destinatario.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://teams.microsoft.com/l/meetup-join/ssh5g4dm3au1ezqggyo7",
+     "host": "teams.microsoft.com",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E316",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Actualización obligatoria del correo institucional",
+   "cuerpo": "Estimada persona afiliada:\n\nEstimados usuarios: por razones de seguridad estamos verificando todas las cuentas del dominio.\n\nPor favor, revise la actividad de su cuenta iniciando sesión nuevamente a través de este enlace.\n\nVerifique su identidad para mantener vigente su cuenta.\n\nIngrese su usuario, contraseña y el PIN de su cuenta para continuar.\n\nPara continuar ingrese aquí: https://microsoft-cuentas-seguridad-dal.site/tramite/sno4ec\n\nActúe ahora: el enlace vence en pocas horas.\n\nMuchas gracias.\n\nServicio de Verificación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://microsoft-cuentas-seguridad-dal.site/tramite/sno4ec",
+     "host": "microsoft-cuentas-seguridad-dal.site",
+     "clicable": false,
+     "alertas": [
+      "la terminacion .site es frecuente en sitios de estafa",
+      "microsoft-cuentas-seguridad-dal.site no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'microsoft' pero no es el sitio oficial"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I3",
+    "I7"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I3",
+     "inicio": 280,
+     "fin": 348,
+     "texto": "Ingrese su usuario, contraseña y el PIN de su cuenta para continuar."
+    }
+   ],
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide.",
+    "El remitente no es una dirección oficial del IESS."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E582",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Recordatorio de evento: trámites virtuales del IESS",
+   "cuerpo": "Ha sido invitado a un evento: trámites virtuales del IESS, el 6 de octubre de 2026 a las 14h00.\n\nPuede responder a la invitación desde: https://calendar.google.com/calendar/event?eid=95qa81ab4x0nnw2uxlx82ggt\n\nLos detalles del evento están en el calendario compartido.\n\nCon sentimientos de consideración,\n\nEl equipo de Cuentas de Google\n\nVer este mensaje en el navegador.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://calendar.google.com/calendar/event?eid=95qa81ab4x0nnw2uxlx82ggt",
+     "host": "calendar.google.com",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E939",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Pago de prestación registrado",
+   "cuerpo": "Estimado jubilado:\n\nEl pago de su prestación fue registrado el 10 de abril de 2026.\n\nGracias por mantener actualizados sus datos en el portal.\n\nQue tenga un excelente día.\n\nMensaje generado automáticamente. No responda este correo.",
+   "adjuntos": [],
+   "enlaces": [],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E855",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Alerta de seguridad: nuevo acceso a su cuenta de Google",
+   "cuerpo": "Estimado/a:\n\n[Imagen: logotipo]\n\nSe detecto un nuevo acceso a su cuenta de Google desde un dispositivo registrado.\n\nSi fue usted, no necesita hacer nada. Puede revisar la actividad en: [Acceder al portal]\n\nEste mensaje es solo informativo.\n\nCordialmente,\n\nEl equipo de Cuentas de Google\n\nTodos los derechos reservados.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://myaccount.google.com/notifications",
+     "host": "myaccount.google.com",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E603",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Su solicitud N.° REF-2026-89349 fue registrada",
+   "cuerpo": "Hola Verónica,\n\nEn atención a su consulta del 14 de agosto de 2025, le informamos lo siguiente.\n\nSu caso fue derivado a la unidad correspondiente.\n\nPuede dar seguimiento a su requerimiento en: https://www.iess.gob.ec/es/web/afiliados\n\nGracias por su comprensión.\n\nGracias por su atención.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.iess.gob.ec/es/web/afiliados",
+     "host": "www.iess.gob.ec",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E144",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Mensaje importante para usted",
+   "cuerpo": "Hola Diego,\n\nHas recibido una recompensa de USD 744,99 de Horizonte Benéfico. Responde para reclamarla.\n\nReclame su premio en el siguiente enlace.\n\nDepartamento de Economía y Alta Dirección\n\nEste mensaje fue enviado a diego.cwcea@correo.test. Por favor no responda a esta dirección.",
+   "adjuntos": [],
+   "enlaces": [],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I6",
+    "I7"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I6",
+     "inicio": 13,
+     "fin": 77,
+     "texto": "Has recibido una recompensa de USD 744,99 de Horizonte Benéfico."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 105,
+     "fin": 146,
+     "texto": "Reclame su premio en el siguiente enlace."
+    }
+   ],
+   "pistas": [
+    "Ofrece dinero que no pediste.",
+    "El remitente no es una dirección oficial del IESS."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "ej_E025",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "IESS Informa: boletín de febrero",
+   "cuerpo": "Estimados señores:\n\nCompartimos las principales novedades institucionales de febrero.\n\nPara más detalles, comuníquese con Atención al Usuario: atencionalusuario@iess.gob.ec\n\nEncuentre toda la información en nuestro portal oficial: [Más información]\n\nUnidad de Servicios al Asegurado",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.iess.gob.ec",
+     "host": "www.iess.gob.ec",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E106",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Restablecimiento de clave solicitado",
+   "cuerpo": "Apreciado asegurado:\n\nRecibimos una solicitud para restablecer la clave de acceso de su cuenta en el portal del IESS.\n\nSi no fue usted, ignore este mensaje; no se realizará ningún cambio.\n\nPortal: https://app.iess.gob.ec/iess-gestion-desbloqueo-publico-web\n\nGracias por su comprensión.\n\nGracias por su atención.\n\nCoordinación de Atención Ciudadana",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://app.iess.gob.ec/iess-gestion-desbloqueo-publico-web",
+     "host": "app.iess.gob.ec",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E635",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Multas fiscales pendientes",
+   "cuerpo": "Buen día, Verónica Haro Maldonado:\n\n[Imagen: encabezado del mensaje]\n\nEste mensaje constituye una notificación formal de el Servicio de Rentas Internas.\n\nEste acto notifica una pausa temporal en obligaciones administrativas y requiere que usted descargue el documento en el enlace facilitado.\n\nEnvíe una selfie sosteniendo su documento de identidad.\n\nMás información: https://www.iess.gob.ec/confirmar\n\nAdjuntamos el documento «Notificacion_2424.pdf» para su revisión. Ábralo desde su computador.\n\nEn caso de no atender este aviso, su acceso será cancelado y se aplicarán multas.\n\nQue tenga un excelente día.\n\nUnidad de Servicios al Asegurado\n\nEste mensaje fue enviado a veronica.negzo@correo.test. Por favor no responda a esta dirección.",
+   "adjuntos": [
+    "pdf"
+   ],
+   "enlaces": [
+    {
+     "url": "https://funcion-judicial-notificaciones.test/login/9ig79",
+     "host": "funcion-judicial-notificaciones.test",
+     "clicable": false,
+     "alertas": [
+      "funcion-judicial-notificaciones.test no es un dominio del IESS ni de una entidad conocida",
+      "la ruta pide verificar, actualizar o ingresar datos"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I4",
+    "I7",
+    "I8",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 498,
+     "fin": 579,
+     "texto": "En caso de no atender este aviso, su acceso será cancelado y se aplicarán multas."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 294,
+     "fin": 349,
+     "texto": "Envíe una selfie sosteniendo su documento de identidad."
+    }
+   ],
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E428",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Alerta de almacenamiento del correo",
+   "cuerpo": "Apreciado asegurado:\n\nSu buzón ha superado el límite de almacenamiento y no podrá recibir nuevos mensajes.\n\nPara evitar la interrupción del servicio, confirme su cuenta en el enlace.\n\nPara ampliar el espacio, confirme su cuenta en el enlace.\n\nAdjunte una foto de su cédula por ambos lados.\n\nAcceda desde el siguiente enlace: http://www.office365-acceso-a94.net/acceso/p5kgspniqj\n\nEl incumplimiento generará el bloqueo de su afiliación y una sanción económica.\n\nCordialmente,\n\nEquipo de Soporte de Cuentas",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "http://www.office365-acceso-a94.net/acceso/p5kgspniqj",
+     "host": "www.office365-acceso-a94.net",
+     "clicable": false,
+     "alertas": [
+      "usa http sin cifrado",
+      "office365-acceso-a94.net no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'office365' pero no es el sitio oficial"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I7",
+    "I8",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 380,
+     "fin": 459,
+     "texto": "El incumplimiento generará el bloqueo de su afiliación y una sanción económica."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 243,
+     "fin": 289,
+     "texto": "Adjunte una foto de su cédula por ambos lados."
+    }
+   ],
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E861",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Confirme su reembolso de USD 251,50",
+   "cuerpo": "Estimada persona afiliada:\n\nSu reembolso por aportes duplicados está listo para ser acreditado.\n\nPara acreditar los fondos en su cuenta bancaria debe verificar su identidad, actualizar sus datos y aceptar el pago.\n\nDebe cancelar $120,00 para que su solicitud sea procesada.\n\nPara continuar ingrese aquí: https://www.iess.gob.ec/validar\n\nAyuda: https://www.iess-gob-ec.example/terminos\n\nResponda con urgencia, el plazo vence hoy a las 17h00.\n\nAgradecemos su atención.\n\nDepartamento de Economía y Alta Dirección\n\nSi no desea recibir más avisos, comuníquese con atención al usuario.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.iess-gob-ec.example/verificar/ppmdudc",
+     "host": "www.iess-gob-ec.example",
+     "clicable": false,
+     "alertas": [
+      "iess-gob-ec.example no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'iess' pero no es el sitio oficial",
+      "la ruta pide verificar, actualizar o ingresar datos"
+     ]
+    },
+    {
+     "url": "https://www.iess-gob-ec.example/terminos",
+     "host": "www.iess-gob-ec.example",
+     "clicable": false,
+     "alertas": [
+      "iess-gob-ec.example no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'iess' pero no es el sitio oficial"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I4",
+    "I6",
+    "I10"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 386,
+     "fin": 440,
+     "texto": "Responda con urgencia, el plazo vence hoy a las 17h00."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 28,
+     "fin": 95,
+     "texto": "Su reembolso por aportes duplicados está listo para ser acreditado."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 97,
+     "fin": 213,
+     "texto": "Para acreditar los fondos en su cuenta bancaria debe verificar su identidad, actualizar sus datos y aceptar el pago."
+    },
+    {
+     "indicio": "I10",
+     "inicio": 97,
+     "fin": 213,
+     "texto": "Para acreditar los fondos en su cuenta bancaria debe verificar su identidad, actualizar sus datos y aceptar el pago."
+    }
+   ],
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+    "Ofrece dinero que no pediste.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E263",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Recordatorio de evento: historia laboral y aportes",
+   "cuerpo": "Hola María,\n\nSe actualizó la hora del evento al 25 de noviembre de 2026, 15h00.\n\nLos detalles del evento están en el calendario compartido.\n\nSi no puede asistir, indíquelo en la invitación.\n\nEnlace: https://calendar.google.com/calendar/event?eid=qcayvujp6fbfv7wp\n\nAgradecemos su atención.\n\nEl equipo de Cuentas de Google\n\nEste mensaje fue enviado a maria.ysfxt@correo.test. Por favor no responda a esta dirección.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://calendar.google.com/calendar/event?eid=qcayvujp6fbfv7wp",
+     "host": "calendar.google.com",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E424",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Resumen de actividad de su cuenta",
+   "cuerpo": "Se actualizó la información de seguridad de su cuenta.\n\nPuede administrar sus opciones de seguridad en: https://account.microsoft.com/security\n\nSi no reconoce esta actividad, puede revisar su actividad reciente en: https://account.microsoft.com/security\n\nEste mensaje es informativo.\n\nSaludos cordiales,\n\nEl equipo de cuentas de Microsoft",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://account.microsoft.com/security",
+     "host": "account.microsoft.com",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E119",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Comprobante de pago adjunto",
+   "cuerpo": "[Imagen: logotipo]\n\nPor favor revise el documento adjunto con el detalle.\n\nAdjuntamos el documento «Documento_Importante_8888.pdf» para su revisión. Ábralo desde su computador.\n\n[Continuar]\n\nCoordinación de Atención Ciudadana\n\nSi no desea recibir más avisos, comuníquese con atención al usuario.",
+   "adjuntos": [
+    "pdf"
+   ],
+   "enlaces": [
+    {
+     "url": "https://55wktxwzk4n4gk.webflow.io",
+     "host": "55wktxwzk4n4gk.webflow.io",
+     "clicable": false,
+     "alertas": [
+      "webflow.io no es un dominio del IESS ni de una entidad conocida"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2"
+   ],
+   "resaltados": [],
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "ej_E495",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "IESS informa: validación de cuenta",
+   "cuerpo": "Estimado cliente:\n\nPor seguridad, su clave de afiliado ha sido bloqueada temporalmente.\n\nAcceda con su cuenta para revisar el detalle de la novedad.\n\nDebe cancelar $4,50 para que su solicitud sea procesada.\n\nAcceda desde el siguiente enlace: https://www.iess.gob.ec/descarga\n\nPolítica de privacidad: https://mi-iess.test/soporte\n\nQuedamos atentos a sus consultas.\n\nCoordinación de Atención Ciudadana\n\nMensaje generado automáticamente. No responda este correo.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://mi-iess.test/login/iaeza",
+     "host": "mi-iess.test",
+     "clicable": false,
+     "alertas": [
+      "mi-iess.test no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'iess' pero no es el sitio oficial",
+      "la ruta pide verificar, actualizar o ingresar datos"
+     ]
+    },
+    {
+     "url": "https://mi-iess.test/soporte",
+     "host": "mi-iess.test",
+     "clicable": false,
+     "alertas": [
+      "mi-iess.test no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'iess' pero no es el sitio oficial"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I4",
+    "I7",
+    "I10"
+   ],
+   "resaltados": [],
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E875",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "El IESS nunca le pedira su clave por correo",
+   "cuerpo": "Buen dia, Ivan Sandoval Vallejo:\n\n[Imagen: sello institucional]\n\nCon el fin de proteger a nuestros afiliados, compartimos algunas recomendaciones para identificar mensajes sospechosos.\n\nPara denuncias, utilice el portal oficial: https://denuncias.iess.gob.ec\n\nGracias por su comprension.\n\nAtentamente,\n\nAtencion al Usuario\nIESS",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://denuncias.iess.gob.ec",
+     "host": "denuncias.iess.gob.ec",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E053",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Mantenimiento de sistemas: 28 de septiembre de 2025",
+   "cuerpo": "Buenas tardes, Silvana:\n\nEl 28 de septiembre de 2025, entre las 22h00 y las 02h00, se realizará un mantenimiento programado de los sistemas del IESS.\n\nAgradecemos su comprensión.\n\nDurante ese periodo no podrá generar turnos ni consultar la historia laboral.\n\nReciba un cordial saludo.\n\nGestión de Prestaciones\n\nEste mensaje fue enviado a silvana.5yqxp@correo.test. Por favor no responda a esta dirección.",
+   "adjuntos": [],
+   "enlaces": [],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E137",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Aviso de suspensión de su cuenta",
+   "cuerpo": "Buenas tardes, Sofía:\n\nHemos detectado actividad inusual en su cuenta de correo institucional asociada a este mensaje.\n\nVerifique su identidad para mantener vigente su cuenta.\n\nAdjunte una foto de su cédula por ambos lados.\n\nInstale la aplicación «IESS Seguro» desde el siguiente enlace: https://verificacion-microsoft.example/acceso/7i4d03p\n\n[Solicitar el reembolso]\n\nEn caso de no atender este aviso, su acceso será cancelado y se aplicarán multas.\n\nDirección de Seguro de Pensiones\n\nMensaje generado automáticamente. No responda este correo.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://verificacion-microsoft.example/acceso/7i4d03p",
+     "host": "verificacion-microsoft.example",
+     "clicable": false,
+     "alertas": [
+      "verificacion-microsoft.example no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'microsoft' pero no es el sitio oficial"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I5",
+    "I7",
+    "I8",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I5",
+     "inicio": 225,
+     "fin": 319,
+     "texto": "Instale la aplicación «IESS Seguro» desde el siguiente enlace: https://verificacion-microsoft."
+    },
+    {
+     "indicio": "I8",
+     "inicio": 369,
+     "fin": 450,
+     "texto": "En caso de no atender este aviso, su acceso será cancelado y se aplicarán multas."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 177,
+     "fin": 223,
+     "texto": "Adjunte una foto de su cédula por ambos lados."
+    }
+   ],
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Trae un archivo o pide instalar una app. No lo abras.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E448",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Recordatorio: reunión en línea",
+   "cuerpo": "Se programó una reunión en línea sobre jubilación y pensiones para el 13 de agosto de 2026 a las 07h00.\n\nSe sugiere conectarse unos minutos antes.\n\nLa reunión no será grabada.\n\nEnlace: https://zoom.us/j/82151044159\n\nGracias por su atención.\n\nZoom\n\nSi no desea recibir más avisos, comuníquese con atención al usuario.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://zoom.us/j/82151044159",
+     "host": "zoom.us",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E048",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Su pensión será suspendida",
+   "cuerpo": "Hola,\n\n[Imagen: sello institucional]\n\nPara continuar recibiendo su pensión, los jubilados deben realizar la prueba de vida en línea.\n\nPuede realizar el trámite en línea sin acudir a una oficina.\n\nEnvíe una selfie sosteniendo su documento de identidad.\n\nPara continuar, abone $75,00 como garantía del trámite.\n\n[Actualizar ahora]\n\nResponda con urgencia, el plazo vence hoy a las 17h00.\n\nCaso contrario, se iniciará un proceso de embargo en su contra.\n\nPara más información, visite nuestro portal.\n\nDirección Nacional de Afiliación y Cobertura",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "http://afiliado-iess-677.xyz/documento/d0abhqxix",
+     "host": "afiliado-iess-677.xyz",
+     "clicable": false,
+     "alertas": [
+      "usa http sin cifrado",
+      "la terminacion .xyz es frecuente en sitios de estafa",
+      "afiliado-iess-677.xyz no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'iess' pero no es el sitio oficial"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I7",
+    "I8",
+    "I9",
+    "I10"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 330,
+     "fin": 384,
+     "texto": "Responda con urgencia, el plazo vence hoy a las 17h00."
+    },
+    {
+     "indicio": "I8",
+     "inicio": 386,
+     "fin": 449,
+     "texto": "Caso contrario, se iniciará un proceso de embargo en su contra."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 196,
+     "fin": 251,
+     "texto": "Envíe una selfie sosteniendo su documento de identidad."
+    }
+   ],
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide tu cédula, fecha de nacimiento o una selfie.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E807",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Confirme su reembolso de USD 888,00",
+   "cuerpo": "Estimados señores:\n\nMediante el presente le comunicamos que existe un valor pendiente de devolución a su nombre.\n\nMonto aprobado: USD 888,00 — Referencia IESS-2026-99589.\n\nPara acreditar los fondos en su cuenta bancaria debe verificar su identidad, actualizar sus datos y aceptar el pago.\n\nHaga clic en el botón: [HAGA CLIC AQUÍ]\n\nDejar de recibir correos: [Términos]\n\nResponda con urgencia, el plazo vence hoy a las 17h00.\n\nMuchas gracias.\n\nCoordinación de Atención Ciudadana\n\nSi no desea recibir más avisos, comuníquese con atención al usuario.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://seguro-iess.example/documento/cxrljh5w",
+     "host": "seguro-iess.example",
+     "clicable": false,
+     "alertas": [
+      "seguro-iess.example no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'iess' pero no es el sitio oficial"
+     ]
+    },
+    {
+     "url": "https://seguro-iess.example/soporte",
+     "host": "seguro-iess.example",
+     "clicable": false,
+     "alertas": [
+      "seguro-iess.example no es un dominio del IESS ni de una entidad conocida",
+      "usa el nombre 'iess' pero no es el sitio oficial"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I6",
+    "I7"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 369,
+     "fin": 423,
+     "texto": "Responda con urgencia, el plazo vence hoy a las 17h00."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 20,
+     "fin": 112,
+     "texto": "Mediante el presente le comunicamos que existe un valor pendiente de devolución a su nombre."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 114,
+     "fin": 170,
+     "texto": "Monto aprobado: USD 888,00 — Referencia IESS-2026-99589."
+    }
+   ],
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Ofrece dinero que no pediste.",
+    "El remitente no es una dirección oficial del IESS."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E812",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Planilla de aportes de marzo disponible",
+   "cuerpo": "Apreciado(a) Édison Villacís Rivadeneira:\n\nLa planilla de aportes correspondiente a marzo ya está disponible para su consulta.\n\nEl valor y el desglose constan en el documento adjunto.\n\nMuchas gracias.\n\nGestión de Prestaciones\n\nEste mensaje fue enviado a edison.xwgkr@correo.test. Por favor no responda a esta dirección.",
+   "adjuntos": [],
+   "enlaces": [],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E881",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Recordatorio de su cita médica",
+   "cuerpo": "Señor(a) Daniela Orellana Toapanta:\n\nSu turno en línea fue generado con éxito para el 25 de marzo de 2026 (13h30).\n\nRecuerde llegar con 15 minutos de anticipación y presentar su cédula de identidad.\n\nPuede consultar o cancelar su turno en el portal oficial: [Ingresar]\n\nSi no puede asistir, cancele su turno con anticipación para que otra persona pueda utilizarlo.\n\nGracias por su atención.\n\nVer este mensaje en el navegador.",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://app.iess.gob.ec/iess-gestion-turnero-enlinea-web/",
+     "host": "app.iess.gob.ec",
+     "clicable": false,
+     "alertas": []
+    },
+    {
+     "url": "https://www.iess.gob.ec/images/w8fgmx.png",
+     "host": "www.iess.gob.ec",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "ej_E152",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Citacion — Proceso N.° EXP-2025-89252",
+   "cuerpo": "Estimados senores:\n\n[Imagen: sello institucional]\n\nSu caso ha sido seleccionado para una revision de cumplimiento tributario y administrativo.\n\nDebe presentarse virtualmente a traves del enlace para conocer los cargos.\n\nAdjuntamos el documento «Comprobante_7242.zip» para su revision. Abralo desde su computador.\n\n[Continuar]\n\nRequerimos su respuesta inmediata.\n\nSi no responde, perdera su beneficio y debera devolver los valores recibidos.\n\nQuedamos atentos a sus consultas.\n\nGestion de Prestaciones\n\nTodos los derechos reservados.",
+   "adjuntos": [
+    "zip"
+   ],
+   "enlaces": [
+    {
+     "url": "https://citaciones-judiciales-ic9.site/validar/efj9btj8b",
+     "host": "citaciones-judiciales-ic9.site",
+     "clicable": false,
+     "alertas": [
+      "la terminacion .site es frecuente en sitios de estafa",
+      "citaciones-judiciales-ic9.site no es un dominio del IESS ni de una entidad conocida",
+      "la ruta pide verificar, actualizar o ingresar datos"
+     ]
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I5",
+    "I7",
+    "I8"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 363,
+     "fin": 440,
+     "texto": "Si no responde, perdera su beneficio y debera devolver los valores recibidos."
+    }
+   ],
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Trae un archivo o pide instalar una app. No lo abras.",
+    "El remitente no es una dirección oficial del IESS.",
+    "Te amenaza con suspender o quitar un beneficio."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "ej_E757",
+   "tipo": "correo",
+   "origen": "dataset",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Historia laboral actualizada",
+   "cuerpo": "Estimado jubilado:\n\nSu solicitud de certificado N.° TR-2025-72813 fue atendida y el documento está disponible.\n\nGracias por utilizar los servicios del IESS.\n\nPuede descargarlo desde el portal oficial: https://app.iess.gob.ec/gestion-afiliado-web/app/index\n\nEl certificado va adjunto a este mensaje en formato PDF.\n\nCoordinación de Atención Ciudadana",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://app.iess.gob.ec/gestion-afiliado-web/app/index",
+     "host": "app.iess.gob.ec",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "SEGURO",
+   "indicios": [],
+   "resaltados": [],
+   "pistas": [
+    "Enlaces oficiales y sin pedidos de datos, claves ni pagos."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_000",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Pago de aportes: escanee para pagar",
+   "cuerpo": "Estimado afiliado:\n\nLa actualización de datos del afiliado ahora se realiza con el código QR de este mensaje.\n\nEste trámite debe completarse hoy mismo.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://iessgob.example/verificar",
+     "host": "iessgob.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I11"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 111,
+     "fin": 151,
+     "texto": "Este trámite debe completarse hoy mismo."
+    },
+    {
+     "indicio": "I11",
+     "inicio": 20,
+     "fin": 109,
+     "texto": "La actualización de datos del afiliado ahora se realiza con el código QR de este mensaje."
+    }
+   ],
+   "basado_en": "E112",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide escanear un código QR desconocido."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_001",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Turno médico cancelado: confirme su cita",
+   "cuerpo": "Estimado afiliado:\n\nConfirme su número de cédula, fecha de nacimiento y dirección.\n\n[Iniciar verificación]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://mi-iess.example/verificar",
+     "host": "mi-iess.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I9",
+     "inicio": 20,
+     "fin": 82,
+     "texto": "Confirme su número de cédula, fecha de nacimiento y dirección."
+    }
+   ],
+   "basado_en": "E889",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_002",
+   "tipo": "sms",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "",
+   "cuerpo": "IESS: Si no responde, perderá su beneficio y deberá devolver los valores recibidos. Responda con urgencia, el plazo vence hoy a las 17h00. Ingresa: https://iess-verificacion.invalid/reembolso",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://iess-verificacion.invalid/reembolso",
+     "host": "iess-verificacion.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I8"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 84,
+     "fin": 138,
+     "texto": "Responda con urgencia, el plazo vence hoy a las 17h00."
+    },
+    {
+     "indicio": "I8",
+     "inicio": 0,
+     "fin": 83,
+     "texto": "IESS: Si no responde, perderá su beneficio y deberá devolver los valores recibidos."
+    }
+   ],
+   "basado_en": "E261",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Te amenaza con suspender o quitar un beneficio."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_003",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Devolución aprobada a su nombre",
+   "cuerpo": "Estimado afiliado:\n\nTiene 12 horas a partir de la recepción de este aviso.\n\nValor a acreditar: USD 267,50.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://acortador.example/252861d",
+     "host": "acortador.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I4",
+    "I6"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 20,
+     "fin": 74,
+     "texto": "Tiene 12 horas a partir de la recepción de este aviso."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 76,
+     "fin": 106,
+     "texto": "Valor a acreditar: USD 267,50."
+    }
+   ],
+   "basado_en": "E427",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+    "Ofrece dinero que no pediste."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "sim_004",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "RE: Su clave de afiliado fue bloqueada",
+   "cuerpo": "Estimado afiliado:\n\nPor seguridad, su clave de afiliado ha sido bloqueada temporalmente.\n\nHa ganado USD 288,00 en nuestro sorteo.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://portal-iess.test/reembolso",
+     "host": "portal-iess.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I6",
+    "I8"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I6",
+     "inicio": 90,
+     "fin": 129,
+     "texto": "Ha ganado USD 288,00 en nuestro sorteo."
+    },
+    {
+     "indicio": "I8",
+     "inicio": 20,
+     "fin": 88,
+     "texto": "Por seguridad, su clave de afiliado ha sido bloqueada temporalmente."
+    }
+   ],
+   "basado_en": "E250",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Ofrece dinero que no pediste.",
+    "Te amenaza con suspender o quitar un beneficio."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_005",
+   "tipo": "sms",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "",
+   "cuerpo": "IESS: Adjunte una foto de su cedula por ambos lados. Ingresa: https://acortador.example/39917c4",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://acortador.example/39917c4",
+     "host": "acortador.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I4",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I9",
+     "inicio": 0,
+     "fin": 52,
+     "texto": "IESS: Adjunte una foto de su cedula por ambos lados."
+    }
+   ],
+   "basado_en": "E650",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_006",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Turno médico cancelado: confirme su cita",
+   "cuerpo": "Estimado afiliado:\n\nResponda con su número de cédula y su fecha de nacimiento.\n\nIngrese su usuario, contraseña y el PIN de su cuenta para continuar.\n\n[Reclamar ahora]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.iess-verificacion.test/acceso",
+     "host": "www.iess-verificacion.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I3",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I3",
+     "inicio": 80,
+     "fin": 148,
+     "texto": "Ingrese su usuario, contraseña y el PIN de su cuenta para continuar."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 20,
+     "fin": 78,
+     "texto": "Responda con su número de cédula y su fecha de nacimiento."
+    }
+   ],
+   "basado_en": "E531",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_007",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Notificacion de la Funcion Judicial",
+   "cuerpo": "Estimado afiliado:\n\nSi no responde, perdera su beneficio y debera devolver los valores recibidos.\n\n[Descargar documento]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://fiscalia-notificacion.invalid/reembolso",
+     "host": "fiscalia-notificacion.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I8"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 20,
+     "fin": 97,
+     "texto": "Si no responde, perdera su beneficio y debera devolver los valores recibidos."
+    }
+   ],
+   "basado_en": "E469",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Te amenaza con suspender o quitar un beneficio."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_009",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Su contraseña ha sido comprometida",
+   "cuerpo": "Estimado afiliado:\n\nSi no quiere que ocurra esto, transfiera el equivalente a 250,00 USD en bitcoins a mi dirección: [dirección de billetera] De lo contrario, enviaré el material a todos sus contactos.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://tu-beneficio.test/reembolso",
+     "host": "tu-beneficio.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I10"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I10",
+     "inicio": 20,
+     "fin": 201,
+     "texto": "Si no quiere que ocurra esto, transfiera el equivalente a 250,00 USD en bitcoins a mi dirección: [dirección de billetera] De lo contrario, enviaré el material a todos sus contactos."
+    }
+   ],
+   "basado_en": "E831",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_010",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Reembolso pendiente de su afiliación",
+   "cuerpo": "Estimado afiliado:\n\nPara acreditar los fondos en su cuenta bancaria debe verificar su identidad, actualizar sus datos y aceptar el pago.\n\nAdjunte una fotografía de su documento de identidad para completar la verificación.\n\nEste trámite debe completarse hoy mismo.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.afiliado-iess.test/actualizar",
+     "host": "www.afiliado-iess.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I6",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 223,
+     "fin": 263,
+     "texto": "Este trámite debe completarse hoy mismo."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 20,
+     "fin": 136,
+     "texto": "Para acreditar los fondos en su cuenta bancaria debe verificar su identidad, actualizar sus datos y aceptar el pago."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 138,
+     "fin": 221,
+     "texto": "Adjunte una fotografía de su documento de identidad para completar la verificación."
+    }
+   ],
+   "basado_en": "E802",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Ofrece dinero que no pediste.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "sim_011",
+   "tipo": "sms",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "",
+   "cuerpo": "IESS: Caso contrario, se iniciará un proceso de embargo en su contra. Ingresa: https://acortador.example/1843ea8",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://acortador.example/1843ea8",
+     "host": "acortador.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I4",
+    "I8"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 0,
+     "fin": 69,
+     "texto": "IESS: Caso contrario, se iniciará un proceso de embargo en su contra."
+    }
+   ],
+   "basado_en": "E506",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+    "Te amenaza con suspender o quitar un beneficio."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_012",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Actualización obligatoria de datos del afiliado",
+   "cuerpo": "Estimado afiliado:\n\nConfirme su número de cédula, fecha de nacimiento y dirección.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://promos-beneficios.invalid/verificar",
+     "host": "promos-beneficios.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I9",
+     "inicio": 20,
+     "fin": 82,
+     "texto": "Confirme su número de cédula, fecha de nacimiento y dirección."
+    }
+   ],
+   "basado_en": "E827",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_013",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Su buzón está casi lleno: acción requerida",
+   "cuerpo": "Estimado afiliado:\n\nPara validar su identidad, ingrese su usuario y contraseña en el portal.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.outlook-soporte.example/reembolso",
+     "host": "www.outlook-soporte.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I3"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I3",
+     "inicio": 20,
+     "fin": 92,
+     "texto": "Para validar su identidad, ingrese su usuario y contraseña en el portal."
+    }
+   ],
+   "basado_en": "E157",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_014",
+   "tipo": "sms",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "",
+   "cuerpo": "IESS: El 1 de octubre de 2025 se realizará una actualización del servicio y desactivaremos todas las cuentas de correo electrónico inutilizables. Actualice sus datos personales: nombres completos, cédula y número de celular. Ingresa: https://www.iess-servicios.invalid/actualizar",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.iess-servicios.invalid/actualizar",
+     "host": "www.iess-servicios.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I8",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 0,
+     "fin": 145,
+     "texto": "IESS: El 1 de octubre de 2025 se realizará una actualización del servicio y desactivaremos todas las cuentas de correo electrónico inutilizables."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 146,
+     "fin": 224,
+     "texto": "Actualice sus datos personales: nombres completos, cédula y número de celular."
+    }
+   ],
+   "basado_en": "E293",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_015",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Confirmación de sus datos de contacto",
+   "cuerpo": "Estimado afiliado:\n\nActualice sus datos personales: nombres completos, cédula y número de celular.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.iess-verificacion.example/verificar",
+     "host": "www.iess-verificacion.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I9",
+     "inicio": 20,
+     "fin": 98,
+     "texto": "Actualice sus datos personales: nombres completos, cédula y número de celular."
+    }
+   ],
+   "basado_en": "E517",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_016",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Encuesta de satisfacción del afiliado",
+   "cuerpo": "Estimado afiliado:\n\nActualice sus datos personales: nombres completos, cédula y número de celular.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.iess-reembolsos.test/verificar",
+     "host": "www.iess-reembolsos.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I9",
+     "inicio": 20,
+     "fin": 98,
+     "texto": "Actualice sus datos personales: nombres completos, cédula y número de celular."
+    }
+   ],
+   "basado_en": "E536",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_018",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "RE: Notificación de deuda tributaria",
+   "cuerpo": "Estimado afiliado:\n\nDe no hacerlo, su cuenta será suspendida de forma permanente.\n\n[Acceder al documento]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://iessseguro.invalid/acceso",
+     "host": "iessseguro.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I8"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 20,
+     "fin": 81,
+     "texto": "De no hacerlo, su cuenta será suspendida de forma permanente."
+    }
+   ],
+   "basado_en": "E131",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Te amenaza con suspender o quitar un beneficio."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_019",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Devolución de impuestos aprobada",
+   "cuerpo": "Estimado afiliado:\n\nPara liberar el trámite deberá cancelar una tasa administrativa de $75,00 mediante transferencia.\n\nDe no hacerlo, su cuenta será suspendida de forma permanente.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.tu-beneficio.invalid/actualizar",
+     "host": "www.tu-beneficio.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I8",
+    "I10"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 119,
+     "fin": 180,
+     "texto": "De no hacerlo, su cuenta será suspendida de forma permanente."
+    },
+    {
+     "indicio": "I10",
+     "inicio": 20,
+     "fin": 117,
+     "texto": "Para liberar el trámite deberá cancelar una tasa administrativa de $75,00 mediante transferencia."
+    }
+   ],
+   "basado_en": "E205",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_020",
+   "tipo": "sms",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "",
+   "cuerpo": "IESS: Para acreditar los fondos en su cuenta bancaria debe verificar su identidad, actualizar sus datos y aceptar el pago. Responda con urgencia, el plazo vence hoy a las 17h00. Ingresa: https://iess-reembolsos.invalid/actualizar",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://iess-reembolsos.invalid/actualizar",
+     "host": "iess-reembolsos.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I6"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 123,
+     "fin": 177,
+     "texto": "Responda con urgencia, el plazo vence hoy a las 17h00."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 0,
+     "fin": 122,
+     "texto": "IESS: Para acreditar los fondos en su cuenta bancaria debe verificar su identidad, actualizar sus datos y aceptar el pago."
+    }
+   ],
+   "basado_en": "E059",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Ofrece dinero que no pediste."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_021",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Aviso de suspensión de su cuenta",
+   "cuerpo": "Estimado afiliado:\n\nTiene 24 horas a partir de la recepción de este aviso.\n\nDigite el código de seguridad enviado a su celular para confirmar el proceso.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://correo-institucional-verificacion.test/acceso",
+     "host": "correo-institucional-verificacion.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I3"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 20,
+     "fin": 74,
+     "texto": "Tiene 24 horas a partir de la recepción de este aviso."
+    },
+    {
+     "indicio": "I3",
+     "inicio": 76,
+     "fin": 153,
+     "texto": "Digite el código de seguridad enviado a su celular para confirmar el proceso."
+    }
+   ],
+   "basado_en": "E748",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_022",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "URGENTE: Notificación de proceso",
+   "cuerpo": "Estimado afiliado:\n\nÚltima oportunidad: el plazo termina hoy.\n\n[Ver detalle]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.funcion-judicial-notificaciones.invalid/verificar",
+     "host": "www.funcion-judicial-notificaciones.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 20,
+     "fin": 61,
+     "texto": "Última oportunidad: el plazo termina hoy."
+    }
+   ],
+   "basado_en": "E725",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_025",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Has recibido una recompensa",
+   "cuerpo": "Estimado afiliado:\n\nComplete el formulario con su cédula, fecha de nacimiento y datos bancarios.\n\nHas recibido una recompensa de USD 2451,50 de Esperanza Global.\n\n[HAGA CLIC AQUÍ]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://promos-beneficios.invalid/acceso",
+     "host": "promos-beneficios.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I6",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I6",
+     "inicio": 98,
+     "fin": 161,
+     "texto": "Has recibido una recompensa de USD 2451,50 de Esperanza Global."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 20,
+     "fin": 96,
+     "texto": "Complete el formulario con su cédula, fecha de nacimiento y datos bancarios."
+    }
+   ],
+   "basado_en": "E421",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Ofrece dinero que no pediste.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_026",
+   "tipo": "sms",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "",
+   "cuerpo": "IESS: Su turno médico fue cancelado por una actualización del sistema y debe confirmarlo nuevamente. Esta ventana de atención se cierra en 48 horas. Ingresa: https://www.rentas-internas-portal.test/reembolso",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.rentas-internas-portal.test/reembolso",
+     "host": "www.rentas-internas-portal.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I8"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 101,
+     "fin": 148,
+     "texto": "Esta ventana de atención se cierra en 48 horas."
+    },
+    {
+     "indicio": "I8",
+     "inicio": 0,
+     "fin": 100,
+     "texto": "IESS: Su turno médico fue cancelado por una actualización del sistema y debe confirmarlo nuevamente."
+    }
+   ],
+   "basado_en": "E439",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Te amenaza con suspender o quitar un beneficio."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_027",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Su clave de afiliado fue bloqueada",
+   "cuerpo": "Estimado afiliado:\n\nComplete el formulario con su cédula, fecha de nacimiento y datos bancarios.\n\nPor seguridad, su clave de afiliado ha sido bloqueada temporalmente.\n\n[Solicitar el reembolso]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://seguro-iess.invalid/verificar",
+     "host": "seguro-iess.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I3",
+    "I8",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I3",
+     "inicio": 98,
+     "fin": 166,
+     "texto": "Por seguridad, su clave de afiliado ha sido bloqueada temporalmente."
+    },
+    {
+     "indicio": "I8",
+     "inicio": 98,
+     "fin": 166,
+     "texto": "Por seguridad, su clave de afiliado ha sido bloqueada temporalmente."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 20,
+     "fin": 96,
+     "texto": "Complete el formulario con su cédula, fecha de nacimiento y datos bancarios."
+    }
+   ],
+   "basado_en": "E538",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "sim_028",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Turno médico cancelado: confirme su cita",
+   "cuerpo": "Estimado afiliado:\n\nNo lo deje para después, solo dispone de 24 horas.\n\nSu turno médico fue cancelado por una actualización del sistema y debe confirmarlo nuevamente.\n\nPara liberar el trámite deberá cancelar una tasa administrativa de $250,00 mediante transferencia.\n\n[Verificar mi cuenta]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.iess-verificacion.example/reembolso",
+     "host": "www.iess-verificacion.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I8",
+    "I10"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 20,
+     "fin": 70,
+     "texto": "No lo deje para después, solo dispone de 24 horas."
+    },
+    {
+     "indicio": "I8",
+     "inicio": 72,
+     "fin": 166,
+     "texto": "Su turno médico fue cancelado por una actualización del sistema y debe confirmarlo nuevamente."
+    },
+    {
+     "indicio": "I10",
+     "inicio": 168,
+     "fin": 266,
+     "texto": "Para liberar el trámite deberá cancelar una tasa administrativa de $250,00 mediante transferencia."
+    }
+   ],
+   "basado_en": "E968",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Te amenaza con suspender o quitar un beneficio.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "sim_029",
+   "tipo": "sms",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "",
+   "cuerpo": "IESS: Responda con su número de cédula y su fecha de nacimiento. Ingresa: https://acortador.example/eccfcf",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://acortador.example/eccfcf",
+     "host": "acortador.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I4",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I9",
+     "inicio": 0,
+     "fin": 64,
+     "texto": "IESS: Responda con su número de cédula y su fecha de nacimiento."
+    }
+   ],
+   "basado_en": "E596",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_030",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Estimados usuarios: verificación de actividad",
+   "cuerpo": "Estimado afiliado:\n\nIngrese su usuario, contraseña y el PIN de su cuenta para continuar.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://outlook-soporte.invalid/actualizar",
+     "host": "outlook-soporte.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I3"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I3",
+     "inicio": 20,
+     "fin": 88,
+     "texto": "Ingrese su usuario, contraseña y el PIN de su cuenta para continuar."
+    }
+   ],
+   "basado_en": "E290",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_031",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Turno médico cancelado: confirme su cita",
+   "cuerpo": "Estimado afiliado:\n\nIngrese su usuario, contraseña y el PIN de su cuenta para continuar.\n\nEsta ventana de atención se cierra en 24 horas.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://afiliado-iess.test/reembolso",
+     "host": "afiliado-iess.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2",
+    "I3"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 90,
+     "fin": 137,
+     "texto": "Esta ventana de atención se cierra en 24 horas."
+    },
+    {
+     "indicio": "I3",
+     "inicio": 20,
+     "fin": 88,
+     "texto": "Ingrese su usuario, contraseña y el PIN de su cuenta para continuar."
+    }
+   ],
+   "basado_en": "E720",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_032",
+   "tipo": "sms",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "",
+   "cuerpo": "IESS: Ingrese el número de su tarjeta, la fecha de vencimiento y el código CVV para recibir el depósito. Ingresa: https://iess-tramites.invalid/acceso",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://iess-tramites.invalid/acceso",
+     "host": "iess-tramites.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I3",
+    "I10"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I3",
+     "inicio": 0,
+     "fin": 104,
+     "texto": "IESS: Ingrese el número de su tarjeta, la fecha de vencimiento y el código CVV para recibir el depósito."
+    },
+    {
+     "indicio": "I10",
+     "inicio": 0,
+     "fin": 104,
+     "texto": "IESS: Ingrese el número de su tarjeta, la fecha de vencimiento y el código CVV para recibir el depósito."
+    }
+   ],
+   "basado_en": "E402",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_033",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Turno médico cancelado: confirme su cita",
+   "cuerpo": "Estimado afiliado:\n\nSu turno médico fue cancelado por una actualización del sistema y debe confirmarlo nuevamente.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://portal-iess.example/acceso",
+     "host": "portal-iess.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I8"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 20,
+     "fin": 114,
+     "texto": "Su turno médico fue cancelado por una actualización del sistema y debe confirmarlo nuevamente."
+    }
+   ],
+   "basado_en": "E917",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Te amenaza con suspender o quitar un beneficio."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_034",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Beneficio especial para afiliados",
+   "cuerpo": "Estimado afiliado:\n\nIngrese el número de su tarjeta, la fecha de vencimiento y el código CVV para recibir el depósito.\n\nPor ser afiliado activo, usted accede a un bono especial de USD 658,99.\n\nEnvíe una selfie sosteniendo su documento de identidad.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.office365-acceso.test/acceso",
+     "host": "www.office365-acceso.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I3",
+    "I6",
+    "I9",
+    "I10"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I3",
+     "inicio": 20,
+     "fin": 118,
+     "texto": "Ingrese el número de su tarjeta, la fecha de vencimiento y el código CVV para recibir el depósito."
+    },
+    {
+     "indicio": "I6",
+     "inicio": 120,
+     "fin": 191,
+     "texto": "Por ser afiliado activo, usted accede a un bono especial de USD 658,99."
+    },
+    {
+     "indicio": "I9",
+     "inicio": 193,
+     "fin": 248,
+     "texto": "Envíe una selfie sosteniendo su documento de identidad."
+    },
+    {
+     "indicio": "I10",
+     "inicio": 20,
+     "fin": 118,
+     "texto": "Ingrese el número de su tarjeta, la fecha de vencimiento y el código CVV para recibir el depósito."
+    }
+   ],
+   "basado_en": "E061",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide.",
+    "Ofrece dinero que no pediste.",
+    "Pide tu cédula, fecha de nacimiento o una selfie.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "sim_036",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Turno médico confirmado: escanee su QR",
+   "cuerpo": "Estimado afiliado:\n\nPara validar su identidad, escanee el siguiente código QR.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://seguro-iess.example/acceso",
+     "host": "seguro-iess.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I11"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I11",
+     "inicio": 20,
+     "fin": 78,
+     "texto": "Para validar su identidad, escanee el siguiente código QR."
+    }
+   ],
+   "basado_en": "E778",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide escanear un código QR desconocido."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_037",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Citación de tránsito N.° REF-2026-87513",
+   "cuerpo": "Estimado afiliado:\n\nAgencia Nacional de Tránsito: usted mantiene una multa pendiente por USD 873,00 asociada a su vehículo.\n\n[Ver detalle]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://www.iess-reembolsos.test/acceso",
+     "host": "www.iess-reembolsos.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I8"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I8",
+     "inicio": 20,
+     "fin": 123,
+     "texto": "Agencia Nacional de Tránsito: usted mantiene una multa pendiente por USD 873,00 asociada a su vehículo."
+    }
+   ],
+   "basado_en": "E334",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Te amenaza con suspender o quitar un beneficio."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_038",
+   "tipo": "sms",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "",
+   "cuerpo": "IESS: Complete el formulario con su cédula, fecha de nacimiento y datos bancarios. Ingresa: https://iessseguro.example/actualizar",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://iessseguro.example/actualizar",
+     "host": "iessseguro.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I9"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I9",
+     "inicio": 0,
+     "fin": 82,
+     "texto": "IESS: Complete el formulario con su cédula, fecha de nacimiento y datos bancarios."
+    }
+   ],
+   "basado_en": "E245",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu cédula, fecha de nacimiento o una selfie."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_039",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Verificación de seguridad pendiente",
+   "cuerpo": "Estimado afiliado:\n\nPara proteger su cuenta, debe validar su identidad con el código QR de este mensaje.\n\nComplete el formulario con su cédula, fecha de nacimiento y datos bancarios.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://correo-institucional-verificacion.test/acceso",
+     "host": "correo-institucional-verificacion.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I9",
+    "I11"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I9",
+     "inicio": 106,
+     "fin": 182,
+     "texto": "Complete el formulario con su cédula, fecha de nacimiento y datos bancarios."
+    },
+    {
+     "indicio": "I11",
+     "inicio": 20,
+     "fin": 104,
+     "texto": "Para proteger su cuenta, debe validar su identidad con el código QR de este mensaje."
+    }
+   ],
+   "basado_en": "E704",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu cédula, fecha de nacimiento o una selfie.",
+    "Pide escanear un código QR desconocido."
+   ],
+   "dificultad": "media"
+  },
+  {
+   "id": "sim_040",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Turno médico confirmado: escanee su QR",
+   "cuerpo": "Estimado afiliado:\n\nSiga las instrucciones que aparecerán después de escanear el código.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://iess-servicios.example/verificar",
+     "host": "iess-servicios.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I11"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I11",
+     "inicio": 20,
+     "fin": 88,
+     "texto": "Siga las instrucciones que aparecerán después de escanear el código."
+    }
+   ],
+   "basado_en": "E136",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide escanear un código QR desconocido."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_042",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Su suscripción fue renovada",
+   "cuerpo": "Estimado afiliado:\n\nIngrese los datos de su tarjeta de débito para confirmar el cobro.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://entrega-pedidos.test/acceso",
+     "host": "entrega-pedidos.test",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I3"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I3",
+     "inicio": 20,
+     "fin": 86,
+     "texto": "Ingrese los datos de su tarjeta de débito para confirmar el cobro."
+    }
+   ],
+   "basado_en": "E809",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "Pide tu clave o códigos. El IESS nunca los pide."
+   ],
+   "dificultad": "dificil"
+  },
+  {
+   "id": "sim_043",
+   "tipo": "correo",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "Has recibido una recompensa",
+   "cuerpo": "Estimado afiliado:\n\nCancele $120,00 por concepto de verificación para continuar.\n\nHas recibido una recompensa de USD 342,00 de Luz y Vida.\n\n[Continuar]\n\nAtentamente,\nDepartamento de Afiliación",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://acortador.example/53df3a",
+     "host": "acortador.example",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I2",
+    "I4",
+    "I6",
+    "I10"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I6",
+     "inicio": 82,
+     "fin": 138,
+     "texto": "Has recibido una recompensa de USD 342,00 de Luz y Vida."
+    },
+    {
+     "indicio": "I10",
+     "inicio": 20,
+     "fin": 80,
+     "texto": "Cancele $120,00 por concepto de verificación para continuar."
+    }
+   ],
+   "basado_en": "E096",
+   "pistas": [
+    "Mira el dominio: no termina en iess.gob.ec.",
+    "El enlace está acortado o el texto muestra una dirección distinta a la real.",
+    "Ofrece dinero que no pediste.",
+    "Pide pagar una tasa o transferir dinero."
+   ],
+   "dificultad": "facil"
+  },
+  {
+   "id": "sim_044",
+   "tipo": "sms",
+   "origen": "plantilla",
+   "simulacion": true,
+   "marca": "SIMULACIÓN EDUCATIVA AIESS: este mensaje no es real.",
+   "asunto": "",
+   "cuerpo": "IESS: Dispone de 48 horas para realizar este proceso. Ingresa: https://promos-beneficios.invalid/reembolso",
+   "adjuntos": [],
+   "enlaces": [
+    {
+     "url": "https://promos-beneficios.invalid/reembolso",
+     "host": "promos-beneficios.invalid",
+     "clicable": false,
+     "alertas": []
+    }
+   ],
+   "respuesta": "PHISHING",
+   "indicios": [
+    "I1",
+    "I2"
+   ],
+   "resaltados": [
+    {
+     "indicio": "I1",
+     "inicio": 0,
+     "fin": 53,
+     "texto": "IESS: Dispone de 48 horas para realizar este proceso."
+    }
+   ],
+   "basado_en": "E503",
+   "pistas": [
+    "Te mete prisa para que no pienses. El IESS no da plazos de horas por mensaje.",
+    "Mira el dominio: no termina en iess.gob.ec."
+   ],
+   "dificultad": "dificil"
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+# Flutter / Dart
+app/build/
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/.idea/
+*.iml
+# Android
+app/android/.gradle/
+app/android/.kotlin/
+app/android/app/.cxx/
+app/android/local.properties
+*.apk
+*.aab
+# Modelos y datos pesados (se distribuyen aparte)
+*.gguf
+ml/outputs/
+ml/modeling/
+datos/*.csv
+# Python
+__pycache__/
+*.pyc

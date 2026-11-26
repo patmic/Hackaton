@@ -1,0 +1,43 @@
+{
+  "version": "2026-11-26",
+  "fuente": "Catalogo de indicios y canales oficiales del IESS - Hackaton Codigo Confianza IESS 2026 (seccion 4). Verificar vigencia antes de difundir.",
+  "dominios_iess": ["iess.gob.ec"],
+  "subdominios_iess_conocidos": ["www.iess.gob.ec", "app.iess.gob.ec", "denuncias.iess.gob.ec"],
+  "dominios_confiables": [
+    "gob.ec",
+    "sri.gob.ec",
+    "registrocivil.gob.ec",
+    "microsoft.com",
+    "office.com",
+    "live.com",
+    "google.com",
+    "zoom.us"
+  ],
+  "acortadores": [
+    "bit.ly", "cutt.ly", "shorturl.at", "rebrand.ly", "t.ly", "cshort.jp", "is.gd",
+    "tinyurl.com", "ow.ly", "goo.gl", "tiny.cc", "rb.gy", "s.id", "buff.ly", "t.co",
+    "shorturl.gg", "v.gd", "lnkd.in", "qrco.de"
+  ],
+  "alojamiento_generico": [
+    "storage.googleapis.com", "forms.gle", "sites.google.com", "docs.google.com/forms",
+    "firebaseapp.com", "web.app", "github.io", "netlify.app", "vercel.app", "pages.dev",
+    "000webhostapp.com", "weebly.com", "wixsite.com", "blogspot.com", "glitch.me",
+    "ngrok.io", "ngrok-free.app", "trycloudflare.com", "dropbox.com", "mediafire.com"
+  ],
+  "tlds_riesgosos": ["xyz", "top", "click", "online", "site", "info", "live", "shop", "icu", "buzz", "cfd", "sbs", "rest", "monster", "zip", "mov"],
+  "tlds_reservados": ["test", "example", "invalid", "localhost"],
+  "proveedores_correo_gratuito": ["gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "yahoo.es", "live.com", "icloud.com", "proton.me", "protonmail.com"],
+  "marcas_vigiladas": ["iess", "biess", "sri", "registrocivil", "gobec", "microsoft", "office365", "outlook", "google", "zoom", "fiscalia", "ant"],
+  "extensiones_peligrosas": ["zip", "rar", "7z", "exe", "msi", "apk", "html", "htm", "docm", "xlsm", "pptm", "iso", "img", "js", "vbs", "scr", "bat", "lnk"],
+  "contacto": {
+    "portal": "www.iess.gob.ec",
+    "aplicaciones": "app.iess.gob.ec",
+    "denuncias_web": "denuncias.iess.gob.ec",
+    "denuncias_correo": "gestiondenuncias@iess.gob.ec",
+    "whatsapp": "+593 9 62532338",
+    "atencion_correo": "atencionalusuario@iess.gob.ec",
+    "atencion_telefono": "593 2 3945666",
+    "seguridad_informacion": "seguridad.informacion@iess.gob.ec",
+    "tramites_estado": "www.gob.ec/iess"
+  }
+}

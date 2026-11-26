@@ -1,0 +1,12 @@
+# Entrenamiento / exportacion (Python 3.11 o 3.12 con GPU CUDA; Colab o ml/Dockerfile)
+# Las fases 01-03 y la evaluacion por reglas solo usan la libreria estandar.
+torch>=2.5
+transformers>=4.57      # soporte nativo de LFM2
+peft>=0.17
+trl>=0.23
+datasets>=3.0
+accelerate>=1.0
+bitsandbytes>=0.45      # solo para --qlora
+sentencepiece
+safetensors
+llama-cpp-python>=0.3.16   # evaluar el GGUF cuantizado (05_evaluar.py --backend gguf)
