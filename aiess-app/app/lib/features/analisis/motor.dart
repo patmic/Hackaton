@@ -15,14 +15,17 @@ final Map<String, RegExp> lexico = {
       r'\b(contrasena|clave|usuario y|credencial\w*|codigo de (verificacion|seguridad|acceso)|codigo que (le|te)|\bpin\b|\botp\b|token|tarjeta|cvv|inicie sesion|iniciar sesion|ingrese su usuario)',
   'I5':
       r'(\.(zip|rar|exe|apk|html?|docm|xlsm|iso|js|scr|msi)\b|instal(e|ar|a) (la |nuestra |esta )?(aplicacion|app)|descargue (la )?(app|aplicacion)|habilite (el contenido|las macros)|macros)',
+  // I6: premio, bono o reembolso INESPERADO. «Se acreditará» (un pago que ya le corresponde) no cuenta.
   'I6':
-      r'\b(reembolso|bono|premio|ganad(or|ora)|sorteo|devolucion|beneficio (unico|especial|extraordinario)|derecho a (un|una|recibir)|acreditar\w*|usd\s?\d|\$\s?\d)',
+      r'\b(reembolso|bono|premio|ganad(or|ora)|sorteo|devolucion|beneficio (unico|especial|extraordinario)|derecho a (un|una|recibir)|saldo a su favor|usd\s?\d|\$\s?\d)',
   'I8':
       r'\b(suspend\w*|bloque\w*|multa|embargo|perdida|perdera|cancelacion|cancelad[oa]|desactiv\w*|sancion\w*|proceso (judicial|legal|coactivo)|citacion|demanda|accion legal|coactiva|expediente)',
+  // I9: PIDE datos o documentos (envíe, ingrese, actualice…). «Solo lleve su cédula» no es pedirlos por correo.
   'I9':
-      r'\b(cedula|fecha de nacimiento|selfie|fotografia de su|foto de su|documento de identidad|datos personales|direccion domiciliaria|estado civil)',
+      r'(\bselfie\b|\b(envie|envia|enviar|adjunte|adjuntar|ingrese|ingresar|confirme|confirmar|actualice|actualizar|proporcione|digite|registre|escriba|remita|suba|valide|verifique|tome|tomese|sostenga)\b[^.!?\n]{0,60}\b(cedula|fecha de nacimiento|fotografia|foto|documento de identidad|datos personales|direccion domiciliaria|estado civil)\b)',
+  // I10: PIDE un pago o transferencia. El sustantivo «pago» («pago de pensiones») no cuenta (plan 1.2: léxico).
   'I10':
-      r'\b(pago|pague|cancele|transfer\w*|deposit\w*|tasa|arancel|criptomoneda\w*|bitcoin|usdt|abono|comision)',
+      r'\b(pague|paguen|pagar (una|un|la|el)|cancele|transfier\w*|transfiera|deposite|depositar|deposito (a|en)|realice (el|un) (pago|deposito|abono)|efectue (el|un) pago|tasa|arancel|criptomoneda\w*|bitcoin|usdt|comision)',
   'I11': r'(\bqr\b|escane\w*)',
 }.map((k, v) => MapEntry(k, RegExp(v)));
 
@@ -336,8 +339,8 @@ String? motivoNoEsMensaje(String texto) {
 /// Frases de CONSEJO de seguridad («el IESS nunca le pedirá su clave», «no comparta su contraseña»): avisan
 /// del peligro, no lo piden. Se quitan antes de buscar indicios para no marcar como estafa a un correo legítimo.
 final _consejo = RegExp(
-  r'\b(nunca|jamas|no)\b[^.!?\n,;]{0,50}?\b(pedira|pediran|pediremos|solicitara|solicitaran|solicitaremos|'
-  r'comparta|compartas|entregue|entregues|revele|reveles)\b[^.!?\n,;]{0,40}',
+  r'\b(nunca|jamas|no|ni)\b[^.!?\n,;]{0,50}?\b(pedira|pediran|pediremos|pide|piden|solicitara|solicitaran|solicitaremos|solicita|solicitan|'
+  r'cobra|cobran|cobrara|cobraremos|necesita|necesitara|comparta|compartas|entregue|entregues|revele|reveles)\b[^.!?\n,;]{0,40}',
 );
 
 Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
