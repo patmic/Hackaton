@@ -62,6 +62,15 @@ def test_escalera_del_siguiente_correo(catalogo):
     assert p["nivel"] == 3 and len(p["indicios_objetivo"]) == 1
 
 
+def test_el_reporte_tardio_no_sube_el_nivel(catalogo):
+    from observador import Observacion
+
+    tardio = Observacion.desde_json({**simulacro("REPORTO", ["I6"], dias=0.5).a_json(),
+                                     "reporto_despues_de_clic": True})
+    p = plan([simulacro("CLIC", ["I6"], nivel=2, dias=1), tardio], catalogo)
+    assert p["siguiente_correo"]["nivel"] == 1
+
+
 def test_foco_en_la_tipologia_que_mas_le_cuesta(catalogo):
     obs = [simulacro("CLIC", ["I11", "I9"], tipologia="T4", dias=3), simulacro("REPORTO", ["I6"], tipologia="T2")]
     foco = plan(obs, catalogo)["foco_tipologia"]

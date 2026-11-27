@@ -170,8 +170,18 @@ class Observacion:
 
     # -------------------------------------------------------------- consultas
     @property
+    def es_reporte_tardio(self) -> bool:
+        """Reportó un correo en el que ya había hecho clic. La API de Capacitación
+        lo envía como una segunda observación del mismo simulacro. Por §11 cuenta
+        para el perfil (es un reporte), pero no demuestra que reconoció los
+        indicios ni cambia el nivel."""
+        return self.tipo == "SIMULACRO" and self.resultado == "REPORTO" and self.reporto_despues_de_clic
+
+    @property
     def es_juicio(self) -> bool:
         """Cuenta para la precisión (§7): decisiones y reacciones con clic o reporte."""
+        if self.es_reporte_tardio:
+            return False  # el juicio de ese correo fue el clic
         return self.tipo == "DECISION" or (self.tipo == "SIMULACRO" and self.resultado in ("REPORTO", "CLIC"))
 
     @property

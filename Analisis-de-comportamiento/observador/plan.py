@@ -43,7 +43,8 @@ MAX_FALENCIAS = 3
 
 def _siguiente_nivel(observaciones: list[Observacion]) -> tuple[int, str]:
     """Escalera de §11 sobre el último correo de prueba."""
-    sims = sorted((o for o in observaciones if o.tipo == "SIMULACRO"), key=lambda o: o.momento)
+    sims = sorted((o for o in observaciones if o.tipo == "SIMULACRO" and not o.es_reporte_tardio),
+                  key=lambda o: o.momento)
     if not sims:
         return 2, "Primer correo de práctica: nivel medio."
     u = sims[-1]
@@ -57,7 +58,7 @@ def _siguiente_nivel(observaciones: list[Observacion]) -> tuple[int, str]:
 def _conteos(observaciones: list[Observacion]) -> dict[str, dict[str, int]]:
     c = {i: {"clics": 0, "reportes": 0, "errores_practica": 0} for i in INDICIOS}
     for o in observaciones:
-        if o.tipo == "SIMULACRO":
+        if o.tipo == "SIMULACRO" and not o.es_reporte_tardio:
             for i in o.indicios:
                 if o.resultado == "CLIC":
                     c[i]["clics"] += 1

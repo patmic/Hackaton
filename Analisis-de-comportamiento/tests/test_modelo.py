@@ -38,6 +38,21 @@ def test_reportar_despues_de_un_clic_sigue_para_practicar():
     assert estado(obs, "I8") == "DEBIL"
 
 
+def test_reporte_tardio_como_segunda_observacion():
+    """La API de Capacitación manda el clic y, si después reenvía el correo,
+    una segunda observación REPORTO con reporto_despues_de_clic."""
+    from observador import Observacion
+
+    clic = simulacro("CLIC", ["I8"], dias=1)
+    tardio = Observacion.desde_json({**simulacro("REPORTO", ["I8"], dias=0.5).a_json(),
+                                     "reporto_despues_de_clic": True})
+    assert tardio.es_reporte_tardio and not tardio.es_juicio
+    obs = [clic, tardio]
+    assert estado(obs, "I8") == "DEBIL"  # no demuestra que reconoció el indicio
+    m = metricas(obs, AHORA)
+    assert (m.simulacros, m.clics, m.reportes, m.juicios) == (1, 1, 1, 1)
+
+
 @pytest.mark.parametrize("nivel", [1, 2, 3])
 def test_un_reporte_basta_para_dominar_en_cualquier_nivel(nivel):
     assert estado([simulacro("REPORTO", ["I4"], nivel=nivel)], "I4") == "DOMINADO"

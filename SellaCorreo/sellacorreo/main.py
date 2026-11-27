@@ -36,7 +36,7 @@ from fastapi.staticfiles import StaticFiles
 from autenticidad import canonical_content, composite_hash, normalize_email, recipient_hmac, seal_payload, sha256_hex
 from autenticidad.banner import banner_png, invalid_png
 
-from . import firma, store
+from . import firma, observatorio, store
 
 class _SinHealth(logging.Filter):
     """Oculta del log de acceso las llamadas del healthcheck de Docker a /health."""
@@ -60,12 +60,47 @@ E = html.escape
 async def lifespan(_app):
     firma.key()
     store.init()
+    observatorio.iniciar()
+    if not getattr(_app.state, "observatorio_montado", False):
+        obs_router = observatorio.router(
+            puede_ver_panel=lambda request: current_user(request) is not None,
+            permitir=lambda request: observatorio_limiter.allow(ip_hash(request)))
+        if obs_router is not None:
+            _app.include_router(obs_router, prefix="/api/v1/observatorio")
+            _app.state.observatorio_montado = True
     yield
 
 
 app = FastAPI(title="SellaCorreo", version="2.0.0", lifespan=lifespan,
               description="Sello anti-phishing para correos institucionales: GenKey y CheckIn.")
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
+
+
+OBS_API = "/api/v1/observatorio/"
+# Orígenes con permiso para llamar a la API desde el navegador (la app Flutter
+# web). Vacío o sin definir: solo localhost. Una expresión vacía no se acepta,
+# porque coincidiría con cualquier origen.
+OBS_ORIGENES = re.compile(os.environ.get("SELLACORREO_OBSERVATORIO_ORIGENES", "").strip()
+                          or r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$")
+
+
+@app.middleware("http")
+async def observatorio_cors(request: Request, call_next):
+    """CORS solo para la API del Observatorio: la app Flutter web corre en otro
+    origen. Sin cookies (allow-credentials no se envía), así que la sesión del
+    personal nunca viaja en estas llamadas."""
+    origen = request.headers.get("origin", "")
+    aplica = request.url.path.startswith(OBS_API) and OBS_ORIGENES.match(origen)
+    if aplica and request.method == "OPTIONS":
+        resp = Response(status_code=204)
+    else:
+        resp = await call_next(request)
+    if aplica:
+        resp.headers["Access-Control-Allow-Origin"] = origen
+        resp.headers["Access-Control-Allow-Methods"] = "GET, POST, DELETE, OPTIONS"
+        resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        resp.headers["Vary"] = "Origin"
+    return resp
 
 
 @app.middleware("http")
@@ -110,6 +145,7 @@ class RateLimiter:
 
 checkin_limiter = RateLimiter(int(os.environ.get("SELLACORREO_RATE_LIMIT_PER_MIN", "30")))
 login_limiter = RateLimiter(int(os.environ.get("SELLACORREO_LOGIN_LIMIT_PER_MIN", "10")))
+observatorio_limiter = RateLimiter(int(os.environ.get("SELLACORREO_OBSERVATORIO_LIMIT_PER_MIN", "120")))
 
 
 def ip_of(request: Request) -> str:
@@ -174,7 +210,8 @@ def page(title: str, body: str, user: dict | None = None, request: Request | Non
         cur = ' aria-current="page"' if key == active else ""
         return f'<a href="{href}"{cur}>{label}</a>'
     links = (f'<nav class="sc-foot-links" aria-label="Secciones">' + foot("/", "Inicio", "inicio")
-             + foot("/genkey", "Sello", "genkey") + foot("/checkin", "Validador", "checkin") + sesion + "</nav>")
+             + foot("/genkey", "Sello", "genkey") + foot("/checkin", "Validador", "checkin")
+             + foot("/observatorio", "Observatorio", "observatorio") + sesion + "</nav>")
     head = ""
     return HTMLResponse(status_code=status, content=f"""<!doctype html><html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -233,6 +270,8 @@ ICON_SHIELD = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6
 ICON_DOC = ('<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/>'
             '<path d="M9 8h6M9 12h6M9 16h3"/></svg>')
 ICON_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>'
+ICON_CHART = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'
+              '<path d="M4 8l6-4 6 7 5-4"/></svg>')
 
 
 def home_card(kind: str, href: str, title: str, text: str, icon: str, extra: str = "") -> str:
@@ -253,11 +292,13 @@ def home(request: Request):
     <div class="sc-dial">{dial_svg()}
       <img class="sc-dial__img sc-dial__img--base sc-dial__img--escudo" src="/static/img/escudo-correo.png" alt="Escudo azul con un sobre de correo" width="410" height="410">
       <img class="sc-dial__img sc-dial__img--sello" src="/static/img/sello.jpg" alt="Sobre digital protegido por un escudo" width="410" height="410" aria-hidden="true">
-      <span class="sc-dial__cap sc-dial__cap--bottom">Anti-phishing</span>
+      <img class="sc-dial__img sc-dial__img--escudo sc-dial__img--observatorio" src="/static/img/observatorio.svg" alt="" width="410" height="410" aria-hidden="true">
     </div>
     {home_card("sello", "/genkey", "Sello", "Crea tu sello de seguridad y evita el phishing", ICON_DOC)}
     {home_card("validador", "/checkin", "Validador", "Valida el hash y evita la suplantación de identidad", ICON_SHIELD,
                 "Haga clic en el encabezado de su correo o pegue su enlace en este Validador.")}
+    {home_card("observatorio", "/observatorio", "Observatorio", "Aprende del comportamiento y personaliza la capacitación", ICON_CHART,
+                "Qué indicios engañan a cada grupo y qué debe practicar cada persona.")}
   </div>
 </section>
 <section class="tl-grid-stats sc-home__stats" aria-label="Resumen">
@@ -275,13 +316,25 @@ def public_key():
 
 
 # ------------------------------------------------------------------ login
-def demo_card() -> str:
+# Páginas a las que el login puede volver. Lista cerrada: nunca una URL arbitraria.
+DESTINOS_LOGIN = {"/genkey", "/observatorio"}
+
+
+def _destino(siguiente: str) -> str:
+    return siguiente if siguiente in DESTINOS_LOGIN else "/genkey"
+
+
+def _campo_siguiente(siguiente: str) -> str:
+    return f'<input type="hidden" name="siguiente" value="{E(siguiente)}">' if siguiente in DESTINOS_LOGIN else ""
+
+
+def demo_card(siguiente: str = "") -> str:
     if not store.demo_mode():
         return ""
     users = store.demo_users()
     if not users:
         return ""
-    rows = "".join(f"""<form method="post" action="/login" class="sc-quick__form">
+    rows = "".join(f"""<form method="post" action="/login" class="sc-quick__form">{_campo_siguiente(siguiente)}
 <input type="hidden" name="usuario" value="{E(u['emisor'])}"><input type="hidden" name="clave" value="{E(store.demo_password())}">
 <button type="submit" class="sc-quick__row" data-demo="{E(u['usuario'])}"><span class="sc-quick__text">
 <span class="sc-quick__title">{E(u['nombre'])}</span><span class="sc-quick__sub">{E(u['unidad'])} · {E(u['emisor'])}</span></span>
@@ -292,15 +345,15 @@ def demo_card() -> str:
 <div class="sc-quick__list">{rows}</div></div></section>"""
 
 
-def login_page(error: str = "", usuario: str = "", status: int = 200) -> HTMLResponse:
+def login_page(error: str = "", usuario: str = "", status: int = 200, siguiente: str = "") -> HTMLResponse:
     alert = f'<div class="tl-alert tl-alert--destructive" role="alert"><div class="tl-alert__body">{E(error)}</div></div>' if error else ""
-    demo = demo_card()
+    demo = demo_card(siguiente)
     return page("Ingresar", f"""<section class="sc-login{' sc-login--demo' if demo else ''}">
 <section class="tl-card"><div class="tl-card__body">
 <h1 class="sc-card-title sc-card-title--lg">Ingresar</h1>
 <p class="tl-page-desc">Acceso para el personal del IESS que genera sellos. Los destinatarios verifican sin cuenta en <a href="/checkin">CheckIn</a>.</p>
 {alert}
-<form class="sc-form" method="post" action="/login" autocomplete="on">
+<form class="sc-form" method="post" action="/login" autocomplete="on">{_campo_siguiente(siguiente)}
 <div class="tl-field"><label class="tl-field__label" for="usuario">Correo electrónico</label>
 <input class="tl-input" id="usuario" name="usuario" required autocomplete="username" placeholder="usuario@demo.institucion.test" value="{E(usuario)}"></div>
 <div class="tl-field"><label class="tl-field__label" for="clave">Contraseña</label>
@@ -310,20 +363,20 @@ def login_page(error: str = "", usuario: str = "", status: int = 200) -> HTMLRes
 
 
 @app.get("/login", response_class=HTMLResponse)
-def login_form(request: Request):
+def login_form(request: Request, siguiente: str = ""):
     if current_user(request):
-        return RedirectResponse("/genkey", status_code=303)
-    return login_page()
+        return RedirectResponse(_destino(siguiente), status_code=303)
+    return login_page(siguiente=siguiente)
 
 
 @app.post("/login")
-def login(request: Request, usuario: str = Form(...), clave: str = Form(...)):
+def login(request: Request, usuario: str = Form(...), clave: str = Form(...), siguiente: str = Form("")):
     if not login_limiter.allow(ip_of(request)):
-        return login_page("Demasiados intentos. Espere un minuto.", usuario, 429)
+        return login_page("Demasiados intentos. Espere un minuto.", usuario, 429, siguiente)
     user = store.authenticate(usuario, clave)
     if user is None:
-        return login_page("Usuario o contraseña incorrectos.", usuario, 401)
-    resp = RedirectResponse("/genkey", status_code=303)
+        return login_page("Usuario o contraseña incorrectos.", usuario, 401, siguiente)
+    resp = RedirectResponse(_destino(siguiente), status_code=303)
     resp.set_cookie(COOKIE, make_session(user["usuario"]), httponly=True, samesite="lax",
                     secure=os.environ.get("SELLACORREO_COOKIE_SECURE", "false").lower() == "true",
                     max_age=int(os.environ.get("SELLACORREO_SESSION_TTL", "28800")))
@@ -455,6 +508,27 @@ def history(user: dict) -> str:
     return (f'<section class="tl-card"><div class="tl-card__body"><h2 class="tl-title">Mis últimos sellos</h2>'
             f'<table class="sc-table"><tr><th>Fecha (UTC)</th><th>Taxonomía</th><th>Asunto</th><th>Código</th></tr>{trs}</table>'
             f'</div></section>')
+
+
+@app.get("/observatorio", response_class=HTMLResponse)
+def observatorio_get(request: Request, persona: str = ""):
+    """Panel del Observatorio: agregados con k = 10 y el plan de una persona por
+    su código. Es interno: pide sesión, como el Sello."""
+    user = current_user(request)
+    if not user:
+        return RedirectResponse("/login?siguiente=/observatorio", status_code=303)
+    return page("Observatorio", observatorio.panel(csrf_token(request), persona[:64]), user, request,
+                active="observatorio", chrome="observatorio")
+
+
+@app.post("/observatorio/borrar-sinteticos")
+def observatorio_borrar_sinteticos(request: Request, csrf: str = Form("")):
+    if not current_user(request):
+        return RedirectResponse("/login?siguiente=/observatorio", status_code=303)
+    if not csrf_ok(request, csrf):
+        return JSONResponse({"error": "CSRF"}, status_code=403)
+    observatorio.borrar_sinteticos()
+    return RedirectResponse("/observatorio", status_code=303)
 
 
 @app.get("/genkey", response_class=HTMLResponse)

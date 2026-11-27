@@ -87,6 +87,8 @@ class Evidencia:
 
 def _aportes(o: Observacion) -> list[tuple[str, float, float]]:
     """(indicio, acierto, fallo) que deja una observación, sin olvido."""
+    if o.es_reporte_tardio:
+        return []  # ya contó el clic de ese mismo correo
     if o.tipo == "SIMULACRO" and o.resultado in ("REPORTO", "CLIC"):
         nivel = o.nivel or 2
         if o.resultado == "REPORTO":
@@ -117,7 +119,7 @@ def evidencia_por_tipologia(observaciones: list[Observacion], ahora: datetime) -
     """Qué tan bien distingue los correos que suplantan cada tipología."""
     ev: dict[str, Evidencia] = {}
     for o in observaciones:
-        if not o.tipologia:
+        if not o.tipologia or o.es_reporte_tardio:
             continue
         f = factor_olvido(o.momento, ahora)
         if o.tipo == "SIMULACRO" and o.resultado in ("REPORTO", "CLIC"):
@@ -225,14 +227,18 @@ def metricas(observaciones: list[Observacion], ahora: datetime, ventana_dias: in
         if o.es_juicio:
             c["juicios"] += 1
             c["aciertos"] += int(o.juicio_correcto)
-        if o.tipo == "SIMULACRO":
+        if o.es_reporte_tardio:
+            # Segunda observación del mismo correo: suma el reporte (§11), no otro simulacro.
+            c["reportes"] += 1
+        elif o.tipo == "SIMULACRO":
             c["simulacros"] += 1
             esperado = (clic_esperado or {}).get(o.plantilla_id or "", CLIC_ESPERADO[o.nivel or 2])
             c["clics_esperados"] += esperado
             if o.resultado == "CLIC":
                 c["clics"] += 1
+            # Un CLIC con reporto_despues_de_clic (si llega en una sola observación)
+            # también suma el reporte para el perfil (§11).
             if o.resultado == "REPORTO" or o.reporto_despues_de_clic:
-                # Reportar después de un clic también cuenta para el perfil (§11).
                 c["reportes"] += 1
                 if o.resultado == "REPORTO" and o.segundos_hasta_reaccion is not None:
                     seg_reporte.append(o.segundos_hasta_reaccion)

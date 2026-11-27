@@ -111,7 +111,7 @@ class ModeloPoblacion:
             m.falsos_positivos += met.falsos_positivos
             m.decisiones_legitimas += met.items_legitimos
             for o in obs:
-                if o.momento < desde or o.tipo != "SIMULACRO":
+                if o.momento < desde or o.tipo != "SIMULACRO" or o.es_reporte_tardio:
                     continue
                 if o.resultado == "REPORTO" and o.segundos_hasta_reaccion is not None:
                     m.reporte_seg.append(o.segundos_hasta_reaccion)
