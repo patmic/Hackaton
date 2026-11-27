@@ -19,7 +19,7 @@ Rangos de edad anonimizados: `18-29`, `30-49`, `50-64` y `65+`.
 
 **Fuentes de contexto en el repo (en orden de prioridad):**
 - `Capacitacion/CLAUDE.md`: contexto completo del producto (indicios I1-I11, tipos de usuario EX/IN, módulos M1-M14, mecánicas A1-A9, flujo «Quiero capacitarme», contratos). **Manda lo marcado [DECIDIDO].** Reemplaza a la carpeta `Clasificacion/`, que no existe en el repo.
-- `diagramas/diagrama.drawio.xml`: arquitectura del equipo. Proxy SMTP con Hash 1 (identidad del remitente) y Hash 2 (contenido), botón «Verificar en App» que abre la app con el Hash 2 por App Link, `GET /verificar/{hash_2}`, IA de análisis y «API de Capacitación».
+- `diagramas/diagrama.drawio`: arquitectura del equipo. Proxy SMTP con Hash 1 (identidad del remitente) y Hash 2 (contenido), botón «Verificar en App» que abre la app con el Hash 2 por App Link, `GET /verificar/{hash_2}`, IA de análisis y «API de Capacitación».
 - `inteligencia_colectiva_flujos_t_cnicos_mvp_y_an_lisis_del_d_cimo_hombre.md`: documento técnico del MVP, contratos de API y los 6 fallos del Décimo Hombre.
 - `obsidian/`: investigación. Las notas más útiles son `1-Investigacion/07 Evidencia cientifica.md` y `1-Investigacion/09 Criterios de diseno.md`.
 - `recursos/Boilerplate/ThemeLight/flutter`: tema Flutter compartido que se usará en la etapa visual.

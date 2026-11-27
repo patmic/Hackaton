@@ -9,7 +9,7 @@ AIESS reúne sus pantallas móvil y web en una sola aplicación Flutter. Ambas u
 | Móvil | Flutter con navegación compacta y funciones nativas Android | `aiess-app/app/lib/ui/inicio_page.dart` |
 | Web y escritorio | La misma aplicación Flutter; panel de escritorio adaptable | `aiess-app/app/lib/ui/web_escritorio.dart` |
 | Capacitación | Módulo Flutter integrado y publicable por separado | `Capacitacion/` |
-| SellaCorreo | Interfaz web propia con los tokens y componentes CSS ThemeLight | `smtp/` y `SellaCorreo/` |
+| SellaCorreo | Interfaz web propia con los tokens y componentes CSS ThemeLight | `SellaLogo/` y `SellaCorreo/` |
 
 `aiess-app/app/lib/main.dart` selecciona la experiencia de escritorio o móvil según la plataforma y el tamaño disponible. La lógica de análisis y sus servicios se comparten entre las dos experiencias Flutter.
 
@@ -37,5 +37,5 @@ aiess-app/app/lib/features/mascota/     Robot guardián animado
 aiess-app/app/android/                  Integración nativa Android
 aiess-app/ml/                           Datos, prompts y herramientas del modelo
 Capacitacion/                           Módulo Flutter de aprendizaje
-smtp/                                   Sitio de simulación con estilo ThemeLight
+SellaLogo/                              Sitio de simulación con estilo ThemeLight
 ```

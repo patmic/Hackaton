@@ -15,7 +15,7 @@ reacción (clic o reporte), aplica la **escalera** de dificultad y alimenta al
 
 ## 1. Dónde encaja en la arquitectura
 
-En el diagrama (`diagramas/diagrama.drawio.xml`) es el nodo **«API de
+En el diagrama (`diagramas/diagrama.drawio`) es el nodo **«API de
 Capacitación»** de la Zona Externa, conectado con la **App Oficial** (Bloque 2) y
 con el **Núcleo/Observatorio** (Bloque 3).
 
