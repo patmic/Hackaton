@@ -529,9 +529,9 @@
 <!-- 1 · PORTADA -->
 <section class="slide cover">
   <div>
-    <span class="tg-eyebrow">Hackatón Código Confianza IESS 2026</span>
+    <span class="tg-eyebrow">Seguridad inteligente, Cultura consciente - 2026</span>
     <h1>Escudo<br>Cognitivo<br><em>IESS</em></h1>
-    <p class="sub">El sello que demuestra que un correo es del IESS.</p>
+    <p class="sub">ANTI PHISHING : nosotros lo hacemos por ti...!</p>
   </div>
   <div class="envbig">
     <svg class="env" viewBox="0 0 420 300" aria-hidden="true">
@@ -558,7 +558,7 @@
       <div class="who" data-r="Del IESS · con sello">Correo B</div>
     </button>
   </div>
-  <p class="sub" style="text-align:center;margin:36px auto 0">Se ven idénticos. <b style="color:var(--ink)">4,85 millones</b> de asegurados no tienen cómo saberlo.</p>
+  <p class="sub" style="text-align:center;margin:36px auto 0">Se ven idénticos. <b style="color:var(--lime);font-size:1.9em;font-weight:800;line-height:1;vertical-align:-.12em;text-shadow:0 0 22px var(--lime-a45)">+4.8</b> <b style="color:var(--ink)">millones</b> de asegurados no tienen cómo saberlo.</p>
 </section>
 
 <!-- 3 · LA IDEA -->
@@ -568,18 +568,49 @@
   <div class="idea">
     <div style="text-align:center"><span class="stamp" data-wax="300"></span></div>
     <div class="rows">
-      <div class="row"><div class="ic"><svg class="i"><use href="#i-key"/></svg></div><div><b>Solo el IESS tiene el anillo</b><span>Una llave secreta institucional.</span></div></div>
-      <div class="row"><div class="ic"><svg class="i"><use href="#i-hash"/></svg></div><div><b>Cada correo sale sellado</b><span>Su huella única: el <b style="display:inline;font-size:inherit;color:var(--lime)">hash</b>.</span></div></div>
-      <div class="row"><div class="ic"><svg class="i"><use href="#i-robot"/></svg></div><div><b>AIESS revisa el sello</b><span>Intacto y del IESS → auténtico.</span></div></div>
-      <div class="row"><div class="ic" style="background:var(--bad-a);color:var(--bad)"><svg class="i"><use href="#i-alert"/></svg></div><div><b>Sello roto o ausente</b><span>Alerta… y una lección en un minuto.</span></div></div>
+      <div class="row"><div class="ic"><svg class="i"><use href="#i-key"/></svg></div><div><b>Sello digital Taxonómico</b><span>Una llave secreta institucional.</span></div></div>
+      <div class="row"><div class="ic"><svg class="i"><use href="#i-hash"/></svg></div><div><b>Cada correo sale sellado</b><span><b style="display:inline;font-size:inherit;color:var(--lime)">Hash</b> tipado</span></div></div>
+      <div class="row"><div class="ic"><svg class="i"><use href="#i-robot"/></svg></div><div><b>AIESS lo hace por ti</b><span>Detecta y gestiona el phishing.</span></div></div>
+      <div class="row"><div class="ic" style="background:var(--bad-a);color:var(--bad)"><svg class="i"><use href="#i-alert"/></svg></div><div><b>Sello roto o ausente</b><span>Alerta… de UNA es phishing.</span></div></div>
     </div>
   </div>
 </section>
 
-<!-- 4 · FLUJO -->
+<!-- 4 · ENVÍO VS RECEPCIÓN -->
+<section class="slide">
+  <div class="kicker">El hash, sin tecnicismos</div>
+  <h2>Se sella al enviar. <em>Se compara al recibir.</em></h2>
+  <div class="er">
+    <div class="pane">
+      <div class="t">AL ENVIAR · IESS</div>
+      <div class="chain">
+        <div class="msg"><span style="font-size:2em;line-height:1;vertical-align:middle">📨+ 🛡️</span></div>
+        <span class="arrow">→</span>
+        <div class="chip"><div class="c"><svg class="i"><use href="#i-stamp"/></svg></div>Se sella</div>
+        <span class="arrow">→</span>
+        <div class="chip"><div class="c"><svg class="i"><use href="#i-vault"/></svg></div>Bóveda</div>
+      </div>
+      <div class="hx" id="hxSend">…</div>
+      <p class="tech" style="margin:10px 0 0">HMAC-SHA256 · solo se guarda la huella, nunca el texto</p>
+    </div>
+    <div class="pane">
+      <div class="t">AL RECIBIR · AIESS</div>
+      <div class="chain">
+        <div class="msg" id="rcvMsg"><span style="font-size:2em;line-height:1;vertical-align:middle">📨</span></div>
+        <span class="arrow">→</span>
+        <div class="chip"><div class="c"><svg class="i"><use href="#i-robot"/></svg></div>Calcula</div>
+      </div>
+      <div class="hx" id="hxRcv">…</div>
+      <div style="margin-top:12px"><button class="btn" id="alter">✎ Alterar el correo en el camino</button></div>
+    </div>
+  </div>
+  <div class="cmp ok" id="cmp"><span id="cmpSeal" data-wax="96"></span><span class="eq" id="cmpEq">=</span><b id="cmpTxt">Las huellas coinciden: el correo llegó intacto y es del IESS.</b></div>
+</section>
+
+<!-- 5 · FLUJO -->
 <section class="slide flow" id="flow">
   <div class="head">
-    <div><div class="kicker">Así funciona</div><h2>Del IESS a tu bandeja, <em>con sello.</em></h2></div>
+    <div><div class="kicker">Solución en acción</div><h2>Del IESS a tu bandeja, <em>📨+ 🛡️</em></h2></div>
     <span class="sp"></span>
     <button class="btn" data-sc="legit" aria-pressed="true">Correo del IESS</button>
     <button class="btn" data-sc="fake" aria-pressed="false">Correo falso</button>
@@ -596,37 +627,6 @@
     <span class="fake">?</span>
   </div>
   <div class="cap" id="cap"></div>
-</section>
-
-<!-- 5 · ENVÍO VS RECEPCIÓN -->
-<section class="slide">
-  <div class="kicker">El hash, sin tecnicismos</div>
-  <h2>Se sella al enviar. <em>Se compara al recibir.</em></h2>
-  <div class="er">
-    <div class="pane">
-      <div class="t">AL ENVIAR · IESS</div>
-      <div class="chain">
-        <div class="msg">Su planilla de enero ya está disponible.</div>
-        <span class="arrow">→</span>
-        <div class="chip"><div class="c"><svg class="i"><use href="#i-stamp"/></svg></div>Se sella</div>
-        <span class="arrow">→</span>
-        <div class="chip"><div class="c"><svg class="i"><use href="#i-vault"/></svg></div>Bóveda</div>
-      </div>
-      <div class="hx" id="hxSend">…</div>
-      <p class="tech" style="margin:10px 0 0">HMAC-SHA256 · solo se guarda la huella, nunca el texto</p>
-    </div>
-    <div class="pane">
-      <div class="t">AL RECIBIR · AIESS</div>
-      <div class="chain">
-        <div class="msg" id="rcvMsg">Su planilla de enero ya está disponible.</div>
-        <span class="arrow">→</span>
-        <div class="chip"><div class="c"><svg class="i"><use href="#i-robot"/></svg></div>Calcula</div>
-      </div>
-      <div class="hx" id="hxRcv">…</div>
-      <div style="margin-top:12px"><button class="btn" id="alter">✎ Alterar el correo en el camino</button></div>
-    </div>
-  </div>
-  <div class="cmp ok" id="cmp"><span id="cmpSeal" data-wax="96"></span><span class="eq" id="cmpEq">=</span><b id="cmpTxt">Las huellas coinciden: el correo llegó intacto y es del IESS.</b></div>
 </section>
 
 <!-- 6 · FLUTTER: APP Y WEB -->
@@ -651,10 +651,10 @@
           <svg class="i bot"><use href="#i-robot"/></svg>
           <span data-wax="70"></span>
           <div style="font-size:22px;font-weight:800;color:var(--ok)">Sí, este correo lo envió el IESS</div>
-          <div style="color:var(--ink-dim);font-size:14px">Dirección de Prestaciones · 26/11/2026</div>
+          <div style="color:var(--ink-dim);font-size:34px;line-height:1">✉️</div>
         </div>
       </div><div class="base"></div></div>
-      <div class="lbl">Web AIESS<span>Sin app: el botón «Verificar» del correo la abre</span></div>
+      <div class="lbl">AI·ESS<span>Sin app: el botón «Verificar» del correo la abre</span></div>
     </div>
   </div>
   <div style="text-align:center"><span class="flutter"><svg class="i" style="font-size:22px;color:var(--lime)"><use href="#i-layers"/></svg>Flutter · un solo código para Android, iOS y Web</span></div>
@@ -667,20 +667,24 @@
   <div class="answers">
     <div class="ans ok">
       <div class="big" style="color:var(--ok)">AIESS</div>
-      <div class="bubble"><div class="av"><svg class="i"><use href="#i-robot"/></svg></div><p>«Sí, este correo lo envió el IESS.»</p></div>
+      <div class="bubble"><div class="av"><svg class="i"><use href="#i-robot"/></svg></div><p>«Correcto, correo del IESS.»</p></div>
       <div style="display:flex;gap:18px;align-items:center"><span data-wax="90"></span>
-        <div class="meta">Sello intacto<br>Dirección de Prestaciones<br>Planilla de aportes · 26/11/2026</div></div>
+        <div class="meta">Sello intacto<br>Asunto: Dirección de Prestaciones<br>Fecha: 26/11/2026</div></div>
     </div>
     <div class="ans bad">
       <div class="big" style="color:var(--bad)">Ahí no es</div>
-      <div class="bubble"><div class="av" style="background:var(--bad-a);color:var(--bad)"><svg class="i"><use href="#i-robot"/></svg></div><p>«¡Nooo! Ten cuidado, este no es del IESS.»</p></div>
-      <div class="sigs"><span>Te pide tu clave</span><span>Te pide transferir $250</span><span>Enlace acortado</span></div>
-      <div class="learn"><svg class="i"><use href="#i-cap"/></svg>Capacítate conmigo · 1 minuto</div>
+      <div class="bubble"><div class="av" style="background:var(--bad-a);color:var(--bad)"><svg class="i"><use href="#i-robot"/></svg></div><p>«¡Alerta! Este correo no es del IESS.»</p></div>
+      <div class="learn"><svg class="i"><use href="#i-cap"/></svg>Te enseño a identificar correos falsos en 1 min.</div>
     </div>
   </div>
 </section>
 
-<!-- 8 · PREGUNTAS Y TECNOLOGÍA -->
+<!-- 8 · DEMO -->
+<section class="slide cover" style="justify-content:center;text-align:center">
+  <h1 style="margin:0;font-size:300px;line-height:1;letter-spacing:-.04em;color:var(--lime);text-shadow:0 0 80px var(--lime-a30)">DEMO</h1>
+</section>
+
+<!-- 9 · PREGUNTAS Y TECNOLOGÍA -->
 <section class="slide">
   <div class="kicker">Preguntas del jurado · Tecnología</div>
   <h2>Lo que nos preguntarán <em>y con qué lo hacemos.</em></h2>
@@ -700,12 +704,12 @@
   </div>
 </section>
 
-<!-- 9 · CIERRE -->
+<!-- 10 · CIERRE -->
 <section class="slide cover">
   <div>
     <span class="tg-eyebrow">Escudo Cognitivo IESS</span>
     <h1 style="font-size:92px"><span style="color:var(--bad)">Ahí no es.</span><br><em>AIESS</em></h1>
-    <p class="sub">Si no tiene el sello, no es del IESS.</p>
+    <p class="sub">Si no tiene el sello AI·ESS, si-no tiene sello Ahi - NO -ES.</p>
   </div>
   <div style="flex:none"><span class="stamp" data-wax="260"></span></div>
 </section>
@@ -903,7 +907,7 @@ async function renderHash(){
   const hs = await hmacHex('afiliado@correo.test|' + ORIGINAL), hr = await hmacHex('afiliado@correo.test|' + (altered ? ALTERED : ORIGINAL));
   $('hxSend').textContent = 'huella guardada: ' + short(hs);
   $('hxRcv').textContent = 'huella recibida: ' + short(hr);
-  $('rcvMsg').innerHTML = altered ? 'Su planilla de enero ya está disponible. <mark>Transfiera $20 para verla.</mark>' : ORIGINAL;
+  $('rcvMsg').innerHTML = altered ? '<span style="font-size:2em;line-height:1;vertical-align:middle">📨</span> <mark>Transfiera $20 para verla.</mark>' : '<span style="font-size:2em;line-height:1;vertical-align:middle">📨</span>';
   const same = hs === hr;
   $('cmp').className = 'cmp ' + (same ? 'ok' : 'bad');
   $('cmpEq').textContent = same ? '=' : '≠';

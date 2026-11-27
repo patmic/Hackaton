@@ -72,7 +72,7 @@ Fuente vigente: `tipologias-correo/tipologias.json` v1.0 (2026-11-26), que reemp
 | T5 | Seguridad de cuenta | Confirmar cambios que la persona hizo y alertas preventivas | Enlaces para escribir la clave; amenazas de bloqueo |
 | T6 | Interno para colaboradores | Reuniones, memorandos, circulares, informes | Pedido de clave institucional; adjuntos .zip o con macros |
 
-`EXT` agrupa los correos legítimos ajenos al IESS (SRI, Microsoft, Zoom): no llevan Sello IESS y no son una tipología. El bloque 1 (`smtp/app.js`) todavía usa T1-T3.
+`EXT` agrupa los correos legítimos ajenos al IESS (SRI, Microsoft, Zoom): no llevan Sello IESS y no son una tipología. El bloque 1 (`SellaLogo/app.js`) todavía usa T1-T3.
 
 ## 5. Arquitectura del sellado y la verificación
 

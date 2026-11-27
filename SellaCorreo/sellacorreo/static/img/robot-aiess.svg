@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Robot AIESS">
+  <circle cx="100" cy="100" r="100" fill="#ffffff"/>
+  <g fill="#62c214" stroke="#62c214" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="100" y1="44" x2="100" y2="60" stroke-width="9"/>
+    <circle cx="100" cy="38" r="9" stroke="none"/>
+    <rect x="52" y="62" width="96" height="80" rx="26" fill="none" stroke-width="11"/>
+    <rect x="34" y="88" width="14" height="30" rx="5" stroke="none"/>
+    <rect x="152" y="88" width="14" height="30" rx="5" stroke="none"/>
+    <circle cx="81" cy="97" r="11" stroke="none"/>
+    <circle cx="119" cy="97" r="11" stroke="none"/>
+    <line x1="84" y1="121" x2="116" y2="121" stroke-width="9"/>
+  </g>
+</svg>

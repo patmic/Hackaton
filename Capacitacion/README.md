@@ -21,7 +21,7 @@ docs/CONTEXTO_MODULO.md        # guía de trabajo del módulo
 
 ## Qué hace (lógica)
 
-Fuente de las reglas: `CLAUDE.md` de esta carpeta (lo marcado [DECIDIDO] manda) y `diagramas/diagrama.drawio.xml`.
+Fuente de las reglas: `CLAUDE.md` de esta carpeta (lo marcado [DECIDIDO] manda) y `diagramas/diagrama.drawio`.
 
 | Pieza | Archivo | Regla |
 |---|---|---|

@@ -1,6 +1,6 @@
 """Sello de cera verde «VALIDAR CORREO» (PNG) que se pega dentro del correo.
 
-Réplica en Pillow del sello de referencia de /smtp (SVG de 300x300): silueta ondulada de cera,
+Réplica en Pillow del sello de referencia de /SellaLogo (SVG de 300x300): silueta ondulada de cera,
 pozo interior, texto circular y escudo con las siglas. Además lleva **asteriscos**: uno por cada
 opción de «Hash de seguridad» integrada en el enlace (se dibujan dentro del escudo).
 

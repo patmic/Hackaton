@@ -22,8 +22,10 @@ SIM = {"id_seudonimo": PERSONA, "tipo": "SIMULACRO", "momento": "2026-11-26T10:0
 
 
 def test_11_dial_con_observatorio(anon):
+    """El Observatorio va unido a «Radar Phishing»: una sola tarjeta en el dial y una pestaña en /radar."""
     html = anon.get("/").text
-    assert 'data-home-card="observatorio"' in html and 'href="/observatorio"' in html
+    assert 'data-home-card="radar"' in html and 'data-home-card="observatorio"' not in html
+    assert 'href="/observatorio"' in anon.get("/radar").text
     assert "Anti-phishing" not in html
     assert "/static/img/observatorio.svg" in html
     assert anon.get("/static/img/observatorio.svg").status_code == 200

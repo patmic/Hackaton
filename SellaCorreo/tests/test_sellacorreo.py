@@ -34,7 +34,7 @@ def _csrf(client, path="/genkey"):
 
 def _genkey(client, **kw):
     data = {"taxonomia": "comunicacional", "asunto": "Comunicado: nuevo horario de atención",
-            "destinatario": "", "pol_asunto": "1", **kw}
+            "destinatario": "", "pol_asunto": "1", "palabra": "IESS-KEY", **kw}
     data["csrf"] = kw.get("csrf", _csrf(client))
     return client.post("/genkey", data=data)
 
@@ -105,7 +105,8 @@ def test_caso_05_hash_compuesto_y_firma(staff, anon):
     conn.close()
     fp = m.sender_hmac(EMISOR)
     assert s["emisor_hmac"] == fp and len(fp) == 64  # huella HMAC del emisor, dentro del contenido sellado
-    content = canonical_content(asunto, f"politicas: caduca=-; palabra=-; destinatario=opcional; emisor={fp}")
+    assert s["palabra_tag"]  # la palabra segura es obligatoria y va dentro del contenido sellado
+    content = canonical_content(asunto, f"politicas: caduca=-; palabra={s['palabra_tag']}; destinatario=opcional; emisor={fp}")
     rh = recipient_hmac(TEST_ENV["SELLACORREO_HMAC_KEY"].encode(), EMISOR, "*")  # sin destinatario: marcador fijo
     assert s["recipient_hmac"] is None
     assert s["h"] == composite_hash(USER, rh, s["ts_utc"], len(content), sha256_hex(content))
@@ -294,9 +295,9 @@ def test_pagina_de_inicio(anon):
     assert r.status_code == 200 and "AI-IESS" in r.text
     assert 'data-home-card="validador"' in r.text and 'href="/checkin"' in r.text
     assert 'data-home-card="sello"' in r.text and 'href="/genkey"' in r.text
-    assert "suplantación de identidad" in r.text and "/static/img/escudo-correo.png" in r.text
+    assert "suplantación de identidad" in r.text and "/static/img/robot-aiess.svg" in r.text
     assert "Haga clic en el encabezado de su correo o pegue su enlace en este Validador." in r.text
-    assert "/static/img/escudo-correo.png" in r.text and anon.get("/static/img/escudo-correo.png").status_code == 200
+    assert "/static/img/robot-aiess.svg" in r.text and anon.get("/static/img/robot-aiess.svg").status_code == 200
     assert "sc-dial__img--sello" in r.text and anon.get("/static/img/sello.jpg").status_code == 200
     for label in (">Inicio<", ">Sello<", ">Sellar Correo<", ">Validador<"):
         assert label in r.text
@@ -357,13 +358,13 @@ def test_sin_encabezado_y_navegacion_en_el_pie(staff, anon):
     assert 'class="tl-nav' not in dentro and ">Salir<" in dentro and "sc-user" not in dentro
 
 
-@pytest.mark.parametrize("asunto_on,palabra_on,caducidad_on", list(itertools.product([False, True], repeat=3)))
-def test_combinaciones_de_politicas(staff, anon, asunto_on, palabra_on, caducidad_on):
-    """Las ocho combinaciones de Asunto / Palabra segura / Caducidad (Correo del emisor siempre activa)."""
+@pytest.mark.parametrize("asunto_on,caducidad_on", list(itertools.product([False, True], repeat=2)))
+def test_combinaciones_de_politicas(staff, anon, asunto_on, caducidad_on):
+    """Las cuatro combinaciones de Asunto / Caducidad (Correo del emisor y Palabra segura siempre activas)."""
+    palabra_on = True
     datos = {"taxonomia": "informativo", "asunto": "Aviso combinado", "palabra": "girasol-azul", "caducidad": "7",
              "csrf": _csrf(staff)}
     if asunto_on: datos["pol_asunto"] = "1"
-    if palabra_on: datos["pol_palabra"] = "1"
     if caducidad_on: datos["pol_caducidad"] = "1"
     r = staff.post("/genkey", data=datos)
     assert r.status_code == 200 and "Sello generado" in r.text
@@ -392,6 +393,7 @@ def test_politica_seleccionada_sin_valor_se_rechaza(staff):
     assert _genkey(staff, pol_caducidad="1", caducidad="").status_code == 422
     assert _genkey(staff, pol_caducidad="1", caducidad="5").status_code == 422
     assert _genkey(staff, pol_palabra="1", palabra="ab").status_code == 422
+    assert _genkey(staff, palabra="").status_code == 422  # obligatoria aunque no llegue pol_palabra
     assert _genkey(staff, pol_asunto="", asunto="").status_code == 200  # sin asunto ni política: sello válido
 
 
@@ -404,9 +406,9 @@ def test_valor_sin_politica_se_ignora(staff, anon):
     conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
     row = conn.execute("SELECT asunto, palabra_cifrada, expira_utc FROM sellos WHERE token=?", (token,)).fetchone()
     conn.close()
-    assert row == ("", None, None)
+    assert row[0] == "" and row[1] is not None and row[2] is None  # la palabra segura es obligatoria: siempre se guarda
     texto = _verificar(anon, link.replace(BASE, "")).text
-    assert "Correo válido y seguro" in texto and "Texto secreto" not in texto and "palabra-oculta" not in texto
+    assert "Correo válido y seguro" in texto and "Texto secreto" not in texto and "palabra-oculta" in texto
 
 
 def test_campos_ocultos_no_se_envian_en_el_formulario(staff):
@@ -460,8 +462,8 @@ def test_asteriscos_segun_opciones(staff):
     assert m.hash_options({"exige_asunto": 0}) == ["Correo del emisor"]
     assert m.hash_options({"exige_asunto": 1, "palabra_tag": "x", "expira_utc": "2030-01-01T00:00:00Z"}) == [
         "Correo del emisor", "Asunto del correo", "Palabra segura", "Caducidad del enlace"]
-    solo = _genkey(staff, pol_asunto="")
-    assert 'data-asteriscos="1"' in solo.text and "1 asterisco:" in solo.text
+    solo = _genkey(staff, pol_asunto="")  # mínimo: emisor + palabra segura (obligatoria)
+    assert 'data-asteriscos="2"' in solo.text and "2 asteriscos:" in solo.text
 
 
 def test_pie_institucional_en_todas_las_paginas(staff, anon):

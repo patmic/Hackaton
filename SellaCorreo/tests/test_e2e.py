@@ -34,7 +34,8 @@ def test_e2e_login_genkey_checkin():
         assert c.post("/login", data={"usuario": usuario, "clave": clave}).url.path == "/genkey"
         csrf = re.search(r'name="csrf" value="([0-9a-f]+)"', c.get("/genkey").text).group(1)
         r = c.post("/genkey", data={"csrf": csrf, "taxonomia": "comunicacional",
-                                    "asunto": "Comunicado: prueba e2e", "destinatario": ""})
+                                    "asunto": "Comunicado: prueba e2e", "destinatario": "",
+                                    "palabra": "IESS-KEY"})
         link = re.search(r'id="enlace" readonly value="([^"]+)"', r.text).group(1)
     path = link.replace("http://localhost:8090", URL)
     valido = httpx.get(path).text  # el emisor se verifica solo con el hash: resultado directo

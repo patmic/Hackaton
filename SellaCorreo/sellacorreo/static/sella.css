@@ -386,3 +386,37 @@ svg.sc-radar__bar{display:block;margin:0 auto}
 .sc-radar__mal{fill:#d52b1e}
 .sc-radar__ult td:first-child,.sc-radar__ult th:first-child{white-space:nowrap}
 @media (max-width:760px){.sc-radar__ult td:nth-child(2),.sc-radar__ult th:nth-child(2){display:none}.sc-radar__lbl{writing-mode:vertical-rl;transform:rotate(180deg)}}
+
+/* Imagen central: robot AIESS en SVG sobre círculo blanco */
+.sc-dial__img--robot{border-radius:50%;inset:12%;width:76%;height:76%;object-fit:contain;-webkit-mask-image:none;mask-image:none;background:#fff;box-shadow:0 0 0 1px var(--slate-200,#e2e8f0),0 10px 30px rgba(15,23,42,.08)}
+
+/* Radar Phishing (abajo a la izquierda) y Observatorio (abajo a la derecha), en diagonal junto al reloj */
+@media (min-width:901px){
+.sc-home__stage,.sc-home__stage:has(.sc-hcard--observatorio){padding-bottom:190px}
+.sc-hcard--radar,.sc-hcard--observatorio{translate:none;top:calc(18px + min(250px,46vw) * 1.707 + 6px)}
+.sc-hcard--radar{left:auto;right:calc(50% + min(250px,46vw) * .707 + 6px)}
+.sc-hcard--observatorio{right:auto;left:calc(50% + min(250px,46vw) * .707 + 6px)}
+}
+@media (max-width:900px){.sc-home__stage .sc-hcard{translate:none}}
+
+/* Radar Phishing + Observatorio: una sola opción bajo el reloj, con dos pestañas */
+@media (min-width:901px){
+.sc-home__stage,.sc-home__stage:has(.sc-hcard--observatorio){padding-bottom:190px}
+.sc-hcard--radar{right:auto;left:50%;translate:-50% 0;top:calc(18px + min(500px,92vw) + 14px)}
+}
+.sc-dial__img--radar{opacity:0;transform:scale(.94)}
+.sc-home__stage[data-show="radar"] .sc-dial__img--radar{opacity:1;transform:none}
+.sc-home__stage[data-show="radar"] .sc-dial__img--base{opacity:0}
+.sc-rtabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--border,#e2e8f0);margin:0 0 18px}
+.sc-rtabs__tab{padding:10px 14px;font-size:14px;color:var(--muted-foreground,#64748b);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+.sc-rtabs__tab:hover{color:var(--foreground,#0f172a)}
+.sc-rtabs__tab[aria-current="page"]{color:#0369a1;font-weight:600;border-bottom-color:#0284c7}
+.sc-rtabs__nota{font-size:11px;color:#94a3b8;font-weight:400}
+
+/* Título de Inicio con estilo cibernético: monoespaciada, degradado cian-verde y brillo */
+.sc-home__title{font-family:"Cascadia Code","JetBrains Mono",Consolas,"SFMono-Regular",Menlo,"Courier New",monospace;
+  font-size:40px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  background:linear-gradient(90deg,#0891b2 0%,#0ea5e9 40%,#22c55e 75%,#62c214 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 10px rgba(14,165,233,.35));position:relative;padding:0 .2em}
+.sc-home__sub{font-family:"Cascadia Code","JetBrains Mono",Consolas,Menlo,monospace;letter-spacing:.3em;font-size:13px}
+@media (max-width:760px){.sc-home__title{font-size:30px;letter-spacing:.08em}}
