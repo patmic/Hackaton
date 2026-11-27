@@ -1,0 +1,619 @@
+/* =====================================================================
+   IESS · Generador de Firma Digital y Sello de Cera (SHA-256 + Salt)
+   Construido sobre ThemeGreen (tokens.css + components.css)
+   ===================================================================== */
+
+:root {
+  --wax-lime-bright: #c6ff68;
+  --wax-lime-main: #9dff32;
+  --wax-lime-mid: #74d918;
+  --wax-lime-deep: #3d8206;
+  --wax-lime-ink: #102402;
+}
+
+body.tg-body {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  background:
+    radial-gradient(60% 45% at 12% 0%, rgba(157, 255, 50, 0.11), transparent 60%),
+    radial-gradient(50% 40% at 92% 14%, rgba(76, 141, 255, 0.10), transparent 60%),
+    var(--bg, #070807);
+}
+
+.smtp-bg-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(rgba(157, 255, 50, 0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.65), transparent 85%);
+}
+
+.smtp-page {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 var(--gutter, clamp(16px, 4vw, 48px)) 48px;
+}
+
+/* ---------- Header / Nav ---------- */
+.smtp-nav {
+  padding-left: 0;
+  padding-right: 0;
+  background: transparent;
+  position: static;
+}
+
+.smtp-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.smtp-brand__seal {
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 4px 14px rgba(157, 255, 50, 0.35));
+}
+
+.smtp-brand__title {
+  display: block;
+  font: 700 15px/1.2 var(--font);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.smtp-brand__sub {
+  display: block;
+  font: 500 11px/1.3 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* ---------- Hero ---------- */
+.smtp-hero {
+  padding: clamp(20px, 4vh, 40px) 0 clamp(20px, 3vh, 32px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.smtp-hero__title {
+  margin: 0;
+  font: 800 clamp(28px, 4.2vw, 52px)/1.05 var(--font);
+  letter-spacing: -0.035em;
+  color: #fff;
+  max-width: 22ch;
+}
+
+.smtp-hero__title em {
+  font-style: normal;
+  color: var(--lime);
+  text-shadow: 0 0 28px rgba(157, 255, 50, 0.28);
+}
+
+.smtp-hero code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  color: var(--lime);
+  background: var(--lime-a10);
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--lime-a30);
+}
+
+/* ---------- Grid principal ---------- */
+.smtp-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 1.08fr);
+  gap: clamp(16px, 2vw, 26px);
+  align-items: start;
+}
+
+.smtp-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.smtp-card-head .tg-h3 {
+  margin: 6px 0 0;
+}
+
+/* ---------- Formulario ---------- */
+.smtp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.smtp-row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.smtp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.smtp-field__label {
+  font: 600 12px/1.3 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.smtp-input {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-field, rgba(10, 13, 9, 0.78));
+  color: var(--ink);
+  font: 400 14px/1.45 var(--font);
+  outline: none;
+  transition: border-color var(--dur), box-shadow var(--dur), background var(--dur);
+}
+
+.smtp-input:focus {
+  border-color: var(--lime-a45);
+  box-shadow: var(--ring-focus);
+  background: rgba(12, 16, 10, 0.95);
+}
+
+.smtp-input option {
+  background: #0e120c;
+  color: var(--ink);
+}
+
+.smtp-textarea {
+  resize: vertical;
+  min-height: 102px;
+}
+
+.smtp-mono-input {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--lime);
+}
+
+/* ---------- Salt box ---------- */
+.smtp-salt-box {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--lime-a30);
+  background: linear-gradient(180deg, rgba(157, 255, 50, 0.06), rgba(0, 0, 0, 0.22));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.smtp-salt-box__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.smtp-salt-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.smtp-hint {
+  margin: 0;
+  font: 400 12.5px/1.45 var(--font);
+  color: var(--ink-dim);
+}
+
+.smtp-hint strong {
+  color: var(--ink);
+}
+
+.smtp-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* ---------- Panel del Sello de Cera ---------- */
+.smtp-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font: 600 11.5px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lime);
+  background: var(--lime-a10);
+  border: 1px solid var(--lime-a30);
+}
+
+.smtp-status-pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 10px var(--lime);
+}
+
+.wax-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 2.5vw, 28px);
+  padding: 22px 18px;
+  border-radius: 20px;
+  background:
+    radial-gradient(65% 80% at 32% 50%, rgba(157, 255, 50, 0.14), transparent 68%),
+    var(--surface-sunken, rgba(0, 0, 0, 0.4));
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.wax-stage__halo {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  left: 16%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(157, 255, 50, 0.22), transparent 70%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.wax-seal-wrap {
+  position: relative;
+  z-index: 1;
+  width: 176px;
+  height: 176px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: inherit;
+  text-decoration: none;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 18px rgba(157, 255, 50, 0.22));
+  transition: transform 0.25s var(--ease-rise);
+}
+
+.wax-seal-wrap:hover {
+  transform: scale(1.04) rotate(-2deg);
+}
+
+.wax-seal-wrap.is-stamping {
+  animation: waxStampPop 0.45s cubic-bezier(0.22, 1.25, 0.36, 1);
+}
+
+@keyframes waxStampPop {
+  0% { transform: scale(1.26) rotate(-8deg); opacity: 0.5; }
+  55% { transform: scale(0.93) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.wax-seal-wrap svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.wax-stage__meta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wax-code-label {
+  font: 500 11px/1.2 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.wax-code-value {
+  font: 700 clamp(17px, 1.8vw, 22px)/1.15 var(--mono);
+  color: var(--lime);
+  letter-spacing: 0.04em;
+  word-break: break-all;
+}
+
+.wax-time-label {
+  font: 400 12px/1.4 var(--mono);
+  color: var(--ink-dim);
+}
+
+/* ---------- Barra de copiado ---------- */
+.copy-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.copy-btn-main {
+  width: 100%;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  font-size: 15px;
+}
+
+.copy-toolbar__secondary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.copy-toolbar__secondary .tg-btn {
+  flex: 1 1 auto;
+}
+
+/* ---------- Vista previa de firma en correo (estilo correo real) ---------- */
+.email-preview-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 16px 36px -22px rgba(0, 0, 0, 0.85);
+}
+
+.email-preview-wrap__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 14px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  font: 600 11px/1.2 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #475569;
+}
+
+.email-preview-wrap__tip {
+  color: #2f6e05;
+  background: #ecfccb;
+  border: 1px solid #bef264;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.email-signature-box {
+  padding: 16px;
+  background: #ffffff;
+}
+
+/* ---------- Detalles técnicos ---------- */
+.tech-details {
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.28);
+  padding: 10px 14px;
+}
+
+.tech-details summary {
+  cursor: pointer;
+  font: 600 12.5px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tech-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.tech-details summary::after {
+  content: "+";
+  color: var(--lime);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.tech-details[open] summary::after {
+  content: "−";
+}
+
+.tech-details__body {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tech-kv {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tech-kv span {
+  font: 500 11.5px/1.3 var(--mono);
+  color: var(--ink-dim);
+}
+
+.tech-kv code,
+.tech-kv pre {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font: 400 12px/1.5 var(--mono);
+  color: var(--lime);
+  word-break: break-all;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+/* ---------- Verificador ---------- */
+.smtp-verify-card {
+  max-width: 860px;
+}
+
+.verify-banner {
+  padding: 14px 16px;
+  border-radius: 14px;
+  font: 500 14px/1.5 var(--font);
+  border: 1px solid var(--line);
+}
+
+.verify-banner--ok {
+  background: rgba(157, 255, 50, 0.10);
+  border-color: rgba(157, 255, 50, 0.45);
+  color: #dcffb3;
+}
+
+.verify-banner--bad {
+  background: rgba(255, 77, 109, 0.12);
+  border-color: rgba(255, 77, 109, 0.48);
+  color: #ffc2cd;
+}
+
+.verify-banner code {
+  display: block;
+  margin-top: 6px;
+  font: 400 12px/1.4 var(--mono);
+  word-break: break-all;
+  opacity: 0.9;
+}
+
+.smtp-verification {
+  max-width: 760px;
+  margin: clamp(48px, 10vh, 100px) auto;
+}
+
+.smtp-verification__status {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+  padding: clamp(24px, 6vw, 48px);
+}
+
+.smtp-verification__icon {
+  display: grid;
+  width: 68px;
+  height: 68px;
+  place-items: center;
+  border: 1px solid rgba(157, 255, 50, 0.55);
+  border-radius: 50%;
+  background: rgba(157, 255, 50, 0.12);
+  color: #c6ff68;
+  font-size: 34px;
+}
+
+.smtp-verification__status--bad .smtp-verification__icon {
+  border-color: rgba(255, 77, 109, 0.55);
+  background: rgba(255, 77, 109, 0.12);
+  color: #ffc2cd;
+}
+
+.smtp-verification__title {
+  margin: 0;
+  color: var(--ink);
+  font: 800 clamp(25px, 5vw, 36px)/1.15 var(--font);
+}
+
+.smtp-verification__details {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.smtp-verification__details code {
+  overflow-wrap: anywhere;
+  color: var(--lime);
+  font-family: var(--mono);
+}
+
+.smtp-verification__notice {
+  margin: 0;
+  color: var(--ink-dim);
+  font: 400 13px/1.6 var(--font);
+}
+
+/* ---------- Footer & Toast ---------- */
+.smtp-foot {
+  padding-left: 0;
+  padding-right: 0;
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.smtp-toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 100;
+  max-width: 380px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #10160c;
+  border: 1px solid var(--lime-a45);
+  color: var(--lime);
+  font: 600 13px/1.4 var(--font);
+  box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.85), 0 0 22px -6px rgba(157, 255, 50, 0.45);
+  animation: toastIn 0.22s ease;
+}
+
+.smtp-toast[data-tone="error"] {
+  border-color: rgba(255, 77, 109, 0.6);
+  color: #ff8ca1;
+}
+
+@keyframes toastIn {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px) {
+  .smtp-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .smtp-row-2 {
+    grid-template-columns: 1fr;
+  }
+  .wax-stage {
+    flex-direction: column;
+    text-align: center;
+  }
+  .wax-stage__meta {
+    align-items: center;
+  }
+}

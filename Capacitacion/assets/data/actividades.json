@@ -1,0 +1,450 @@
+[
+  {
+    "id": "M1-A1-01",
+    "modulo": "M1",
+    "mecanica": "A1_CAZA_SENAL",
+    "titulo": "El reembolso que vence hoy",
+    "resumen": "Encuentra las cuatro señales escondidas en un correo de falso reembolso.",
+    "paso_4r": ["RECONOCER"],
+    "tipos": ["EX1", "EX2", "EX3", "EX4", "EX5", "IN1"],
+    "tipologia": "T2",
+    "indicios": ["I7", "I1", "I3", "I2"],
+    "variante_ex2": "M1-A7-01",
+    "duracion_seg": 60,
+    "mensaje": {
+      "etiqueta": "SIMULACIÓN",
+      "remitente": "devoluciones@iess-pagos-ec.net",
+      "asunto": "Tienes un reembolso pendiente de $187,40, vence HOY",
+      "cuerpo": "Estimado afiliado:\nPara recibir tu reembolso ingresa tu usuario y tu clave del portal en el siguiente enlace.\nSi no lo haces antes de las 23:59, el valor se anulará.",
+      "boton": "Cobrar mi reembolso"
+    },
+    "senales": [
+      {
+        "id": "I7",
+        "zona": "remitente",
+        "feedback": "Los correos del IESS terminan en iess.gob.ec. «iess-pagos-ec.net» se parece, pero no es el dominio oficial."
+      },
+      {
+        "id": "I1",
+        "zona": "asunto",
+        "feedback": "«Vence HOY» busca que actúes sin pensar. La prisa no te deja verificar."
+      },
+      {
+        "id": "I3",
+        "zona": "cuerpo:2",
+        "feedback": "El IESS nunca te pide tu usuario ni tu clave por correo."
+      },
+      {
+        "id": "I2",
+        "zona": "boton",
+        "feedback": "No uses el botón. Entra tú mismo a la app oficial o a www.iess.gob.ec."
+      }
+    ],
+    "mensaje_clave": "Si te apura, te pide claves o dinero, o viene de un remitente raro: para y verifica."
+  },
+  {
+    "id": "M1-A7-01",
+    "modulo": "M1",
+    "mecanica": "A7_AUDIO_RETO",
+    "titulo": "La llamada del reembolso",
+    "resumen": "Escucha el mensaje y decide con un solo botón.",
+    "paso_4r": ["RECONOCER", "REACCIONAR"],
+    "tipos": ["EX2"],
+    "tipologia": "T2",
+    "indicios": ["I1", "I3", "I6"],
+    "duracion_seg": 60,
+    "audio": {
+      "guion": "Buenos días, le hablamos del IESS. Usted tiene un reembolso de ciento ochenta y siete dólares. Para cobrarlo hoy mismo díganos su clave del portal y el código que le llegará por mensaje. Si cuelga, perderá el dinero.",
+      "url": null
+    },
+    "opciones": [
+      {
+        "id": "colgar",
+        "texto": "Cuelgo y verifico en la app",
+        "es_correcta": true,
+        "feedback": "¡Muy bien! El IESS nunca pide tu clave ni códigos por teléfono. Cuelga y entra tú mismo a la app oficial."
+      },
+      {
+        "id": "dar-datos",
+        "texto": "Doy mis datos para cobrar",
+        "es_correcta": false,
+        "feedback": "Te pidieron tu clave y un código con prisa: son señales de estafa. La próxima vez, cuelga y verifica en la app oficial."
+      }
+    ],
+    "mensaje_clave": "Si te piden tu clave o un código, cuelga. El IESS nunca los pide."
+  },
+  {
+    "id": "M1-A2-01",
+    "modulo": "M1",
+    "mecanica": "A2_REAL_O_ESTAFA",
+    "titulo": "¿Real o estafa? Cinco correos",
+    "resumen": "Decide si cada correo es real o una estafa. Siempre te explicamos por qué.",
+    "paso_4r": ["RECONOCER"],
+    "tipos": ["EX1", "EX2", "EX3", "EX4", "EX5", "IN1"],
+    "indicios": ["I1", "I3", "I6", "I7", "I8", "I9", "I10"],
+    "duracion_seg": 120,
+    "tarjetas": [
+      {
+        "id": "M1-A2-01-t1",
+        "mensaje": {
+          "remitente": "reembolsos@iess-tramites-ec.com",
+          "asunto": "Su reembolso de $320 vence HOY",
+          "cuerpo": "Estimado afiliado, tiene un reembolso pendiente.\nIngrese su usuario y clave en el enlace en las próximas 24 horas o perderá el valor.",
+          "boton": "Ingresar"
+        },
+        "es_estafa": true,
+        "explicacion": "El dominio no es oficial, hay un plazo de horas y pide tu clave. Son señales de estafa.",
+        "indicios": ["I7", "I1", "I3", "I6"]
+      },
+      {
+        "id": "M1-A2-01-t2",
+        "mensaje": {
+          "remitente": "notificaciones@iess.gob.ec",
+          "asunto": "Rol de pensión de noviembre disponible",
+          "cuerpo": "Su rol de pensión ya está disponible.\nPuede consultarlo entrando por su cuenta a la app oficial del IESS.",
+          "codigo_verificacion": "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4"
+        },
+        "es_estafa": false,
+        "explicacion": "Es informativo, no pide datos ni dinero, viene del dominio oficial y trae sello. Igual puedes verificar el código en la app.",
+        "indicios": []
+      },
+      {
+        "id": "M1-A2-01-t3",
+        "mensaje": {
+          "remitente": "creditos.biess@gmail.com",
+          "asunto": "Crédito preaprobado de $15.000",
+          "cuerpo": "Felicidades, su crédito fue aprobado.\nPara desembolsarlo deposite $85 de gastos administrativos a la cuenta indicada."
+        },
+        "es_estafa": true,
+        "explicacion": "Usa un correo gratuito y pide un depósito previo. Ninguna institución pública trabaja así.",
+        "indicios": ["I7", "I6", "I10"]
+      },
+      {
+        "id": "M1-A2-01-t4",
+        "mensaje": {
+          "remitente": "comunicacion@iess.gob.ec",
+          "asunto": "Recordatorio: feria de salud preventiva",
+          "cuerpo": "Te invitamos a la feria de salud preventiva de este sábado en tu unidad médica.\nNo necesitas registrarte."
+        },
+        "es_estafa": false,
+        "explicacion": "Es un comunicado sin enlaces para datos, sin urgencia y con el dominio oficial.",
+        "indicios": []
+      },
+      {
+        "id": "M1-A2-01-t5",
+        "mensaje": {
+          "remitente": "soporte@iess-gob-ec.info",
+          "asunto": "Su cuenta será suspendida",
+          "cuerpo": "Detectamos datos desactualizados.\nComplete el formulario con su cédula, su clave y el número de su tarjeta para evitar la suspensión.",
+          "boton": "Completar formulario"
+        },
+        "es_estafa": true,
+        "explicacion": "Imita el dominio oficial con guiones, amenaza con suspender tu cuenta y pide cédula, clave y tarjeta.",
+        "indicios": ["I7", "I8", "I9", "I3"]
+      }
+    ],
+    "mensaje_clave": "Antes de hacer clic, revisa el remitente y pregúntate: ¿me apura, me pide claves o dinero?"
+  },
+  {
+    "id": "M2-A6-01",
+    "modulo": "M2",
+    "mecanica": "A6_VERIFICA_3_PASOS",
+    "titulo": "Verifica en 3 pasos",
+    "resumen": "Usa el verificador con sellos de prueba. Uno de ellos fue copiado de otro correo.",
+    "paso_4r": ["REACCIONAR"],
+    "tipos": ["EX1", "EX2", "EX3", "EX4", "IN1"],
+    "tipologia": "T2",
+    "indicios": ["I2", "I7", "I8", "I9"],
+    "duracion_seg": 120,
+    "casos": [
+      {
+        "id": "M2-A6-01-c1",
+        "mensaje": {
+          "remitente": "notificaciones@iess.gob.ec",
+          "asunto": "Rol de pensión de noviembre disponible",
+          "cuerpo": "Su rol de pensión ya está disponible.\nPuede consultarlo entrando por su cuenta a la app oficial del IESS.",
+          "codigo_verificacion": "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4"
+        },
+        "es_estafa": false,
+        "explicacion": "La app confirma el sello y el asunto oficial coincide con lo que lees: es el rol de pensión. Es real.",
+        "indicios": []
+      },
+      {
+        "id": "M2-A6-01-c2",
+        "mensaje": {
+          "remitente": "biess-pagos@biess-ec.net",
+          "asunto": "Último aviso: su crédito será cancelado",
+          "cuerpo": "Actualice sus datos bancarios en el siguiente enlace para no perder su crédito aprobado.",
+          "boton": "Actualizar datos",
+          "codigo_verificacion": "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4"
+        },
+        "es_estafa": true,
+        "explicacion": "El sello es real, pero la app dice que se emitió para «Notificación de rol de pensión mensual». Lo copiaron de otro correo: es estafa.",
+        "indicios": ["I7", "I8", "I2"]
+      },
+      {
+        "id": "M2-A6-01-c3",
+        "mensaje": {
+          "remitente": "afiliacion@iess.gob.ec",
+          "asunto": "Recordatorio de actualización de datos",
+          "cuerpo": "Para mantener activa su afiliación, envíe una foto de su cédula desde el siguiente enlace.",
+          "boton": "Enviar foto",
+          "codigo_verificacion": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b"
+        },
+        "es_estafa": true,
+        "explicacion": "Seguridad del IESS revocó este sello. Aunque el remitente parezca oficial, no actúes por este correo.",
+        "indicios": ["I2", "I9"]
+      }
+    ],
+    "mensaje_clave": "Busca el código, verifícalo dentro de la app y compara lo que dice la app con lo que lees."
+  },
+  {
+    "id": "M3-A3-01",
+    "modulo": "M3",
+    "mecanica": "A3_BANDEJA_SIMULADA",
+    "titulo": "Bandeja simulada",
+    "resumen": "Cinco correos: decide si confías, verificas o reportas.",
+    "paso_4r": ["REACCIONAR", "REPORTAR"],
+    "indicios": ["I1", "I5", "I6", "I7", "I8", "I9", "I10"],
+    "duracion_seg": 150,
+    "bandeja": [
+      {
+        "id": "M3-A3-01-m1",
+        "mensaje": {
+          "remitente": "citas@iess-agenda.com",
+          "asunto": "Confirme su cita de cardiología",
+          "cuerpo": "Su cita será cancelada.\nPara mantenerla realice una recarga de $10 al número indicado."
+        },
+        "accion_correcta": "REPORTAR",
+        "explicacion": "Pide una recarga para mantener una cita y viene de un dominio falso. Repórtalo para alertar a otros.",
+        "indicios": ["I7", "I8", "I10"]
+      },
+      {
+        "id": "M3-A3-01-m2",
+        "mensaje": {
+          "remitente": "comunicacion@iess.gob.ec",
+          "asunto": "Boletín: nuevos horarios de atención",
+          "cuerpo": "Desde diciembre, las agencias atienden de 08:00 a 17:00.\nNo necesitas hacer nada."
+        },
+        "accion_correcta": "CONFIAR",
+        "explicacion": "Es un comunicado informativo del dominio oficial y no te pide nada.",
+        "indicios": []
+      },
+      {
+        "id": "M3-A3-01-m3",
+        "mensaje": {
+          "remitente": "notificaciones@iess.gob.ec",
+          "asunto": "Tu certificado de aportes está listo",
+          "cuerpo": "Puedes descargarlo desde el botón de este correo.",
+          "boton": "Descargar certificado"
+        },
+        "accion_correcta": "VERIFICAR",
+        "explicacion": "Parece oficial y no pide datos, pero trae un botón para descargar. Antes de abrir nada, verifícalo en la app o entra tú mismo al portal.",
+        "indicios": []
+      },
+      {
+        "id": "M3-A3-01-m4",
+        "mensaje": {
+          "remitente": "premios@iess-sorteos.com",
+          "asunto": "¡Ganaste un bono de $500 por tu aniversario de afiliación!",
+          "cuerpo": "Para recibirlo envía una foto de tu cédula y una selfie.\nTienes 2 horas."
+        },
+        "accion_correcta": "REPORTAR",
+        "explicacion": "Un premio que no pediste, con prisa, que pide tu cédula y una selfie: repórtalo.",
+        "indicios": ["I7", "I6", "I9", "I1"]
+      },
+      {
+        "id": "M3-A3-01-m5",
+        "mensaje": {
+          "remitente": "soporte.iess@outlook.com",
+          "asunto": "Actualiza la app del IESS",
+          "cuerpo": "Descarga la nueva versión desde el archivo adjunto e instálala hoy.",
+          "adjunto": "IESS_nueva_version.apk"
+        },
+        "accion_correcta": "REPORTAR",
+        "explicacion": "Las apps oficiales se instalan desde la tienda del teléfono, nunca desde un adjunto. Además usa un correo gratuito.",
+        "indicios": ["I7", "I5", "I1"]
+      }
+    ],
+    "mensaje_clave": "Ante la duda, no hagas clic: verifica en la app o reporta. Reportar por error un correo real no tiene consecuencias."
+  },
+  {
+    "id": "M4-A2-01",
+    "modulo": "M4",
+    "mecanica": "A2_REAL_O_ESTAFA",
+    "titulo": "Reembolsos, créditos y bloqueos falsos",
+    "resumen": "Cinco correos financieros: ¿real o estafa?",
+    "paso_4r": ["RECONOCER"],
+    "tipos": ["EX1", "EX2"],
+    "tipologia": "T2",
+    "indicios": ["I1", "I2", "I3", "I6", "I7", "I8", "I10"],
+    "duracion_seg": 120,
+    "tarjetas": [
+      {
+        "id": "M4-A2-01-t1",
+        "mensaje": {
+          "remitente": "devoluciones@iess-pagos-ec.net",
+          "asunto": "Devolución de fondos de reserva aprobada",
+          "cuerpo": "Su devolución de $642,15 fue aprobada.\nPara recibirla, pague hoy una tasa de procesamiento de $12."
+        },
+        "es_estafa": true,
+        "explicacion": "Un dinero que no esperabas y un cobro previo, con prisa y desde un dominio que no es oficial.",
+        "indicios": ["I7", "I6", "I10", "I1"]
+      },
+      {
+        "id": "M4-A2-01-t2",
+        "mensaje": {
+          "remitente": "notificaciones@iess.gob.ec",
+          "asunto": "Tu solicitud de fondos de reserva fue registrada",
+          "cuerpo": "Recibimos tu solicitud del 18 de noviembre.\nPuedes revisar el estado entrando por tu cuenta a la app oficial."
+        },
+        "es_estafa": false,
+        "explicacion": "Confirma un trámite que tú hiciste, no pide datos ni pagos y te manda a entrar por tu cuenta.",
+        "indicios": []
+      },
+      {
+        "id": "M4-A2-01-t3",
+        "mensaje": {
+          "remitente": "creditos@biess-ec.net",
+          "asunto": "Su crédito hipotecario fue preaprobado",
+          "cuerpo": "Para activar el crédito confirme los datos de su tarjeta en el formulario.",
+          "boton": "Confirmar tarjeta"
+        },
+        "es_estafa": true,
+        "explicacion": "Un crédito que no pediste, un dominio parecido al del BIESS y un formulario para tu tarjeta.",
+        "indicios": ["I7", "I6", "I3", "I2"]
+      },
+      {
+        "id": "M4-A2-01-t4",
+        "mensaje": {
+          "remitente": "pensiones@iess-tramites-ec.com",
+          "asunto": "Su pensión será bloqueada",
+          "cuerpo": "Detectamos inconsistencias en su cuenta.\nSi no actualiza sus datos hoy, su pensión será bloqueada.",
+          "boton": "Actualizar ahora"
+        },
+        "es_estafa": true,
+        "explicacion": "El IESS no bloquea pensiones por correo. La amenaza y la prisa son para que no verifiques.",
+        "indicios": ["I7", "I8", "I1", "I2"]
+      },
+      {
+        "id": "M4-A2-01-t5",
+        "mensaje": {
+          "remitente": "comunicacion@iess.gob.ec",
+          "asunto": "Calendario de pago de pensiones de diciembre",
+          "cuerpo": "El pago de pensiones de diciembre se acreditará a partir del día 20.\nEl IESS nunca te pedirá claves ni pagos por correo."
+        },
+        "es_estafa": false,
+        "explicacion": "Es un aviso informativo del dominio oficial y te recuerda que el IESS no pide claves ni pagos.",
+        "indicios": []
+      }
+    ],
+    "mensaje_clave": "Ningún pago legítimo del IESS o del BIESS te pide pagar antes ni dar los datos de tu tarjeta."
+  },
+  {
+    "id": "M5-A1-01",
+    "modulo": "M5",
+    "mecanica": "A1_CAZA_SENAL",
+    "titulo": "La cita que hay que «confirmar» pagando",
+    "resumen": "Encuentra las señales en un falso aviso de cita médica.",
+    "paso_4r": ["RECONOCER"],
+    "tipos": ["EX1", "EX2", "EX4"],
+    "tipologia": "T3",
+    "indicios": ["I7", "I8", "I10", "I1"],
+    "duracion_seg": 60,
+    "mensaje": {
+      "remitente": "citas@iess-agenda.com",
+      "asunto": "Su cita de cardiología será cancelada",
+      "cuerpo": "Estimado paciente:\nPara mantener su cita del lunes realice una recarga de $10 al número indicado.\nSi no confirma en 2 horas, perderá su turno."
+    },
+    "senales": [
+      {
+        "id": "I7",
+        "zona": "remitente",
+        "feedback": "El agendamiento del IESS no usa «iess-agenda.com». El dominio oficial es iess.gob.ec."
+      },
+      {
+        "id": "I8",
+        "zona": "asunto",
+        "feedback": "La amenaza de cancelar tu cita es para presionarte."
+      },
+      {
+        "id": "I10",
+        "zona": "cuerpo:2",
+        "feedback": "Las citas del IESS no se confirman con pagos ni recargas."
+      },
+      {
+        "id": "I1",
+        "zona": "cuerpo:3",
+        "feedback": "Dos horas de plazo: la prisa es la trampa."
+      }
+    ],
+    "mensaje_clave": "Las citas del IESS no se confirman con pagos ni recargas."
+  },
+  {
+    "id": "M6-A1-01",
+    "modulo": "M6",
+    "mecanica": "A1_CAZA_SENAL",
+    "titulo": "El QR que te lleva a otra página",
+    "resumen": "Un certificado «listo para descargar» con un código QR. ¿Qué señales ves?",
+    "paso_4r": ["RECONOCER", "REACCIONAR"],
+    "tipos": ["EX1", "EX2", "EX3", "EX4", "EX5"],
+    "tipologia": "T1",
+    "indicios": ["I11", "I7", "I1"],
+    "duracion_seg": 60,
+    "mensaje": {
+      "remitente": "certificados@iess-gob-ec.info",
+      "asunto": "Tu certificado de afiliación está listo",
+      "cuerpo": "Escanea el código QR con la cámara de tu teléfono para descargarlo.\nEl enlace estará disponible solo por hoy.",
+      "qr": true
+    },
+    "senales": [
+      {
+        "id": "I11",
+        "zona": "qr",
+        "feedback": "Un QR puede llevarte a una página falsa que muestra un sello «verificado». Verifica siempre dentro de la app oficial."
+      },
+      {
+        "id": "I7",
+        "zona": "remitente",
+        "feedback": "«iess-gob-ec.info» imita al dominio oficial con guiones."
+      },
+      {
+        "id": "I1",
+        "zona": "cuerpo:2",
+        "feedback": "«Solo por hoy» es presión para que no verifiques."
+      }
+    ],
+    "mensaje_clave": "Nunca confíes en la página que abre un QR: verifica siempre dentro de tu canal oficial."
+  },
+  {
+    "id": "M7-A7-01",
+    "modulo": "M7",
+    "mecanica": "A7_AUDIO_RETO",
+    "titulo": "Tu pensión será suspendida hoy",
+    "resumen": "Escucha el mensaje y elige con un botón grande.",
+    "paso_4r": ["REACCIONAR"],
+    "tipos": ["EX2"],
+    "tipologia": "T2",
+    "indicios": ["I8", "I1", "I9"],
+    "duracion_seg": 60,
+    "audio": {
+      "guion": "Señor jubilado, le escribimos del IESS. Su pensión será suspendida hoy si no actualiza sus datos. Responda este mensaje con el número de su cédula y una foto de su documento.",
+      "url": null
+    },
+    "opciones": [
+      {
+        "id": "verificar",
+        "texto": "No respondo y verifico en la app",
+        "es_correcta": true,
+        "feedback": "¡Bien hecho! El IESS no suspende pensiones por mensaje ni pide fotos de tu cédula. Ante la duda, entra tú mismo a la app oficial."
+      },
+      {
+        "id": "responder",
+        "texto": "Envío mis datos para no perder la pensión",
+        "es_correcta": false,
+        "feedback": "Te amenazaron con tu pensión y te pidieron tu cédula con prisa: son señales de estafa. La próxima vez, para y verifica en la app oficial."
+      }
+    ],
+    "mensaje_clave": "El IESS no bloquea ni suspende tu pensión por correo o mensaje. Para y verifica."
+  }
+]
