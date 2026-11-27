@@ -18,6 +18,9 @@
 	handle {
 		root * /web
 		try_files {path} /index.html
+		# Los archivos de Flutter no cambian de nombre entre versiones: que Cloudflare (o el navegador)
+		# siempre pregunte si hay una nueva antes de usar su copia.
+		header Cache-Control "no-cache"
 		file_server
 	}
 }
