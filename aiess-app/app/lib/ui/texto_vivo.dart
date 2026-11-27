@@ -1,7 +1,7 @@
 // Texto que "se va generando": karaoke sincronizado con la voz y pasos de carga que se arman en vivo.
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../features/voz/voz.dart';
 
@@ -55,7 +55,7 @@ class _TextoVivoState extends State<TextoVivo> {
 
   @override
   Widget build(BuildContext context) {
-    final base = widget.estilo ?? const TextStyle(fontSize: 19, height: 1.4, color: Colors.white);
+    final base = widget.estilo ?? DefaultTextStyle.of(context).style.copyWith(fontSize: 19, height: 1.4);
     return ValueListenableBuilder<int>(
       valueListenable: Voz.i.avance,
       builder: (_, dicho, __) {
@@ -78,12 +78,17 @@ class _TextoVivoState extends State<TextoVivo> {
 
 /// Lista de pasos que se arma en vivo: los terminados con ✓, el actual con puntos animados y barra si hay progreso.
 class PasosCarga extends StatelessWidget {
-  const PasosCarga({super.key, required this.pasos, this.progreso});
+  const PasosCarga({super.key, required this.pasos, this.progreso, this.color, this.acento});
   final List<String> pasos;
   final double? progreso;
+  /// Color del texto y del acento (✓, puntos, barra). Por defecto, los del tema claro.
+  final Color? color, acento;
 
   @override
   Widget build(BuildContext context) {
+    final esquema = Theme.of(context).colorScheme;
+    final tinta = color ?? esquema.onSurface;
+    final marca = acento ?? esquema.primary;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -101,8 +106,8 @@ class PasosCarga extends StatelessWidget {
                 SizedBox(
                   width: 28,
                   child: i < pasos.length - 1
-                      ? const Icon(Icons.check_circle_rounded, color: Color(0xFFFCC602), size: 24)
-                      : const _Puntos(),
+                      ? Icon(Icons.check_circle_rounded, color: marca, size: 24)
+                      : _Puntos(color: marca),
                 ),
                 const SizedBox(width: 8),
                 Flexible(
@@ -110,7 +115,7 @@ class PasosCarga extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 19,
                           fontWeight: i == pasos.length - 1 ? FontWeight.w700 : FontWeight.w400,
-                          color: Colors.white.withValues(alpha: i == pasos.length - 1 ? 1 : 0.7))),
+                          color: tinta.withValues(alpha: i == pasos.length - 1 ? 1 : 0.7))),
                 ),
               ]),
             ),
@@ -124,7 +129,7 @@ class PasosCarga extends StatelessWidget {
                 tween: Tween(end: progreso),
                 duration: const Duration(milliseconds: 300),
                 builder: (_, v, __) => LinearProgressIndicator(
-                    value: v, minHeight: 8, color: const Color(0xFFFCC602), backgroundColor: Colors.white.withValues(alpha: 0.18)),
+                    value: v, minHeight: 8, color: marca, backgroundColor: tinta.withValues(alpha: 0.14)),
               ),
             ),
           ),
@@ -134,7 +139,8 @@ class PasosCarga extends StatelessWidget {
 }
 
 class _Puntos extends StatefulWidget {
-  const _Puntos();
+  const _Puntos({required this.color});
+  final Color color;
 
   @override
   State<_Puntos> createState() => _PuntosState();
@@ -162,7 +168,7 @@ class _PuntosState extends State<_Puntos> with SingleTickerProviderStateMixin {
                 height: 6,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFFCC602).withValues(alpha: ((_c.value * 3 - k) % 3) < 1 ? 1 : 0.3),
+                  color: widget.color.withValues(alpha: ((_c.value * 3 - k) % 3) < 1 ? 1 : 0.3),
                 ),
               ),
           ],

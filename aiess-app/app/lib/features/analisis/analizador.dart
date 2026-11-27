@@ -38,7 +38,8 @@ class Analizador {
     final buffer = StringBuffer();
     var n = 0;
     var adelantado = false;
-    final salida = await cerebro.generar(prompt, prefijo: prefijoLfm2(system), maxTokens: 420, alToken: (t) {
+    final salida = await cerebro.generar(prompt,
+        prefijo: prefijoLfm2(system), maxTokens: 260, stop: const [', "que_hacer"'], alToken: (t) {
       buffer.write(t);
       n++;
       if (n % 4 == 0) alAvanzar?.call('Pensándolo con mi cerebro', (n / 220).clamp(0.0, 0.97));

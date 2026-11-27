@@ -2,7 +2,7 @@
 // es una onda sinusoidal viva (se agita cuando el cóndor habla o te escucha). El color del panel es el mensaje.
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import '../features/mascota/pantera.dart';
@@ -109,7 +109,7 @@ class EscenaPantera extends StatelessWidget {
                         duration: const Duration(milliseconds: 300),
                         layoutBuilder: (actual, previos) => Stack(alignment: Alignment.topLeft, children: [...previos, if (actual != null) actual]),
                         child: pasos.isNotEmpty
-                            ? Align(key: const ValueKey('pasos'), alignment: Alignment.topLeft, child: PasosCarga(pasos: pasos, progreso: progreso))
+                            ? Align(key: const ValueKey('pasos'), alignment: Alignment.topLeft, child: PasosCarga(pasos: pasos, progreso: progreso, color: Colors.white, acento: Paleta.ambar))
                             : SingleChildScrollView(
                                 key: ValueKey(subtitulo),
                                 child: subtitulo.isEmpty

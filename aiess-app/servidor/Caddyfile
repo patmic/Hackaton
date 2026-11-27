@@ -1,0 +1,23 @@
+{$DOMINIO} {
+	# Sin registro de solicitudes: los correos analizados no quedan en ningún log.
+	log {
+		output discard
+	}
+	encode gzip
+
+	# API del modelo (protegida con la clave AIESS_CLAVE en llama-server).
+	@api path /completion /health /v1/*
+	handle @api {
+		reverse_proxy ia:8080 {
+			# El streaming de la respuesta debe llegar sin esperar al final.
+			flush_interval -1
+		}
+	}
+
+	# La web de AIESS (contenido de app/build/web).
+	handle {
+		root * /web
+		try_files {path} /index.html
+		file_server
+	}
+}

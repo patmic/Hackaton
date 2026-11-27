@@ -1,0 +1,50 @@
+# Servidor de IA de AIESS: el modelo LFM2 entrenado + la web, en una sola dirección.
+# Funciona en Oracle Cloud (Ampere A1 ARM64 o x86) y en cualquier Linux con Docker.
+#
+#   1) Copia el modelo:   modelos/aiess-lfm2-1.2b-Q4_K_M.gguf
+#   2) Copia la web:      web/   (contenido de app/build/web)
+#   3) Edita .env:        DOMINIO=ia.tudominio.com  (o deja :80 para usar solo la IP)
+#   4) docker compose up -d
+#
+# Privacidad: llama-server NO guarda los correos: sin --log-prompts-dir, sin endpoint /slots (--no-slots)
+# y sin escribir nada a disco. El texto queda solo en memoria y se reemplaza con la siguiente revisión.
+services:
+  ia:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    restart: unless-stopped
+    volumes:
+      - ./modelos:/modelos:ro
+    command: >
+      -m /modelos/aiess-lfm2-1.2b-Q4_K_M.gguf
+      --host 0.0.0.0 --port 8080
+      -c 8192 -np 4
+      --threads ${HILOS:-4}
+      --cache-reuse 256
+      --no-slots
+      --api-key ${AIESS_CLAVE:?Define AIESS_CLAVE en .env}
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  # Caddy sirve la web (archivos estáticos) y pasa solo la API al modelo.
+  # HTTPS automático (Let's Encrypt) si DOMINIO apunta a la IP pública del servidor.
+  web:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [ia]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO:-:80}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./web:/web:ro
+      - caddy_datos:/data
+
+volumes:
+  caddy_datos:

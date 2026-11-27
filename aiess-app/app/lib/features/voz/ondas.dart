@@ -1,7 +1,7 @@
 // Ondas sinusoidales que "respiran" con la voz del cóndor (o la tuya mientras escucha).
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'voz.dart';
 

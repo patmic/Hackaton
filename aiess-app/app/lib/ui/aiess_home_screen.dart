@@ -1,23 +1,12 @@
-// Pantalla principal AIESS: el cóndor como medallón oficial. Su anillo exterior ES el estado
-// (amarillo listo, rojo estafa, verde seguro) y de él salen ondas cuando habla.
-// Sin tarjetas: el texto va directo sobre el azul noche del emblema. Un botón principal + micrófono.
-import 'package:flutter/material.dart';
+// Pantalla principal AIESS con el mismo estilo del aula virtual: AppBar azul IESS, fondo claro,
+// tarjeta blanca y barra de navegación inferior (Revisar · Aula virtual · Practicar).
+// El cóndor es un medallón cuyo anillo muestra el estado; la tarjeta se tiñe de rojo o verde con el veredicto.
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import '../features/mascota/pantera.dart';
+import 'tema.dart';
 import 'texto_vivo.dart';
-
-class _C {
-  static const nocheArriba = Color(0xFF0A1B3A); // mismo azul del fondo del emblema
-  static const iessAbajo = Color(0xFF00337F); // baja hacia el azul IESS
-  static const amarillo = Color(0xFFFCC602); // amarillo IESS
-  static const tinta = Color(0xFF0A1B3A);
-  static const voz = Color(0xFF0B3F8C);
-  static const rojoArriba = Color(0xFF3A0B0E);
-  static const rojoAbajo = Color(0xFF8E1B15);
-  static const verdeArriba = Color(0xFF062B1A);
-  static const verdeAbajo = Color(0xFF136B2C);
-}
 
 /// Estado visual de la pantalla.
 enum EstadoHoja { listo, analizando, estafa, seguro }
@@ -41,6 +30,8 @@ class AiessHomeScreen extends StatelessWidget {
     this.onReport,
     this.onDone,
     this.onReanalizar,
+    this.onAula,
+    this.onPracticar,
   });
 
   final VoidCallback onPasteAndCheck, onVoiceInput, onPickImage, onOpenSettings;
@@ -53,98 +44,130 @@ class AiessHomeScreen extends StatelessWidget {
   final List<String> pasos;
   final double? progreso;
   final bool escuchando;
-  final VoidCallback? onTapMascota, onReport, onDone, onReanalizar;
-
-  (Color, Color) get _fondo => switch (estado) {
-        EstadoHoja.estafa => (_C.rojoArriba, _C.rojoAbajo),
-        EstadoHoja.seguro => (_C.verdeArriba, _C.verdeAbajo),
-        _ => (_C.nocheArriba, _C.iessAbajo),
-      };
+  final VoidCallback? onTapMascota, onReport, onDone, onReanalizar, onAula, onPracticar;
 
   String get _indicacion => hasClipboardContent
-      ? 'Tienes un texto copiado. Toca el botón amarillo y te digo si es seguro.'
-      : 'Copia el correo o enlace que te parezca raro y toca el botón amarillo. También puedes hablarme.';
+      ? 'Tienes un texto copiado. Toca «Pegar y revisar» y te digo si es seguro.'
+      : 'Copia el correo o enlace que te parezca raro y toca «Pegar y revisar». También puedes hablarme.';
+
+  (Color, Color, IconData, String) get _tarjeta => switch (estado) {
+        EstadoHoja.estafa => (Tono.rojoSuave, Tono.rojo, Icons.gpp_bad_rounded, 'Posible estafa'),
+        EstadoHoja.seguro => (Tono.verdeSuave, Tono.verde, Icons.verified_user_rounded, 'Parece seguro'),
+        EstadoHoja.analizando => (Colors.white, Tono.azul, Icons.manage_search_rounded, 'Revisando'),
+        EstadoHoja.listo => (Colors.white, Colors.white, Icons.shield_rounded, 'Listo para revisar'),
+      };
 
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
-    final ancho = mq.size.width;
     final alto = mq.size.height;
-    // Medallón: ~64 % del ancho, sin pasar del 34 % del alto (pantallas bajas).
-    final medallon = (ancho * 0.64).clamp(180.0, alto * 0.34);
-    final (arriba, abajo) = _fondo;
-    final listo = estado == EstadoHoja.listo;
+    final medallon = (mq.size.width * 0.5).clamp(140.0, alto * 0.24);
+    final (fondo, borde, icono, etiqueta) = _tarjeta;
+    final colorEtiqueta = estado == EstadoHoja.listo ? Tono.azul : borde;
 
     return Scaffold(
-      body: TweenAnimationBuilder<Color?>(
-        tween: ColorTween(end: arriba),
-        duration: const Duration(milliseconds: 500),
-        builder: (_, cA, __) => TweenAnimationBuilder<Color?>(
-          tween: ColorTween(end: abajo),
-          duration: const Duration(milliseconds: 500),
-          builder: (_, cB, child) => DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [cA ?? arriba, cB ?? abajo]),
-            ),
-            child: child,
+      appBar: AppBar(
+        title: const Row(children: [
+          Icon(Icons.shield_rounded, color: Tono.amarillo),
+          SizedBox(width: 8),
+          Text('AIESS'),
+        ]),
+        actions: [
+          IconButton(
+            tooltip: 'Revisar una captura',
+            icon: const Icon(Icons.add_photo_alternate_rounded),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              onPickImage();
+            },
           ),
-          child: Padding(
-            // Zonas seguras: barra de estado (+16) y barra de navegación (+20).
-            padding: EdgeInsets.fromLTRB(24, mq.padding.top + 16, 24, mq.padding.bottom + 20),
-            child: Column(
-              children: [
+          IconButton(
+            tooltip: 'Ajustes y ayuda',
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              onOpenSettings();
+            },
+          ),
+          const SizedBox(width: 4),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 0,
+        onDestinationSelected: (i) {
+          HapticFeedback.selectionClick();
+          if (i == 1) onAula?.call();
+          if (i == 2) onPracticar?.call();
+        },
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.shield_outlined), selectedIcon: Icon(Icons.shield_rounded), label: 'Revisar'),
+          NavigationDestination(icon: Icon(Icons.school_outlined), label: 'Aula virtual'),
+          NavigationDestination(icon: Icon(Icons.sports_esports_outlined), label: 'Practicar'),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+        child: Column(
+          children: [
+            const Spacer(),
+            Pantera(estado: estadoMascota, tam: medallon, encuadre: Encuadre.medallon, alTocar: onTapMascota),
+            const SizedBox(height: 16),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeOutCubic,
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: fondo,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: borde, width: 1.5),
+                boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 12, offset: Offset(0, 4))],
+              ),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
-                  _TopGlassButton(icon: Icons.add_photo_alternate_rounded, tooltip: 'Revisar una captura', onTap: onPickImage),
-                  const Spacer(),
-                  _TopGlassButton(icon: Icons.tune_rounded, tooltip: 'Ajustes y ayuda', onTap: onOpenSettings),
+                  Icon(icono, color: colorEtiqueta, size: 22),
+                  const SizedBox(width: 6),
+                  Text(etiqueta, style: TextStyle(color: colorEtiqueta, fontSize: 15, fontWeight: FontWeight.w700)),
                 ]),
-                const Spacer(flex: 2),
-                // Medallón con su aura de estado (+40 de margen para las ondas).
-                Pantera(estado: estadoMascota, tam: medallon, encuadre: Encuadre.medallon, alTocar: onTapMascota),
-                const SizedBox(height: 20),
+                const SizedBox(height: 8),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 280),
-                  child: Text(
-                    titulo,
-                    key: ValueKey(titulo),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -0.8, height: 1.1),
-                  ),
+                  layoutBuilder: (a, p) => Stack(alignment: Alignment.topLeft, children: [...p, if (a != null) a]),
+                  child: Text(titulo,
+                      key: ValueKey(titulo),
+                      maxLines: 2,
+                      style: const TextStyle(color: Tono.tinta, fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6, height: 1.15)),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 ConstrainedBox(
-                  // El texto va pegado al título; si es largo, se desplaza dentro de este alto.
                   constraints: BoxConstraints(maxHeight: alto * 0.2),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 280),
-                    layoutBuilder: (a, p) => Stack(alignment: Alignment.topCenter, children: [...p, if (a != null) a]),
+                    layoutBuilder: (a, p) => Stack(alignment: Alignment.topLeft, children: [...p, if (a != null) a]),
                     child: pasos.isNotEmpty
-                        ? Align(key: const ValueKey('pasos'), alignment: Alignment.topCenter, child: PasosCarga(pasos: pasos, progreso: progreso))
+                        ? Align(key: const ValueKey('pasos'), alignment: Alignment.topLeft, child: PasosCarga(pasos: pasos, progreso: progreso))
                         : SingleChildScrollView(
                             key: ValueKey(texto ?? _indicacion),
                             child: texto == null
-                                ? Text(_indicacion,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.white.withValues(alpha: 0.86), fontSize: 17, height: 1.45))
-                                : TextoVivo(texto!,
-                                    alineacion: TextAlign.center,
-                                    estilo: TextStyle(color: Colors.white.withValues(alpha: 0.95), fontSize: 17, height: 1.45)),
+                                ? Text(_indicacion, style: const TextStyle(color: Tono.gris, fontSize: 17, height: 1.45))
+                                : TextoVivo(texto!, estilo: const TextStyle(color: Tono.tinta, fontSize: 17, height: 1.45)),
                           ),
                   ),
                 ),
-                const Spacer(flex: 3),
-                _acciones(),
-                const SizedBox(height: 12),
-                AnimatedOpacity(
-                  opacity: listo ? 1 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Text('Gratis y privado. Nunca te pediremos claves.',
-                      textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13)),
-                ),
-              ],
+              ]),
             ),
-          ),
+            const Spacer(),
+            _acciones(),
+            const SizedBox(height: 10),
+            const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Icons.lock_outline_rounded, size: 16, color: Tono.gris),
+              SizedBox(width: 6),
+              Flexible(
+                child: Text('Tu correo se analiza y se elimina. Nunca te pediremos claves.',
+                    textAlign: TextAlign.center, style: TextStyle(color: Tono.gris, fontSize: 13)),
+              ),
+            ]),
+          ],
         ),
       ),
     );
@@ -159,7 +182,7 @@ class AiessHomeScreen extends StatelessWidget {
               HapticFeedback.selectionClick();
               onReanalizar!();
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.white, minimumSize: const Size(0, 48)),
+            style: TextButton.styleFrom(foregroundColor: Tono.azul, minimumSize: const Size(0, 48)),
             icon: const Icon(Icons.refresh_rounded, size: 22),
             label: const Text('Analizar de nuevo', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
           ),
@@ -169,11 +192,10 @@ class AiessHomeScreen extends StatelessWidget {
     final ocupado = estado == EstadoHoja.analizando;
     switch (estado) {
       case EstadoHoja.estafa:
-        return _conReanalizar(_PrimaryActionButton(
-            texto: 'Avisar al IESS', icono: Icons.campaign_rounded, onTap: onReport ?? () {}, claro: true, tinta: _C.rojoAbajo));
-      case EstadoHoja.seguro:
         return _conReanalizar(
-            _PrimaryActionButton(texto: 'Listo', icono: Icons.check_rounded, onTap: onDone ?? () {}, claro: true, tinta: _C.verdeAbajo));
+            _PrimaryActionButton(texto: 'Avisar al IESS', icono: Icons.campaign_rounded, onTap: onReport ?? () {}, fondo: Tono.rojo));
+      case EstadoHoja.seguro:
+        return _conReanalizar(_PrimaryActionButton(texto: 'Listo', icono: Icons.check_rounded, onTap: onDone ?? () {}, fondo: Tono.verde));
       default:
         return Row(children: [
           Expanded(
@@ -192,46 +214,12 @@ class AiessHomeScreen extends StatelessWidget {
 
 // ---------------------------------------------------------------- piezas
 
-class _TopGlassButton extends StatelessWidget {
-  const _TopGlassButton({required this.icon, required this.tooltip, required this.onTap});
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Tooltip(
-        message: tooltip,
-        child: Semantics(
-          button: true,
-          label: tooltip,
-          child: _Presion(
-            escala: 0.92,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              onTap();
-            },
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.08),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.18), width: 1),
-              ),
-              child: Icon(icon, color: Colors.white, size: 24),
-            ),
-          ),
-        ),
-      );
-}
-
 class _PrimaryActionButton extends StatelessWidget {
-  const _PrimaryActionButton({required this.texto, required this.icono, required this.onTap, this.claro = false, this.tinta = _C.tinta});
+  const _PrimaryActionButton({required this.texto, required this.icono, required this.onTap, this.fondo = Tono.azul});
   final String texto;
   final IconData icono;
   final VoidCallback? onTap;
-  final bool claro;
-  final Color tinta;
+  final Color fondo;
 
   @override
   Widget build(BuildContext context) {
@@ -250,15 +238,18 @@ class _PrimaryActionButton extends StatelessWidget {
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 200),
           opacity: activo ? 1 : 0.5,
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
             height: 64,
-            decoration: BoxDecoration(color: claro ? Colors.white : _C.amarillo, borderRadius: BorderRadius.circular(18)),
+            decoration: BoxDecoration(color: fondo, borderRadius: BorderRadius.circular(16)),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(icono, size: 28, color: tinta),
+              Icon(icono, size: 28, color: Colors.white),
               const SizedBox(width: 10),
               Flexible(
                 child: Text(texto,
-                    maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: tinta, fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.2)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.2)),
               ),
             ]),
           ),
@@ -291,12 +282,8 @@ class _VoiceActionButton extends StatelessWidget {
               duration: const Duration(milliseconds: 220),
               width: 64,
               height: 64,
-              decoration: BoxDecoration(
-                color: activo ? _C.amarillo : _C.voz,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: _C.amarillo.withValues(alpha: 0.8), width: 2),
-              ),
-              child: Icon(Icons.mic_rounded, size: 30, color: activo ? _C.tinta : _C.amarillo),
+              decoration: BoxDecoration(color: activo ? Tono.azul : Tono.amarillo, borderRadius: BorderRadius.circular(16)),
+              child: Icon(Icons.mic_rounded, size: 30, color: activo ? Colors.white : Tono.tinta),
             ),
           ),
         ),

@@ -1,7 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:capacitacion/src/application/providers.dart' as cap;
+import 'package:capacitacion/src/data/actividad_repository.dart';
+import 'package:capacitacion/src/presentation/rutas.dart' as cap_rutas;
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,6 +15,7 @@ import 'ui/alerta_app.dart';
 import 'ui/bienvenida_page.dart';
 import 'ui/inicio_page.dart';
 import 'ui/tema.dart';
+import 'ui/web_escritorio.dart';
 
 Future<void> _preparar() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,13 +31,31 @@ Future<void> main() async {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent, statusBarIconBrightness: Brightness.light));
   final yaConfigurado = (await SharedPreferences.getInstance()).getBool('bienvenida') ?? false;
-  runApp(MaterialApp(
+  runApp(ProviderScope(
+    // El aula virtual lee su catálogo desde el paquete del módulo de capacitación.
+    overrides: [
+      cap.actividadRepositoryProvider.overrideWithValue(
+          AssetActividadRepository(ruta: 'packages/capacitacion/assets/data/actividades.json')),
+    ],
+    child: MaterialApp(
+    // App Link del correo firmado ("Verificar en App") -> pantalla de verificación del módulo de capacitación.
+    onGenerateRoute: cap_rutas.generarRuta,
     title: 'AIESS',
     debugShowCheckedModeBanner: false,
     theme: temaAIess(),
     // En web no hay permisos de Android que configurar: se entra directo.
-    home: (yaConfigurado || kIsWeb) ? const InicioPage() : const BienvenidaPage(),
-  ));
+    // Web angosta (celular en el navegador): la pantalla de la app, centrada sobre el azul.
+    builder: (context, child) => kIsWeb && MediaQuery.sizeOf(context).width < 900
+        ? ColoredBox(
+            color: const Color(0xFF0A1B3A),
+            child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: child)),
+          )
+        : child!,
+    // Web en computadora: diseño propio de dos columnas.
+    home: kIsWeb
+        ? LayoutBuilder(builder: (context, c) => c.maxWidth >= 900 ? const WebEscritorio() : const InicioPage())
+        : (yaConfigurado ? const InicioPage() : const BienvenidaPage()),
+  )));
 }
 
 /// Pop-up tipo Truecaller (lo abre AlertaActivity desde el lector de notificaciones).

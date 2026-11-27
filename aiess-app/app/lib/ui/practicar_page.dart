@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -73,27 +73,27 @@ class _PracticarPageState extends State<PracticarPage> {
         ? EstadoPantera.reposo
         : (a!['respuesta'] == 'PHISHING' ? EstadoPantera.alerta : EstadoPantera.seguro);
     return Scaffold(
-      backgroundColor: const Color(0xFFE9EEF6),
+      appBar: AppBar(
+        title: const Text('Practicar'),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(20)),
+            child: Row(children: [
+              const Icon(Icons.local_fire_department_rounded, color: Paleta.ambar, size: 20),
+              const SizedBox(width: 4),
+              Text('$_racha', style: const TextStyle(color: Paleta.ambar, fontSize: 18, fontWeight: FontWeight.w700)),
+            ]),
+          ),
+        ],
+      ),
       body: SafeArea(
+        top: false,
         bottom: false,
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 4, 16, 4),
-              child: Row(children: [
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close_rounded, color: Paleta.tintaPetroleo, size: 30), tooltip: 'Salir'),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(color: Paleta.petroleo, borderRadius: BorderRadius.circular(20)),
-                  child: Row(children: [
-                    const Icon(Icons.local_fire_department_rounded, color: Paleta.ambar, size: 20),
-                    const SizedBox(width: 4),
-                    Text('$_racha', style: const TextStyle(color: Paleta.ambar, fontSize: 18, fontWeight: FontWeight.w700)),
-                  ]),
-                ),
-              ]),
-            ),
+            const SizedBox(height: 12),
             Expanded(
               child: a == null
                   ? const Center(child: CircularProgressIndicator())

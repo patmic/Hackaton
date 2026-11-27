@@ -20,3 +20,8 @@ datos/*.csv
 # Python
 __pycache__/
 *.pyc
+# Secretos (nunca al repo)
+app/secretos.json
+servidor/.env
+*.env
+app/android/build/

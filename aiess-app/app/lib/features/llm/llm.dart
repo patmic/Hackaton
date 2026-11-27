@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../analisis/motor.dart';
+import 'remoto.dart';
 
 class ModeloDescargable {
   const ModeloDescargable(this.nombre, this.archivo, this.url, this.mb);
@@ -30,13 +31,14 @@ class Cerebro {
   static const _tokens = EventChannel('aiess/llm/tokens');
 
   String? ruta;
-  bool get listo => ruta != null;
+  /// Listo = hay servidor de IA disponible (modo principal) o un modelo local cargado (respaldo).
+  bool get listo => ServidorIA.i.disponible || ruta != null;
   /// true mientras el modelo se carga en memoria (la UI muestra "Despertando al cóndor…").
   final cargando = ValueNotifier(false);
 
   /// Solo el modelo afinado con el dataset del IESS (archivo "aiess-*.gguf") decide veredictos.
   /// Un LFM2 base se usa para conversar; el veredicto lo dan las reglas OSINT.
-  bool get afinado => ruta != null && ruta!.split(Platform.pathSeparator).last.toLowerCase().startsWith('aiess');
+  bool get afinado => ServidorIA.i.afinado || (ruta != null && ruta!.split(Platform.pathSeparator).last.toLowerCase().startsWith('aiess'));
 
   Future<Directory> _dir() async {
     final d = Directory('${(await getApplicationSupportDirectory()).path}/modelos');
@@ -68,6 +70,12 @@ class Cerebro {
 
   /// Carga el último modelo usado (o el primero disponible). No falla si no hay ninguno.
   Future<bool> iniciar() async {
+    // Modo principal: IA en el servidor de AIESS (el celular no carga el modelo de 730 MB).
+    await ServidorIA.i.cargarAjustes();
+    cargando.value = true;
+    final remoto = await ServidorIA.i.comprobar();
+    cargando.value = false;
+    if (remoto) return true;
     final prefs = await SharedPreferences.getInstance();
     final lista = await disponibles();
     if (lista.isEmpty) return false;
@@ -97,7 +105,15 @@ class Cerebro {
   }
 
   Future<String> generar(String prompt,
-      {String prefijo = '', int maxTokens = 400, double temperatura = 0.0, void Function(String)? alToken}) async {
+      {String prefijo = '', int maxTokens = 400, double temperatura = 0.0, List<String> stop = const [], void Function(String)? alToken}) async {
+    if (ServidorIA.i.disponible) {
+      try {
+        return await ServidorIA.i.completar(prompt, maxTokens: maxTokens, temperatura: temperatura, stop: stop, alToken: alToken);
+      } catch (_) {
+        ServidorIA.i.disponible = false; // sin conexión: sigue con el modelo local si existe, o con las reglas
+        if (ruta == null) return '';
+      }
+    }
     StreamSubscription? sub;
     if (alToken != null) sub = _tokens.receiveBroadcastStream().listen((t) => alToken(t as String));
     try {

@@ -174,24 +174,30 @@ String formatoLfm2(String system, List<(String rol, String texto)> turnos) {
 }
 
 Veredicto? leerSalidaModelo(String s) {
-  final i = s.indexOf('{'), f = s.lastIndexOf('}');
-  if (i < 0 || f <= i) return null;
-  try {
-    final j = jsonDecode(s.substring(i, f + 1)) as Map<String, dynamic>;
-    final v = j['veredicto'];
-    if (v != 'PHISHING' && v != 'SEGURO') return null;
-    return Veredicto(
-      phishing: v == 'PHISHING',
-      puntaje: (j['puntaje'] as num?)?.toInt() ?? (v == 'PHISHING' ? 80 : 5),
-      voz: (j['voz'] ?? '') as String,
-      indicios: List<String>.from((j['indicios'] ?? const []) as List),
-      explicacion: (j['explicacion'] ?? '') as String,
-      queHacer: (j['que_hacer'] ?? '') as String,
-      fuente: 'modelo',
-    );
-  } catch (_) {
-    return null;
+  // Respuesta completa: JSON normal. Respuesta cortada antes de "que_hacer" (para ir más rápido): se cierra el JSON.
+  final i = s.indexOf('{');
+  if (i < 0) return null;
+  var cuerpo = s.substring(i).trim();
+  Map<String, dynamic>? j;
+  for (final intento in [cuerpo, '${cuerpo.replaceAll(RegExp(r'[,\s]+$'), '')}}']) {
+    try {
+      final f = intento.lastIndexOf('}');
+      j = jsonDecode(intento.substring(0, f + 1)) as Map<String, dynamic>;
+      break;
+    } catch (_) {}
   }
+  if (j == null) return null;
+  final v = j['veredicto'];
+  if (v != 'PHISHING' && v != 'SEGURO') return null;
+  return Veredicto(
+    phishing: v == 'PHISHING',
+    puntaje: (j['puntaje'] as num?)?.toInt() ?? (v == 'PHISHING' ? 80 : 5),
+    voz: (j['voz'] ?? '') as String,
+    indicios: List<String>.from((j['indicios'] ?? const []) as List),
+    explicacion: (j['explicacion'] ?? '') as String,
+    queHacer: (j['que_hacer'] ?? '') as String,
+    fuente: 'modelo',
+  );
 }
 
 /// Fusión determinista: el modelo explica, pero nunca rebaja una alerta fuerte del OSINT.
@@ -199,5 +205,17 @@ Veredicto fusionar(Veredicto reglas, Veredicto? modelo, AnalisisOsint osint) {
   if (modelo == null) return reglas;
   if (!modelo.phishing && (osint.puntaje >= 60 || reglas.puntaje >= 80)) return reglas;
   if (modelo.voz.trim().isEmpty) return reglas;
+  if (modelo.queHacer.trim().isEmpty || modelo.explicacion.trim().isEmpty) {
+    // El servidor corta antes de "que_hacer": se completa con el consejo fijo de las reglas.
+    return Veredicto(
+      phishing: modelo.phishing,
+      puntaje: modelo.puntaje,
+      voz: modelo.voz,
+      indicios: modelo.indicios,
+      explicacion: modelo.explicacion.trim().isEmpty ? reglas.explicacion : modelo.explicacion,
+      queHacer: modelo.phishing ? analizarConReglas(Entrada('clave pago', canal: ''), AnalisisOsint([], [], null)).queHacer : reglas.queHacer,
+      fuente: 'modelo',
+    );
+  }
   return modelo;
 }

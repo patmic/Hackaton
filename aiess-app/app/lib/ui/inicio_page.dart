@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,6 +16,7 @@ import '../features/voz/voz.dart';
 import 'ajustes_sheet.dart';
 import 'practicar_page.dart';
 import 'aiess_home_screen.dart';
+import 'aula_virtual.dart';
 
 enum _Modo { copiado, hablar, resultado }
 
@@ -389,6 +390,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       },
       onDone: _reiniciar,
       onReanalizar: _entrada == null ? null : () => _analizar(_entrada!),
+      onAula: () => abrirAulaVirtual(context),
+      onPracticar: _abrirPractica,
     );
   }
 }

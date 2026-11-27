@@ -1,126 +1,77 @@
-import 'dart:math';
+import 'package:material_ui/material_ui.dart';
 
-import 'package:flutter/material.dart';
-
-/// Paleta "pantera de la selva".
+/// Colores IESS compartidos por toda la app (mismo estilo que el aula virtual).
 class Tono {
-  static const pelaje = Color(0xFF1C1B33);
-  static const hojaNoche = Color(0xFF26254A);
-  static const iris = Color(0xFFF2B33D);
-  static const alerta = Color(0xFF9E1F18);
-  static const alertaHoja = Color(0xFFB8322A);
-  static const selva = Color(0xFF145C3D);
-  static const selvaHoja = Color(0xFF1B7550);
-  static const niebla = Color(0xFFECEFF5);
+  static const azul = Color(0xFF004294); // azul IESS
+  static const azulOscuro = Color(0xFF183675);
+  static const amarillo = Color(0xFFFCC602); // amarillo IESS
+  static const tinta = Color(0xFF14213D);
+  static const gris = Color(0xFF5B6478);
+  static const fondo = Color(0xFFF4F6FA);
+  static const rojo = Color(0xFFC62828);
+  static const rojoSuave = Color(0xFFFDECEA);
+  static const verde = Color(0xFF1B7F3B);
+  static const verdeSuave = Color(0xFFE6F4EA);
+  static const azulSuave = Color(0xFFE3ECF8);
+  // Nombres antiguos (ajustes).
+  static const pelaje = azul;
+  static const niebla = fondo;
 }
 
+/// Tema único de AIESS: Material 3 claro, AppBar azul IESS, tarjetas blancas y barra de navegación inferior,
+/// igual que el aula virtual. Letra Atkinson (pensada para baja visión).
 ThemeData temaAIess() {
   const fuente = 'Atkinson';
-  final base = ThemeData(useMaterial3: true, fontFamily: fuente, colorSchemeSeed: Tono.pelaje, brightness: Brightness.dark);
-  return base.copyWith(
-    scaffoldBackgroundColor: Tono.pelaje,
-    textTheme: base.textTheme.apply(fontFamily: fuente, bodyColor: Colors.white, displayColor: Colors.white),
+  final esquema = ColorScheme.fromSeed(seedColor: Tono.azul, brightness: Brightness.light).copyWith(
+    primary: Tono.azul,
+    onPrimary: Colors.white,
+    secondary: Tono.amarillo,
+    onSecondary: Tono.tinta,
+    secondaryContainer: const Color(0xFFFFF1B8),
+    onSecondaryContainer: Tono.tinta,
+    surface: Colors.white,
+    onSurface: Tono.tinta,
+    error: Tono.rojo,
   );
-}
-
-/// Botón único, grande (76 dp), en forma de píldora.
-class BotonGrande extends StatelessWidget {
-  const BotonGrande({super.key, required this.texto, required this.icono, required this.alPulsar,
-      this.fondo = Tono.iris, this.tinta = Tono.pelaje});
-  final String texto;
-  final IconData icono;
-  final VoidCallback? alPulsar;
-  final Color fondo, tinta;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 76,
-      child: FilledButton.icon(
-        style: FilledButton.styleFrom(
-          backgroundColor: fondo,
-          foregroundColor: tinta,
-          shape: const StadiumBorder(),
-          textStyle: const TextStyle(fontFamily: 'Atkinson', fontSize: 23, fontWeight: FontWeight.w700),
-          elevation: 0,
-        ),
-        onPressed: alPulsar,
-        icon: Icon(icono, size: 30),
-        label: Text(texto, maxLines: 1, overflow: TextOverflow.ellipsis),
+  final base = ThemeData(useMaterial3: true, fontFamily: fuente, colorScheme: esquema);
+  final redondo = RoundedRectangleBorder(borderRadius: BorderRadius.circular(16));
+  return base.copyWith(
+    scaffoldBackgroundColor: Tono.fondo,
+    textTheme: base.textTheme.apply(fontFamily: fuente, bodyColor: Tono.tinta, displayColor: Tono.tinta),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Tono.azul,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: TextStyle(fontFamily: fuente, fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white),
+    ),
+    cardTheme: CardThemeData(color: Colors.white, elevation: 1, shadowColor: Colors.black26, margin: EdgeInsets.zero, shape: redondo),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: Colors.white,
+      indicatorColor: const Color(0xFFFFE27A),
+      labelTextStyle: WidgetStateProperty.all(const TextStyle(fontFamily: fuente, fontSize: 14, fontWeight: FontWeight.w600)),
+      iconTheme: WidgetStateProperty.resolveWith((s) =>
+          IconThemeData(color: s.contains(WidgetState.selected) ? Tono.tinta : Tono.gris, size: 26)),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(0, 56),
+        shape: redondo,
+        textStyle: const TextStyle(fontFamily: fuente, fontSize: 18, fontWeight: FontWeight.w700),
       ),
-    );
-  }
-}
-
-/// Fondo de selva nocturna: hojas de monstera dibujadas, color según el estado.
-class FondoSelva extends StatelessWidget {
-  const FondoSelva({super.key, required this.color, required this.hoja, required this.child});
-  final Color color, hoja;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<Color?>(
-      tween: ColorTween(end: color),
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.easeOutCubic,
-      builder: (_, c, __) => TweenAnimationBuilder<Color?>(
-        tween: ColorTween(end: hoja),
-        duration: const Duration(milliseconds: 600),
-        builder: (_, h, __) => CustomPaint(painter: _Hojas(c ?? color, h ?? hoja), child: child),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(0, 56),
+        shape: redondo,
+        textStyle: const TextStyle(fontFamily: fuente, fontSize: 17, fontWeight: FontWeight.w700),
       ),
-    );
-  }
-}
-
-class _Hojas extends CustomPainter {
-  _Hojas(this.fondo, this.hoja);
-  final Color fondo, hoja;
-
-  @override
-  void paint(Canvas canvas, Size s) {
-    canvas.drawRect(Offset.zero & s, Paint()..color = fondo);
-    final p = Paint()..color = hoja;
-    _monstera(canvas, Offset(-s.width * 0.08, s.height * 0.10), s.width * 0.55, 0.5, p);
-    _monstera(canvas, Offset(s.width * 1.06, s.height * 0.02), s.width * 0.48, 2.5, p);
-    _monstera(canvas, Offset(s.width * 1.02, s.height * 0.70), s.width * 0.40, 3.6, p);
-    _monstera(canvas, Offset(-s.width * 0.05, s.height * 0.86), s.width * 0.34, -0.6, p);
-  }
-
-  void _monstera(Canvas canvas, Offset c, double r, double ang, Paint p) {
-    canvas.save();
-    canvas.translate(c.dx, c.dy);
-    canvas.rotate(ang);
-    final hojaPath = Path()
-      ..moveTo(0, 0)
-      ..cubicTo(r * 0.55, -r * 0.55, r * 1.05, -r * 0.25, r, r * 0.12)
-      ..cubicTo(r * 0.95, r * 0.55, r * 0.45, r * 0.62, 0, 0);
-    // Cortes característicos de la monstera.
-    final cortes = Path();
-    for (var k = 0; k < 4; k++) {
-      final t = 0.32 + k * 0.17;
-      final a = -0.2 + k * 0.05;
-      final base = Offset(r * t, r * 0.04 * k);
-      cortes.addPath(
-          Path()
-            ..moveTo(base.dx, base.dy)
-            ..lineTo(base.dx + r * 0.5 * cos(a - 0.9), base.dy + r * 0.5 * sin(a - 0.9))
-            ..lineTo(base.dx + r * 0.5 * cos(a - 0.75), base.dy + r * 0.5 * sin(a - 0.75))
-            ..close(),
-          Offset.zero);
-      cortes.addPath(
-          Path()
-            ..moveTo(base.dx, base.dy)
-            ..lineTo(base.dx + r * 0.45 * cos(a + 0.95), base.dy + r * 0.45 * sin(a + 0.95))
-            ..lineTo(base.dx + r * 0.45 * cos(a + 0.8), base.dy + r * 0.45 * sin(a + 0.8))
-            ..close(),
-          Offset.zero);
-    }
-    canvas.drawPath(Path.combine(PathOperation.difference, hojaPath, cortes), p);
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(_Hojas o) => o.fondo != fondo || o.hoja != hoja;
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+    ),
+    snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
+  );
 }
