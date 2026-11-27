@@ -165,9 +165,10 @@ class AnalisisRiesgo {
   factory AnalisisRiesgo.fromJson(Map<String, dynamic> json) => AnalisisRiesgo(
     explicacion: json['explicacion'] as String? ?? '',
     nivel: NivelRiesgo.tryDesdeCodigo(json['nivel_riesgo'] as String?),
-    indicios: listaDeTextos(
-      json['indicios'],
-    ).map(Indicio.tryDesdeCodigo).whereType<Indicio>().toList(),
+    indicios: listaDeTextos(json['indicios'])
+        .map(Indicio.tryDesdeCodigo)
+        .whereType<Indicio>()
+        .toList(),
   );
 
   final String explicacion;

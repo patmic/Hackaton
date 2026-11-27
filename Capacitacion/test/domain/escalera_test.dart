@@ -30,7 +30,10 @@ void main() {
         NivelCorreo.dificil,
       );
       expect(
-        Escalera.siguienteNivel(NivelCorreo.dificil, ResultadoSimulacro.reporto),
+        Escalera.siguienteNivel(
+          NivelCorreo.dificil,
+          ResultadoSimulacro.reporto,
+        ),
         NivelCorreo.dificil,
       );
       expect(
@@ -227,7 +230,9 @@ void main() {
   test('MapaIndicios ida y vuelta a JSON, ignorando códigos desconocidos', () {
     final mapa = const MapaIndicios().con([Indicio.i2], EstadoIndicio.debil);
     final json = {...mapa.toJson(), 'I99': 'DOMINADO'};
-    expect(MapaIndicios.fromJson(json).estados, {Indicio.i2: EstadoIndicio.debil});
+    expect(MapaIndicios.fromJson(json).estados, {
+      Indicio.i2: EstadoIndicio.debil,
+    });
   });
 
   test('los textos visibles no culpan (regla 7)', () {

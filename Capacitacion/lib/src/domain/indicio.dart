@@ -44,8 +44,7 @@ enum Indicio {
   i8(
     codigo: 'I8',
     nombre: 'Amenaza o pérdida de beneficio',
-    queSeRevisa:
-        'Suspensión, bloqueo, multa, embargo o pérdida de la pensión.',
+    queSeRevisa: 'Suspensión, bloqueo, multa, embargo o pérdida de la pensión.',
   ),
   i9(
     codigo: 'I9',

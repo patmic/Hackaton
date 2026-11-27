@@ -35,12 +35,11 @@ abstract interface class CapacitacionApi {
 /// simular lo que en producción pasa en el correo del usuario.
 class MockCapacitacionApi implements CapacitacionApi {
   MockCapacitacionApi({
-    SesionUsuario sesion = SesionUsuario.sinCuenta,
+    this._sesion = SesionUsuario.sinCuenta,
     DateTime Function()? reloj,
     this.entorno = Entorno.demo,
     this.plantillas = plantillasPrueba,
-  }) : _sesion = sesion,
-       _reloj = reloj ?? DateTime.now;
+  }) : _reloj = reloj ?? DateTime.now;
 
   final Entorno entorno;
   final List<PlantillaCorreoPrueba> plantillas;

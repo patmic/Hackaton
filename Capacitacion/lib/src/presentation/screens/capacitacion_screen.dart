@@ -17,9 +17,8 @@ class CapacitacionScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Quiero capacitarme')),
       body: VistaAsync(
         valor: estado,
-        datos: (e) => e.inscrito
-            ? _EstadoView(estado: e)
-            : const _ConsentimientoView(),
+        datos: (e) =>
+            e.inscrito ? _EstadoView(estado: e) : const _ConsentimientoView(),
       ),
     );
   }

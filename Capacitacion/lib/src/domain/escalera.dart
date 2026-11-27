@@ -48,7 +48,8 @@ abstract final class Escalera {
     int previos,
     NivelCorreo nivelDelCorreo,
     ResultadoSimulacro resultado,
-  ) => resultado == ResultadoSimulacro.reporto &&
+  ) =>
+      resultado == ResultadoSimulacro.reporto &&
           nivelDelCorreo == NivelCorreo.dificil
       ? previos + 1
       : 0;
@@ -117,16 +118,16 @@ abstract final class Escalera {
           for (final i in indicios) Microcurso.paraIndicio(i).moduloPara(tipos),
         }.toList(),
       ),
-      ResultadoSimulacro.ignoro || ResultadoSimulacro.pendiente =>
-        DesenlaceSimulacro(
-          resultado: ResultadoSimulacro.ignoro,
-          titulo: 'Te enviamos un correo de seguimiento',
-          mensaje:
-              'El correo de práctica tenía estas señales. Cuando veas algo '
-              'así, repórtalo: empieza por «Reportar en un toque».',
-          indicios: indicios,
-          modulosSugeridos: const ['M3'],
-        ),
+      ResultadoSimulacro.ignoro ||
+      ResultadoSimulacro.pendiente => DesenlaceSimulacro(
+        resultado: ResultadoSimulacro.ignoro,
+        titulo: 'Te enviamos un correo de seguimiento',
+        mensaje:
+            'El correo de práctica tenía estas señales. Cuando veas algo '
+            'así, repórtalo: empieza por «Reportar en un toque».',
+        indicios: indicios,
+        modulosSugeridos: const ['M3'],
+      ),
     };
   }
 }

@@ -73,8 +73,9 @@ class MapaIndicios {
 
   factory MapaIndicios.fromJson(Map<String, dynamic> json) => MapaIndicios({
     for (final e in json.entries)
-      if (Indicio.tryDesdeCodigo(e.key) case final indicio?)
-        indicio: EstadoIndicio.desdeCodigo(e.value as String),
+      ?Indicio.tryDesdeCodigo(e.key): EstadoIndicio.desdeCodigo(
+        e.value as String,
+      ),
   });
 
   final Map<Indicio, EstadoIndicio> estados;
@@ -83,10 +84,7 @@ class MapaIndicios {
       estados[indicio] ?? EstadoIndicio.sinProbar;
 
   MapaIndicios con(Iterable<Indicio> indicios, EstadoIndicio estado) =>
-      MapaIndicios({
-        ...estados,
-        for (final i in indicios) i: estado,
-      });
+      MapaIndicios({...estados, for (final i in indicios) i: estado});
 
   /// Indicios que conviene incluir en el siguiente correo: DEBIL o
   /// SIN_PROBAR.

@@ -29,12 +29,8 @@ class ParaTiTab extends ConsumerWidget {
           child: ListTile(
             key: const ValueKey('tarjeta-sesion'),
             leading: const Icon(Icons.person_outline),
-            title: Text(
-              sesion.tieneCuenta ? sesion.nombreTipo : 'Sin cuenta',
-            ),
-            subtitle: Text(
-              'Perfil: ${perfil.perfilConducta.etiquetaVisible}',
-            ),
+            title: Text(sesion.tieneCuenta ? sesion.nombreTipo : 'Sin cuenta'),
+            subtitle: Text('Perfil: ${perfil.perfilConducta.etiquetaVisible}'),
             trailing: TextButton(
               key: const ValueKey('boton-cambiar-sesion'),
               onPressed: () => Navigator.of(context).push(
