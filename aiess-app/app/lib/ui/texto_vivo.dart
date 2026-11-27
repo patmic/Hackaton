@@ -27,10 +27,16 @@ class _TextoVivoState extends State<TextoVivo> {
   int _escrito = 0;
 
   @override
-  void initState() {
-    super.initState();
-    _arrancar();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Aquí (y no en initState) porque lee MediaQuery para saber si hay que reducir el movimiento.
+    if (!_iniciado) {
+      _iniciado = true;
+      _arrancar();
+    }
   }
+
+  bool _iniciado = false;
 
   @override
   void didUpdateWidget(TextoVivo old) {

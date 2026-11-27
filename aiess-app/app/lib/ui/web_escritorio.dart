@@ -108,12 +108,8 @@ class _WebEscritorioState extends State<WebEscritorio> {
       final r = await Sello.verificar(t);
       if (!mounted) return;
       if (r.sinRespuesta) {
-        setState(() {
-          _estado = EstadoRobot.reposo;
-          _pasos = [];
-          _aviso = r.mensaje;
-        });
-        Voz.i.decir(r.mensaje);
+        // No se pudo consultar a SellaCorreo: por seguridad, se trata como estafa.
+        await _descartarPorSello(t, 'sin_verificar');
         return;
       }
       final d = r.datos;
@@ -140,7 +136,20 @@ class _WebEscritorioState extends State<WebEscritorio> {
       _enfocarResultado();
       Voz.i.decir(texto);
       // Firma válida: el correo es del IESS. Revisar el texto con la IA es opcional y SOLO con un «Sí».
-      if (!r.valido || !mounted) return;
+      if (!mounted) return;
+      if (!r.valido) {
+        if (await pedirConsentimientoIA(
+          context,
+          motivo: introPorSello('sello'),
+        )) {
+          await _analizarConIA(
+            t,
+            motivoSello: 'sello',
+            mensajeSello: r.mensaje,
+          );
+        }
+        return;
+      }
       if (await pedirConsentimientoIA(context, firmaValida: true)) {
         await _analizarConIA(t);
       }
@@ -163,20 +172,34 @@ class _WebEscritorioState extends State<WebEscritorio> {
       Voz.i.decir(_aviso!);
       return;
     }
-    // 2) Sin sello: la IA solo lee el correo si la persona lo acepta.
-    if (!await pedirConsentimientoIA(context)) {
-      setState(
-        () => _aviso =
-            'No lo leí. Si el correo trae la imagen del sello del IESS, pega su enlace y verifico la firma sin leer el correo.',
-      );
-      return;
-    }
+    // 2) Sin sello: se descarta de inmediato como estafa (sin leerlo). La IA solo lo revisa si la persona
+    // quiere, para explicar qué otras señales tiene.
+    await _descartarPorSello(t, 'sin_sello');
+  }
+
+  Future<void> _descartarPorSello(String t, String motivo) async {
+    final v = descartarPorSello(motivo: motivo);
+    HapticFeedback.heavyImpact();
+    setState(() {
+      _v = v;
+      _aviso = null;
+      _estado = EstadoRobot.alerta;
+      _pasos = [];
+      _ultimoRevisado = t;
+    });
+    _enfocarResultado();
     if (!mounted) return;
-    await _analizarConIA(t);
+    if (await pedirConsentimientoIA(context, motivo: introPorSello(motivo))) {
+      await _analizarConIA(t, motivoSello: motivo);
+    }
   }
 
   /// La IA revisa el texto (ya con el permiso de la persona).
-  Future<void> _analizarConIA(String t) async {
+  Future<void> _analizarConIA(
+    String t, {
+    String? motivoSello,
+    String? mensajeSello,
+  }) async {
     if (!mounted) return;
     HapticFeedback.mediumImpact();
     setState(() {
@@ -186,7 +209,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
       _pasos = [];
       _progreso = null;
     });
-    final v = await Analizador.analizar(
+    final vIA = await Analizador.analizar(
       Entrada(t, canal: 'correo pegado en la web'),
       alAvanzar: (paso, p) {
         if (!mounted) return;
@@ -196,6 +219,13 @@ class _WebEscritorioState extends State<WebEscritorio> {
         });
       },
     );
+    final v = motivoSello == null
+        ? vIA
+        : descartarPorSello(
+            motivo: motivoSello,
+            mensajeSello: mensajeSello,
+            ia: vIA,
+          );
     if (!mounted) return;
     setState(() {
       _v = v;

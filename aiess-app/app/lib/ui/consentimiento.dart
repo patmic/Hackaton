@@ -18,10 +18,13 @@ String get textoConsentimiento => Cerebro.i.enEsteEquipo
 Future<bool> pedirConsentimientoIA(
   BuildContext context, {
   bool firmaValida = false,
+  String? motivo,
 }) async {
-  final intro = firmaValida
-      ? 'La firma del IESS es válida. Si igual quieres que la IA revise el texto: '
-      : '';
+  final intro =
+      motivo ??
+      (firmaValida
+          ? 'La firma del IESS es válida. Si igual quieres que la IA revise el texto: '
+          : '');
   Voz.i.decir(
     '$intro¿Me das permiso para que la inteligencia artificial lea este correo? '
     'Al terminar, la conversación se borra.',

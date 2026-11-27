@@ -59,18 +59,55 @@ class Veredicto {
   /// 2-3 palabras para la pantalla (poka-yoke: el detalle lo dice la voz).
   /// Veredicto claro (requisito del reto): Sí o No, y cuántos indicios.
   String get resumen {
-    if (fuente == 'sello')
-      return phishing
-          ? 'Phishing: SÍ · sello falso'
-          : 'Phishing: NO · firma válida del IESS';
     final n = indicios.length;
     final cuantos = '$n ${n == 1 ? 'indicio' : 'indicios'}';
+    if (fuente == 'sello')
+      return phishing
+          ? 'Phishing: SÍ · sello falso${n > 0 ? ' · $cuantos' : ''}'
+          : 'Phishing: NO · firma válida del IESS';
+    if (fuente == 'sin_sello')
+      return 'Phishing: SÍ · sin sello del IESS${n > 0 ? ' · $cuantos' : ''}';
+    if (fuente == 'sin_verificar')
+      return 'Phishing: SÍ · sello sin comprobar${n > 0 ? ' · $cuantos' : ''}';
     return phishing ? 'Phishing: SÍ · $cuantos' : 'Phishing: NO · $cuantos';
   }
 
   String get titular => phishing
       ? (puntaje >= 60 ? '¡Es una estafa!' : 'Mejor no confíes')
       : 'Es seguro';
+}
+
+/// Regla del sello (SellaCorreo): todo correo sin un sello válido se DESCARTA de inmediato como estafa,
+/// sin leerlo con la IA. [motivo] = 'sin_sello' (no trae sello), 'sello' (el sello no valida) o
+/// 'sin_verificar' (no se pudo consultar a SellaCorreo).
+/// Si después la persona acepta que la IA lo revise, [ia] agrega sus señales, pero el veredicto sigue siendo
+/// SÍ: sin un sello válido el correo no es confiable aunque el texto parezca normal.
+Veredicto descartarPorSello({
+  required String motivo,
+  String? mensajeSello,
+  Veredicto? ia,
+}) {
+  final base = motivo == 'sello'
+      ? (mensajeSello ??
+            'El sello de este correo no es válido: alguien lo copió o lo alteró.')
+      : motivo == 'sin_verificar'
+      ? 'No pude comprobar el sello del IESS (sin conexión). Por seguridad, trátalo como estafa hasta poder comprobarlo.'
+      : 'Este correo no trae el sello del IESS, así que no es confiable. Los correos verdaderos del IESS siempre lo llevan.';
+  final extra = ia == null
+      ? ''
+      : (ia.phishing
+            ? ' Además, ${ia.voz}'
+            : ' El texto no tiene otras señales claras, pero sin un sello válido no es confiable.');
+  return Veredicto(
+    phishing: true,
+    puntaje: ia == null ? 80 : (ia.puntaje > 80 ? ia.puntaje : 80),
+    voz: '$base$extra',
+    indicios: ia?.indicios ?? const [],
+    explicacion: '$base$extra',
+    queHacer:
+        'No abras sus enlaces, no descargues adjuntos y no respondas. Si quieres, avisa al IESS.',
+    fuente: motivo,
+  );
 }
 
 /// Entrada normalizada desde portapapeles, voz, compartir o notificación.
@@ -294,3 +331,12 @@ Veredicto fusionar(Veredicto reglas, Veredicto? modelo, AnalisisOsint osint) {
   }
   return modelo;
 }
+
+/// Lo que se dice antes de pedir permiso para que la IA revise un correo ya descartado por el sello.
+String introPorSello(String motivo) =>
+    '${motivo == 'sin_sello'
+        ? 'Este correo no trae el sello del IESS: es una estafa.'
+        : motivo == 'sello'
+        ? 'El sello no es válido: es una estafa.'
+        : 'No pude comprobar el sello: trátalo como estafa.'} '
+    'Si quieres, la IA revisa qué otras señales tiene. ';

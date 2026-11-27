@@ -164,6 +164,9 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   Future<void> _analizar(
     Entrada e, {
     List<String> pasosPrevios = const [],
+    // Correo ya descartado por el sello: la IA solo agrega señales; el veredicto sigue siendo SÍ.
+    String? motivoSello,
+    String? mensajeSello,
   }) async {
     HapticFeedback.mediumImpact();
     setState(() {
@@ -176,7 +179,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     });
     if (pasosPrevios.isEmpty) unawaited(Voz.i.decir('Déjame revisarlo.'));
     var adelantado = '';
-    final v = await Analizador.analizar(
+    final vIA = await Analizador.analizar(
       e,
       // Los pasos se van agregando en vivo, cada uno con su animación.
       alAvanzar: (paso, progreso) {
@@ -190,7 +193,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       alSospechar: () => Voz.i.decir('Mmm, veo algo raro. Déjame confirmarlo.'),
       // El modelo ya escribió veredicto y voz: el robot habla sin esperar el resto.
       alAdelantar: (phishing, voz) {
-        if (!mounted) return;
+        if (!mounted || motivoSello != null) return;
         adelantado = voz;
         HapticFeedback.heavyImpact();
         setState(() {
@@ -202,6 +205,13 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         Voz.i.decir(voz);
       },
     );
+    final v = motivoSello == null
+        ? vIA
+        : descartarPorSello(
+            motivo: motivoSello,
+            mensajeSello: mensajeSello,
+            ia: vIA,
+          );
     _ultimoAnalizado = '${e.texto.trim().hashCode}';
     if (!mounted) return;
     if (adelantado.isEmpty) HapticFeedback.heavyImpact();
@@ -248,28 +258,52 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     String canal = 'mensaje copiado',
     List<String> pasosPrevios = const [],
   }) async {
+    // Regla del sello: sin un sello válido el correo se descarta de inmediato (sin leerlo). La IA solo lo
+    // revisa si la persona quiere, y únicamente para explicar las señales.
+    String motivo;
+    String? mensaje;
     if (Sello.codigoEn(t) != null) {
       final r = await _verificarSello(t, pasosPrevios: pasosPrevios);
-      if (r == null || !r.valido) return;
-      // Firma válida: el correo es del IESS. Revisarlo con la IA es opcional y con permiso.
-      if (!mounted) return;
-      if (!await pedirConsentimientoIA(context, firmaValida: true)) return;
-    } else {
-      if (!await pedirConsentimientoIA(context)) {
+      if (r == null || !mounted) return;
+      if (r.valido) {
+        // Firma válida: el correo es del IESS. Revisarlo con la IA es opcional y con permiso.
+        if (!await pedirConsentimientoIA(context, firmaValida: true)) return;
         if (!mounted) return;
-        setState(() {
-          _estado = EstadoRobot.reposo;
-          _titular = 'Hola, soy AIess';
-          _pasos = [];
-        });
-        await _decir(
-          'Está bien, no lo leí. Si el correo trae la imagen del sello del IESS, cópiame su enlace y lo verifico sin leer el correo.',
-        );
+        await _analizar(Entrada(t, canal: canal), pasosPrevios: pasosPrevios);
         return;
       }
+      motivo = r.sinRespuesta ? 'sin_verificar' : 'sello';
+      mensaje = r.sinRespuesta ? null : r.mensaje;
+      if (r.sinRespuesta) _mostrarDescarte(t, motivo);
+    } else {
+      motivo = 'sin_sello';
+      _mostrarDescarte(t, motivo);
+    }
+    if (!await pedirConsentimientoIA(context, motivo: introPorSello(motivo))) {
+      return;
     }
     if (!mounted) return;
-    await _analizar(Entrada(t, canal: canal), pasosPrevios: pasosPrevios);
+    await _analizar(
+      Entrada(t, canal: canal),
+      pasosPrevios: pasosPrevios,
+      motivoSello: motivo,
+      mensajeSello: mensaje,
+    );
+  }
+
+  /// Veredicto inmediato por falta de sello válido (no se lee el correo).
+  void _mostrarDescarte(String t, String motivo) {
+    final v = descartarPorSello(motivo: motivo);
+    HapticFeedback.heavyImpact();
+    setState(() {
+      _entrada = Entrada(t, canal: 'sello');
+      _veredicto = v;
+      _estado = EstadoRobot.alerta;
+      _titular = v.titular;
+      _modo = _Modo.resultado;
+      _pasos = [];
+    });
+    _ultimoAnalizado = '${t.trim().hashCode}';
   }
 
   /// Verifica el sello contra el servidor oficial de SellaCorreo (firma Ed25519, hash, emisor, caducidad).

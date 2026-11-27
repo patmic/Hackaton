@@ -127,7 +127,7 @@ void main() {
     });
   });
 
-  testWidgets('web: sin un «Sí», la IA no lee el correo', (t) async {
+  testWidgets('web: sin sello es estafa al instante; sin un «Sí», la IA no lee el correo', (t) async {
     t.view.physicalSize = const Size(1366, 768);
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.reset);
@@ -150,7 +150,8 @@ void main() {
     expect(find.text('¿Revisar con la IA?'), findsOneWidget);
     await t.tap(find.text('No, gracias'));
     await t.pump(const Duration(milliseconds: 300));
-    expect(find.textContaining('No lo leí'), findsOneWidget);
-    expect(find.text('Posible estafa'), findsNothing);
+    // Regla del sello: sin sello válido se descarta de inmediato, aunque la IA no lo haya leído.
+    expect(find.textContaining('sin sello del IESS'), findsOneWidget);
+    expect(find.textContaining('indicio'), findsNothing);
   });
 }
