@@ -7,14 +7,17 @@
 | 03 | GenKey muestra taxonomías configurables | comunicacional, informativo, recordatorio + extras de .env |
 | 04 | GenKey genera enlace dinámico, imagen y HTML | /checkin/<token>.<h16>, PNG, snippet con imagen enlazada |
 | 05 | Hash compuesto y firma Ed25519 | H recalculable; firma válida con la clave pública |
-| 06 | CheckIn de un enlace auténtico | «Correo válido» con asunto, taxonomía y emisor |
-| 07 | CheckIn de enlaces alterados o inventados | «Correo inválido» en todos los casos |
-| 08 | Confirmación de destinatario (imagen copiada) | válido para el destinatario; inválido para otro |
+| 06 | CheckIn de un enlace auténtico | resultado directo «Correo válido y seguro» con asunto, taxonomía y emisor (verificado con el hash) |
+| 07 | CheckIn de enlaces alterados o inventados | «Correo falso» en todos los casos |
+| 08 | Sello anterior (sin emisor en el hash) | «Correo falso» con aviso de sello anterior |
 | 09 | CSRF, validaciones y límite por IP | 403 sin token; 422 taxonomía inválida; 429 al exceder |
 | 10 | Log encadenado firmado y privacidad | cadena íntegra; alterarla se detecta; sin destinatario en claro |
 """
+import itertools
 import re
 import sqlite3
+
+import pytest
 
 from fastapi.testclient import TestClient
 
@@ -31,9 +34,17 @@ def _csrf(client, path="/genkey"):
 
 def _genkey(client, **kw):
     data = {"taxonomia": "comunicacional", "asunto": "Comunicado: nuevo horario de atención",
-            "destinatario": "", **kw}
+            "destinatario": "", "pol_asunto": "1", **kw}
     data["csrf"] = kw.get("csrf", _csrf(client))
     return client.post("/genkey", data=data)
+
+
+EMISOR = "comunicacion@demo.institucion.test"  # buzón del usuario de prueba
+
+
+def _verificar(client, path):
+    """CheckIn: el clic en la imagen. El emisor se verifica solo con el hash; no se pregunta nada."""
+    return client.get(path)
 
 
 def _link(page_html):
@@ -85,16 +96,18 @@ def test_caso_04_genkey_enlace_imagen_y_html(staff):
 
 
 def test_caso_05_hash_compuesto_y_firma(staff, anon):
-    asunto, dest = "Recordatorio de cita médica", "pedro@correo.test"
-    link = _link(_genkey(staff, taxonomia="recordatorio", asunto=asunto, destinatario=dest).text)
+    asunto = "Recordatorio de cita médica"
+    link = _link(_genkey(staff, taxonomia="recordatorio", asunto=asunto).text)
     token = link.rsplit("/", 1)[1].split(".")[0]
     conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
     conn.row_factory = sqlite3.Row
     s = dict(conn.execute("SELECT * FROM sellos WHERE token=?", (token,)).fetchone())
     conn.close()
-    content = canonical_content(asunto, "politicas: caduca=-; palabra=-; destinatario=opcional")
-    rh = recipient_hmac(TEST_ENV["SELLACORREO_HMAC_KEY"].encode(), "comunicacion@demo.institucion.test", dest)
-    assert s["recipient_hmac"] == rh
+    fp = m.sender_hmac(EMISOR)
+    assert s["emisor_hmac"] == fp and len(fp) == 64  # huella HMAC del emisor, dentro del contenido sellado
+    content = canonical_content(asunto, f"politicas: caduca=-; palabra=-; destinatario=opcional; emisor={fp}")
+    rh = recipient_hmac(TEST_ENV["SELLACORREO_HMAC_KEY"].encode(), EMISOR, "*")  # sin destinatario: marcador fijo
+    assert s["recipient_hmac"] is None
     assert s["h"] == composite_hash(USER, rh, s["ts_utc"], len(content), sha256_hex(content))
     assert link.endswith("." + s["h"][:16])
     pub = anon.get("/.well-known/sellacorreo-key").json()
@@ -106,12 +119,13 @@ def test_caso_05_hash_compuesto_y_firma(staff, anon):
 
 def test_caso_06_checkin_valido(staff, anon):
     link = _link(_genkey(staff, taxonomia="informativo", asunto="Boletín informativo de diciembre").text)
-    r = anon.get(link.replace(BASE, ""))
-    assert r.status_code == 200 and "Correo válido" in r.text and 'data-resultado="valido"' in r.text
+    r = anon.get(link.replace(BASE, ""))  # sin pastilla de destinatario: resultado directo, sin preguntas
+    assert r.status_code == 200 and "Correo válido y seguro" in r.text and 'data-resultado="valido"' in r.text
+    assert "Falta un paso" not in r.text and 'name="emisor"' not in r.text
     assert "Boletín informativo de diciembre" in r.text and "Dirección de Comunicación" in r.text
     assert "informativo" in r.text
     # también pegando el enlace en la página CheckIn
-    assert "Correo válido" in anon.get("/checkin", params={"enlace": link}).text
+    assert "Correo válido y seguro" in anon.get("/checkin", params={"enlace": link}).text
 
 
 def test_caso_07_checkin_invalido(staff, anon):
@@ -122,23 +136,25 @@ def test_caso_07_checkin_invalido(staff, anon):
     for malo in [f"/checkin/{token}.{otro_h}", f"/checkin/{otro_t}.{h16}",
                  "/checkin/AAAAAAAAAAAAAAAAAAAAAAAA.0123456789abcdef", "/checkin/cualquier-cosa"]:
         r = anon.get(malo)
-        assert "Correo inválido" in r.text and 'data-resultado="invalido"' in r.text, malo
+        assert "Correo falso" in r.text and 'data-resultado="invalido"' in r.text, malo
+        assert "Correo válido" not in r.text and "Falta un paso" not in r.text, malo
 
 
-def test_caso_08_confirmacion_destinatario(staff, anon):
-    link = _link(_genkey(staff, destinatario="ana@correo.test").text).replace(BASE, "")
-    assert "¿Le llegó a usted?" in anon.get(link).text
-    assert "enviado a usted" in anon.post(link, data={"correo": "ANA@correo.test"}).text
-    otro = anon.post(link, data={"correo": "victima@correo.test"}).text
-    assert "Correo inválido" in otro and "copió la imagen" in otro
-    sin_dest = _link(_genkey(staff).text).replace(BASE, "")
-    assert "¿Le llegó a usted?" not in anon.get(sin_dest).text
+def test_caso_08_sello_anterior(staff, anon):
+    link = _link(_genkey(staff).text).replace(BASE, "")
+    assert "Correo válido y seguro" in anon.get(link).text
+    # sello sin emisor en el hash (anterior a esta verificación): nunca es válido
+    token = link.rsplit("/", 1)[1].split(".")[0]
+    conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
+    conn.execute("UPDATE sellos SET emisor_hmac=NULL WHERE token=?", (token,))
+    conn.commit(); conn.close()
+    viejo = anon.get(link).text
+    assert "Correo falso" in viejo and "anterior" in viejo and "Correo válido" not in viejo
 
 
 def test_caso_09_csrf_validaciones_y_limite(staff, anon):
     assert _genkey(staff, csrf="0" * 32).status_code == 403
     assert _genkey(staff, taxonomia="spam").status_code == 422
-    assert _genkey(staff, destinatario="no-es-correo").status_code == 422
     link = _link(_genkey(staff).text).replace(BASE, "")
     original = m.checkin_limiter
     m.checkin_limiter = m.RateLimiter(3)
@@ -152,7 +168,7 @@ def test_caso_09_csrf_validaciones_y_limite(staff, anon):
 
 
 def test_caso_10_log_encadenado_y_privacidad(staff):
-    _genkey(staff, destinatario="maria@correo.test")
+    _genkey(staff)
     audit = staff.get("/api/v1/integridad").json()
     assert audit["integra"] and audit["entradas"] >= 5
     conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
@@ -184,7 +200,7 @@ def test_acceso_rapido_demostracion(anon, monkeypatch):
     assert "Generar, copia y pegale a tu correo" in html and "Elija la taxonomía" not in html
     assert 'class="sc-brand"' not in html
     assert 'class="sc-hub__img" src="/static/img/genkey-logo.png"' in html
-    assert 'sc-map__legend--strong">Hash de seguridad' in html and "Exigir emisor" in html and 'sc-map__legend--strong">Taxonomía del correo' in html
+    assert 'sc-map__legend--strong">Hash de seguridad' in html and "Correo del emisor" in html and 'sc-map__legend--strong">Taxonomía del correo' in html
     # login normal con correo electrónico
     c = TestClient(m.app, base_url=BASE)
     ok = c.post("/login", data={"usuario": "comunicacion@demo.institucion.test", "clave": PASS}, follow_redirects=False)
@@ -205,18 +221,19 @@ def test_base_de_datos_es_sqlite():
 def test_genkey_sin_cuerpo_y_con_politicas(staff):
     html = staff.get("/genkey").text
     assert 'name="cuerpo"' not in html
-    for name in ("pol_palabra", "pol_caducidad", "pol_destinatario", "palabra", "caducidad"):
+    for name in ("pol_palabra", "pol_caducidad", "pol_asunto", "palabra", "caducidad"):
         assert f'name="{name}"' in html
     assert 'id="sc-map"' in html and 'id="sc-progress"' in html
 
 
 def test_palabra_segura_visible_solo_si_es_valido(staff, anon):
     link = _link(_genkey(staff, pol_palabra="1", palabra="girasol-azul").text)
-    ok = anon.get(link.replace(BASE, ""))
-    assert "Correo válido" in ok.text and "data-palabra-segura" in ok.text and "girasol-azul" in ok.text
+    path = link.replace(BASE, "")
+    ok = _verificar(anon, path)
+    assert "Correo válido y seguro" in ok.text and "data-palabra-segura" in ok.text and "girasol-azul" in ok.text
     token, h16 = link.rsplit("/", 1)[1].split(".")
     bad = anon.get(f"/checkin/{token}.{'0' * 16}")
-    assert "Correo inválido" in bad.text and "girasol-azul" not in bad.text and "data-palabra-segura" not in bad.text
+    assert "Correo falso" in bad.text and "girasol-azul" not in bad.text and "data-palabra-segura" not in bad.text
     # en la base solo queda cifrada
     conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
     row = conn.execute("SELECT palabra_cifrada, palabra_tag FROM sellos WHERE token=?", (token,)).fetchone()
@@ -231,8 +248,8 @@ def test_palabra_segura_oculta_si_se_altera_el_registro(staff, anon):
     conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
     conn.execute("UPDATE sellos SET asunto='Actualice su clave aquí' WHERE token=?", (token,))
     conn.commit(); conn.close()
-    r = anon.get(link.replace(BASE, ""))
-    assert "Correo inválido" in r.text and "faro-rojo" not in r.text
+    r = _verificar(anon, link.replace(BASE, ""))
+    assert "Correo falso" in r.text and "faro-rojo" not in r.text
 
 
 def test_palabra_segura_requiere_longitud(staff):
@@ -242,33 +259,21 @@ def test_palabra_segura_requiere_longitud(staff):
 
 def test_caducidad(staff, anon):
     link = _link(_genkey(staff, pol_caducidad="1", caducidad="7", pol_palabra="1", palabra="luna-llena").text)
-    assert "Válido hasta" in anon.get(link.replace(BASE, "")).text
+    path = link.replace(BASE, "")
+    assert "Válido hasta" in _verificar(anon, path).text
     token = link.rsplit("/", 1)[1].split(".")[0]
     conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
     conn.execute("UPDATE sellos SET expira_utc='2000-01-01T00:00:00Z' WHERE token=?", (token,))
     conn.commit(); conn.close()
-    r = anon.get(link.replace(BASE, ""))  # mover la fecha cambia el hash: también se detecta
-    assert "Correo inválido" in r.text and "luna-llena" not in r.text
+    r = _verificar(anon, path)  # mover la fecha cambia el hash: también se detecta
+    assert "Correo falso" in r.text and "luna-llena" not in r.text
 
 
 def test_caducado_de_verdad(staff, anon, monkeypatch):
     link = _link(_genkey(staff, pol_caducidad="1", caducidad="1").text)
     monkeypatch.setattr(m.store, "now_utc", lambda: "2999-01-01T00:00:00Z")
     r = anon.get(link.replace(BASE, ""))
-    assert "Correo inválido" in r.text and "caducó" in r.text
-
-
-def test_exigir_destinatario(staff, anon):
-    assert _genkey(staff, pol_destinatario="1").status_code == 422
-    link = _link(_genkey(staff, pol_destinatario="1", destinatario="ana@correo.test",
-                         pol_palabra="1", palabra="trigo-verde").text)
-    path = link.replace(BASE, "")
-    g = anon.get(path)
-    assert "Falta un paso" in g.text and "Correo válido" not in g.text and "trigo-verde" not in g.text
-    otro = anon.post(path, data={"correo": "pirata@correo.test"})
-    assert "Correo inválido" in otro.text and "trigo-verde" not in otro.text
-    ok = anon.post(path, data={"correo": "ana@correo.test"})
-    assert "Correo válido" in ok.text and "trigo-verde" in ok.text
+    assert "Correo falso" in r.text and "caducó" in r.text
 
 
 def test_migracion_base_anterior(tmp_path, monkeypatch):
@@ -307,26 +312,113 @@ def test_animacion_del_inicio(anon):
     assert "prefers-reduced-motion" in js and "sc-hcard--pill" in js and "HOLD" in js
 
 
-def test_exigir_emisor(staff, anon):
-    emisor = "comunicacion@demo.institucion.test"  # buzón del usuario de prueba
-    link = _link(_genkey(staff, pol_emisor="1", asunto="Aviso de emisor").text)
+def test_emisor_automatico_en_el_hash(staff, anon):
+    link = _link(_genkey(staff, asunto="Aviso de emisor").text)
     path = link.replace(BASE, "")
     g = anon.get(path)
-    assert "Falta un paso" in g.text and 'name="emisor"' in g.text
-    assert "Correo válido" not in g.text and emisor not in g.text.split("Falta un paso")[0]
-    otro = anon.post(path, data={"emisor": "suplantado@correo.test"})
-    assert "Correo inválido" in otro.text and "phishing" in otro.text
-    ok = anon.post(path, data={"emisor": emisor.upper()})
-    assert "Correo válido" in ok.text and "el emisor" in ok.text
-    # la política forma parte del hash: quitarla de la base invalida el sello
+    assert "Correo válido y seguro" in g.text and "Falta un paso" not in g.text and 'name="emisor"' not in g.text
+    # no hay forma de «declarar» un emisor: el emisor sale del hash, no de lo que escriba el visitante
+    assert anon.post(path, data={"emisor": "suplantado@correo.test"}).status_code == 405
     token = link.rsplit("/", 1)[1].split(".")[0]
     conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
-    conn.execute("UPDATE sellos SET exige_emisor=0 WHERE token=?", (token,))
+    # alterar la huella del emisor guardada invalida el sello
+    conn.execute("UPDATE sellos SET emisor_hmac=? WHERE token=?", ("0" * 64, token))
+    conn.commit()
+    assert "Correo falso" in anon.get(path).text
+    # alterar el buzón del emisor (usado en el hash compuesto) también
+    conn.execute("UPDATE sellos SET emisor_hmac=? WHERE token=?", (m.sender_hmac(EMISOR), token))
+    conn.execute("UPDATE sellos SET emisor='otro@demo.institucion.test' WHERE token=?", (token,))
     conn.commit(); conn.close()
-    assert "Correo inválido" in anon.get(path).text
+    assert "Correo falso" in anon.get(path).text
 
 
-def test_sellos_sin_exigir_emisor_no_cambian(staff, anon):
-    """Un sello sin la política sigue validando (el contenido no incluye «emisor»)."""
-    link = _link(_genkey(staff).text)
-    assert "Correo válido" in anon.get(link.replace(BASE, "")).text
+def test_emisor_siempre_fijo_en_genkey(staff, anon):
+    """«Correo del emisor» es una pastilla fija: no se puede desmarcar y todo sello nuevo la lleva en el hash."""
+    html = staff.get("/genkey").text
+    assert 'data-policy="pol_emisor"' in html and "checked disabled" in html
+    assert 'name="pol_emisor"' not in html
+    link = _link(_genkey(staff, pol_emisor="").text)  # aunque el formulario no la envíe, el sello la lleva
+    token = link.rsplit("/", 1)[1].split(".")[0]
+    conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
+    assert conn.execute("SELECT emisor_hmac FROM sellos WHERE token=?", (token,)).fetchone()[0] == m.sender_hmac(EMISOR)
+    conn.close()
+    assert "Correo válido y seguro" in _verificar(anon, link.replace(BASE, "")).text
+
+
+
+
+def test_sin_encabezado_y_navegacion_en_el_pie(staff, anon):
+    """Ninguna página tiene cabecera oscura; Inicio, Sello, Validador y Ingresar/Salir van en el pie."""
+    for pagina in ["/login", "/checkin", "/"]:
+        html = anon.get(pagina).text
+        assert 'class="tl-nav' not in html and "sc-nav-right" not in html, pagina
+        assert 'class="sc-foot-links"' in html and ">Validador<" in html and ">Ingresar<" in html, pagina
+    dentro = staff.get("/genkey").text
+    assert 'class="tl-nav' not in dentro and ">Salir<" in dentro and "sc-user" not in dentro
+
+
+@pytest.mark.parametrize("asunto_on,palabra_on,caducidad_on", list(itertools.product([False, True], repeat=3)))
+def test_combinaciones_de_politicas(staff, anon, asunto_on, palabra_on, caducidad_on):
+    """Las ocho combinaciones de Asunto / Palabra segura / Caducidad (Correo del emisor siempre activa)."""
+    datos = {"taxonomia": "informativo", "asunto": "Aviso combinado", "palabra": "girasol-azul", "caducidad": "7",
+             "csrf": _csrf(staff)}
+    if asunto_on: datos["pol_asunto"] = "1"
+    if palabra_on: datos["pol_palabra"] = "1"
+    if caducidad_on: datos["pol_caducidad"] = "1"
+    r = staff.post("/genkey", data=datos)
+    assert r.status_code == 200 and "Sello generado" in r.text
+    link = _link(r.text)
+    token = link.rsplit("/", 1)[1].split(".")[0]
+    conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
+    conn.row_factory = sqlite3.Row
+    row = dict(conn.execute("SELECT * FROM sellos WHERE token=?", (token,)).fetchone())
+    conn.close()
+    assert bool(row["exige_asunto"]) == asunto_on
+    assert (row["asunto"] == "Aviso combinado") == asunto_on
+    assert (row["palabra_cifrada"] is not None) == palabra_on
+    assert (row["expira_utc"] is not None) == caducidad_on
+    texto = _verificar(anon, link.replace(BASE, "")).text  # resultado directo, sin preguntas
+    assert "Correo válido y seguro" in texto and "Falta un paso" not in texto
+    assert ("Aviso combinado" in texto) == asunto_on
+    assert ("girasol-azul" in texto) == palabra_on
+    assert ("Válido hasta" in texto) == caducidad_on
+
+def test_politica_seleccionada_sin_valor_se_rechaza(staff):
+    assert _genkey(staff, pol_asunto="1", asunto="").status_code == 422
+    assert _genkey(staff, pol_palabra="1", palabra="").status_code == 422
+    assert _genkey(staff, pol_caducidad="1", caducidad="").status_code == 422
+    assert _genkey(staff, pol_caducidad="1", caducidad="5").status_code == 422
+    assert _genkey(staff, pol_palabra="1", palabra="ab").status_code == 422
+    assert _genkey(staff, pol_asunto="", asunto="").status_code == 200  # sin asunto ni política: sello válido
+
+
+def test_valor_sin_politica_se_ignora(staff, anon):
+    r = _genkey(staff, pol_asunto="", asunto="Texto secreto", palabra="palabra-oculta", pol_caducidad="",
+                caducidad="30")
+    assert r.status_code == 200
+    link = _link(r.text)
+    token = link.rsplit("/", 1)[1].split(".")[0]
+    conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
+    row = conn.execute("SELECT asunto, palabra_cifrada, expira_utc FROM sellos WHERE token=?", (token,)).fetchone()
+    conn.close()
+    assert row == ("", None, None)
+    texto = _verificar(anon, link.replace(BASE, "")).text
+    assert "Correo válido y seguro" in texto and "Texto secreto" not in texto and "palabra-oculta" not in texto
+
+
+def test_campos_ocultos_no_se_envian_en_el_formulario(staff):
+    js = staff.get("/static/app.js").text
+    assert "i.disabled = !on" in js and "dest-opt" not in js
+    html = staff.get("/genkey").text
+    for pill in ("pol_asunto", "pol_palabra", "pol_caducidad"):
+        assert f'data-for="{pill}"' in html
+    assert "pol_destinatario" not in html and 'name="destinatario"' not in html
+
+
+def test_lineas_del_mapa_genkey(staff):
+    """El mapa tiene el contenedor de líneas y el script las recalcula con las posiciones reales."""
+    html = staff.get("/genkey").text
+    assert 'id="sc-lines"' in html and 'class="sc-map__lines"' in html and 'id="sc-progress"' in html
+    js = staff.get("/static/app.js").text
+    assert "const draw = () =>" in js and "ResizeObserver" in js and 'addEventListener("load", draw)' in js
+    assert "is-on" in js and "fonts.ready" in js

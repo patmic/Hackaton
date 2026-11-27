@@ -109,23 +109,26 @@
     const policies = () => {
       form.querySelectorAll(".sc-policy").forEach((f) => {
         const on = form.querySelector(`[name="${f.dataset.for}"]`).checked;
-        f.hidden = !on; f.querySelectorAll("input,select").forEach((i) => { i.required = on && i.name === "palabra"; });
+        // un campo oculto se desactiva: no se envía al servidor
+        f.hidden = !on; f.querySelectorAll("input,select").forEach((i) => { i.disabled = !on; i.required = on; });
       });
-      const exige = form.querySelector('[name="pol_destinatario"]').checked;
-      form.querySelector("#destinatario").required = exige;
-      document.getElementById("dest-opt").textContent = exige ? "(obligatorio por política)" : "(opcional)";
     };
     const progress = () => {
       const steps = [!!form.querySelector('[name="taxonomia"]:checked'),
         form.querySelectorAll("[data-policy]:checked").length > 0,
-        form.asunto.value.trim().length > 0,
-        !form.querySelector('[name="pol_destinatario"]').checked || form.querySelector("#destinatario").value.includes("@")];
+        !form.querySelector('[name="pol_asunto"]').checked || form.asunto.value.trim().length > 0,
+        !form.querySelector('[name="pol_palabra"]').checked || form.palabra.value.trim().length >= 3];
       ring.style.strokeDashoffset = String(100 - steps.filter(Boolean).length * 25);
     };
     const update = () => { policies(); progress(); draw(); };
     form.addEventListener("change", update);
     form.addEventListener("input", progress);
+    // las líneas se recalculan con las posiciones reales: al cargar, al terminar de cargar las fuentes,
+    // al cambiar el tamaño del mapa y al cambiar de ventana
     window.addEventListener("resize", draw);
+    window.addEventListener("load", draw);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    if ("ResizeObserver" in window) new ResizeObserver(() => draw()).observe(map);
     update();
   }
   // Copiar texto (enlace / HTML)

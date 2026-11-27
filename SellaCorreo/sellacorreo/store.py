@@ -100,7 +100,7 @@ def init() -> None:
         conn.executescript(SCHEMA.read_text(encoding="utf-8"))
         cols = {r[1] for r in conn.execute("PRAGMA table_info(sellos)")}
         for col, ddl in [("palabra_cifrada", "TEXT"), ("palabra_tag", "TEXT"), ("expira_utc", "TEXT"),
-                         ("exige_destinatario", "INTEGER NOT NULL DEFAULT 0"), ("exige_emisor", "INTEGER NOT NULL DEFAULT 0")]:
+                         ("exige_destinatario", "INTEGER NOT NULL DEFAULT 0"), ("exige_emisor", "INTEGER NOT NULL DEFAULT 0"), ("emisor_hmac", "TEXT"), ("exige_asunto", "INTEGER NOT NULL DEFAULT 1")]:
             if col not in cols:  # migración de bases creadas con la versión anterior
                 conn.execute(f"ALTER TABLE sellos ADD COLUMN {col} {ddl}")
         for item in os.environ.get("SELLACORREO_TAXONOMIAS", "").split(","):

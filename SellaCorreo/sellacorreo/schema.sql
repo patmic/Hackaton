@@ -39,7 +39,9 @@ CREATE TABLE IF NOT EXISTS sellos (
     palabra_tag    TEXT,                      -- HMAC corto de la palabra (va dentro del contenido sellado)
     expira_utc     TEXT,                      -- caducidad del enlace (NULL = no caduca)
     exige_destinatario INTEGER NOT NULL DEFAULT 0,
-    exige_emisor   INTEGER NOT NULL DEFAULT 0
+    exige_asunto   INTEGER NOT NULL DEFAULT 1,     -- 1 = el asunto va en el hash y CheckIn lo muestra
+    exige_emisor   INTEGER NOT NULL DEFAULT 0,
+    emisor_hmac    TEXT                      -- HMAC del correo del emisor (dentro del contenido sellado)
 );
 
 -- Log encadenado: una fila por sello generado, con prev_hash y firma.

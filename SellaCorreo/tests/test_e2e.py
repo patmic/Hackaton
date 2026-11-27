@@ -36,8 +36,9 @@ def test_e2e_login_genkey_checkin():
         r = c.post("/genkey", data={"csrf": csrf, "taxonomia": "comunicacional",
                                     "asunto": "Comunicado: prueba e2e", "destinatario": ""})
         link = re.search(r'id="enlace" readonly value="([^"]+)"', r.text).group(1)
-    valido = httpx.get(link.replace("http://localhost:8090", URL)).text
-    assert "Correo válido" in valido
+    path = link.replace("http://localhost:8090", URL)
+    valido = httpx.get(path).text  # el emisor se verifica solo con el hash: resultado directo
+    assert "Correo válido y seguro" in valido and "Falta un paso" not in valido
     token, h16 = link.rsplit("/", 1)[1].split(".")
     malo = httpx.get(f"{URL}/checkin/{token}.{'0' * 16 if h16 != '0' * 16 else '1' * 16}").text
-    assert "Correo inválido" in malo
+    assert "Correo falso" in malo

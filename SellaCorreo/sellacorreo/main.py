@@ -3,7 +3,7 @@
 Páginas:
   /login     inicio de sesión para usuarios del IESS (usuarios demo de .env)
   /genkey    (con sesión) elegir taxonomía y generar enlace dinámico + imagen de encabezado
-  /checkin   (pública) clic en la imagen del correo -> «Correo válido» / «Correo inválido»
+  /checkin   (pública) clic en la imagen del correo -> pide el emisor; «Correo válido y seguro» / «Correo falso»
 
 El enlace es /checkin/<token>.<h16>: token aleatorio + 16 primeros caracteres del hash
 compuesto H = SHA-256(usuario | HMAC(emisor-destinatario) | ts_utc | tamaño | SHA-256(contenido)).
@@ -33,7 +33,7 @@ from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from autenticidad import canonical_content, composite_hash, recipient_hmac, seal_payload, sha256_hex
+from autenticidad import canonical_content, composite_hash, normalize_email, recipient_hmac, seal_payload, sha256_hex
 from autenticidad.banner import banner_png, invalid_png
 
 from . import firma, store
@@ -164,29 +164,18 @@ def csrf_ok(request: Request, token: str) -> bool:
 # ------------------------------------------------------------------ plantillas
 def page(title: str, body: str, user: dict | None = None, request: Request | None = None,
          status: int = 200, active: str = "", chrome: str = "") -> HTMLResponse:
-    def link(href, label, key):
-        cur = ' aria-current="page"' if key == active else ""
-        return f'<a class="tl-nav__link"{cur} href="{href}">{label}</a>'
-    nav = link("/", "Inicio", "inicio") + link("/genkey", "Sello", "genkey") + link("/checkin", "Validador", "checkin")
+    """Sin encabezado en ninguna página: Inicio, Sello, Validador e Ingresar/Salir van siempre en el pie."""
     if user:
-        right = (f'<form method="post" action="/logout" class="sc-logout"><input type="hidden" name="csrf" '
-                 f'value="{csrf_token(request)}">{"" if chrome == "genkey" else chr(60) + "span class=" + chr(34) + "sc-user" + chr(34) + ">" + E(user["nombre"]) + chr(60) + "/span>"}'
-                 f'<button class="tl-btn tl-btn--ghost tl-btn--sm sc-logout__btn" type="submit">Salir</button></form>')
-    else:
-        right = '<a class="tl-btn tl-btn--secondary tl-btn--sm" href="/login">Ingresar</a>'
-    if chrome in ("home", "genkey"):  # estas páginas no tienen encabezado: sus opciones van en el pie
         sesion = (f'<form method="post" action="/logout" class="sc-logout"><input type="hidden" name="csrf" '
-                  f'value="{csrf_token(request)}"><button class="tl-btn tl-btn--ghost tl-btn--sm" type="submit">Salir</button></form>'
-                  if user else '<a href="/login">Ingresar</a>')
-        links = (f'<nav class="sc-foot-links" aria-label="Secciones"><a href="/">Inicio</a><a href="/genkey">Sello</a>'
-                 f'<a href="/checkin">Validador</a>{sesion}</nav>')
-        head = ""
+                  f'value="{csrf_token(request)}"><button class="tl-btn tl-btn--ghost tl-btn--sm" type="submit">Salir</button></form>')
     else:
-        links = ""
-        brand = ("" if chrome == "genkey" else
-                 '<a class="tl-nav__brand sc-brand" href="/"><img src="/static/marca.svg" alt="" width="26" height="26">Sella<em>Correo</em></a>')
-        head = (f'<nav class="tl-nav"><div class="tl-nav__inner">{brand}'
-                f'<div class="tl-nav__links">{nav}</div><div class="sc-nav-right">{right}</div></div></nav>')
+        sesion = '<a href="/login">Ingresar</a>'
+    def foot(href, label, key):
+        cur = ' aria-current="page"' if key == active else ""
+        return f'<a href="{href}"{cur}>{label}</a>'
+    links = (f'<nav class="sc-foot-links" aria-label="Secciones">' + foot("/", "Inicio", "inicio")
+             + foot("/genkey", "Sello", "genkey") + foot("/checkin", "Validador", "checkin") + sesion + "</nav>")
+    head = ""
     return HTMLResponse(status_code=status, content=f"""<!doctype html><html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{E(title)} · SellaCorreo</title>
@@ -200,8 +189,9 @@ def page(title: str, body: str, user: dict | None = None, request: Request | Non
 <script src="/static/app.js"></script></body></html>""")
 
 
-def verdict(ok: bool, text: str) -> str:
-    cls, icon, title = ("ok", "✓", "Correo válido") if ok else ("bad", "✕", "Correo inválido")
+def verdict(ok: bool, text: str, title: str | None = None) -> str:
+    cls, icon, default = ("ok", "✓", "Correo válido y seguro") if ok else ("bad", "✕", "Correo falso")
+    title = title or default
     return (f'<section class="sc-verdict sc-verdict--{cls}" data-resultado="{"valido" if ok else "invalido"}">'
             f'<div class="sc-verdict__icon">{icon}</div><div><h1 class="sc-verdict__title">{title}</h1>'
             f'<p class="sc-verdict__text">{E(text)}</p></div></section>')
@@ -372,15 +362,23 @@ def word_tag(word: str) -> str:
     return hmac.new(_secret("SELLACORREO_HMAC_KEY"), b"tag|" + word.encode(), hashlib.sha256).hexdigest()[:16]
 
 
-def policy_line(expira: str | None, tag: str | None, exige: bool, exige_emisor: bool = False) -> str:
-    """Las políticas forman parte del contenido sellado: alterarlas cambia el hash H.
-    «emisor» solo aparece cuando está activa, así los sellos anteriores siguen validando."""
-    base = f"politicas: caduca={expira or '-'}; palabra={tag or '-'}; destinatario={'obligatorio' if exige else 'opcional'}"
-    return base + ("; emisor=obligatorio" if exige_emisor else "")
+def sender_hmac(emisor: str) -> str:
+    """Huella del correo del emisor (HMAC con clave). El correo nunca se guarda en claro."""
+    return hmac.new(_secret("SELLACORREO_HMAC_KEY"), b"emisor|" + normalize_email(emisor).encode("utf-8"),
+                    hashlib.sha256).hexdigest()
 
 
-def seal_content(asunto: str, expira: str | None, tag: str | None, exige: bool, exige_emisor: bool = False) -> bytes:
-    return canonical_content(asunto, policy_line(expira, tag, exige, exige_emisor))
+def policy_line(expira: str | None, tag: str | None, exige: bool, emisor_fp: str, exige_asunto: bool = True) -> str:
+    """Las políticas y la huella del emisor forman parte del contenido sellado: alterarlas cambia el hash H.
+    «asunto=omitido» solo aparece cuando el asunto no se incluye en el hash."""
+    base = (f"politicas: caduca={expira or '-'}; palabra={tag or '-'}; "
+            f"destinatario={'obligatorio' if exige else 'opcional'}; emisor={emisor_fp}")
+    return base if exige_asunto else base + "; asunto=omitido"
+
+
+def seal_content(asunto: str, expira: str | None, tag: str | None, exige: bool, emisor_fp: str,
+                 exige_asunto: bool = True) -> bytes:
+    return canonical_content(asunto if exige_asunto else "", policy_line(expira, tag, exige, emisor_fp, exige_asunto))
 
 
 # ------------------------------------------------------------------ GenKey
@@ -391,7 +389,7 @@ def initials(name: str) -> str:
 
 def genkey_form(request: Request, user: dict, error: str = "", values: dict | None = None) -> str:
     v = {"taxonomia": "comunicacional", "asunto": "", "destinatario": "", "pol_palabra": "", "palabra": "",
-         "pol_caducidad": "", "caducidad": "7", "pol_destinatario": "", "pol_emisor": "", **(values or {})}
+         "pol_caducidad": "", "caducidad": "7", "pol_asunto": "1", **(values or {})}
     taxs = store.taxonomias()
     left = "".join(
         f'<label class="sc-node sc-node--left" data-node><input type="radio" name="taxonomia" value="{E(t["codigo"])}"'
@@ -403,8 +401,10 @@ def genkey_form(request: Request, user: dict, error: str = "", values: dict | No
                 f'{" checked" if v[name] else ""} data-policy="{name}"><span class="sc-node__dot sc-node__dot--pol"></span>{E(label)}</label>')
     right = (pol("pol_palabra", "Palabra segura", "El destinatario verá esta palabra en CheckIn si el correo es auténtico")
              + pol("pol_caducidad", "Caducidad del enlace", "Después de la fecha, CheckIn lo marcará inválido")
-             + pol("pol_destinatario", "Exigir destinatario", "CheckIn solo dirá «válido» si quien verifica es el destinatario")
-             + pol("pol_emisor", "Exigir emisor", "CheckIn pedirá confirmar el correo de quien envió el mensaje"))
+             + pol("pol_asunto", "Asunto del correo", "Incluye el asunto en el hash; CheckIn lo muestra para que compare con el correo recibido")
+             + ('<label class="sc-node sc-node--right sc-node--locked" data-node title="Siempre activa: el correo del emisor '
+                'forma parte del hash y CheckIn lo pide antes de cualquier resultado"><input type="checkbox" checked disabled '
+                'data-policy="pol_emisor"><span class="sc-node__dot sc-node__dot--pol"></span>Correo del emisor</label>'))
     cad = "".join(f'<option value="{k}"{" selected" if k == v["caducidad"] else ""}>{E(lbl)}</option>' for k, lbl in CADUCIDADES.items())
     alert = f'<div class="tl-alert tl-alert--destructive" role="alert"><div class="tl-alert__body">{E(error)}</div></div>' if error else ""
     return f"""<header class="tl-page-head sc-page-center"><h1 class="tl-h1">GenKey</h1></header>
@@ -431,12 +431,9 @@ def genkey_form(request: Request, user: dict, error: str = "", values: dict | No
 </div></div></section>
 
 <section class="tl-card"><div class="tl-card__body sc-form">
-<div class="tl-field"><label class="tl-field__label" for="asunto">Asunto del correo</label>
-<input class="tl-input" id="asunto" name="asunto" required maxlength="300" value="{E(v['asunto'])}">
-<span class="tl-hint">Forma parte del hash del sello y aparece en CheckIn para que el destinatario compare.</span></div>
-<div class="tl-field"><label class="tl-field__label" for="destinatario">Correo del destinatario <span id="dest-opt">(opcional)</span></label>
-<input class="tl-input" id="destinatario" name="destinatario" type="email" value="{E(v['destinatario'])}">
-<span class="tl-hint">Se guarda solo como huella HMAC.</span></div>
+<div class="tl-field sc-policy" data-for="pol_asunto"><label class="tl-field__label" for="asunto">Asunto del correo</label>
+<input class="tl-input" id="asunto" name="asunto" maxlength="300" value="{E(v['asunto'])}">
+<span class="tl-hint">Forma parte del hash del sello y CheckIn lo muestra para que el destinatario compare.</span></div>
 <div class="tl-field sc-policy" data-for="pol_palabra"><label class="tl-field__label" for="palabra">Palabra segura</label>
 <input class="tl-input" id="palabra" name="palabra" maxlength="40" value="{E(v['palabra'])}" placeholder="p. ej. girasol-azul">
 <span class="tl-hint">Acuérdela antes con el destinatario. CheckIn la muestra solo si el correo es válido; se guarda cifrada.</span></div>
@@ -453,7 +450,7 @@ def history(user: dict) -> str:
     if not rows:
         return ""
     trs = "".join(
-        f'<tr><td>{E(r["ts_utc"])}</td><td>{E(r["taxonomia"])}</td><td>{E(r["asunto"])}</td>'
+        f'<tr><td>{E(r["ts_utc"])}</td><td>{E(r["taxonomia"])}</td><td>{E(r["asunto"]) or "<em>sin asunto</em>"}</td>'
         f'<td><a href="/checkin/{E(r["token"])}.{E(r["h"][:16])}">{E(fmt_code(r["codigo"]))}</a></td></tr>' for r in rows)
     return (f'<section class="tl-card"><div class="tl-card__body"><h2 class="tl-title">Mis últimos sellos</h2>'
             f'<table class="sc-table"><tr><th>Fecha (UTC)</th><th>Taxonomía</th><th>Asunto</th><th>Código</th></tr>{trs}</table>'
@@ -469,15 +466,16 @@ def genkey_get(request: Request):
 
 
 def create_seal(user: dict, taxonomia: str, asunto: str, destinatario: str, palabra: str | None = None,
-                dias: int | None = None, exige_destinatario: bool = False, exige_emisor: bool = False) -> dict:
-    asunto = asunto.strip()[:300]
+                dias: int | None = None, exige_destinatario: bool = False, exige_asunto: bool = True) -> dict:
+    asunto = asunto.strip()[:300] if exige_asunto else ""  # sin asunto, ni el texto ni el hash lo llevan
     now = datetime.now(timezone.utc).replace(microsecond=0)
     ts = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     expira = (now + timedelta(days=dias)).strftime("%Y-%m-%dT%H:%M:%SZ") if dias else None
     msg_id = str(uuid.uuid4())
     token = secrets.token_urlsafe(18)
     tag = word_tag(palabra) if palabra else None
-    content = seal_content(asunto.strip(), expira, tag, exige_destinatario, exige_emisor)
+    emisor_fp = sender_hmac(user["emisor"])
+    content = seal_content(asunto, expira, tag, exige_destinatario, emisor_fp, exige_asunto)
     size, csha = len(content), sha256_hex(content)
     rh = recipient_hmac(_secret("SELLACORREO_HMAC_KEY"), user["emisor"], destinatario or "*")
     h = composite_hash(user["usuario"], rh, ts, size, csha)
@@ -491,7 +489,7 @@ def create_seal(user: dict, taxonomia: str, asunto: str, destinatario: str, pala
         "recipient_hmac": rh if destinatario else None, "h": h, "content_size": size, "content_sha256": csha,
         "kid": kid, "sig": sig, "palabra_cifrada": encrypt_word(token, palabra) if palabra else None,
         "palabra_tag": tag, "expira_utc": expira, "exige_destinatario": 1 if exige_destinatario else 0,
-        "exige_emisor": 1 if exige_emisor else 0})
+        "exige_emisor": 1, "exige_asunto": 1 if exige_asunto else 0, "emisor_hmac": emisor_fp})
     store.append_log(usuario=user["usuario"], taxonomia=taxonomia, token_hash=store.sha(token), h=h, seal_sig=sig)
     base = public_base()
     return {"token": token, "codigo": fmt_code(codigo), "h": h, "expira": expira,
@@ -501,14 +499,12 @@ def create_seal(user: dict, taxonomia: str, asunto: str, destinatario: str, pala
 @app.post("/genkey", response_class=HTMLResponse)
 def genkey_post(request: Request, csrf: str = Form(""), taxonomia: str = Form(...), asunto: str = Form(...),
                 destinatario: str = Form(""), pol_palabra: str = Form(""), palabra: str = Form(""),
-                pol_caducidad: str = Form(""), caducidad: str = Form("7"), pol_destinatario: str = Form(""),
-                pol_emisor: str = Form("")):
+                pol_caducidad: str = Form(""), caducidad: str = Form(""), pol_asunto: str = Form("")):
     user = current_user(request)
     if not user:
         return RedirectResponse("/login", status_code=303)
     values = {"taxonomia": taxonomia, "asunto": asunto, "destinatario": destinatario, "pol_palabra": pol_palabra,
-              "palabra": palabra, "pol_caducidad": pol_caducidad, "caducidad": caducidad, "pol_destinatario": pol_destinatario,
-              "pol_emisor": pol_emisor}
+              "palabra": palabra, "pol_caducidad": pol_caducidad, "caducidad": caducidad, "pol_asunto": pol_asunto}
     if not csrf_ok(request, csrf):
         return page("GenKey", genkey_form(request, user, "La sesión del formulario expiró. Intente de nuevo.", values),
                     user, request, 403, "genkey", chrome="genkey")
@@ -517,22 +513,19 @@ def genkey_post(request: Request, csrf: str = Form(""), taxonomia: str = Form(..
     err = ""
     if taxonomia not in {t["codigo"] for t in store.taxonomias()}:
         err = "Taxonomía no válida."
-    elif not asunto.strip():
-        err = "Escriba el asunto."
-    elif destinatario and not EMAIL_RE.match(destinatario):
-        err = "El correo del destinatario no es válido."
+    elif pol_asunto and not asunto.strip():
+        err = "Escriba el asunto o desmarque «Asunto del correo»."
     elif pol_palabra and not (3 <= len(palabra) <= 40):
         err = "La palabra segura debe tener entre 3 y 40 caracteres."
     elif pol_caducidad and caducidad not in CADUCIDADES:
         err = "Caducidad no válida."
-    elif pol_destinatario and not destinatario:
-        err = "La política «Exigir destinatario» necesita el correo del destinatario."
     if err:
         return page("GenKey", genkey_form(request, user, err, values), user, request, 422, "genkey", chrome="genkey")
-    s = create_seal(user, taxonomia, asunto, destinatario, palabra if pol_palabra else None,
-                    int(caducidad) if pol_caducidad else None, bool(pol_destinatario), bool(pol_emisor))
-    politicas = [p for p, on in [("palabra segura", pol_palabra), (f"caduca {s['expira']}" if s["expira"] else "", pol_caducidad),
-                                 ("exige destinatario", pol_destinatario), ("exige emisor", pol_emisor)] if on and p]
+    s = create_seal(user, taxonomia, asunto, "", palabra if pol_palabra else None,
+                    int(caducidad) if pol_caducidad else None, False, bool(pol_asunto))
+    politicas = [p for p, on in [("correo del emisor (siempre, en el hash)", True), ("asunto en el hash", pol_asunto),
+                                 ("palabra segura", pol_palabra),
+                                 (f"caduca {s['expira']}" if s["expira"] else "", pol_caducidad)] if on and p]
     snippet = (f'<a href="{s["enlace"]}"><img src="{s["imagen"]}" width="640" height="120" '
                f'alt="SellaCorreo: haga clic para verificar este correo" style="display:block;border:0"></a>')
     body = f"""<div class="tl-alert tl-alert--ok" role="status"><div class="tl-alert__title">Sello generado · código {E(s['codigo'])}</div>
@@ -571,6 +564,7 @@ MOTIVOS = {
     "contenido_alterado": "Los datos del sello no coinciden con su hash: el registro fue alterado.",
     "firma_invalida": "La firma digital del sello no es válida.",
     "caducado": "El sello de este correo ya caducó.",
+    "sello_anterior": "Este sello es anterior a la verificación de emisor: no incluye el correo del emisor en su hash.",
 }
 
 
@@ -583,9 +577,11 @@ def check_link(link: str) -> tuple[bool, str, dict | None]:
         return False, "no_registrado", None
     if not hmac.compare_digest(seal["h"][:16], m["h16"]):
         return False, "hash_distinto", seal
-    # Recalcular H con los datos guardados (asunto + políticas): detecta registros manipulados
+    if not seal.get("emisor_hmac"):  # sello anterior a la verificación de emisor
+        return False, "sello_anterior", seal
+    # Recalcular H con los datos guardados (asunto + políticas + emisor): detecta registros manipulados
     content = seal_content(seal["asunto"], seal.get("expira_utc"), seal.get("palabra_tag"),
-                           bool(seal.get("exige_destinatario")), bool(seal.get("exige_emisor")))
+                           bool(seal.get("exige_destinatario")), seal["emisor_hmac"], bool(seal.get("exige_asunto", 1)))
     rh = seal["recipient_hmac"] or recipient_hmac(_secret("SELLACORREO_HMAC_KEY"), seal["emisor"], "*")
     if composite_hash(seal["usuario"], rh, seal["ts_utc"], len(content), sha256_hex(content)) != seal["h"]:
         return False, "contenido_alterado", seal
@@ -607,47 +603,17 @@ def safe_word_box(seal: dict) -> str:
 
 
 def seal_details(seal: dict) -> str:
-    rows = [("Asunto", seal["asunto"]), ("Taxonomía", seal["taxonomia"]), ("Emisor", seal["nombre_emisor"]),
-            ("Unidad", seal["unidad"]), ("Buzón", seal["emisor"]), ("Institución", seal["institucion"]),
-            ("Fecha (UTC)", seal["ts_utc"]), ("Código", fmt_code(seal["codigo"]))]
+    con_asunto = bool(seal.get("exige_asunto", 1))
+    rows = ([("Asunto", seal["asunto"])] if con_asunto else []) + [
+        ("Taxonomía", seal["taxonomia"]), ("Emisor", seal["nombre_emisor"]),
+        ("Unidad", seal["unidad"]), ("Buzón", seal["emisor"]), ("Institución", seal["institucion"]),
+        ("Fecha (UTC)", seal["ts_utc"]), ("Código", fmt_code(seal["codigo"]))]
     if seal.get("expira_utc"):
         rows.append(("Válido hasta (UTC)", seal["expira_utc"]))
     dl = "".join(f"<dt>{E(k)}</dt><dd>{E(v)}</dd>" for k, v in rows)
+    intro = "el asunto y el remitente deben coincidir." if con_asunto else "el remitente debe coincidir."
     return (f'<section class="tl-card"><div class="tl-card__body"><p class="tl-text">Compare con el correo que recibió: '
-            f'el asunto y el remitente deben coincidir.</p><dl class="sc-kv">{dl}</dl></div></section>')
-
-
-def recipient_form(link: str, required: bool = False) -> str:
-    label = ("Este correo exige confirmar el destinatario: escriba el correo en el que lo recibió" if required
-             else "¿Le llegó a usted? Confírmelo con su correo")
-    return f"""<section class="tl-card"><div class="tl-card__body">
-<form class="sc-form" method="post" action="/checkin/{E(link)}">
-<div class="tl-field"><label class="tl-field__label" for="correo">{label}</label>
-<input class="tl-input" id="correo" name="correo" type="email" required placeholder="usted@ejemplo.com">
-<span class="tl-hint">Detecta si alguien copió esta imagen en un correo falso. Su correo no se guarda.</span></div>
-<div class="tl-row"><button class="tl-btn tl-btn--default" type="submit">Confirmar destinatario</button></div>
-</form></div></section>"""
-
-
-def confirm_form(link: str, need_emisor: bool, need_destinatario: bool) -> str:
-    """Formulario que pide solo lo que exigen las políticas activas del sello."""
-    campos = ""
-    if need_emisor:
-        campos += ('<div class="tl-field"><label class="tl-field__label" for="emisor">Correo institucional de quien le envió este mensaje</label>'
-                   '<input class="tl-input" id="emisor" name="emisor" type="email" required placeholder="remitente@institucion.gob">'
-                   '<span class="tl-hint">Use el remitente que aparece en el correo que recibió. Debe coincidir con el emisor del sello.</span></div>')
-    if need_destinatario:
-        campos += ('<div class="tl-field"><label class="tl-field__label" for="correo">Correo en el que recibió este mensaje</label>'
-                   '<input class="tl-input" id="correo" name="correo" type="email" required placeholder="usted@ejemplo.com">'
-                   '<span class="tl-hint">Detecta si alguien copió esta imagen en un correo falso. Su correo no se guarda.</span></div>')
-    return (f'<section class="tl-card"><div class="tl-card__body"><form class="sc-form" method="post" action="/checkin/{E(link)}">'
-            f'{campos}<div class="tl-row"><button class="tl-btn tl-btn--default" type="submit">Confirmar</button></div>'
-            f'</form></div></section>')
-
-
-def pending(text: str) -> str:
-    return (f'<section class="sc-verdict sc-verdict--pending" data-resultado="pendiente"><div class="sc-verdict__icon">?</div>'
-            f'<div><h1 class="sc-verdict__title">Falta un paso</h1><p class="sc-verdict__text">{E(text)}</p></div></section>')
+            f'{intro}</p><dl class="sc-kv">{dl}</dl></div></section>')
 
 
 def _extract_link(value: str) -> str:
@@ -671,74 +637,35 @@ o pegue aquí el enlace de esa imagen.</p></header>
 </div></section>""", current_user(request), request, active="checkin")
 
 
-def _invalid(motivo: str, user, request):
-    return page("Correo inválido", verdict(False, MOTIVOS[motivo] + " Podría ser phishing: no haga clic en sus "
-                                           "enlaces ni entregue datos."), user, request, active="checkin")
+def _falso(motivo: str, user, request):
+    return page("Correo falso", verdict(False, MOTIVOS[motivo] + " Podría ser phishing: no haga clic en sus enlaces "
+                                        "ni entregue datos."), user, request, active="checkin")
+
+
+def _limitado(user, request):
+    return page("CheckIn", verdict(False, "Demasiadas consultas. Intente en un minuto.", "Demasiadas consultas"),
+                user, request, 429, "checkin")
+
+
+def _valido(seal: dict, user, request):
+    store.record_verification("valido", ip_hash(request))
+    texto = (f"Emitido por {seal['nombre_emisor']} ({seal['institucion']}). El hash, la firma digital y el correo "
+             "del emisor, sellado dentro del hash, coinciden.")
+    return page("Correo válido y seguro", verdict(True, texto) + safe_word_box(seal) + seal_details(seal),
+                user, request, active="checkin")
 
 
 @app.get("/checkin/{link}", response_class=HTMLResponse)
 def checkin(link: str, request: Request):
+    """El emisor se verifica solo (huella dentro del hash y firma): resultado directo, sin preguntas."""
     user = current_user(request)
     if not checkin_limiter.allow(ip_of(request)):
-        return page("CheckIn", verdict(False, "Demasiadas consultas. Intente en un minuto."), user, request, 429, "checkin")
+        return _limitado(user, request)
     ok, motivo, seal = check_link(link)
     if not ok:
         store.record_verification(motivo, ip_hash(request))
-        return _invalid(motivo, user, request)
-    need_em, need_de = bool(seal.get("exige_emisor")), bool(seal.get("exige_destinatario"))
-    if need_em or need_de:
-        store.record_verification("pendiente_confirmacion", ip_hash(request))
-        return page("CheckIn", pending("El sello existe, pero este correo exige confirmar " +
-                                       ("el emisor" if need_em else "") + (" y " if need_em and need_de else "") +
-                                       ("el destinatario" if need_de else "") + " antes de mostrar el resultado.")
-                    + confirm_form(link, need_em, need_de), user, request, active="checkin")
-    store.record_verification("valido", ip_hash(request))
-    texto = f"Emitido por {seal['nombre_emisor']} ({seal['institucion']}). El hash y la firma digital coinciden."
-    extra = recipient_form(link) if seal["recipient_hmac"] else ""
-    return page("Correo válido", verdict(True, texto) + safe_word_box(seal) + seal_details(seal) + extra,
-                user, request, active="checkin")
-
-
-@app.post("/checkin/{link}", response_class=HTMLResponse)
-def checkin_recipient(link: str, request: Request, correo: str = Form(""), emisor: str = Form("")):
-    user = current_user(request)
-    if not checkin_limiter.allow(ip_of(request)):
-        return page("CheckIn", verdict(False, "Demasiadas consultas. Intente en un minuto."), user, request, 429, "checkin")
-    ok, motivo, seal = check_link(link)
-    if not ok:
-        store.record_verification(motivo, ip_hash(request))
-        return _invalid(motivo, user, request)
-    need_em, need_de = bool(seal.get("exige_emisor")), bool(seal.get("exige_destinatario"))
-    if need_em or need_de:
-        if (need_em and not emisor.strip()) or (need_de and not correo.strip()):
-            store.record_verification("pendiente_confirmacion", ip_hash(request))
-            return page("CheckIn", pending("Complete los datos que exige este sello.")
-                        + confirm_form(link, need_em, need_de), user, request, active="checkin")
-        if need_em and emisor.strip().lower() != seal["emisor"].lower():
-            store.record_verification("emisor_distinto", ip_hash(request))
-            return page("Correo inválido", verdict(False, "El correo que indicó no es el del emisor de este sello. "
-                                                   "Trátelo como phishing."), user, request, active="checkin")
-        if need_de and not (seal["recipient_hmac"] and hmac.compare_digest(
-                recipient_hmac(_secret("SELLACORREO_HMAC_KEY"), seal["emisor"], correo.strip().lower()), seal["recipient_hmac"])):
-            store.record_verification("destinatario_distinto", ip_hash(request))
-            return page("Correo inválido", verdict(False, "El sello existe, pero no fue emitido para la dirección que ingresó. "
-                                                   "Si usted lo recibió, alguien copió la imagen: trátelo como phishing."),
-                        user, request, active="checkin")
-        store.record_verification("valido_confirmado", ip_hash(request))
-        confirmado = []
-        if need_em: confirmado.append("el emisor")
-        if need_de: confirmado.append("el destinatario")
-        return page("Correo válido", verdict(True, "Confirmado: " + " y ".join(confirmado) + ". El sello coincide.")
-                    + safe_word_box(seal) + seal_details(seal), user, request, active="checkin")
-    if seal["recipient_hmac"] and hmac.compare_digest(
-            recipient_hmac(_secret("SELLACORREO_HMAC_KEY"), seal["emisor"], correo), seal["recipient_hmac"]):
-        store.record_verification("valido_destinatario", ip_hash(request))
-        return page("Correo válido", verdict(True, "El sello coincide y el correo fue enviado a usted.")
-                    + safe_word_box(seal) + seal_details(seal), user, request, active="checkin")
-    store.record_verification("destinatario_distinto", ip_hash(request))
-    return page("Correo inválido", verdict(False, "El sello existe, pero no fue emitido para la dirección que ingresó. "
-                                           "Si usted lo recibió, alguien copió la imagen: trátelo como phishing."),
-                user, request, active="checkin")
+        return _falso(motivo, user, request)
+    return _valido(seal, user, request)
 
 
 @app.get("/img/{token}.png")
