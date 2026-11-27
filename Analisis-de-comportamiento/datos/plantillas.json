@@ -1,0 +1,534 @@
+{
+  "fuente": "Capacitacion/lib/src/domain/plantillas_prueba.dart",
+  "dominio_practica": "escuela-antiphishing.ec",
+  "plantillas": [
+    {
+      "id": "N2-EX1-reembolso",
+      "nivel": 2,
+      "tipologia": "T2",
+      "indicios": [
+        "I6",
+        "I1",
+        "I7"
+      ],
+      "indicios_implicitos": [
+        "I2"
+      ],
+      "tipos": [
+        "EX1"
+      ],
+      "es_primer_correo": true,
+      "asunto": "Tienes un reembolso pendiente de $187,40, vence hoy",
+      "nombre_remitente": "IESS Devoluciones",
+      "remitente": "devoluciones@escuela-antiphishing.ec",
+      "cuerpo": "Estimado afiliado:\nTras revisar tus aportes, tienes un reembolso pendiente de $187,40.\nEl valor vence hoy a las 23:59. Si no lo solicitas, regresará al fondo común.",
+      "boton": "Solicitar mi reembolso",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N2-EX2-pension",
+      "nivel": 2,
+      "tipologia": "T2",
+      "indicios": [
+        "I8",
+        "I1",
+        "I9"
+      ],
+      "indicios_implicitos": [
+        "I2",
+        "I7"
+      ],
+      "tipos": [
+        "EX2"
+      ],
+      "es_primer_correo": true,
+      "asunto": "Tu pensión será suspendida si no actualizas tus datos hoy",
+      "nombre_remitente": "IESS Pensiones",
+      "remitente": "pensiones@escuela-antiphishing.ec",
+      "cuerpo": "Estimado jubilado:\nSus datos no están actualizados en nuestro sistema.\nSi no los actualiza hoy, su pensión de diciembre quedará suspendida.\nTenga a mano su cédula y su fecha de nacimiento.",
+      "boton": "Actualizar mis datos",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N2-EX3-glosa",
+      "nivel": 2,
+      "tipologia": "T2",
+      "indicios": [
+        "I8",
+        "I10",
+        "I7"
+      ],
+      "indicios_implicitos": [
+        "I2"
+      ],
+      "tipos": [
+        "EX3"
+      ],
+      "es_primer_correo": true,
+      "asunto": "Glosa por aportes impagos: evita la coactiva cancelando la tasa hoy",
+      "nombre_remitente": "IESS Recaudación",
+      "remitente": "recaudacion@escuela-antiphishing.ec",
+      "cuerpo": "Señor empleador:\nSu empresa registra una glosa por aportes impagos del período de octubre.\nPara evitar el inicio de la coactiva, cancele la tasa de regularización de $48,00.",
+      "boton": "Pagar la tasa",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N2-EX4-planillas",
+      "nivel": 2,
+      "tipologia": "T2",
+      "indicios": [
+        "I5",
+        "I7",
+        "I1"
+      ],
+      "indicios_implicitos": [
+        "I2"
+      ],
+      "tipos": [
+        "EX4"
+      ],
+      "es_primer_correo": true,
+      "asunto": "Liquidación de planillas retenida: revisa el detalle adjunto",
+      "nombre_remitente": "IESS Prestadores",
+      "remitente": "prestadores@escuela-antiphishing.ec",
+      "cuerpo": "Estimado prestador:\nLa liquidación de sus planillas de noviembre quedó retenida por una observación.\nRevise el detalle adjunto y responda antes de las 18:00 de hoy.",
+      "boton": "Descargar el detalle",
+      "adjunto": "Detalle_liquidacion.zip",
+      "qr": false
+    },
+    {
+      "id": "N2-EX5-certificado",
+      "nivel": 2,
+      "tipologia": "T3",
+      "indicios": [
+        "I11",
+        "I7",
+        "I1"
+      ],
+      "indicios_implicitos": [
+        "I2"
+      ],
+      "tipos": [
+        "EX5"
+      ],
+      "es_primer_correo": true,
+      "asunto": "Tu certificado de afiliación está listo. Escanea el QR para descargarlo",
+      "nombre_remitente": "IESS Certificados",
+      "remitente": "certificados@escuela-antiphishing.ec",
+      "cuerpo": "Hola:\nTu certificado de afiliación ya está listo.\nEscanea el código QR con tu celular para descargarlo. El código vence hoy.",
+      "boton": "Descargar certificado",
+      "adjunto": null,
+      "qr": true
+    },
+    {
+      "id": "N2-IN-buzon",
+      "nivel": 2,
+      "tipologia": "T6",
+      "indicios": [
+        "I3",
+        "I1",
+        "I2"
+      ],
+      "indicios_implicitos": [
+        "I7"
+      ],
+      "tipos": [
+        "IN1",
+        "IN2",
+        "IN3",
+        "IN4"
+      ],
+      "es_primer_correo": true,
+      "asunto": "Tu buzón institucional está lleno. Valida tu usuario y contraseña",
+      "nombre_remitente": "Soporte TI",
+      "remitente": "soporte.ti@escuela-antiphishing.ec",
+      "cuerpo": "Estimado colaborador:\nTu buzón institucional está al 99 % de su capacidad.\nPara no perder correos, valida tu usuario y contraseña en los próximos 60 minutos.",
+      "boton": "Validar mi cuenta",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N2-EX-turno-qr",
+      "nivel": 2,
+      "tipologia": "T4",
+      "indicios": [
+        "I11",
+        "I9",
+        "I1"
+      ],
+      "indicios_implicitos": [
+        "I2",
+        "I7"
+      ],
+      "tipos": [
+        "EX1",
+        "EX2",
+        "EX4"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Tu turno médico fue reprogramado: confírmalo con el QR",
+      "nombre_remitente": "IESS Turnos",
+      "remitente": "turnos@escuela-antiphishing.ec",
+      "cuerpo": "Hola:\nTu turno médico fue reprogramado.\nPara confirmarlo, escanea el código QR y escribe tu número de cédula. Tienes plazo hasta hoy.",
+      "boton": "Confirmar mi turno",
+      "adjunto": null,
+      "qr": true
+    },
+    {
+      "id": "N2-EX-clave",
+      "nivel": 2,
+      "tipologia": "T5",
+      "indicios": [
+        "I3",
+        "I4",
+        "I1"
+      ],
+      "indicios_implicitos": [
+        "I2",
+        "I7"
+      ],
+      "tipos": [
+        "EX1",
+        "EX2",
+        "EX3",
+        "EX4",
+        "EX5"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Nuevo inicio de sesión en tu cuenta: confirma tu clave",
+      "nombre_remitente": "IESS Cuenta",
+      "remitente": "cuenta@escuela-antiphishing.ec",
+      "cuerpo": "Hola:\nRegistramos un inicio de sesión en tu cuenta desde un equipo nuevo.\nSi no fuiste tú, confirma tu clave en las próximas 24 horas: https://bit.ly/iess-acceso",
+      "boton": "Confirmar mi clave",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N1-EX-bloqueo",
+      "nivel": 1,
+      "tipologia": "T5",
+      "indicios": [
+        "I1",
+        "I8",
+        "I3",
+        "I7",
+        "I2"
+      ],
+      "indicios_implicitos": [],
+      "tipos": [
+        "EX1",
+        "EX2",
+        "EX3",
+        "EX4",
+        "EX5"
+      ],
+      "es_primer_correo": false,
+      "asunto": "¡URGENTE! Tu cuenta será bloqueada hoy: confirma tu clave y tu tarjeta",
+      "nombre_remitente": "IESS Seguridad",
+      "remitente": "seguridad@escuela-antiphishing.ec",
+      "cuerpo": "¡URGENTE!\nTu cuenta será bloqueada HOY por actividad sospechosa.\nPara evitarlo, confirma tu clave y los datos de tu tarjeta en el portal de verificación.",
+      "boton": "Confirmar ahora",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N1-EX-premio",
+      "nivel": 1,
+      "tipologia": "T2",
+      "indicios": [
+        "I6",
+        "I9",
+        "I10",
+        "I1",
+        "I7"
+      ],
+      "indicios_implicitos": [
+        "I2"
+      ],
+      "tipos": [
+        "EX1",
+        "EX2",
+        "EX3",
+        "EX4",
+        "EX5"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Ganaste un bono de $500: envía tu cédula y paga $5 de envío antes de las 18:00",
+      "nombre_remitente": "IESS Beneficios",
+      "remitente": "beneficios@escuela-antiphishing.ec",
+      "cuerpo": "¡Felicidades!\nGanaste un bono de $500 por tu fidelidad como afiliado.\nPara recibirlo, envía una foto de tu cédula y paga $5 de envío antes de las 18:00.",
+      "boton": "Reclamar mi bono",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N1-EX-cita-pago",
+      "nivel": 1,
+      "tipologia": "T4",
+      "indicios": [
+        "I1",
+        "I8",
+        "I10",
+        "I7",
+        "I2"
+      ],
+      "indicios_implicitos": [],
+      "tipos": [
+        "EX1",
+        "EX2",
+        "EX4"
+      ],
+      "es_primer_correo": false,
+      "asunto": "¡ÚLTIMO AVISO! Tu cita se cancela HOY si no pagas la confirmación",
+      "nombre_remitente": "IESS Agendamiento",
+      "remitente": "agendamiento@escuela-antiphishing.ec",
+      "cuerpo": "¡ÚLTIMO AVISO!\nTu cita médica de mañana se cancelará hoy si no la confirmas.\nPara confirmarla, paga $5 desde el enlace. Sin el pago perderás tu turno.",
+      "boton": "Pagar y confirmar",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N1-IN-parche",
+      "nivel": 1,
+      "tipologia": "T6",
+      "indicios": [
+        "I1",
+        "I8",
+        "I5",
+        "I3",
+        "I7"
+      ],
+      "indicios_implicitos": [
+        "I2"
+      ],
+      "tipos": [
+        "IN1",
+        "IN2",
+        "IN3",
+        "IN4"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Soporte TI: tu cuenta se desactiva HOY. Instala el parche adjunto e ingresa tu clave",
+      "nombre_remitente": "Soporte TI",
+      "remitente": "mesa.ayuda@escuela-antiphishing.ec",
+      "cuerpo": "Atención:\nTu cuenta institucional se desactiva HOY por falta de actualización.\nInstala el parche adjunto e ingresa tu clave cuando te la pida.",
+      "boton": "Descargar el parche",
+      "adjunto": "Parche_cuenta.exe",
+      "qr": false
+    },
+    {
+      "id": "N3-EX-enlace",
+      "nivel": 3,
+      "tipologia": "T3",
+      "indicios": [
+        "I4"
+      ],
+      "indicios_implicitos": [
+        "I2",
+        "I7"
+      ],
+      "tipos": [
+        "EX1",
+        "EX2",
+        "EX3",
+        "EX4",
+        "EX5"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Actualizamos el formato de tus certificados",
+      "nombre_remitente": "IESS Certificados",
+      "remitente": "certificados@escuela-antiphishing.ec",
+      "cuerpo": "Hola:\nActualizamos el formato de tus certificados de afiliación.\nPuedes ver el nuevo modelo en www.iess.gob.ec/certificados. No necesitas hacer ningún trámite.",
+      "boton": "Ver el nuevo formato",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N3-EX-remitente",
+      "nivel": 3,
+      "tipologia": "T4",
+      "indicios": [
+        "I7"
+      ],
+      "indicios_implicitos": [
+        "I2"
+      ],
+      "tipos": [
+        "EX1",
+        "EX2",
+        "EX3",
+        "EX4",
+        "EX5"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Recordatorio de tu cita de control",
+      "nombre_remitente": "IESS Turnos",
+      "remitente": "turnos@escuela-antiphishing.ec",
+      "cuerpo": "Hola:\nTe recordamos tu cita de control de medicina general el martes 2 de diciembre a las 09:30, en el Hospital del Día.\nSi no puedes asistir, reprográmala con anticipación.",
+      "boton": "Ver mi cita",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N3-EX-adjunto",
+      "nivel": 3,
+      "tipologia": "T2",
+      "indicios": [
+        "I5"
+      ],
+      "indicios_implicitos": [
+        "I2",
+        "I7"
+      ],
+      "tipos": [
+        "EX1",
+        "EX2",
+        "EX3",
+        "EX4",
+        "EX5"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Tu estado de cuenta de noviembre (adjunto)",
+      "nombre_remitente": "IESS Notificaciones",
+      "remitente": "notificaciones@escuela-antiphishing.ec",
+      "cuerpo": "Estimado afiliado:\nAdjuntamos tu estado de cuenta de aportes de noviembre.\nSi el documento no se ve bien, habilita el contenido.",
+      "boton": "Ver el adjunto",
+      "adjunto": "Estado_cuenta_noviembre.docm",
+      "qr": false
+    },
+    {
+      "id": "N3-EX-datos",
+      "nivel": 3,
+      "tipologia": "T1",
+      "indicios": [
+        "I9"
+      ],
+      "indicios_implicitos": [
+        "I2",
+        "I7"
+      ],
+      "tipos": [
+        "EX1",
+        "EX2",
+        "EX3",
+        "EX4",
+        "EX5"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Completa tu fecha de nacimiento para mantener tu perfil al día",
+      "nombre_remitente": "IESS Informa",
+      "remitente": "informa@escuela-antiphishing.ec",
+      "cuerpo": "IESS Informa:\nEstamos actualizando nuestra base de contactos.\nCompleta tu fecha de nacimiento para mantener tu perfil al día.",
+      "boton": "Completar mi perfil",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N3-EX-pago",
+      "nivel": 3,
+      "tipologia": "T3",
+      "indicios": [
+        "I10"
+      ],
+      "indicios_implicitos": [
+        "I2",
+        "I7"
+      ],
+      "tipos": [
+        "EX1",
+        "EX2",
+        "EX3",
+        "EX4",
+        "EX5"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Emisión de tu certificado: valor de $2,50",
+      "nombre_remitente": "IESS Certificados",
+      "remitente": "certificados@escuela-antiphishing.ec",
+      "cuerpo": "Hola:\nTu certificado de historia laboral está listo.\nLa emisión tiene un valor de $2,50, que puedes pagar en línea.",
+      "boton": "Pagar y descargar",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N3-IN-documento",
+      "nivel": 3,
+      "tipologia": "T6",
+      "indicios": [
+        "I2"
+      ],
+      "indicios_implicitos": [
+        "I7"
+      ],
+      "tipos": [
+        "IN1",
+        "IN2",
+        "IN3",
+        "IN4"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Nueva política de vacaciones: revisa el documento compartido",
+      "nombre_remitente": "Talento Humano",
+      "remitente": "talento.humano@escuela-antiphishing.ec",
+      "cuerpo": "Estimados compañeros:\nCompartimos la nueva política de vacaciones para el próximo año.\nRevisen el documento compartido antes de la reunión del viernes.",
+      "boton": "Abrir el documento",
+      "adjunto": null,
+      "qr": false
+    },
+    {
+      "id": "N3-IN-reunion",
+      "nivel": 3,
+      "tipologia": "T6",
+      "indicios": [
+        "I5"
+      ],
+      "indicios_implicitos": [
+        "I2",
+        "I7"
+      ],
+      "tipos": [
+        "IN1",
+        "IN2",
+        "IN3",
+        "IN4"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Agenda de la reunión de coordinación",
+      "nombre_remitente": "Coordinación Zonal",
+      "remitente": "coordinacion@escuela-antiphishing.ec",
+      "cuerpo": "Buenos días:\nAdjunto la agenda de la reunión de coordinación del martes.\nSi el documento no se ve bien, habilita las macros.",
+      "boton": "Ver el adjunto",
+      "adjunto": "Agenda_coordinacion.docm",
+      "qr": false
+    },
+    {
+      "id": "N3-IN-nomina",
+      "nivel": 3,
+      "tipologia": "T6",
+      "indicios": [
+        "I4"
+      ],
+      "indicios_implicitos": [
+        "I2",
+        "I7"
+      ],
+      "tipos": [
+        "IN1",
+        "IN2",
+        "IN3",
+        "IN4"
+      ],
+      "es_primer_correo": false,
+      "asunto": "Tu rol de pagos de noviembre ya está disponible",
+      "nombre_remitente": "Talento Humano",
+      "remitente": "nomina@escuela-antiphishing.ec",
+      "cuerpo": "Estimados compañeros:\nEl rol de pagos de noviembre ya está disponible.\nConsúltalo aquí: https://cutt.ly/rol-noviembre",
+      "boton": "Ver mi rol",
+      "adjunto": null,
+      "qr": false
+    }
+  ]
+}

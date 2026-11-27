@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#070807">
+  <meta name="theme-color" content="#145962">
   <title>Verificación del sello digital · IESS</title>
-  <link rel="stylesheet" href="../recursos/Boilerplate/ThemeGreen/tokens/tokens.css">
-  <link rel="stylesheet" href="../recursos/Boilerplate/ThemeGreen/components/components.css">
+  <link rel="stylesheet" href="../recursos/Boilerplate/ThemeLight/tokens/tokens.css">
+  <link rel="stylesheet" href="../recursos/Boilerplate/ThemeLight/components/components.css">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="tg-body">
+<body class="tl-body">
   <div class="smtp-bg-glow" aria-hidden="true"></div>
   <main class="smtp-page">
-    <section id="verificationStatus" class="tg-card smtp-verification" aria-live="polite">
+    <section id="verificationStatus" class="tl-card smtp-verification" aria-live="polite">
       <div class="smtp-verification__status">
         <span id="verificationIcon" class="smtp-verification__icon" aria-hidden="true">✓</span>
-        <span class="tg-eyebrow">IESS · Verificación de sello digital</span>
+        <span class="smtp-eyebrow">IESS · Verificación de sello digital</span>
         <h1 id="verificationTitle" class="smtp-verification__title">Verificando sello...</h1>
-        <p id="verificationMessage" class="tg-lead"></p>
+        <p id="verificationMessage" class="tl-page-desc"></p>
         <div class="smtp-verification__details">
           <div><strong>Código:</strong> <code id="verificationCode">—</code></div>
           <div><strong>Huella SHA-256:</strong> <code id="verificationHash">—</code></div>
@@ -28,7 +28,7 @@
           No consulta un servicio oficial del IESS ni certifica que el contenido del correo recibido
           no haya sido alterado.
         </p>
-        <a class="tg-btn tg-btn--outline" href="index.html">Volver al generador</a>
+        <a class="tl-btn tl-btn--cancel" href="index.html">Volver al generador</a>
       </div>
     </section>
   </main>

@@ -8,12 +8,10 @@ import '../../domain/domain.dart';
 /// no se solapan, para no duplicar eventos.
 class RegistroEventos {
   RegistroEventos({
-    required CapacitacionApi api,
-    required ContextoEvento Function() contexto,
-    required DateTime Function() reloj,
-  }) : _api = api,
-       _contexto = contexto,
-       _reloj = reloj;
+    required this._api,
+    required this._contexto,
+    required this._reloj,
+  });
 
   static const maximoPendientes = 50;
 

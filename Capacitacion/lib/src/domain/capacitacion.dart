@@ -1,6 +1,8 @@
 import 'indicio.dart';
+import 'mensaje_simulado.dart';
 import 'microcurso.dart';
 import 'tipo_usuario.dart';
+import 'tipologia.dart';
 
 /// Nivel inicial que deja el primer correo de prueba (CLAUDE.md §11).
 enum NivelCapacitacion {
@@ -73,8 +75,9 @@ class MapaIndicios {
 
   factory MapaIndicios.fromJson(Map<String, dynamic> json) => MapaIndicios({
     for (final e in json.entries)
-      if (Indicio.tryDesdeCodigo(e.key) case final indicio?)
-        indicio: EstadoIndicio.desdeCodigo(e.value as String),
+      ?Indicio.tryDesdeCodigo(e.key): EstadoIndicio.desdeCodigo(
+        e.value as String,
+      ),
   });
 
   final Map<Indicio, EstadoIndicio> estados;
@@ -102,8 +105,22 @@ class MapaIndicios {
   };
 }
 
+/// Dominio desde el que salen los correos de prueba (regla 5: nunca
+/// iess.gob.ec).
+///
+/// [PENDIENTE] CLAUDE.md §16: falta comprar el dominio real. Es el mismo
+/// valor que `DOMINIO_PRACTICA` de `backend/capacitacion/config.py`; si
+/// cambia, hay que cambiarlo en los dos lados.
+abstract final class DominioPractica {
+  static const dominio = 'escuela-antiphishing.ec';
+}
+
 /// Plantilla de correo de prueba. El contenido es ficticio y se envía desde
 /// el dominio de práctica, nunca desde iess.gob.ec (regla 5).
+///
+/// Cada plantilla suplanta una tipología oficial y rompe su lista
+/// `nunca_trae` de `tipologias.json`: así enseña la regla de coherencia del
+/// Sello IESS. Ningún correo de prueba trae Sello IESS.
 class PlantillaCorreoPrueba {
   const PlantillaCorreoPrueba({
     required this.id,
@@ -111,13 +128,74 @@ class PlantillaCorreoPrueba {
     required this.nivel,
     required this.asunto,
     required this.indicios,
+    required this.tipologiaSuplantada,
+    required this.nombreRemitente,
+    required this.usuarioRemitente,
+    required this.cuerpo,
+    required this.boton,
+    this.adjunto,
+    this.tieneQr = false,
+    this.esPrimerCorreo = false,
   });
 
   final String id;
   final Set<TipoUsuario> tipos;
   final NivelCorreo nivel;
   final String asunto;
+
+  /// Indicios que la plantilla esconde a propósito (los que cuenta la
+  /// escalera, CLAUDE.md §11).
   final List<Indicio> indicios;
+
+  /// Tipología oficial que imita.
+  final Tipologia tipologiaSuplantada;
+
+  /// Nombre visible del remitente, por ejemplo «IESS Devoluciones».
+  final String nombreRemitente;
+
+  /// Parte local de la dirección: `devoluciones` → `devoluciones@<dominio>`.
+  final String usuarioRemitente;
+
+  /// Párrafos separados por saltos de línea.
+  final String cuerpo;
+
+  /// Texto del botón. Todo correo de prueba lo tiene: lleva a la página
+  /// neutra `/p/{token}` y solo el `POST` de «Continuar» cuenta como clic. En
+  /// los correos con [adjunto], el adjunto se muestra como un enlace de
+  /// descarga: nunca se envía un archivo de verdad.
+  final String boton;
+  final String? adjunto;
+  final bool tieneQr;
+
+  /// Primer correo del tipo de usuario (CLAUDE.md §11, [DECIDIDO]). La
+  /// escalera lo elige siempre como primer envío.
+  final bool esPrimerCorreo;
+
+  String get remitente => '$usuarioRemitente@${DominioPractica.dominio}';
+
+  /// Indicios que aparecen sin que la plantilla los busque.
+  ///
+  /// Por la regla 5 todo correo de prueba sale del dominio de práctica, así
+  /// que el remitente no oficial (I7) siempre está, y el botón lleva a ese
+  /// mismo dominio (I2). Pasa también en el nivel 3 («1 indicio»): el
+  /// observador los cuenta con menos peso que los de [indicios].
+  Set<Indicio> get indiciosImplicitos =>
+      {Indicio.i7, Indicio.i2}.difference(indicios.toSet());
+
+  /// Todo lo que la persona puede ver en el correo.
+  Set<Indicio> get indiciosObservables => {...indicios, ...indiciosImplicitos};
+
+  /// El correo tal como lo ve la persona, sin la etiqueta «SIMULACIÓN»: en
+  /// su bandeja no hay aviso de que es una práctica.
+  MensajeSimulado get mensaje => MensajeSimulado(
+    etiqueta: '',
+    remitente: '$nombreRemitente <$remitente>',
+    asunto: asunto,
+    cuerpo: cuerpo,
+    boton: boton,
+    adjunto: adjunto,
+    tieneQr: tieneQr,
+  );
 }
 
 /// Correo de prueba enviado.

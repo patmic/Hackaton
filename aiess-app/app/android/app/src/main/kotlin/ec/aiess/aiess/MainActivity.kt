@@ -27,7 +27,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    /** Texto o captura de pantalla compartidos con "Revisar con la pantera". */
+    /** Texto o captura compartidos con "Revisar con AIESS". */
     private fun leerCompartido(i: Intent?): Map<String, String?>? {
         if (i?.action != Intent.ACTION_SEND) return null
         val tipo = i.type ?: return null

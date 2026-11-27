@@ -91,7 +91,7 @@ const List<Modulo> catalogoModulos = [
   ),
   Modulo(
     codigo: 'M5',
-    nombre: 'Trámites y salud (T3)',
+    nombre: 'Trámites y salud (T3 y T4)',
     nivel: 2,
     tipos: {TipoUsuario.ex1, TipoUsuario.ex2, TipoUsuario.ex4},
     minutos: 3,

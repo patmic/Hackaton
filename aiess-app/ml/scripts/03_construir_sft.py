@@ -1,4 +1,4 @@
-"""Fase 2.3 - Dataset de instrucciones (SFT) para LFM2: analisis + conversacion de la pantera.
+"""Fase 2.3 - Dataset de instrucciones (SFT) para LFM2: análisis + conversación del robot.
 
 Uso:  python -I ml/scripts/03_construir_sft.py
 Salida: ml/data/sft/{train,val,test}.jsonl  formato TRL "prompt-completion" conversacional:

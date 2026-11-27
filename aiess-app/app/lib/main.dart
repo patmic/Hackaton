@@ -27,10 +27,13 @@ Future<void> _preparar() async {
 /// App principal.
 Future<void> main() async {
   await _preparar();
-  // Siempre vertical: más simple para personas mayores y el cóndor no se descuadra.
+  // Siempre vertical: más simple para personas mayores y el robot no se descuadra.
   if (!kIsWeb) await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, statusBarIconBrightness: Brightness.light));
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Tono.fondo,
+      systemNavigationBarIconBrightness: Brightness.dark));
   // Web: el árbol de accesibilidad siempre activo, para que los lectores de pantalla (NVDA, VoiceOver) lean la página.
   if (kIsWeb) SemanticsBinding.instance.ensureSemantics();
   final yaConfigurado = (await SharedPreferences.getInstance()).getBool('bienvenida') ?? false;
@@ -47,10 +50,10 @@ Future<void> main() async {
     debugShowCheckedModeBanner: false,
     theme: temaAIess(),
     // En web no hay permisos de Android que configurar: se entra directo.
-    // Web angosta (celular en el navegador): la pantalla de la app, centrada sobre el azul.
+    // Web angosta (celular en el navegador): la pantalla de la app con el fondo de ThemeLight.
     builder: (context, child) => kIsWeb && !WebEscritorio.cabe(context, MediaQuery.sizeOf(context).width)
         ? ColoredBox(
-            color: const Color(0xFF0A1B3A),
+            color: Tono.fondo,
             child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: child)),
           )
         : child!,

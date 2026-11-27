@@ -1,7 +1,7 @@
 // Lista de verificación de accesibilidad de la pantalla principal:
 // celular pequeño (320 dp), letra del sistema al 200 %, sin animaciones, en todos los estados.
 // Falla si algo se desborda, si un botón mide menos de 48 dp o si un botón no tiene nombre.
-import 'package:aiess/features/mascota/pantera.dart';
+import 'package:aiess/features/mascota/robot_guardia.dart';
 import 'package:aiess/ui/aiess_home_screen.dart';
 import 'package:aiess/ui/tema.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,10 +14,10 @@ Widget _app(EstadoHoja estado, {double letra = 1, bool escuchando = false}) => M
         child: AiessHomeScreen(
           estado: estado,
           estadoMascota: switch (estado) {
-            EstadoHoja.estafa => EstadoPantera.alerta,
-            EstadoHoja.seguro => EstadoPantera.seguro,
-            EstadoHoja.analizando => EstadoPantera.analizando,
-            EstadoHoja.listo => EstadoPantera.reposo,
+            EstadoHoja.estafa => EstadoRobot.alerta,
+            EstadoHoja.seguro => EstadoRobot.seguro,
+            EstadoHoja.analizando => EstadoRobot.analizando,
+            EstadoHoja.listo => EstadoRobot.reposo,
           },
           titulo: estado == EstadoHoja.estafa ? '¡Es una estafa!' : 'Hola, soy AIess',
           pasos: estado == EstadoHoja.analizando ? const ['Mirando el enlace', 'Pensándolo con mi cerebro'] : const [],

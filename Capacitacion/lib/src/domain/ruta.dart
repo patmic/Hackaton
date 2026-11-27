@@ -90,10 +90,16 @@ class Ruta {
     TipoUsuario.in3 || TipoUsuario.in4 => const ['M13'],
   };
 
-  /// Módulo de nivel 2 que trabaja cada tipología.
+  /// Módulo que trabaja cada tipología (tipologías v1.0).
+  ///
+  /// T3 y T4 salieron de la antigua «Trámites / Clínico», así que las dos
+  /// van a M5. [SUPUESTO] T5 (seguridad de cuenta) va a M1, donde vive «El
+  /// IESS nunca te pide tu clave», y T6 (interno) a M11.
   static String moduloPorTipologia(Tipologia tipologia) => switch (tipologia) {
     Tipologia.t1 => 'M6',
     Tipologia.t2 => 'M4',
-    Tipologia.t3 => 'M5',
+    Tipologia.t3 || Tipologia.t4 => 'M5',
+    Tipologia.t5 => 'M1',
+    Tipologia.t6 => 'M11',
   };
 }

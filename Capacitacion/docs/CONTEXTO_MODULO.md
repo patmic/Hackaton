@@ -22,7 +22,7 @@ Rangos de edad anonimizados: `18-29`, `30-49`, `50-64` y `65+`.
 - `diagramas/diagrama.drawio.xml`: arquitectura del equipo. Proxy SMTP con Hash 1 (identidad del remitente) y Hash 2 (contenido), botón «Verificar en App» que abre la app con el Hash 2 por App Link, `GET /verificar/{hash_2}`, IA de análisis y «API de Capacitación».
 - `inteligencia_colectiva_flujos_t_cnicos_mvp_y_an_lisis_del_d_cimo_hombre.md`: documento técnico del MVP, contratos de API y los 6 fallos del Décimo Hombre.
 - `obsidian/`: investigación. Las notas más útiles son `1-Investigacion/07 Evidencia cientifica.md` y `1-Investigacion/09 Criterios de diseno.md`.
-- `recursos/Boilerplate/ThemeGreen/`: sistema de diseño que se usará en la etapa visual.
+- `recursos/Boilerplate/ThemeLight/flutter`: tema Flutter compartido que se usará en la etapa visual.
 
 ### Decisiones del 2026-11-26
 
@@ -48,7 +48,7 @@ Rangos de edad anonimizados: `18-29`, `30-49`, `50-64` y `65+`.
 
 - Todo el trabajo va en la carpeta **`Capacitacion/`** en la raíz del repo `Hackaton`.
 - **Primero la lógica en Flutter para móvil.** El diseño viene después, primero en móvil y luego en web.
-- Los estilos salen del template **`recursos/Boilerplate/ThemeGreen`**.
+- Los estilos salen del template **`recursos/Boilerplate/ThemeLight`**.
 - **Antes de implementar algo nuevo, presenta las fases planeadas** y espera confirmación.
 - **Avisa cada commit** que hagas, con hash y mensaje.
 - Escribe en español: código del dominio, textos, commits y documentación.
@@ -144,7 +144,7 @@ Capacitacion/
 ├── lib/
 │   ├── main.dart                      # ProviderScope + arranque
 │   └── src/
-│       ├── app.dart                   # MaterialApp (aquí irá el ThemeData de ThemeGreen)
+│       ├── app.dart                   # MaterialApp (aquí irá el ThemeData de ThemeLight)
 │       ├── domain/                    # Dart puro, sin Flutter
 │       │   ├── indicio.dart           # I1-I11 (§6)
 │       │   ├── microcurso.dart        # microcurso por indicio (§11)
@@ -288,7 +288,7 @@ Cada fase termina con `dart format`, `flutter analyze`, `flutter test` y un comm
 | 2 · Verificación | Adaptador `GET /verificar/{hash_2}` → semáforo. Entrada por App Link (`go_router`) y por código pegado. Explicación de la IA del servidor y microcurso del indicio. Rango opcional y «¿verificas por otra persona?». |
 | 3 · API de Capacitación | Cliente + mock de `/me`, `/eventos` y `/capacitacion/inscribir`. Sesión simulada por tipo. Flujo «Quiero capacitarme» con consentimiento, pausa y salida. El mock aplica diagnóstico, escalera y límites, con un panel de demo. |
 | 4 · Mecánicas | Componentes A1, A2, A3, A6 y A7 que leen el JSON de actividad y emiten eventos. |
-| 5 · Diseño móvil | ThemeGreen como `ThemeData` oscuro, fuentes como assets, semáforo lima/warn/live, tipologías T1 blue, T2 violet, T3 cyan, modo EX2 accesible. |
+| 5 · Diseño móvil | ThemeLight como `ThemeData` oscuro, fuentes como assets, semáforo lima/warn/live, tipologías T1 blue, T2 violet, T3 cyan, modo EX2 accesible. |
 | 6 · Diseño web | Cortes 760 y 820 px. Preguntar al usuario: Flutter web o HTML con `tokens.css`. |
 | 7 · Integración y contenido | Clientes HTTP reales (`--dart-define`), archivos de App Links documentados, audio real, A4, A5, más actividades. |
 

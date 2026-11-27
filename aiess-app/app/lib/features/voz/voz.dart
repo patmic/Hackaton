@@ -1,4 +1,4 @@
-// Voz local: TTS del sistema para que el cóndor hable y reconocimiento de voz para escucharte.
+// Voz local: TTS del sistema para que el robot hable y reconocimiento de voz para escucharte.
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -13,7 +13,7 @@ class Voz {
   final _stt = SpeechToText();
   final hablando = ValueNotifier(false);
   final escuchando = ValueNotifier(false);
-  /// 0..1: "volumen" aproximado de la sílaba actual, para mover la cabeza del cóndor.
+  /// 0..1: "volumen" aproximado de la sílaba actual, para mover la cabeza del robot.
   final silaba = ValueNotifier(0.0);
   /// Hasta qué carácter del texto actual va hablando (para el efecto karaoke).
   final avance = ValueNotifier(0);

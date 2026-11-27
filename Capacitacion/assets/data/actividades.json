@@ -348,7 +348,7 @@
     "resumen": "Encuentra las señales en un falso aviso de cita médica.",
     "paso_4r": ["RECONOCER"],
     "tipos": ["EX1", "EX2", "EX4"],
-    "tipologia": "T3",
+    "tipologia": "T4",
     "indicios": ["I7", "I8", "I10", "I1"],
     "duracion_seg": 60,
     "mensaje": {
@@ -388,7 +388,7 @@
     "resumen": "Un certificado «listo para descargar» con un código QR. ¿Qué señales ves?",
     "paso_4r": ["RECONOCER", "REACCIONAR"],
     "tipos": ["EX1", "EX2", "EX3", "EX4", "EX5"],
-    "tipologia": "T1",
+    "tipologia": "T3",
     "indicios": ["I11", "I7", "I1"],
     "duracion_seg": 60,
     "mensaje": {
@@ -446,5 +446,159 @@
       }
     ],
     "mensaje_clave": "El IESS no bloquea ni suspende tu pensión por correo o mensaje. Para y verifica."
+  },
+  {
+    "id": "M1-A1-02",
+    "modulo": "M1",
+    "mecanica": "A1_CAZA_SENAL",
+    "titulo": "El cambio de clave que no hiciste",
+    "resumen": "Una falsa alerta de seguridad de tu cuenta. Encuentra las señales.",
+    "paso_4r": ["RECONOCER", "REACCIONAR"],
+    "tipos": ["EX1", "EX2", "EX3", "EX4", "EX5", "IN1"],
+    "tipologia": "T5",
+    "indicios": ["I7", "I8", "I4", "I3"],
+    "duracion_seg": 60,
+    "mensaje": {
+      "remitente": "seguridad@cuenta-iess-verifica.site",
+      "asunto": "Cambio de clave registrado en su cuenta",
+      "cuerpo": "Detectamos un cambio de clave desde un dispositivo nuevo.\nSi no fue usted, confírmelo o su cuenta quedará bloqueada.\nConfirme aquí: https://bit.ly/iess-cuenta-3x\nEscriba su usuario, su clave actual y el código que le llegará por SMS."
+    },
+    "senales": [
+      {
+        "id": "I7",
+        "zona": "remitente",
+        "feedback": "Copia el asunto de un aviso real («Cambio de clave registrado»), pero el dominio no es iess.gob.ec."
+      },
+      {
+        "id": "I8",
+        "zona": "cuerpo:2",
+        "feedback": "El IESS le avisa los cambios en su cuenta, pero no lo amenaza con bloquearla."
+      },
+      {
+        "id": "I4",
+        "zona": "cuerpo:3",
+        "feedback": "Un acortador (bit.ly) esconde a dónde lleva de verdad el enlace."
+      },
+      {
+        "id": "I3",
+        "zona": "cuerpo:4",
+        "feedback": "Nunca escriba su clave ni un código de verificación desde un enlace que llegó por correo."
+      }
+    ],
+    "mensaje_clave": "El IESS le avisa cambios en su cuenta, pero nunca le pide que confirme su clave en un enlace."
+  },
+  {
+    "id": "M6-A1-02",
+    "modulo": "M6",
+    "mecanica": "A1_CAZA_SENAL",
+    "titulo": "La charla que pide tu cédula",
+    "resumen": "Un falso «IESS Informa» te invita a una charla. ¿Qué señales ves?",
+    "paso_4r": ["RECONOCER", "REACCIONAR"],
+    "tipos": ["EX1", "EX2", "EX3", "EX4", "EX5"],
+    "tipologia": "T1",
+    "indicios": ["I7", "I4", "I9", "I2"],
+    "duracion_seg": 60,
+    "mensaje": {
+      "remitente": "eventos@iess-informa-7kq.site",
+      "asunto": "IESS Informa: charla gratuita sobre tu jubilación",
+      "cuerpo": "Te invitamos a la charla virtual de este jueves sobre tus derechos de jubilación.\nPara reservar tu cupo ingresa en www.iess.gob.ec/charlas.\nEn el formulario escribe tu número de cédula y tu fecha de nacimiento.",
+      "boton": "Reservar mi cupo"
+    },
+    "senales": [
+      {
+        "id": "I7",
+        "zona": "remitente",
+        "feedback": "Copia el inicio «IESS Informa», pero el dominio del remitente no es iess.gob.ec."
+      },
+      {
+        "id": "I4",
+        "zona": "cuerpo:2",
+        "feedback": "El texto dice www.iess.gob.ec, pero el enlace lleva a otro sitio. Mira a dónde lleva de verdad un enlace antes de tocarlo."
+      },
+      {
+        "id": "I9",
+        "zona": "cuerpo:3",
+        "feedback": "Un aviso informativo (T1) nunca pide tu cédula ni tu fecha de nacimiento."
+      },
+      {
+        "id": "I2",
+        "zona": "boton",
+        "feedback": "El botón lleva a un sitio que no es del IESS. Las charlas oficiales usan iess.gob.ec, Zoom o Teams."
+      }
+    ],
+    "mensaje_clave": "Un aviso informativo del IESS solo informa: no le pide datos, claves ni pagos."
+  },
+  {
+    "id": "M11-A3-01",
+    "modulo": "M11",
+    "mecanica": "A3_BANDEJA_SIMULADA",
+    "titulo": "Bandeja institucional",
+    "resumen": "Cinco correos internos: decide si confías, verificas o reportas.",
+    "paso_4r": ["REACCIONAR", "REPORTAR"],
+    "tipos": ["IN1", "IN2", "IN3", "IN4"],
+    "tipologia": "T6",
+    "indicios": ["I1", "I2", "I3", "I4", "I5", "I7", "I8"],
+    "duracion_seg": 150,
+    "bandeja": [
+      {
+        "id": "M11-A3-01-m1",
+        "mensaje": {
+          "remitente": "soporte.ti@iess-correo-institucional.site",
+          "asunto": "Tu buzón institucional está lleno",
+          "cuerpo": "Tu buzón llegó al 98 % de su capacidad.\nValida hoy tu usuario y contraseña para no perder tus correos.",
+          "boton": "Validar cuenta"
+        },
+        "accion_correcta": "REPORTAR",
+        "explicacion": "Pide tu clave institucional, amenaza con que pierdas tus correos y viene de un dominio que no es iess.gob.ec. Repórtalo a seguridad.informacion@iess.gob.ec.",
+        "indicios": ["I7", "I3", "I1", "I8", "I2"]
+      },
+      {
+        "id": "M11-A3-01-m2",
+        "mensaje": {
+          "remitente": "maria.salazar@iess.gob.ec",
+          "asunto": "Memorando IESS-DNTH-2026-0412: cronograma de vacaciones",
+          "cuerpo": "Estimados compañeros:\nAdjunto el cronograma de vacaciones del primer semestre.\nMaría Salazar · Analista de Talento Humano · ext. 2214",
+          "adjunto": "Cronograma_vacaciones_2027.pdf"
+        },
+        "accion_correcta": "CONFIAR",
+        "explicacion": "Trae lo que siempre trae un correo interno (T6): remitente con nombre de persona @iess.gob.ec, firma con cargo y extensión, número de memorando y un PDF.",
+        "indicios": []
+      },
+      {
+        "id": "M11-A3-01-m3",
+        "mensaje": {
+          "remitente": "mesa.ayuda@iess-soporte-ti.site",
+          "asunto": "Actualización obligatoria del antivirus",
+          "cuerpo": "Descarga e instala el parche adjunto antes de las 17:00.\nSi tu antivirus lo bloquea, desactívalo un momento.",
+          "adjunto": "Parche_seguridad.zip"
+        },
+        "accion_correcta": "REPORTAR",
+        "explicacion": "Un correo interno nunca trae adjuntos .zip ni pide desactivar el antivirus. Además el remitente imita a la mesa de ayuda con otro dominio.",
+        "indicios": ["I5", "I1", "I7"]
+      },
+      {
+        "id": "M11-A3-01-m4",
+        "mensaje": {
+          "remitente": "jorge.paredes@iess.gob.ec",
+          "asunto": "Convocatoria a reunión de coordinación",
+          "cuerpo": "Les convoco a la reunión de coordinación del martes a las 10h00.\nEnlace de la reunión: teams.microsoft.com\nJorge Paredes · Coordinador Zonal · ext. 3105"
+        },
+        "accion_correcta": "CONFIAR",
+        "explicacion": "Remitente con nombre de persona del dominio oficial, firma con cargo y extensión, y un enlace a Teams, que está entre los permitidos para T6.",
+        "indicios": []
+      },
+      {
+        "id": "M11-A3-01-m5",
+        "mensaje": {
+          "remitente": "talento.humano@iess.gob.ec",
+          "asunto": "Nueva política de teletrabajo: firma tu conformidad hoy",
+          "cuerpo": "Revisa la nueva política y firma tu conformidad antes del cierre de la jornada.\nIngresa con tu usuario y tu clave institucional en https://cutt.ly/politica-th"
+        },
+        "accion_correcta": "REPORTAR",
+        "explicacion": "Aunque el remitente parezca oficial, un correo interno nunca pide tu clave institucional, y menos desde un enlace acortado. Puede ser una cuenta comprometida: repórtalo.",
+        "indicios": ["I3", "I4", "I1"]
+      }
+    ],
+    "mensaje_clave": "Ningún compañero o área del IESS le pide su clave institucional por correo."
   }
 ]

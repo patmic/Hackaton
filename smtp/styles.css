@@ -1,24 +1,39 @@
 /* =====================================================================
    IESS · Generador de Firma Digital y Sello de Cera (SHA-256 + Salt)
-   Construido sobre ThemeGreen (tokens.css + components.css)
+   Construido sobre ThemeLight (tokens.css + components.css)
    ===================================================================== */
 
 :root {
-  --wax-lime-bright: #c6ff68;
-  --wax-lime-main: #9dff32;
-  --wax-lime-mid: #74d918;
-  --wax-lime-deep: #3d8206;
-  --wax-lime-ink: #102402;
+  /* Alias para los componentes existentes del generador, todos resueltos a ThemeLight. */
+  --bg: var(--page-bg);
+  --font: var(--font-sans);
+  --mono: var(--font-mono);
+  --ink: var(--foreground);
+  --ink-soft: var(--slate-600);
+  --ink-dim: var(--muted-foreground);
+  --ink-faint: var(--muted-foreground);
+  --line: var(--border);
+  --lime: var(--theme-color);
+  --on-lime: #fff;
+  --lime-a10: rgba(20, 89, 98, .1);
+  --lime-a30: rgba(20, 89, 98, .3);
+  --lime-a45: rgba(20, 89, 98, .45);
+  --surface-field: var(--background);
+  --surface-sunken: var(--muted);
+  --dur: 150ms;
+  --ease-rise: var(--ease-default);
+  --ring-focus: 0 0 0 3px rgba(20, 89, 98, .18);
+  --gutter: clamp(16px, 4vw, 48px);
 }
 
-body.tg-body {
+body.tl-body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
   background:
-    radial-gradient(60% 45% at 12% 0%, rgba(157, 255, 50, 0.11), transparent 60%),
-    radial-gradient(50% 40% at 92% 14%, rgba(76, 141, 255, 0.10), transparent 60%),
-    var(--bg, #070807);
+    radial-gradient(60% 45% at 12% 0%, rgba(20, 89, 98, 0.08), transparent 60%),
+    radial-gradient(50% 40% at 92% 14%, rgba(53, 88, 114, 0.06), transparent 60%),
+    var(--page-bg);
 }
 
 .smtp-bg-glow {
@@ -26,7 +41,7 @@ body.tg-body {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  background-image: radial-gradient(rgba(157, 255, 50, 0.045) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(20, 89, 98, 0.045) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.65), transparent 85%);
 }
@@ -56,13 +71,13 @@ body.tg-body {
 .smtp-brand__seal {
   display: grid;
   place-items: center;
-  filter: drop-shadow(0 4px 14px rgba(157, 255, 50, 0.35));
+  filter: drop-shadow(0 4px 14px rgba(20, 89, 98, 0.2));
 }
 
 .smtp-brand__title {
   display: block;
   font: 700 15px/1.2 var(--font);
-  color: var(--ink);
+  color: var(--foreground);
   letter-spacing: -0.01em;
 }
 
@@ -71,7 +86,7 @@ body.tg-body {
   font: 500 11px/1.3 var(--mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink-dim);
+  color: var(--muted-foreground);
 }
 
 /* ---------- Hero ---------- */
@@ -87,14 +102,14 @@ body.tg-body {
   margin: 0;
   font: 800 clamp(28px, 4.2vw, 52px)/1.05 var(--font);
   letter-spacing: -0.035em;
-  color: #fff;
+  color: var(--foreground);
   max-width: 22ch;
 }
 
 .smtp-hero__title em {
   font-style: normal;
   color: var(--lime);
-  text-shadow: 0 0 28px rgba(157, 255, 50, 0.28);
+  text-shadow: 0 0 24px rgba(20, 89, 98, 0.12);
 }
 
 .smtp-hero code {
@@ -122,8 +137,51 @@ body.tg-body {
   gap: 12px;
 }
 
-.smtp-card-head .tg-h3 {
+.smtp-card-head .tl-title {
   margin: 6px 0 0;
+}
+
+.smtp-eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: var(--theme-color);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-medium);
+}
+
+.smtp-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, .08);
+}
+
+.smtp-tabs button {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: #e2e8f0;
+  font: 500 13px/1.2 var(--font-sans);
+  cursor: pointer;
+}
+
+.smtp-tabs button[aria-current="page"] {
+  background: var(--theme-color);
+  color: #fff;
+}
+
+.smtp-btn--key {
+  color: var(--theme-color) !important;
+  border-color: rgba(20, 89, 98, .35) !important;
 }
 
 /* ---------- Formulario ---------- */
@@ -157,7 +215,7 @@ body.tg-body {
   padding: 11px 14px;
   border-radius: 12px;
   border: 1px solid var(--line);
-  background: var(--surface-field, rgba(10, 13, 9, 0.78));
+  background: var(--background);
   color: var(--ink);
   font: 400 14px/1.45 var(--font);
   outline: none;
@@ -167,11 +225,11 @@ body.tg-body {
 .smtp-input:focus {
   border-color: var(--lime-a45);
   box-shadow: var(--ring-focus);
-  background: rgba(12, 16, 10, 0.95);
+  background: var(--background);
 }
 
 .smtp-input option {
-  background: #0e120c;
+  background: var(--background);
   color: var(--ink);
 }
 
@@ -192,7 +250,7 @@ body.tg-body {
   padding: 14px;
   border-radius: 16px;
   border: 1px solid var(--lime-a30);
-  background: linear-gradient(180deg, rgba(157, 255, 50, 0.06), rgba(0, 0, 0, 0.22));
+  background: linear-gradient(180deg, rgba(20, 89, 98, 0.06), rgba(20, 89, 98, 0.02));
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -261,8 +319,8 @@ body.tg-body {
   padding: 22px 18px;
   border-radius: 20px;
   background:
-    radial-gradient(65% 80% at 32% 50%, rgba(157, 255, 50, 0.14), transparent 68%),
-    var(--surface-sunken, rgba(0, 0, 0, 0.4));
+    radial-gradient(65% 80% at 32% 50%, rgba(20, 89, 98, 0.1), transparent 68%),
+    var(--surface-sunken, var(--page-bg));
   border: 1px solid var(--line);
   overflow: hidden;
 }
@@ -275,7 +333,7 @@ body.tg-body {
   left: 16%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(157, 255, 50, 0.22), transparent 70%);
+  background: radial-gradient(circle, rgba(20, 89, 98, 0.16), transparent 70%);
   filter: blur(18px);
   pointer-events: none;
 }
@@ -290,7 +348,7 @@ body.tg-body {
   place-items: center;
   color: inherit;
   text-decoration: none;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 18px rgba(157, 255, 50, 0.22));
+  filter: drop-shadow(0 10px 18px rgba(15, 23, 42, 0.16)) drop-shadow(0 0 18px rgba(20, 89, 98, 0.16));
   transition: transform 0.25s var(--ease-rise);
 }
 
@@ -362,7 +420,7 @@ body.tg-body {
   gap: 8px;
 }
 
-.copy-toolbar__secondary .tg-btn {
+.copy-toolbar__secondary .tl-btn {
   flex: 1 1 auto;
 }
 
@@ -373,7 +431,7 @@ body.tg-body {
   border: 1px solid var(--line);
   background: #ffffff;
   color: #111827;
-  box-shadow: 0 16px 36px -22px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 16px 36px -22px rgba(15, 23, 42, 0.24);
 }
 
 .email-preview-wrap__bar {
@@ -391,9 +449,9 @@ body.tg-body {
 }
 
 .email-preview-wrap__tip {
-  color: #2f6e05;
-  background: #ecfccb;
-  border: 1px solid #bef264;
+  color: var(--status-ok-fg);
+  background: var(--status-ok-bg);
+  border: 1px solid #a7f3d0;
   padding: 3px 8px;
   border-radius: 999px;
 }
@@ -407,7 +465,7 @@ body.tg-body {
 .tech-details {
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: rgba(0, 0, 0, 0.28);
+  background: var(--card);
   padding: 10px 14px;
 }
 
@@ -463,8 +521,8 @@ body.tg-body {
   margin: 0;
   padding: 8px 10px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--muted);
+  border: 1px solid var(--border);
   font: 400 12px/1.5 var(--mono);
   color: var(--lime);
   word-break: break-all;
@@ -485,15 +543,15 @@ body.tg-body {
 }
 
 .verify-banner--ok {
-  background: rgba(157, 255, 50, 0.10);
-  border-color: rgba(157, 255, 50, 0.45);
-  color: #dcffb3;
+  background: var(--status-ok-bg);
+  border-color: #a7f3d0;
+  color: var(--status-ok-fg);
 }
 
 .verify-banner--bad {
-  background: rgba(255, 77, 109, 0.12);
-  border-color: rgba(255, 77, 109, 0.48);
-  color: #ffc2cd;
+  background: var(--status-err-bg);
+  border-color: #fecaca;
+  color: var(--status-err-fg);
 }
 
 .verify-banner code {
@@ -522,17 +580,17 @@ body.tg-body {
   width: 68px;
   height: 68px;
   place-items: center;
-  border: 1px solid rgba(157, 255, 50, 0.55);
+  border: 1px solid rgba(20, 89, 98, 0.35);
   border-radius: 50%;
-  background: rgba(157, 255, 50, 0.12);
-  color: #c6ff68;
+  background: rgba(20, 89, 98, 0.08);
+  color: var(--theme-color);
   font-size: 34px;
 }
 
 .smtp-verification__status--bad .smtp-verification__icon {
-  border-color: rgba(255, 77, 109, 0.55);
-  background: rgba(255, 77, 109, 0.12);
-  color: #ffc2cd;
+  border-color: #fecaca;
+  background: var(--status-err-bg);
+  color: var(--status-err-fg);
 }
 
 .smtp-verification__title {
@@ -580,17 +638,17 @@ body.tg-body {
   max-width: 380px;
   padding: 12px 16px;
   border-radius: 14px;
-  background: #10160c;
-  border: 1px solid var(--lime-a45);
-  color: var(--lime);
+  background: var(--nav-bg);
+  border: 1px solid rgba(255, 255, 255, .2);
+  color: #fff;
   font: 600 13px/1.4 var(--font);
-  box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.85), 0 0 22px -6px rgba(157, 255, 50, 0.45);
+  box-shadow: 0 18px 40px -12px rgba(15, 23, 42, 0.24), 0 0 22px -6px rgba(20, 89, 98, 0.2);
   animation: toastIn 0.22s ease;
 }
 
 .smtp-toast[data-tone="error"] {
-  border-color: rgba(255, 77, 109, 0.6);
-  color: #ff8ca1;
+  border-color: #fecaca;
+  color: #fecaca;
 }
 
 @keyframes toastIn {

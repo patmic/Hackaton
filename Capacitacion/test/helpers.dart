@@ -2,6 +2,40 @@ import 'dart:io';
 
 import 'package:capacitacion/src/data/actividad_repository.dart';
 import 'package:capacitacion/src/domain/domain.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
+
+/// Desplaza la lista visible hasta que [finder] exista y quede en pantalla.
+///
+/// Las listas de Flutter construyen sus hijos a medida que aparecen: un
+/// botón al final de una pantalla larga todavía no existe hasta que se llega
+/// a él, así que `ensureVisible` solo no basta.
+Future<void> mostrar(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isEmpty) {
+    final listaVisible = find
+        .byWidgetPredicate(
+          (w) =>
+              w is Scrollable &&
+              axisDirectionToAxis(w.axisDirection) == Axis.vertical,
+        )
+        .hitTestable();
+    await tester.scrollUntilVisible(
+      finder,
+      150,
+      scrollable: listaVisible.first,
+      maxScrolls: 100,
+    );
+  }
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+}
+
+/// Lleva [finder] a la pantalla y lo toca.
+Future<void> tocar(WidgetTester tester, Finder finder) async {
+  await mostrar(tester, finder);
+  await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
 
 /// Sello válido del Núcleo simulado (T2, Dirección de Prestaciones y
 /// Pensiones).
@@ -12,9 +46,8 @@ const hashValido =
 const hashRevocado =
     '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b';
 
-List<Actividad> catalogoReal() => parsearActividades(
-  File('assets/data/actividades.json').readAsStringSync(),
-);
+List<Actividad> catalogoReal() =>
+    parsearActividades(File('assets/data/actividades.json').readAsStringSync());
 
 Actividad actividad(
   String id, {
@@ -43,7 +76,11 @@ Actividad actividad(
 TarjetaRealOEstafa tarjeta(String id, {required bool esEstafa}) =>
     TarjetaRealOEstafa(
       id: id,
-      mensaje: const MensajeSimulado(remitente: 'a@b.c', asunto: 's', cuerpo: 'c'),
+      mensaje: const MensajeSimulado(
+        remitente: 'a@b.c',
+        asunto: 's',
+        cuerpo: 'c',
+      ),
       esEstafa: esEstafa,
       explicacion: 'exp $id',
       indicios: esEstafa ? const [Indicio.i7] : const [],

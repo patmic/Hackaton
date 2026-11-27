@@ -61,13 +61,15 @@ abstract final class Escalera {
   /// Elige la plantilla del siguiente correo: del tipo y nivel del usuario, y
   /// con al menos un indicio DEBIL o SIN_PROBAR. Prefiere las que tienen
   /// indicios DEBIL y las que todavía no se enviaron. Si ninguna cumple el
-  /// nivel, prueba con cualquier nivel.
+  /// nivel, prueba con cualquier nivel. Con [primerEnvio] elige el «primer
+  /// correo por tipo» de §11.
   static PlantillaCorreoPrueba? elegirPlantilla({
     required List<PlantillaCorreoPrueba> plantillas,
     required Set<TipoUsuario> tipos,
     required NivelCorreo nivel,
     required MapaIndicios mapa,
     Set<String> yaEnviadas = const {},
+    bool primerEnvio = false,
   }) {
     final porPracticar = mapa.porPracticar;
     final debiles = mapa.debiles;
@@ -76,7 +78,9 @@ abstract final class Escalera {
         .where((p) => p.indicios.any(porPracticar.contains))
         .toList();
 
+    // El primer envío es siempre el «primer correo por tipo» de §11.
     int puntaje(PlantillaCorreoPrueba p) =>
+        (primerEnvio && p.esPrimerCorreo ? 1000 : 0) +
         (p.nivel == nivel ? 100 : 0) +
         (p.indicios.any(debiles.contains) ? 10 : 0) +
         (yaEnviadas.contains(p.id) ? 0 : 1);

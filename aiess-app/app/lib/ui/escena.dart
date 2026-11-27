@@ -1,43 +1,44 @@
-// Escena única de la app: foto del cóndor a sangre arriba y, abajo, un panel cuyo borde superior
-// es una onda sinusoidal viva (se agita cuando el cóndor habla o te escucha). El color del panel es el mensaje.
+// Escena única de la app: foto del robot a sangre arriba y, abajo, un panel cuyo borde superior
+// es una onda sinusoidal viva (se agita cuando el robot habla o te escucha). El color del panel es el mensaje.
 import 'dart:ui' show FontVariation;
 import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:theme_light/theme_light.dart';
 
 import 'tema.dart';
 import 'package:flutter/services.dart';
 
-import '../features/mascota/pantera.dart';
+import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
 import '../features/llm/cerebro.dart';
 import 'texto_vivo.dart';
 
 class Paleta {
-  // Colores del IESS (sitio oficial): azul 004294, azul oscuro 183675, amarillo FCC602. Rojo/verde solo para el veredicto.
-  static const petroleo = Tono.fondo2; // ThemeGreen --bg-2
-  static const bermellon = Tono.rojo; // --live
+  // La escena usa los mismos tokens de ThemeLight que el resto de la aplicación.
+  static const petroleo = ThemeLightTokens.theme;
+  static const bermellon = ThemeLightTokens.destructive;
   static const hoja = Tono.verde;
-  static const ambar = Tono.lima; // --lime
-  static const tintaPetroleo = Tono.sobreLima; // --on-lime
+  static const ambar = ThemeLightTokens.theme;
+  static const tintaPetroleo = ThemeLightTokens.deep;
 
-  static Color panel(EstadoPantera e) => switch (e) {
-    EstadoPantera.alerta => const Color(0xFF4A1220),
-    EstadoPantera.seguro => const Color(0xFF123A1A),
-    _ => petroleo,
+  static Color panel(EstadoRobot e) => switch (e) {
+    EstadoRobot.alerta => ThemeLightTokens.errorBackground,
+    EstadoRobot.seguro => ThemeLightTokens.okBackground,
+    _ => ThemeLightTokens.background,
   };
 
   /// Color de la onda fina que flota sobre la foto.
-  static Color linea(EstadoPantera e) => switch (e) {
-    EstadoPantera.alerta => Tono.rojo,
-    EstadoPantera.seguro => Tono.verde,
-    EstadoPantera.escuchando => Tono.cielo,
-    _ => ambar,
+  static Color linea(EstadoRobot e) => switch (e) {
+    EstadoRobot.alerta => ThemeLightTokens.errorForeground,
+    EstadoRobot.seguro => ThemeLightTokens.okForeground,
+    EstadoRobot.escuchando => ThemeLightTokens.brand,
+    _ => ThemeLightTokens.theme,
   };
 }
 
-class EscenaPantera extends StatelessWidget {
-  const EscenaPantera({
+class EscenaRobot extends StatelessWidget {
+  const EscenaRobot({
     super.key,
     required this.estado,
     required this.titular,
@@ -47,19 +48,19 @@ class EscenaPantera extends StatelessWidget {
     this.progreso,
     this.izquierda,
     this.derecha,
-    this.alTocarPantera,
+    this.alTocarRobot,
     this.encima,
   });
 
-  final EstadoPantera estado;
+  final EstadoRobot estado;
   final String titular, subtitulo;
 
-  /// Pasos de carga que se van generando (vacío = mostrar el texto del cóndor).
+  /// Pasos de carga que se van generando (vacío = mostrar el texto del robot).
   final List<String> pasos;
   final double? progreso;
   final Widget boton;
   final Widget? izquierda, derecha, encima;
-  final VoidCallback? alTocarPantera;
+  final VoidCallback? alTocarRobot;
 
   @override
   Widget build(BuildContext context) {
@@ -78,10 +79,10 @@ class EscenaPantera extends StatelessWidget {
             right: 0,
             top: 0,
             height: alto - panel + 56,
-            child: Pantera(
+            child: RobotGuardia(
               estado: estado,
               forma: Forma.plena,
-              alTocar: alTocarPantera,
+              alTocar: alTocarRobot,
             ),
           ),
           if (encima != null)
@@ -127,13 +128,13 @@ class EscenaPantera extends StatelessWidget {
                         key: ValueKey(titular),
                         maxLines: 2,
                         style: const TextStyle(
-                          fontFamily: 'Lexend',
+                          fontFamily: 'packages/theme_light/ThemeLightLexend',
                           fontVariations: const [FontVariation('wght', 700)],
                           fontSize: 32,
                           fontWeight: FontWeight.w700,
                           height: 1.1,
                           letterSpacing: -0.8,
-                          color: Colors.white,
+                          color: Tono.tinta,
                         ),
                       ),
                     ),
@@ -152,7 +153,7 @@ class EscenaPantera extends StatelessWidget {
                                 child: PasosCarga(
                                   pasos: pasos,
                                   progreso: progreso,
-                                  color: Colors.white,
+                                  color: Tono.tinta,
                                   acento: Paleta.ambar,
                                 ),
                               )
@@ -165,9 +166,7 @@ class EscenaPantera extends StatelessWidget {
                                         estilo: TextStyle(
                                           fontSize: 18,
                                           height: 1.45,
-                                          color: Colors.white.withValues(
-                                            alpha: 0.95,
-                                          ),
+                                          color: Tono.tinta,
                                         ),
                                       ),
                               ),
@@ -487,7 +486,7 @@ class BotonUnico extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Lexend',
+                    fontFamily: 'packages/theme_light/ThemeLightLexend',
                     fontVariations: const [FontVariation('wght', 700)],
                     color: tinta,
                     fontSize: 19,

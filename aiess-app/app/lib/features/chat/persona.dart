@@ -1,4 +1,4 @@
-// Conversación del cóndor: con LFM2 si hay modelo; si no, respuestas guía (mismas que el dataset de persona).
+// Conversación del robot: con LFM2 si hay modelo; si no, respuestas guía (mismas que el dataset de persona).
 import '../../core/canales.dart';
 import '../analisis/motor.dart';
 import '../llm/cerebro.dart';
@@ -46,7 +46,7 @@ class Persona {
     }
     if (tiene(r'(gracias|chao|adios)')) return 'Con gusto. Ante la duda, no hagas clic.';
     if (tiene(r'(hola|buenas|quien eres)')) {
-      return 'Hola, soy $nombreMascota, tu cóndor guardián. Copia un mensaje sospechoso y toca el botón.';
+      return 'Hola, soy $nombreMascota, tu robot guardián. Copia un mensaje sospechoso y toca el botón.';
     }
     return 'Puedo revisar mensajes por ti. Copia el mensaje o el enlace y toca el botón. Para practicar, dime: juguemos.';
   }

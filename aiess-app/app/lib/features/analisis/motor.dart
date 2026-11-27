@@ -19,7 +19,7 @@ final Map<String, RegExp> lexico = {
   'I11': r'(\bqr\b|escane\w*)',
 }.map((k, v) => MapEntry(k, RegExp(v)));
 
-/// Lo que el cóndor dice en voz alta por cada señal (orden = prioridad).
+/// Lo que el robot dice en voz alta por cada señal (orden = prioridad).
 const motivoVoz = {
   'I3': 'Te pide tu clave o códigos, y eso nunca se comparte.',
   'I10': 'Te pide hacer un pago.',
@@ -135,7 +135,7 @@ Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
 
 String systemPrompt() {
   final c = Canales.i.contacto;
-  return 'Eres $nombreMascota, un cóndor andino guardián, valiente y cariñoso, mascota de la app AIESS. '
+  return 'Eres $nombreMascota, un robot guardián, valiente y cariñoso, mascota de la app AIESS. '
       'Ayudas a afiliados y jubilados del IESS a reconocer estafas. Hablas español de Ecuador, tratas de tú, '
       'con frases cortas y amables, sin emojis, sin listas ni símbolos, porque tus respuestas se leen en voz alta. '
       'Nunca pides claves, códigos, cédula ni datos personales. Solo recomiendas canales oficiales: '

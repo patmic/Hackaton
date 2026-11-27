@@ -43,25 +43,26 @@ void main() {
 
   test('código auténtico: VERDE pendiente de comparar', () async {
     final c = await crear();
-    await controller(c).verificar(
-      codigo: hashValido,
-      origen: OrigenCodigo.appLink,
-    );
+    await controller(c)
+        .verificar(codigo: hashValido, origen: OrigenCodigo.appLink);
     final e = estado(c)!;
     expect(e.resultado.semaforo, Semaforo.verde);
     expect(e.faltaComparar, isTrue);
   });
 
-  test('si no coincide, el sello fue copiado: ROJO con sugerencia T2', () async {
-    final c = await crear();
-    await controller(c).verificar(codigo: hashValido);
-    await controller(c).confirmarCoincidencia(coincide: false);
-    final e = estado(c)!;
-    expect(e.resultado.estado, 'SELLO_COPIADO');
-    expect(e.resultado.semaforo, Semaforo.rojo);
-    expect(e.faltaComparar, isFalse);
-    expect(e.actividad?.tipologia, Tipologia.t2);
-  });
+  test(
+    'si no coincide, el sello fue copiado: ROJO con sugerencia T2',
+    () async {
+      final c = await crear();
+      await controller(c).verificar(codigo: hashValido);
+      await controller(c).confirmarCoincidencia(coincide: false);
+      final e = estado(c)!;
+      expect(e.resultado.estado, 'SELLO_COPIADO');
+      expect(e.resultado.semaforo, Semaforo.rojo);
+      expect(e.faltaComparar, isFalse);
+      expect(e.actividad?.tipologia, Tipologia.t2);
+    },
+  );
 
   test('si coincide, queda confirmado y sigue VERDE', () async {
     final c = await crear();
@@ -114,7 +115,9 @@ void main() {
       hashRecibido: hashValido,
       rangoEtario: RangoEtario.r30a49,
     );
-    final campos = s.uriDiagrama(Uri.parse('https://n.ejemplo')).queryParameters;
+    final campos = s
+        .uriDiagrama(Uri.parse('https://n.ejemplo'))
+        .queryParameters;
     expect(campos.keys, isNot(contains('cedula')));
     expect(campos['rango_etario'], '30-49');
   });

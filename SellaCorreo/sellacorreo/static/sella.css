@@ -1,0 +1,271 @@
+/* Solo layout; colores y componentes vienen de ThemeLight. */
+.sc-main{max-width:960px;margin:0 auto;padding:24px 16px 56px;display:flex;flex-direction:column;gap:20px}
+.sc-env{color:#cbd5e1;border-color:rgba(255,255,255,.2);margin-left:auto}
+.sc-form{display:flex;flex-direction:column;gap:16px}
+.tl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sc-verdict{border-radius:var(--r-xl);padding:28px;display:flex;gap:20px;align-items:center}
+.sc-verdict--ok{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+.sc-verdict--bad{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.sc-verdict__icon{font-size:44px;line-height:1;font-weight:700;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.sc-verdict--ok .sc-verdict__icon{background:#065f46;color:#fff}
+.sc-verdict--bad .sc-verdict__icon{background:#991b1b;color:#fff}
+.sc-verdict__title{font-size:30px;font-weight:700;margin:0}
+.sc-verdict__text{margin:6px 0 0}
+.sc-kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;font-size:14px}
+.sc-kv dt{color:var(--muted-foreground)}
+.sc-kv dd{margin:0;word-break:break-all}
+.sc-banner{max-width:100%;border-radius:var(--r-md);display:block}
+.sc-code{font-family:var(--font-mono);font-size:12px;width:100%}
+.tl-alert{flex-direction:column;justify-content:flex-start;gap:6px}
+.sc-brand{display:flex;align-items:center;gap:8px}
+.sc-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.sc-logout{display:flex;align-items:center;gap:10px;margin:0}
+.sc-user{color:#cbd5e1;font-size:13px}
+.sc-logout__btn{color:#e2e8f0}
+.tl-nav__link[aria-current="page"]{color:#fff;text-decoration:underline;text-underline-offset:6px}
+.sc-login{max-width:460px;margin:24px auto 0;display:grid;grid-template-columns:1fr;gap:20px;width:100%;align-items:start}
+.sc-login--demo{max-width:920px;grid-template-columns:1fr 1fr}
+@media (max-width:760px){.sc-login--demo{grid-template-columns:1fr}}
+.sc-card-title{font-size:20px;font-weight:600;margin:0 0 4px}
+.sc-card-title--lg{font-size:28px}
+.sc-btn-block{width:100%;justify-content:center}
+.sc-pass{font-family:var(--font-mono);background:var(--muted, #f1f5f9);padding:1px 6px;border-radius:6px}
+.sc-quick__list{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.sc-quick__form{margin:0}
+.sc-quick__row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;
+  padding:14px 16px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--card);cursor:pointer;font:inherit;color:inherit}
+.sc-quick__row:hover{border-color:var(--theme-color);background:rgba(20,89,98,.04)}
+.sc-quick__row:focus-visible{outline:2px solid var(--theme-color);outline-offset:2px}
+.sc-quick__text{display:flex;flex-direction:column;gap:2px}
+.sc-quick__title{font-weight:600}
+.sc-quick__sub{font-size:13px;color:var(--muted-foreground)}
+.sc-quick__arrow{font-size:20px;color:var(--foreground)}
+.sc-login__intro{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.sc-preview{padding:12px;border:1px dashed var(--slate-300);border-radius:var(--r-lg);background:#fff;overflow:auto}
+.sc-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+.sc-table th,.sc-table td{text-align:left;padding:6px 8px;border-top:1px solid var(--border);vertical-align:top}
+.sc-table th{color:var(--muted-foreground);font-weight:500}
+.sc-table a{color:var(--theme-color)}
+.sc-main a:not(.tl-btn){color:var(--theme-color)}
+.sc-login .tl-page-desc{margin:4px 0 18px}
+/* ---- GenKey: mapa de nodos (taxonomía ← sello → políticas) ---- */
+.sc-map-card .tl-card__body{padding:0 20px}
+.sc-map{position:relative;display:grid;grid-template-columns:1fr 240px 1fr;align-items:center;gap:24px;min-height:0;padding:0 0 8px}
+.sc-map__lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.sc-map__lines path{fill:none;stroke:var(--slate-300,#cbd5e1);stroke-width:1.25;transition:stroke .25s,stroke-width .25s}
+.sc-map__lines path.is-on{stroke:var(--theme-color);stroke-width:2.25}
+
+.sc-map__col{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative;z-index:1;min-width:0}
+.sc-map__col--left{align-items:flex-start}
+.sc-map__col--right{align-items:flex-end}
+.sc-map__legend{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground);margin-bottom:6px;padding:0}
+.sc-map__col--right .sc-map__legend{text-align:right;width:100%}
+.sc-node{display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border:1px solid var(--border);border-radius:999px;
+  background:var(--card,#fff);font-size:14px;font-weight:500;cursor:pointer;user-select:none;box-shadow:0 1px 2px rgba(15,23,42,.05);
+  transition:border-color .2s,box-shadow .2s,background .2s,color .2s}
+.sc-node input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.sc-node:hover{border-color:var(--theme-color)}
+.sc-node:has(input:focus-visible){outline:2px solid var(--theme-color);outline-offset:2px}
+.sc-node:has(input:checked){border-color:var(--theme-color);background:rgba(20,89,98,.07);color:var(--theme-color);box-shadow:0 2px 10px rgba(20,89,98,.15)}
+.sc-node__dot{width:10px;height:10px;border-radius:50%;flex:none;background:#64748b}
+.sc-node__dot--0{background:#145962}.sc-node__dot--1{background:#0ea5e9}.sc-node__dot--2{background:#f59e0b}
+.sc-node__dot--3{background:#8b5cf6}.sc-node__dot--4{background:#10b981}.sc-node__dot--5{background:#ef4444}
+.sc-node__dot--pol{background:transparent;border:2px solid var(--slate-400,#94a3b8)}
+.sc-node:has(input:checked) .sc-node__dot--pol{background:var(--theme-color);border-color:var(--theme-color)}
+.sc-map__center{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:1}
+.sc-hub{position:relative;width:168px;height:168px}
+.sc-hub__ring{width:100%;height:100%;transform:rotate(-90deg)}
+.sc-hub__track{fill:none;stroke:var(--slate-200,#e2e8f0);stroke-width:5}
+.sc-hub__progress{fill:none;stroke:var(--theme-color);stroke-width:5;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:75;transition:stroke-dashoffset .5s ease}
+.sc-hub__avatar{position:absolute;inset:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#145962,#1f7a86);color:#fff;font-size:40px;font-weight:700;letter-spacing:.02em;box-shadow:inset 0 0 0 4px #fff}
+.sc-hub__knob{position:absolute;right:-6px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--theme-color);box-shadow:0 0 0 4px #fff}
+.sc-hub__name{font-weight:700;font-size:17px;text-align:center}
+.sc-hub__meta{font-size:13px;color:var(--muted-foreground);text-align:center}
+.sc-policy[hidden]{display:none}
+@media (max-width:760px){
+  .sc-map{grid-template-columns:1fr;gap:20px}
+  .sc-map__lines,.sc-hub__knob{display:none}
+  .sc-map__center{order:-1}
+  .sc-map__col,.sc-map__col--right{align-items:stretch}
+  .sc-map__col--right .sc-map__legend{text-align:left}
+}
+/* ---- CheckIn: palabra segura y paso pendiente ---- */
+.sc-safeword{display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px;border-radius:var(--r-xl);
+  border:2px dashed #34d399;background:#f0fdf4;text-align:center}
+.sc-safeword__label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#047857;font-weight:600}
+.sc-safeword__word{font-size:32px;font-weight:700;color:#065f46;font-family:var(--font-mono)}
+.sc-safeword__hint{font-size:13px;color:#047857;max-width:520px}
+.sc-verdict--pending{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.sc-verdict--pending .sc-verdict__icon{background:#b45309;color:#fff}
+.sc-form .tl-input,.sc-form .tl-select,.sc-form .tl-textarea{box-sizing:border-box;width:100%}
+@media (max-width:760px){.sc-table{font-size:12px;word-break:break-word}}
+/* ---- Inicio: dial con mascotas y tarjetas Validador / Sello ---- */
+.sc-home{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:8px}
+.sc-home__title{font-size:30px;font-weight:600;letter-spacing:.02em;margin:0}
+.sc-home__sub{margin:6px 0 0;color:var(--muted-foreground);max-width:560px}
+.sc-home__stage{position:relative;isolation:isolate;width:100%;display:flex;justify-content:center;padding:18px 0 8px}
+.sc-dial{position:relative;width:min(500px,92vw);aspect-ratio:1}
+.sc-dial__svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sc-dial__tick{stroke:var(--slate-300,#cbd5e1);stroke-width:2}
+.sc-dial__tick--major{stroke:var(--slate-600,#475569);stroke-width:3}
+.sc-dial__dot{fill:var(--slate-800,#1e293b)}
+.sc-dial__pointer{fill:#f97316;transform-origin:250px 250px}
+.sc-dial__ticks{transform-origin:250px 250px;animation:sc-dial-in .9s ease-out both}
+@keyframes sc-dial-in{from{opacity:0;transform:rotate(-20deg) scale(.96)}to{opacity:1;transform:none}}
+.sc-dial__img{position:absolute;inset:9%;width:82%;height:82%;border-radius:50%;object-fit:cover;
+  -webkit-mask-image:radial-gradient(circle,#000 58%,transparent 71%);mask-image:radial-gradient(circle,#000 58%,transparent 71%)}
+.sc-hcard{position:absolute;top:calc(18px + min(250px,46vw));translate:0 -50%;width:min(340px,30%);display:flex;align-items:center;gap:14px;padding:20px 18px;text-align:left;
+  background:#fff;border:1.5px solid;border-radius:var(--r-xl,16px);box-shadow:0 6px 24px rgba(15,23,42,.06);color:inherit;text-decoration:none!important;
+  transition:transform .2s,box-shadow .2s}
+.sc-hcard:hover,.sc-hcard:focus-visible{transform:translateY(-3px);box-shadow:0 12px 30px rgba(15,23,42,.12)}
+.sc-hcard:focus-visible{outline:2px solid var(--theme-color);outline-offset:3px}
+.sc-hcard--validador{right:0;border-color:#fb923c}
+.sc-hcard--sello{left:0;border-color:#c084fc}
+.sc-hcard__icon{flex:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff7ed;border:1px solid #fed7aa}
+.sc-hcard--sello .sc-hcard__icon{background:#faf5ff;border-color:#e9d5ff}
+.sc-hcard svg{width:20px;height:20px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sc-hcard__icon svg{stroke:#f97316}
+.sc-hcard--sello .sc-hcard__icon svg{stroke:#a855f7}
+.sc-hcard__body{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.sc-hcard__title{font-size:22px;font-weight:700;color:var(--foreground,#0f172a)}
+.sc-hcard__text{font-size:14px;color:var(--muted-foreground);line-height:1.35}
+.sc-hcard__go{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.sc-hcard__go svg{stroke:var(--slate-600,#475569)}
+.sc-home__stats{margin-top:8px}
+.sc-home__alert{flex-direction:row!important;align-items:center;justify-content:space-between;gap:16px}
+.sc-main:has(.sc-home){max-width:1200px}
+@media (max-width:900px){
+  .sc-home__stage{flex-direction:column;align-items:center;gap:14px}
+  .sc-hcard{position:static;width:100%;max-width:460px}
+  .sc-home__alert{flex-direction:column!important;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){.sc-dial__pointer,.sc-dial__ticks{animation:none}}
+.sc-hcard{box-sizing:border-box}
+.sc-home__stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.sc-home__stats .tl-stat{padding:20px}
+@media (max-width:760px){.sc-home__stats{grid-template-columns:1fr}}
+/* Inicio: al marcar «Sello», el dial muestra la imagen del sello y el puntero apunta a la tarjeta */
+.sc-dial__img{transition:opacity .45s ease,transform .6s ease}
+.sc-dial__img--sello{opacity:0;transform:scale(.94)}
+.sc-home__stage[data-show="sello"] .sc-dial__img--sello{opacity:1;transform:none}
+.sc-home__stage[data-show="sello"] .sc-dial__img--base{opacity:0}
+.sc-home__stage[data-show="sello"] .sc-hcard--sello{transform:translateY(-3px);box-shadow:0 12px 30px rgba(168,85,247,.22)}
+/* listo para una futura imagen de Validador (static/img/validador.jpg) */
+.sc-dial__img--validador{opacity:0;transform:scale(.94)}
+/* Imágenes oscuras: borde circular nítido con un leve difuminado y halo suave (no fundido a blanco) */
+.sc-dial__img--sello,.sc-dial__img--validador{
+  box-shadow:0 0 0 6px #fff,0 0 0 7px var(--slate-200,#e2e8f0),0 18px 50px rgba(2,6,23,.28)}
+.sc-dial__img{-webkit-mask-image:radial-gradient(circle,#000 69%,transparent 70.7%);mask-image:radial-gradient(circle,#000 69%,transparent 70.7%)}
+
+/* Tarjetas: completa en la zona activa; fuera de ella, solo la etiqueta en una píldora */
+.sc-hcard{transition:none}
+.is-measuring .sc-hcard{transition:none!important}
+.sc-hcard--pill{width:auto!important;padding:8px 18px 8px 16px;border-radius:999px;gap:0;box-shadow:0 2px 8px rgba(15,23,42,.06);background:#fff}
+.sc-hcard--pill .sc-hcard__icon,.sc-hcard--pill .sc-hcard__text,.sc-hcard--pill .sc-hcard__go{display:none}
+.sc-hcard--pill .sc-hcard__title{font-size:15px}
+.sc-hcard--pill .sc-hcard__body{flex:none}
+.sc-hcard--validador.sc-hcard--pill{border-color:#fdba74}
+.sc-hcard--sello.sc-hcard--pill{border-color:#d8b4fe}
+@media (max-width:900px){.sc-hcard--pill{align-self:center}}
+@media (prefers-reduced-motion:reduce){.sc-hcard{transition:none}}
+
+/* Referencia poliEmpleo: imagen con borde difuminado (sin disco ni anillo) y etiquetas fuera del dial */
+.sc-dial__img{inset:4%;width:92%;height:92%}
+.sc-dial__cap{position:absolute;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#94a3b8;white-space:nowrap;pointer-events:none}
+.sc-dial__cap--left{right:calc(100% + 14px);top:50%;transform:translateY(-50%)}
+.sc-dial__cap--right{left:calc(100% + 14px);top:50%;transform:translateY(-50%)}
+.sc-dial__cap--bottom{top:calc(100% + 16px);left:50%;transform:translateX(-50%)}
+@media (max-width:900px){.sc-dial__cap{display:none}}
+
+/* Validador: texto adicional de uso, visible solo con la tarjeta completa */
+.sc-hcard__text--extra{margin-top:6px;font-size:13px;color:var(--slate-500,#64748b)}
+.sc-hcard--pill .sc-hcard__text--extra{display:none}
+.sc-dial__cap--bottom{top:calc(100% + 14px)}
+
+/* Lados intercambiados: Sello a la izquierda, Validador a la derecha; sin transiciones para evitar restos de pintura */
+.sc-hcard--sello{left:0;right:auto}
+.sc-hcard--validador{right:0;left:auto}
+.sc-hcard--pill{box-shadow:none}
+.sc-hcard:hover{transform:translateY(-2px)}
+/* Pie de la página de inicio: secciones en lugar del encabezado */
+.sc-foot-links{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;margin-left:auto;font-size:14px}
+.sc-foot-links a{color:var(--foreground,#0f172a);text-decoration:none}
+.sc-foot-links a:hover{color:var(--theme-color);text-decoration:underline;text-underline-offset:4px}
+.sc-foot-links .sc-logout{margin:0}
+@media (max-width:760px){.sc-foot-links{margin-left:0;width:100%}}
+/* GenKey: el mapa sin contorno; solo quedan su contenido y las líneas */
+.sc-map-card.tl-card{border:0;box-shadow:none;background:transparent}
+
+/* Imagen central con escudo transparente (escudo-correo.png): sin recorte circular ni halo */
+.sc-dial__img--escudo{border-radius:0;inset:14%;width:72%;height:72%;object-fit:contain;-webkit-mask-image:none;mask-image:none;background:transparent}
+
+.sc-map__legend--strong{font-weight:700;color:#1f6f78}
+
+/* Centro de GenKey: el escudo dentro del círculo, con fondo transparente */
+.sc-hub__img{width:68%;height:68%;object-fit:contain;display:block;margin:auto}
+/* Centro de GenKey: sin círculo de fondo; el logo se asienta directamente sobre la página */
+.sc-hub__avatar{background:none;box-shadow:none}
+.sc-hub__img{width:76%;height:76%}
+/* GenKey: etiquetas del mapa alineadas arriba y en la misma línea; columnas y pastillas arriba */
+.sc-map__col{align-self:start}
+.sc-map__col--left,.sc-map__col--right{padding-top:0}
+.sc-map{align-items:start}
+.sc-map__center{align-self:center;margin-top:0}
+
+/* GenKey: título centrado sobre el círculo */
+.sc-page-center{display:block;text-align:center;justify-content:center}
+
+/* GenKey: sin bandas vacías arriba; el mapa sigue al título */
+.sc-main:has(.sc-page-center){gap:12px}
+.sc-page-center{margin:0;padding:0}
+
+/* ---- Observatorio en el dial: abajo, donde estaba «Anti-phishing» */
+.sc-home__stage:has(.sc-hcard--observatorio){padding-bottom:150px}
+.sc-hcard--observatorio{left:50%;right:auto;top:calc(18px + min(500px,92vw) + 10px);translate:-50% 0;border-color:#5eead4}
+.sc-hcard--observatorio .sc-hcard__icon{background:#f0fdfa;border-color:#99f6e4}
+.sc-hcard--observatorio .sc-hcard__icon svg{stroke:#0d9488}
+.sc-hcard--observatorio.sc-hcard--pill{border-color:#5eead4}
+.sc-dial__img--observatorio{opacity:0;transform:scale(.94)}
+.sc-home__stage[data-show="observatorio"] .sc-dial__img--observatorio{opacity:1;transform:none}
+.sc-home__stage[data-show="observatorio"] .sc-dial__img--base{opacity:0}
+.sc-home__stage[data-show="observatorio"] .sc-hcard--observatorio{box-shadow:0 12px 30px rgba(13,148,136,.2)}
+@media (max-width:900px){.sc-home__stage:has(.sc-hcard--observatorio){padding-bottom:8px}.sc-hcard--observatorio{translate:none}}
+
+/* ---- Página del Observatorio */
+.sc-main:has(.sc-obs){max-width:1200px}
+.sc-obs{display:flex;flex-direction:column;gap:18px}
+.sc-obs__head .tl-page-desc{max-width:820px}
+.sc-obs__kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.sc-obs__kpis .tl-stat{padding:16px;display:flex;flex-direction:column;gap:4px}
+.sc-obs__grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:900px){.sc-obs__kpis{grid-template-columns:repeat(2,1fr)}.sc-obs__grid{grid-template-columns:1fr}}
+@media (max-width:520px){.sc-obs__kpis{grid-template-columns:1fr}}
+.sc-obs .tl-title{margin:0 0 4px}
+.sc-obs-bars{margin-top:12px}
+.sc-obs-bars li{grid-template-columns:minmax(0,16rem) 1fr auto}
+@media (max-width:560px){.sc-obs-bars li{grid-template-columns:1fr auto;gap:6px 10px}.sc-obs-bars li>span:first-child{grid-column:1/-1}}
+.sc-obs-bars li>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-obs-bar{display:block;width:100%;height:8px}
+.sc-obs-bar__track{fill:var(--muted,#f1f5f9)}
+.sc-obs-bar__fill{fill:var(--theme-color,#145962)}
+.sc-obs-bar--alerta .sc-obs-bar__fill{fill:#f97316}
+.sc-obs-scroll{overflow-x:auto}
+.sc-obs-table th{white-space:nowrap}
+.sc-obs-table td{vertical-align:middle}
+.sc-obs-table tr:hover td{background:rgba(20,89,98,.03)}
+.sc-obs-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sc-obs-aviso{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sc-obs-buscar{margin-top:10px}
+.sc-obs-buscar__fila{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.sc-obs-buscar__fila .tl-input{flex:1;min-width:220px}
+.sc-obs-plan{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;margin-top:18px}
+@media (max-width:900px){.sc-obs-plan{grid-template-columns:1fr}}
+.sc-obs-plan p{margin:0 0 12px}
+.sc-obs-falencias{padding-left:20px;margin:8px 0 0;display:flex;flex-direction:column;gap:12px}
+.sc-obs-micro{font-size:13px;color:#0f766e}
+.sc-obs-mapa{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sc-obs-ind{font:600 12px/1 var(--font-mono,monospace);padding:5px 8px;border-radius:999px;border:1px solid var(--border)}
+.sc-obs-ind--dominado{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
+.sc-obs-ind--debil{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+.sc-obs-ind--sin_probar{background:#f8fafc;color:#475569}

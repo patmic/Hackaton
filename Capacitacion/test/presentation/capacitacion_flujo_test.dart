@@ -37,13 +37,6 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> tocar(WidgetTester tester, Finder finder) async {
-    await tester.ensureVisible(finder);
-    await tester.pumpAndSettle();
-    await tester.tap(finder);
-    await tester.pumpAndSettle();
-  }
-
   Finder clave(String valor) => find.byKey(ValueKey(valor));
 
   testWidgets('«Quiero capacitarme» sin cuenta: consentimiento, doble opt-in, '
@@ -70,8 +63,12 @@ void main() {
 
     await tocar(tester, clave('demo-clic'));
     expect(find.text('Era un correo de práctica'), findsOneWidget);
-    expect(find.text('«No confíes en la página que abre un QR»'), findsOneWidget);
+    expect(
+      find.text('«No confíes en la página que abre un QR»'),
+      findsOneWidget,
+    );
     expect(find.text('Tu nivel inicial: Básico'), findsOneWidget);
+    await mostrar(tester, clave('demo-siguiente'));
     expect(clave('demo-siguiente'), findsOneWidget);
   });
 

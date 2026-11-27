@@ -1,17 +1,15 @@
-# aiess
+# AIESS Flutter
 
-A new Flutter project.
+Esta es la única aplicación Flutter para móvil y Web. En Web usa un diseño de escritorio cuando hay ancho suficiente y la pantalla móvil cuando el navegador es angosto. El módulo de Capacitación se integra como dependencia local y comparte el tema ThemeLight.
 
-## Getting Started
+## Iniciar
 
-This project is a starting point for a Flutter application.
+Desde esta carpeta:
 
-A few resources to get you started if this is your first Flutter project:
+```powershell
+flutter pub get
+flutter run -d chrome
+flutter run -d android
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Los tokens Flutter compartidos están en `../../recursos/Boilerplate/ThemeLight/flutter`; los tokens CSS de la Web están en `../../recursos/Boilerplate/ThemeLight`.

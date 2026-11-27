@@ -5,7 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../features/voz/voz.dart';
 
-/// Revela el texto a medida que el cóndor lo dice. Si el motor de voz no informa el avance,
+/// Revela el texto a medida que el robot lo dice. Si el motor de voz no informa el avance,
 /// usa una máquina de escribir (~16 caracteres por segundo). Lo ya dicho va en blanco; lo que falta, tenue.
 class TextoVivo extends StatefulWidget {
   const TextoVivo(

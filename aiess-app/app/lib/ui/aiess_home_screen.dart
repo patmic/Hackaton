@@ -4,14 +4,14 @@
 // - Todo botón lleva ícono + TEXTO (nada de íconos sueltos que haya que adivinar).
 // - Botones de 64–104 dp, separados ≥ 12 dp (temblor, poca precisión al tocar).
 // - Texto ≥ 17 sp; respeta el tamaño de letra del sistema (la pantalla se desplaza si no cabe).
-// - Estado visible: el cóndor, el color de la tarjeta y un texto dicen lo que pasa; lo que se dice también se escribe.
+// - Estado visible: el robot, el color de la tarjeta y un texto dicen lo que pasa; lo que se dice también se escribe.
 // - Lector de pantalla: cada cambio importante se anuncia (liveRegion) y cada botón tiene nombre.
 // - Si el sistema pide "quitar animaciones", se quitan.
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../features/mascota/pantera.dart';
+import '../features/mascota/robot_guardia.dart';
 import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
 
 import 'tema.dart';
@@ -29,7 +29,7 @@ class AiessHomeScreen extends StatelessWidget {
     required this.onOpenSettings,
     this.hasClipboardContent = true,
     this.estado = EstadoHoja.listo,
-    this.estadoMascota = EstadoPantera.reposo,
+    this.estadoMascota = EstadoRobot.reposo,
     this.titulo = 'Hola, soy AIess',
     this.texto,
     this.pasos = const [],
@@ -46,10 +46,10 @@ class AiessHomeScreen extends StatelessWidget {
   final VoidCallback onPasteAndCheck, onVoiceInput, onPickImage, onOpenSettings;
   final bool hasClipboardContent;
   final EstadoHoja estado;
-  final EstadoPantera estadoMascota;
+  final EstadoRobot estadoMascota;
   final String titulo;
 
-  /// Lo que dice el cóndor (se escribe en vivo). Null = indicación de inicio.
+  /// Lo que dice el robot (se escribe en vivo). Null = indicación de inicio.
   final String? texto;
   final List<String> pasos;
   final double? progreso;
@@ -155,13 +155,12 @@ class AiessHomeScreen extends StatelessWidget {
                   Center(
                     child: Semantics(
                       button: true,
-                      label: 'AIess, el cóndor. Toca para escucharlo otra vez',
+                      label: 'AIess, el robot. Toca para escucharlo otra vez',
                       excludeSemantics: true,
                       onTap: onTapMascota,
-                      child: Pantera(
+                      child: RobotGuardia(
                         estado: estadoMascota,
                         tam: medallon,
-                        encuadre: Encuadre.medallon,
                         alTocar: onTapMascota,
                       ),
                     ),
@@ -292,7 +291,7 @@ class AiessHomeScreen extends StatelessWidget {
 
 // ---------------------------------------------------------------- piezas
 
-/// Lo que dice el cóndor: título + texto (o los pasos de carga). Se anuncia al lector de pantalla.
+/// Lo que dice el robot: título + texto (o los pasos de carga). Se anuncia al lector de pantalla.
 class _Globo extends StatelessWidget {
   const _Globo({
     required this.estado,

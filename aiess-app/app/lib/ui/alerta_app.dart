@@ -1,4 +1,4 @@
-// Pop-up tipo Truecaller: aparece sobre la app donde llegó el mensaje, el cóndor dice por qué es (o no) una estafa.
+// Pop-up tipo Truecaller: aparece sobre la app donde llegó el mensaje, el robot dice por qué es (o no) una estafa.
 import 'dart:ui' show FontVariation;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +8,7 @@ import '../core/canales.dart';
 import '../features/analisis/analizador.dart';
 import '../features/analisis/motor.dart';
 import '../features/llm/cerebro.dart';
-import '../features/mascota/pantera.dart';
+import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
 import 'tema.dart';
 
@@ -158,12 +158,12 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) => _informarTamano());
     final v = _v;
     final estado = v == null
-        ? EstadoPantera.analizando
-        : (v.phishing ? EstadoPantera.alerta : EstadoPantera.seguro);
+        ? EstadoRobot.analizando
+        : (v.phishing ? EstadoRobot.alerta : EstadoRobot.seguro);
     // Tarjeta de UN color, como el identificador de llamadas: rojo estafa, verde seguro, azul IESS analizando.
     final color = v == null
-        ? Tono.superficieAlta
-        : (v.phishing ? const Color(0xFF4A1220) : const Color(0xFF123A1A));
+        ? Tono.azulSuave
+        : (v.phishing ? Tono.rojoSuave : Tono.verdeSuave);
     final veredicto = v == null
         ? 'Revisando correo…'
         : (v.phishing ? 'Posible estafa' : 'Correo seguro');
@@ -172,7 +172,7 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
       (_p['app'] as String?) ?? '',
       titulo,
     ].where((x) => x.isNotEmpty).join(' · ');
-    const blanco = Colors.white;
+    const blanco = Tono.tinta;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -205,7 +205,7 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
               ),
               padding: const EdgeInsets.fromLTRB(16, 12, 8, 16),
               child: DefaultTextStyle(
-                style: const TextStyle(fontFamily: 'Atkinson', color: blanco),
+                style: const TextStyle(fontFamily: 'packages/theme_light/ThemeLightAtkinson', color: blanco),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,10 +285,9 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                             child: SizedBox(
                               width: 58,
                               height: 58,
-                              child: Pantera(
+                              child: RobotGuardia(
                                 estado: estado,
                                 tam: 58,
-                                encuadre: Encuadre.cara,
                                 alTocar: v == null
                                     ? null
                                     : () => Voz.i.decir(
@@ -306,7 +305,7 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                               Text(
                                 veredicto,
                                 style: const TextStyle(
-                                  fontFamily: 'Lexend',
+                                  fontFamily: 'packages/theme_light/ThemeLightLexend',
                                   fontVariations: const [
                                     FontVariation('wght', 700),
                                   ],
@@ -340,7 +339,7 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                           child: LinearProgressIndicator(
                             minHeight: 5,
                             color: Tono.lima,
-                            backgroundColor: blanco.withValues(alpha: 0.2),
+                            backgroundColor: Tono.borde,
                           ),
                         ),
                       )
@@ -419,7 +418,7 @@ class _PildoraPopup extends StatelessWidget {
       shape: StadiumBorder(
         side: relleno
             ? BorderSide.none
-            : const BorderSide(color: Colors.white, width: 1.6),
+            : const BorderSide(color: Tono.borde, width: 1.6),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -435,7 +434,7 @@ class _PildoraPopup extends StatelessWidget {
               Icon(
                 icono,
                 size: 22,
-                color: relleno ? Tono.sobreLima : Colors.white,
+                color: relleno ? Tono.sobreLima : Tono.tinta,
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -444,11 +443,11 @@ class _PildoraPopup extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Lexend',
+                    fontFamily: 'packages/theme_light/ThemeLightLexend',
                     fontVariations: const [FontVariation('wght', 600)],
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
-                    color: relleno ? Tono.sobreLima : Colors.white,
+                    color: relleno ? Tono.sobreLima : Tono.tinta,
                   ),
                 ),
               ),

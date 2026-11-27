@@ -51,7 +51,7 @@ class Analizador {
       n++;
       if (n % 4 == 0) alAvanzar?.call('Pensándolo con mi cerebro', (n / 220).clamp(0.0, 0.97));
       if (adelantado || alAdelantar == null) return;
-      // En cuanto el modelo termina de escribir "veredicto" y "voz", el cóndor ya puede hablar.
+      // En cuanto el modelo termina de escribir "veredicto" y "voz", el robot ya puede hablar.
       final txt = buffer.toString();
       final v = RegExp(r'"veredicto"\s*:\s*"(PHISHING|SEGURO)"').firstMatch(txt);
       final voz = RegExp(r'"voz"\s*:\s*"((?:[^"\\]|\\.)*)"').firstMatch(txt);
