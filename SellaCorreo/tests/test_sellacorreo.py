@@ -298,7 +298,7 @@ def test_pagina_de_inicio(anon):
     assert "Haga clic en el encabezado de su correo o pegue su enlace en este Validador." in r.text
     assert "/static/img/escudo-correo.png" in r.text and anon.get("/static/img/escudo-correo.png").status_code == 200
     assert "sc-dial__img--sello" in r.text and anon.get("/static/img/sello.jpg").status_code == 200
-    for label in (">Inicio<", ">Sello<", ">Validador<"):
+    for label in (">Inicio<", ">Sello<", ">Sellar Correo<", ">Validador<"):
         assert label in r.text
     assert "Sellos emitidos" in r.text and "Verificaciones" in r.text
     assert anon.get("/static/img/inicio-iess.jpg").headers["content-type"] == "image/jpeg"
@@ -377,8 +377,11 @@ def test_combinaciones_de_politicas(staff, anon, asunto_on, palabra_on, caducida
     assert (row["asunto"] == "Aviso combinado") == asunto_on
     assert (row["palabra_cifrada"] is not None) == palabra_on
     assert (row["expira_utc"] is not None) == caducidad_on
+    n = 1 + asunto_on + palabra_on + caducidad_on  # asteriscos: una por opción de «Hash de seguridad» integrada
+    assert f'data-asteriscos="{n}"' in r.text
     texto = _verificar(anon, link.replace(BASE, "")).text  # resultado directo, sin preguntas
     assert "Correo válido y seguro" in texto and "Falta un paso" not in texto
+    assert f"Hash de seguridad</dt><dd>{'*' * n} ·" in texto
     assert ("Aviso combinado" in texto) == asunto_on
     assert ("girasol-azul" in texto) == palabra_on
     assert ("Válido hasta" in texto) == caducidad_on
@@ -422,3 +425,81 @@ def test_lineas_del_mapa_genkey(staff):
     js = staff.get("/static/app.js").text
     assert "const draw = () =>" in js and "ResizeObserver" in js and 'addEventListener("load", draw)' in js
     assert "is-on" in js and "fonts.ready" in js
+
+
+def test_sello_de_cera_con_asteriscos(staff, anon):
+    """La imagen es el sello verde «VALIDAR CORREO» (sin cruz) y lleva un asterisco por opción de Hash de seguridad."""
+    import io
+    from PIL import Image, ImageChops
+    from autenticidad.sello import wax_seal_png
+    r = _genkey(staff, pol_palabra="1", palabra="girasol-azul", pol_caducidad="1", caducidad="7")
+    assert 'data-asteriscos="4"' in r.text and "4 asteriscos" in r.text
+    assert "Correo del emisor, Asunto del correo, Palabra segura, Caducidad del enlace" in r.text
+    token = _link(r.text).rsplit("/", 1)[1].split(".")[0]
+    img = staff.get(f"/img/{token}.png")
+    im = Image.open(io.BytesIO(img.content))
+    assert img.status_code == 200 and img.headers["content-type"] == "image/png" and im.size == (480, 480) and im.mode == "RGBA"
+    assert im.getpixel((240, 20))[3] > 0 or im.getpixel((240, 40))[3] > 0  # cuerpo de cera, no un fondo vacío
+    verde = im.getpixel((240, 120))
+    assert verde[1] > verde[0] and verde[1] > verde[2]  # sello verde
+    sobre_iess = im.getpixel((240, 187))  # donde antes iba la cruz «+»: ahora verde del escudo, no crema
+    assert sobre_iess[0] < 180 and sobre_iess[1] > sobre_iess[0]
+    # cada asterisco extra cambia solo la zona baja del escudo
+    imgs = {n: Image.open(io.BytesIO(wax_seal_png("ABCD-EFGH-12", "informativo", n))).convert("RGBA") for n in (1, 2, 3, 4)}
+    assert len({im2.tobytes() for im2 in imgs.values()}) == 4
+    for n in (2, 3, 4):
+        caja = ImageChops.difference(imgs[n - 1], imgs[n]).getbbox()
+        assert caja and caja[1] > 260  # debajo del código, dentro del escudo
+    assert wax_seal_png("X", "informativo", 0) != wax_seal_png("X", "informativo", 1)
+    assert staff.get("/img/AAAAAAAAAAAAAAAAAAAAAAAA.png").status_code == 404
+    # el HTML para pegar apunta a la imagen cuadrada
+    assert 'width="240" height="240"' in r.text and "&lt;img src=&quot;http://localhost:8090/img/" in r.text
+
+
+def test_asteriscos_segun_opciones(staff):
+    assert m.hash_options({"exige_asunto": 0}) == ["Correo del emisor"]
+    assert m.hash_options({"exige_asunto": 1, "palabra_tag": "x", "expira_utc": "2030-01-01T00:00:00Z"}) == [
+        "Correo del emisor", "Asunto del correo", "Palabra segura", "Caducidad del enlace"]
+    solo = _genkey(staff, pol_asunto="")
+    assert 'data-asteriscos="1"' in solo.text and "1 asterisco:" in solo.text
+
+
+def test_pie_institucional_en_todas_las_paginas(staff, anon):
+    """Pie con logo IESS, enlaces (incl. Reportar Incidente), barra tricolor y derechos, en todas las páginas."""
+    for pagina in ["/", "/login", "/checkin", "/reportar-incidente", "/checkin/cualquier-cosa"]:
+        html = anon.get(pagina).text
+        assert 'class="sc-footer"' in html, pagina
+        assert 'src="/static/img/iess-logo.png"' in html and "AI-IESS · SellaCorreo" in html, pagina
+        assert "Sello anti-phishing para correo institucional" in html, pagina
+        assert 'class="sc-tricolor"' in html and html.count("<i></i>") == 3, pagina
+        assert "© Instituto Ecuatoriano de Seguridad Social - Todos los derechos reservados." in html, pagina
+        for enlace in ('href="/"', 'href="/genkey"', 'href="/checkin"', 'href="/reportar-incidente"'):
+            assert enlace in html.split('class="sc-footer"')[1], (pagina, enlace)
+        assert ">Reportar Incidente<" in html and ">Ingresar<" in html, pagina
+    assert ">Salir<" in staff.get("/genkey").text.split('class="sc-footer"')[1]
+    logo = anon.get("/static/img/iess-logo.png")
+    assert logo.status_code == 200 and logo.headers["content-type"] == "image/png"
+    assert "Reportar incidente" in anon.get("/reportar-incidente").text
+
+
+def test_radar_phishing(staff, anon):
+    """Inicio: tarjeta «Radar Phishing» en lugar del rótulo; /radar muestra solo hora y resultado de las verificaciones."""
+    home = anon.get("/").text
+    assert 'data-home-card="radar"' in home and 'href="/radar"' in home and ">Radar Phishing<" in home
+    assert "sc-dial__cap--bottom" not in home
+    antes = m.radar_data()
+    token, h16 = _link(_genkey(staff).text).rsplit("/", 1)[1].split(".")
+    anon.get(f"/checkin/{token}.{'0' * 16}")            # alterado
+    anon.get("/checkin/cualquier-cosa")                  # malformado
+    anon.get(f"/checkin/{token}.{h16}")                  # auténtico
+    d = m.radar_data()
+    assert d["total"] == antes["total"] + 3 and d["validas"] == antes["validas"] + 1
+    assert d["sospechosas"] == antes["sospechosas"] + 2
+    assert {"enlace_malformado", "hash_distinto"} <= {u["estado"] for u in d["ultimos"]}
+    assert [u["ts_utc"] for u in d["ultimos"]] == sorted((u["ts_utc"] for u in d["ultimos"]), reverse=True)
+    assert len(d["serie"]) == 14 and sum(v[0] + v[1] for v in d["serie"].values()) >= 3
+    r = anon.get("/radar")
+    assert r.status_code == 200 and "Radar Phishing" in r.text and 'class="sc-footer"' in r.text
+    assert m.MOTIVOS["hash_distinto"] in r.text and m.MOTIVOS["enlace_malformado"] in r.text
+    assert "sc-radar__chart" in r.text and "Hora (Ecuador)" in r.text
+    assert "@" not in r.text.split("<main")[1].split("</main>")[0]   # ningún correo en la página

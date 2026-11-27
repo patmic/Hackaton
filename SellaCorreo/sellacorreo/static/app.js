@@ -25,11 +25,10 @@
         const a = Math.atan2(b.left + b.width / 2 - cx, -(b.top + b.height / 2 - cy)) * 180 / Math.PI;
         return { kind: card.dataset.homeCard, card, angle: (a + 360) % 360 };
       });
-      // En móvil las tarjetas quedan apiladas bajo el dial y comparten ángulo: se reparten alrededor de ese ángulo
-      const juntas = zones.length > 1 && zones.every((z) => dist(z.angle, zones[0].angle) < 2 * HALF);
-      if (juntas) {
-        const mid = zones[0].angle, paso = 2 * HALF + 10;
-        zones.forEach((z, k) => { z.angle = (mid + (k - (zones.length - 1) / 2) * paso + 360) % 360; });
+      // En móvil las tarjetas quedan apiladas bajo el dial y comparten ángulo: se separan a ambos lados
+      if (zones.length > 1 && zones.every((z) => dist(z.angle, zones[0].angle) < 2 * HALF)) {
+        const mid = zones[0].angle, step = 360 / zones.length;
+        zones.forEach((z, i) => { z.angle = (mid + (i - (zones.length - 1) / 2) * step + 360) % 360; });
       }
       stage.classList.remove("is-measuring");
       applyPills();

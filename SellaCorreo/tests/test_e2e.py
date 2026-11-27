@@ -40,5 +40,9 @@ def test_e2e_login_genkey_checkin():
     valido = httpx.get(path).text  # el emisor se verifica solo con el hash: resultado directo
     assert "Correo válido y seguro" in valido and "Falta un paso" not in valido
     token, h16 = link.rsplit("/", 1)[1].split(".")
+    img = httpx.get(f"{URL}/img/{token}.png")  # sello de cera verde con asteriscos
+    assert img.status_code == 200 and img.content[:4] == b"\x89PNG"
+    pie = httpx.get(f"{URL}/").text  # pie institucional con logo IESS
+    assert "sc-footer" in pie and "Reportar Incidente" in pie and httpx.get(f"{URL}/static/img/iess-logo.png").status_code == 200
     malo = httpx.get(f"{URL}/checkin/{token}.{'0' * 16 if h16 != '0' * 16 else '1' * 16}").text
     assert "Correo falso" in malo
