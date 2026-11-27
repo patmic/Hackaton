@@ -48,6 +48,20 @@ curl http://localhost/health   # {"status":"ok"}
 - Web: `http://IP_DEL_SERVIDOR` (o `https://ia.tudominio.com`).
 - App: en Ajustes pon esa misma dirección y toca "Guardar y probar conexión".
 
+## Sin exponer la IP: Cloudflare Tunnel (recomendado)
+El servidor se conecta hacia Cloudflare y la gente entra por un dominio con HTTPS gratis.
+La IP real no aparece y no hay que abrir ningún puerto.
+
+1. En `.env`: `PUERTO_HTTP=127.0.0.1:8090` y `PUERTO_HTTPS=127.0.0.1:8443` (solo escucha dentro del servidor).
+   `docker compose up -d`.
+2. Si el servidor no tiene túnel: instala `cloudflared` y crea uno en Cloudflare Zero Trust
+   (Networks › Tunnels › Create a tunnel) siguiendo el comando que te da el panel.
+3. En el túnel: **Public Hostname › Add**: subdominio (por ejemplo `aiess`), tu dominio,
+   y en Service URL `http://localhost:8090`. Cloudflare crea el DNS solo.
+4. Compila la app con esa dirección (no con la IP):
+   `flutter build apk --dart-define-from-file=secretos.json --dart-define=AIESS_SERVIDOR=https://aiess.tudominio.com`
+   La web no hace falta recompilarla: usa la dirección desde la que se abre.
+
 ## Clave del servidor (secreto)
 - En el servidor, `.env` lleva `AIESS_CLAVE=` (una clave larga). Sin ella el modelo responde 401.
 - En tu PC, `app/secretos.json` (copia de `secretos.ejemplo.json`) lleva la dirección y la misma clave.
