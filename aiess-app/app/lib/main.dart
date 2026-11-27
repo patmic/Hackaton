@@ -1,3 +1,4 @@
+import 'ui/lectura.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -42,6 +43,7 @@ Future<void> main() async {
   );
   // Web: el árbol de accesibilidad siempre activo, para que los lectores de pantalla (NVDA, VoiceOver) lean la página.
   if (kIsWeb) SemanticsBinding.instance.ensureSemantics();
+  await Lectura.i.cargar();
   final yaConfigurado =
       (await SharedPreferences.getInstance()).getBool('bienvenida') ?? false;
   runApp(
@@ -54,35 +56,48 @@ Future<void> main() async {
           ),
         ),
       ],
-      child: MaterialApp(
-        // App Link del correo firmado ("Verificar en App") -> pantalla de verificación del módulo de capacitación.
-        onGenerateRoute: cap_rutas.generarRuta,
-        title: 'AIESS',
-        debugShowCheckedModeBanner: false,
-        theme: temaAIess(),
-        // En web no hay permisos de Android que configurar: se entra directo.
-        // Web angosta (celular en el navegador): la pantalla de la app con el fondo de ThemeLight.
-        builder: (context, child) =>
-            kIsWeb &&
-                !WebEscritorio.cabe(context, MediaQuery.sizeOf(context).width)
-            ? ColoredBox(
-                color: Tono.fondo,
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 480),
-                    child: child,
-                  ),
-                ),
-              )
-            : child!,
-        // Web en computadora: diseño propio de dos columnas.
-        home: kIsWeb
-            ? LayoutBuilder(
-                builder: (context, c) => WebEscritorio.cabe(context, c.maxWidth)
-                    ? const WebEscritorio()
-                    : const InicioPage(),
-              )
-            : (yaConfigurado ? const InicioPage() : const BienvenidaPage()),
+      // Tamaño de letra y lectura fácil (accesibilidad): al cambiarlos se reconstruye toda la app.
+      child: ListenableBuilder(
+        listenable: Lectura.i,
+        builder: (context, _) => MaterialApp(
+          // App Link del correo firmado ("Verificar en App") -> pantalla de verificación del módulo de capacitación.
+          onGenerateRoute: cap_rutas.generarRuta,
+          title: 'AIESS',
+          debugShowCheckedModeBanner: false,
+          theme: Lectura.i.tema(temaAIess()),
+          // En web no hay permisos de Android que configurar: se entra directo.
+          // Web angosta (celular en el navegador): la pantalla de la app con el fondo de ThemeLight.
+          builder: (context, child) => Lectura.i.escalar(
+            context,
+            Builder(
+              builder: (context) =>
+                  kIsWeb &&
+                      !WebEscritorio.cabe(
+                        context,
+                        MediaQuery.sizeOf(context).width,
+                      )
+                  ? ColoredBox(
+                      color: Tono.fondo,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 480),
+                          child: child,
+                        ),
+                      ),
+                    )
+                  : child!,
+            ),
+          ),
+          // Web en computadora: diseño propio de dos columnas.
+          home: kIsWeb
+              ? LayoutBuilder(
+                  builder: (context, c) =>
+                      WebEscritorio.cabe(context, c.maxWidth)
+                      ? const WebEscritorio()
+                      : const InicioPage(),
+                )
+              : (yaConfigurado ? const InicioPage() : const BienvenidaPage()),
+        ),
       ),
     ),
   );

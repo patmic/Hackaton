@@ -86,6 +86,13 @@ class Voz {
   /// Lo que va entendiendo mientras la persona habla (subtítulos en vivo).
   final parcial = ValueNotifier('');
 
+  /// Botón «Parar»: la persona terminó de hablar. Se usa lo que se alcanzó a entender.
+  void pararEscucha() {
+    if (!escuchando.value) return;
+    _stt.stop();
+    _terminarActual(_ultimoParcial);
+  }
+
   /// Escucha una frase y la devuelve escrita. Nunca se queda colgada: termina con el resultado,
   /// con silencio, con un error del micrófono o a los 45 segundos.
   Future<String?> escuchar() async {
@@ -151,7 +158,8 @@ class Voz {
           cancelOnError: true,
           localeId: _localeStt,
           listenFor: const Duration(seconds: 40),
-          pauseFor: const Duration(seconds: 5),
+          // Al quedarse callada 4 s se da por terminado y se revisa solo.
+          pauseFor: const Duration(seconds: 4),
         ),
         onResult: (r) {
           if (r.recognizedWords.trim().isNotEmpty) {

@@ -12,6 +12,7 @@ import '../features/osint/cti.dart';
 import 'aula_virtual.dart';
 import 'bienvenida_page.dart';
 import 'tema.dart';
+import 'lectura.dart';
 
 const _plataforma = MethodChannel('aiess/plataforma');
 
@@ -21,6 +22,8 @@ Future<void> mostrarAjustes(
 }) => showModalBottomSheet(
   context: context,
   isScrollControlled: true,
+  // No se mete debajo de la barra de estado; con mucho contenido se desplaza (ver build).
+  useSafeArea: true,
   backgroundColor: Tono.fondo2,
   shape: const RoundedRectangleBorder(
     borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -98,8 +101,16 @@ class _AjustesState extends State<_Ajustes> {
         fontSize: 17,
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        top: false,
+        // Se desplaza: en celulares chicos o con letra grande no cabe todo. Deja sitio para el teclado
+        // (los campos del servidor están al final) y para la barra de navegación del sistema.
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            24,
+            16,
+            24,
+            24 + MediaQuery.viewInsetsOf(context).bottom,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -115,6 +126,17 @@ class _AjustesState extends State<_Ajustes> {
                 ),
               ),
               const SizedBox(height: 16),
+              // ---------- Lectura (accesibilidad: letra grande y lectura fácil para dislexia)
+              Semantics(
+                header: true,
+                child: const Text(
+                  'Lectura',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const ControlesLectura(),
+              const SizedBox(height: 20),
               // ---------- Servidor de IA (modo principal)
               const Text(
                 'Inteligencia del robot',
@@ -189,7 +211,9 @@ class _AjustesState extends State<_Ajustes> {
                 tilePadding: EdgeInsets.zero,
                 leading: const Icon(Icons.travel_explore_rounded),
                 title: const Text('Fuentes que consulto (OSINT y CTI)'),
-                subtitle: const Text('Solo el dominio o el enlace, nunca tu correo'),
+                subtitle: const Text(
+                  'Solo el dominio o el enlace, nunca tu correo',
+                ),
                 children: [
                   for (final f in FuentesCti.declaracion)
                     ListTile(

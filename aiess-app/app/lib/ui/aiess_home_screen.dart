@@ -66,7 +66,7 @@ class AiessHomeScreen extends StatelessWidget {
       onPracticar;
 
   String get _indicacion => escuchando
-      ? 'Te escucho. Lee el correo en voz alta o dime el enlace.'
+      ? 'Te escucho. Lee el correo en voz alta. Al terminar toca «Parar» o quédate callado y lo reviso.'
       : hasClipboardContent
       ? 'Ya copiaste algo. Toca el botón azul y te digo si es seguro.'
       : 'Copia el correo que te parezca raro y toca el botón azul.';
@@ -277,10 +277,14 @@ class AiessHomeScreen extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _BotonTarjeta(
-                      texto: escuchando ? 'Te escucho…' : 'Hablar',
-                      ayuda: escuchando ? 'Habla ahora' : 'Dicta el correo',
+                      // Mientras escucha, el mismo botón sirve para PARAR (si la persona se calla
+                      // 4 segundos también termina solo y se revisa).
+                      texto: escuchando ? 'Parar' : 'Hablar',
+                      ayuda: escuchando
+                          ? 'Toca al terminar'
+                          : 'Dicta el correo',
                       icono: escuchando
-                          ? Icons.graphic_eq_rounded
+                          ? Icons.stop_circle_rounded
                           : Icons.mic_rounded,
                       activo: escuchando,
                       onTap: onVoiceInput,

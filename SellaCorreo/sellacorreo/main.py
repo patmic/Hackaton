@@ -827,7 +827,7 @@ def checkin_home(request: Request, enlace: str = ""):
 o pegue aquí el enlace de esa imagen.</p></header>
 <section class="tl-card"><div class="tl-card__body"><form class="sc-form" method="get" action="/checkin">
 <div class="tl-field"><label class="tl-field__label" for="enlace">Enlace de la imagen SellaCorreo</label>
-<input class="tl-input sc-code" id="enlace" name="enlace" required placeholder="http://localhost:8090/checkin/..."></div>
+<input class="tl-input sc-code" id="enlace" name="enlace" required placeholder=\"""" + html.escape(public_base()) + """/checkin/..."></div>
 <div class="tl-row"><button class="tl-btn tl-btn--default" type="submit">Verificar</button></div></form>
 <p class="tl-hint">Si el correo no trae imagen SellaCorreo, desconfíe: los correos institucionales sellados siempre la llevan.</p>
 </div></section>""", current_user(request), request, active="checkin")

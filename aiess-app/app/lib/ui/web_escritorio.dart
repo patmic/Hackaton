@@ -22,6 +22,8 @@ import 'practicar_page.dart';
 import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
 import 'tema.dart';
 import 'texto_vivo.dart';
+import 'animaciones_web.dart';
+import 'lectura.dart';
 
 /// Colores de escritorio mapeados a los tokens compartidos de ThemeLight.
 class _W {
@@ -51,6 +53,26 @@ class WebEscritorio extends StatefulWidget {
 
 class _WebEscritorioState extends State<WebEscritorio> {
   final _texto = TextEditingController();
+
+  /// Al salir el veredicto, el foco (teclado y lector de pantalla) salta a él.
+  final _focoResultado = FocusNode(debugLabel: 'resultado');
+
+  /// Poka-yoke: el mismo correo no se vuelve a analizar (se repite el veredicto).
+  String? _ultimoRevisado;
+
+  void _enfocarResultado() => WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted && _v != null) _focoResultado.requestFocus();
+  });
+
+  /// Esc: deja de escuchar o hace callar al robot.
+  void _escape() {
+    if (_escuchando) {
+      Voz.i.pararEscucha();
+    } else {
+      Voz.i.callar();
+    }
+  }
+
   var _estado = EstadoRobot.reposo;
   Veredicto? _v;
   String? _aviso;
@@ -58,10 +80,22 @@ class _WebEscritorioState extends State<WebEscritorio> {
   double? _progreso;
   bool _escuchando = false;
 
+  @override
+  void dispose() {
+    _texto.dispose();
+    _focoResultado.dispose();
+    super.dispose();
+  }
+
   bool get _ocupado => _estado == EstadoRobot.analizando || _escuchando;
 
   Future<void> _revisar() async {
     final t = _texto.text.trim();
+    if (_v != null && t == _ultimoRevisado) {
+      Voz.i.decir('Ya revisé este correo. ${_v!.voz}');
+      _enfocarResultado();
+      return;
+    }
     // 1) Si trae el sello del IESS, se verifica la firma sin leer el correo.
     if (Sello.codigoEn(t) != null) {
       setState(() {
@@ -101,7 +135,9 @@ class _WebEscritorioState extends State<WebEscritorio> {
         );
         _estado = r.valido ? EstadoRobot.seguro : EstadoRobot.alerta;
         _pasos = [];
+        _ultimoRevisado = t;
       });
+      _enfocarResultado();
       Voz.i.decir(texto);
       return;
     }
@@ -154,7 +190,9 @@ class _WebEscritorioState extends State<WebEscritorio> {
       _v = v;
       _estado = v.phishing ? EstadoRobot.alerta : EstadoRobot.seguro;
       _pasos = [];
+      _ultimoRevisado = t;
     });
+    _enfocarResultado();
     Voz.i.decir(v.voz);
   }
 
@@ -207,6 +245,19 @@ class _WebEscritorioState extends State<WebEscritorio> {
     var texto = '';
     try {
       final bytes = await f.readAsBytes();
+      // Poka-yoke: un archivo enorme no es un correo (y colgaría el lector).
+      if (bytes.length > 20 * 1024 * 1024) {
+        if (!mounted) return;
+        const m =
+            'Ese archivo es muy grande (más de 20 MB). Prueba con una captura del correo o guárdalo como .eml.';
+        setState(() {
+          _estado = EstadoRobot.reposo;
+          _pasos = [];
+          _aviso = m;
+        });
+        Voz.i.decir(m);
+        return;
+      }
       texto = f.name.toLowerCase().endsWith('.eml')
           ? leerEml(bytes).paraAnalizar
           : await LectorDocumento.leer(bytes, f.name);
@@ -239,6 +290,28 @@ class _WebEscritorioState extends State<WebEscritorio> {
 
   void _limpiar() {
     Voz.i.callar();
+    final antes = _texto.text;
+    if (antes.trim().isNotEmpty) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Borré el texto del correo.',
+              style: TextStyle(fontSize: 17),
+            ),
+            duration: const Duration(seconds: 8),
+            action: SnackBarAction(
+              label: 'Deshacer',
+              onPressed: () {
+                _texto.text = antes;
+                _ultimoRevisado = null;
+              },
+            ),
+          ),
+        );
+    }
+    _ultimoRevisado = null;
     setState(() {
       _texto.clear();
       _v = null;
@@ -249,131 +322,436 @@ class _WebEscritorioState extends State<WebEscritorio> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _W.papel,
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // ---------------- Izquierda: el robot y cómo funciona
-          Expanded(
-            flex: 5,
-            child: ColoredBox(
-              color: _W.panel,
-              child: LayoutBuilder(
-                builder: (context, caja) => SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(48, 36, 48, 32),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: caja.maxHeight - 68),
-                    // Tres bloques repartidos: marca arriba, robot y mensaje al centro, privacidad abajo.
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Marca: logo oficial del IESS + AIESS, y el estado del servidor.
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const LogoIess(alto: 30),
-                                Container(
-                                  width: 1.5,
-                                  height: 26,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 12,
+    return CallbackShortcuts(
+      bindings: {const SingleActivator(LogicalKeyboardKey.escape): _escape},
+      child: Scaffold(
+        backgroundColor: _W.papel,
+        body: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ---------------- Izquierda: el robot y cómo funciona
+            Expanded(
+              flex: 5,
+              child: ColoredBox(
+                color: _W.panel,
+                child: LayoutBuilder(
+                  builder: (context, caja) => SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(48, 36, 48, 32),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: caja.maxHeight - 68,
+                      ),
+                      // Tres bloques repartidos: marca arriba, robot y mensaje al centro, privacidad abajo.
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Marca: logo oficial del IESS + AIESS, y el estado del servidor.
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const LogoIess(alto: 30),
+                                  Container(
+                                    width: 1.5,
+                                    height: 26,
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    color: Colors.white54,
                                   ),
-                                  color: Colors.white54,
+                                  Text(
+                                    'AIESS',
+                                    style: Letra.lexend(
+                                      20,
+                                      peso: FontWeight.w700,
+                                      color: Colors.white,
+                                      espacio: 1,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              _EstadoServidor(),
+                              const SizedBox(height: 14),
+                              const ControlesLectura(claro: true),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Center(
+                                  child: Enfocable(
+                                    etiqueta:
+                                        'AIess, el robot. Actívalo para escucharlo',
+                                    alActivar: _hablarRobot,
+                                    child: RobotGuardia(
+                                      estado: _estado,
+                                      tam: (caja.maxHeight * 0.3).clamp(
+                                        140.0,
+                                        260.0,
+                                      ),
+                                      alTocar: _hablarRobot,
+                                    ),
+                                  ),
                                 ),
-                                Text(
-                                  'AIESS',
-                                  style: Letra.lexend(
-                                    20,
-                                    peso: FontWeight.w700,
-                                    color: Colors.white,
-                                    espacio: 1,
+                                const SizedBox(height: 24),
+
+                                Aparecer(
+                                  orden: 1,
+                                  child: Semantics(
+                                    header: true,
+                                    child: Text(
+                                      'Tu robot guardián contra estafas',
+                                      style: Letra.lexend(
+                                        40,
+                                        peso: FontWeight.w700,
+                                        color: Colors.white,
+                                        alto: 1.1,
+                                        espacio: -0.8,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                // Medida de lectura cómoda (~60 caracteres por línea).
+                                Aparecer(
+                                  orden: 2,
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 560,
+                                    ),
+                                    child: Text(
+                                      'Pega un correo raro y te digo, con voz y por escrito, si es una estafa.',
+                                      style: Letra.lectura(
+                                        20,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.92,
+                                        ),
+                                        alto: 1.45,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            _EstadoServidor(),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Center(
-                                child: Semantics(
-                                  button: true,
-                                  label:
-                                      'AIess, el robot. Toca para escucharlo',
-                                  excludeSemantics: true,
-                                  onTap: _hablarRobot,
-                                  child: RobotGuardia(
-                                    estado: _estado,
-                                    tam: (caja.maxHeight * 0.3).clamp(
-                                      140.0,
-                                      260.0,
-                                    ),
-                                    alTocar: _hablarRobot,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
+                          ),
 
-                              Text(
-                                'Tu robot guardián contra estafas',
-                                style: Letra.lexend(
-                                  40,
-                                  peso: FontWeight.w700,
-                                  color: Colors.white,
-                                  alto: 1.1,
-                                  espacio: -0.8,
-                                ),
+                          Aparecer(
+                            orden: 4,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 560),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.lock_outline_rounded,
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Antes de revisarlo quitamos tu nombre, cédula, teléfono y cuentas. Luego se borra todo. Nunca te pediremos claves. '
+                                      'Fuentes OSINT y CTI: reglas locales, RDAP (edad del dominio) y OpenPhish; solo se consulta el dominio o el enlace.',
+                                      style: Letra.lectura(
+                                        16,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.88,
+                                        ),
+                                        alto: 1.45,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 14),
-                              // Medida de lectura cómoda (~60 caracteres por línea).
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 560,
-                                ),
-                                child: Text(
-                                  'Pega un correo raro y te digo, con voz y por escrito, si es una estafa.',
-                                  style: Letra.lectura(
-                                    20,
-                                    color: Colors.white.withValues(alpha: 0.92),
-                                    alto: 1.45,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // ---------------- Derecha: espacio de trabajo
+            Expanded(
+              flex: 6,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(64, 56, 64, 48),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 680),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Aparecer(
+                          child: Semantics(
+                            header: true,
+                            child: const Text(
+                              'Pega aquí el correo sospechoso',
+                              style: TextStyle(
+                                fontFamily:
+                                    'packages/theme_light/ThemeLightLexend',
+                                fontVariations: const [
+                                  FontVariation('wght', 700),
+                                ],
+                                color: _W.tinta,
+                                fontSize: 32,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.6,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Aparecer(
+                          orden: 1,
+                          child: const Text(
+                            'Si trae la imagen del sello del IESS, pega su enlace: verifico la firma sin leer el correo.',
+                            style: TextStyle(
+                              color: _W.gris,
+                              fontSize: 18,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Aparecer(
+                          orden: 2,
+                          child: CallbackShortcuts(
+                            bindings: {
+                              const SingleActivator(
+                                LogicalKeyboardKey.enter,
+                                control: true,
+                              ): () {
+                                if (!_ocupado) _revisar();
+                              },
+                              const SingleActivator(
+                                LogicalKeyboardKey.enter,
+                                meta: true,
+                              ): () {
+                                if (!_ocupado) _revisar();
+                              },
+                            },
+                            child: TextField(
+                              autofocus: true,
+                              controller: _texto,
+                              minLines: 8,
+                              maxLines: 14,
+                              style: const TextStyle(
+                                color: _W.tinta,
+                                fontSize: 18,
+                                height: 1.45,
+                              ),
+                              decoration: InputDecoration(
+                                labelText: 'Texto del correo',
+                                alignLabelWithHint: true,
+                                labelStyle: const TextStyle(fontSize: 18),
+                                hintText:
+                                    'Ejemplo: "IESS: su afiliación será suspendida hoy. Actualice su clave en https://…"',
+                                hintStyle: const TextStyle(color: _W.gris),
+                                filled: true,
+                                contentPadding: const EdgeInsets.all(20),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                  borderSide: const BorderSide(
+                                    color: Tono.borde,
+                                    width: 1.5,
                                   ),
                                 ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                  borderSide: const BorderSide(
+                                    color: _W.azul,
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Poka-yoke: dice en todo momento qué falta antes de poder revisar (y se lee en voz
+                        // alta con el lector de pantalla cuando cambia).
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8, left: 4),
+                          child: ValueListenableBuilder(
+                            valueListenable: _texto,
+                            builder: (context, valor, _) {
+                              final n = valor.text.trim().length;
+                              final (icono, color, msg) = n == 0
+                                  ? (
+                                      Icons.content_paste_rounded,
+                                      _W.gris,
+                                      'Pega el correo, súbelo o díctalo. Atajos: Ctrl + Enter revisa · Esc calla al robot.',
+                                    )
+                                  : n < 8
+                                  ? (
+                                      Icons.info_outline_rounded,
+                                      ThemeLightTokens.warnForeground,
+                                      'Falta texto: pega el correo completo o su enlace.',
+                                    )
+                                  : (
+                                      Icons.check_circle_outline_rounded,
+                                      _W.verde,
+                                      'Listo para revisar: pulsa «Revisar con AIess» o Ctrl + Enter.',
+                                    );
+                              return Semantics(
+                                liveRegion: true,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(icono, size: 20, color: color),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        msg,
+                                        style: TextStyle(
+                                          color: color == _W.gris
+                                              ? _W.gris
+                                              : Tono.tinta,
+                                          fontSize: 16,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Aparecer(
+                          orden: 3,
+                          child: Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: [
+                              Flotar(
+                                activo: !_ocupado,
+                                foco: false,
+                                child: AnilloFoco(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      minWidth: 280,
+                                    ),
+                                    child: SizedBox(
+                                      height: 60,
+                                      child: FilledButton.icon(
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor: _W.azul,
+                                          foregroundColor: _W.sobreAzul,
+                                          shape: const StadiumBorder(),
+                                          textStyle: const TextStyle(
+                                            fontFamily:
+                                                'packages/theme_light/ThemeLightLexend',
+                                            fontVariations: [
+                                              FontVariation('wght', 600),
+                                            ],
+                                            fontSize: 19,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        onPressed: _ocupado ? null : _revisar,
+                                        icon: _estado == EstadoRobot.analizando
+                                            ? const SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2.5,
+                                                      color: _W.sobreAzul,
+                                                    ),
+                                              )
+                                            : const Icon(
+                                                Icons.manage_search_rounded,
+                                                size: 26,
+                                              ),
+                                        label: Text(
+                                          _estado == EstadoRobot.analizando
+                                              ? 'Revisando…'
+                                              : 'Revisar con AIess',
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              _BotonTexto(
+                                // Mientras escucha, el mismo botón es «Parar» (callarse 4 s también termina).
+                                icono: _escuchando
+                                    ? Icons.stop_circle_rounded
+                                    : Icons.mic_rounded,
+                                texto: _escuchando
+                                    ? 'Parar y revisar'
+                                    : 'Dictar',
+                                activo: _escuchando,
+                                onTap: _escuchando
+                                    ? Voz.i.pararEscucha
+                                    : (_ocupado ? null : _hablar),
+                              ),
+                              const SizedBox(width: 12),
+                              _BotonTexto(
+                                icono: Icons.backspace_outlined,
+                                texto: 'Borrar',
+                                onTap: _limpiar,
+                              ),
+                              _BotonTexto(
+                                icono: Icons.upload_file_rounded,
+                                texto: 'Subir correo (.eml, PDF o imagen)',
+                                onTap: _ocupado ? null : _subir,
                               ),
                             ],
                           ),
                         ),
-
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 560),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        const SizedBox(height: 28),
+                        AnimatedSwitcher(
+                          duration: sinMovimiento(context)
+                              ? Duration.zero
+                              : const Duration(milliseconds: 460),
+                          reverseDuration: const Duration(milliseconds: 160),
+                          transitionBuilder: transicionResultado,
+                          layoutBuilder: (actual, previos) => Stack(
+                            alignment: Alignment.topCenter,
+                            children: [...previos, if (actual != null) actual],
+                          ),
+                          child: _resultado(),
+                        ),
+                        const SizedBox(height: 32),
+                        Aparecer(
+                          orden: 4,
+                          child: Wrap(
+                            spacing: 12,
+                            runSpacing: 8,
                             children: [
-                              Icon(
-                                Icons.lock_outline_rounded,
-                                color: Colors.white.withValues(alpha: 0.85),
-                                size: 20,
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Antes de revisarlo quitamos tu nombre, cédula, teléfono y cuentas. Luego se borra todo. Nunca te pediremos claves. '
-                                  'Fuentes OSINT y CTI: reglas locales, RDAP (edad del dominio) y OpenPhish; solo se consulta el dominio o el enlace.',
-                                  style: Letra.lectura(
-                                    16,
-                                    color: Colors.white.withValues(alpha: 0.88),
-                                    alto: 1.45,
+                              Flotar(
+                                child: OutlinedButton.icon(
+                                  onPressed: () => abrirAulaVirtual(context),
+                                  icon: const Icon(Icons.school_rounded),
+                                  label: const Text(
+                                    'Aprender con microlecciones',
                                   ),
+                                ),
+                              ),
+                              Flotar(
+                                child: OutlinedButton.icon(
+                                  onPressed: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const PracticarPage(),
+                                    ),
+                                  ),
+                                  icon: const Icon(
+                                    Icons.sports_esports_rounded,
+                                  ),
+                                  label: const Text('Practicar'),
                                 ),
                               ),
                             ],
@@ -385,198 +763,8 @@ class _WebEscritorioState extends State<WebEscritorio> {
                 ),
               ),
             ),
-          ),
-          // ---------------- Derecha: espacio de trabajo
-          Expanded(
-            flex: 6,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(64, 56, 64, 48),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 680),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Text(
-                        'Pega aquí el correo sospechoso',
-                        style: TextStyle(
-                          fontFamily: 'packages/theme_light/ThemeLightLexend',
-                          fontVariations: const [FontVariation('wght', 700)],
-                          color: _W.tinta,
-                          fontSize: 32,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.6,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Si trae la imagen del sello del IESS, pega su enlace: verifico la firma sin leer el correo.',
-                        style: TextStyle(
-                          color: _W.gris,
-                          fontSize: 18,
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      CallbackShortcuts(
-                        bindings: {
-                          const SingleActivator(
-                            LogicalKeyboardKey.enter,
-                            control: true,
-                          ): () {
-                            if (!_ocupado) _revisar();
-                          },
-                          const SingleActivator(
-                            LogicalKeyboardKey.enter,
-                            meta: true,
-                          ): () {
-                            if (!_ocupado) _revisar();
-                          },
-                        },
-                        child: TextField(
-                          autofocus: true,
-                          controller: _texto,
-                          minLines: 8,
-                          maxLines: 14,
-                          style: const TextStyle(
-                            color: _W.tinta,
-                            fontSize: 18,
-                            height: 1.45,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Texto del correo',
-                            alignLabelWithHint: true,
-                            labelStyle: const TextStyle(fontSize: 18),
-                            hintText:
-                                'Ejemplo: "IESS: su afiliación será suspendida hoy. Actualice su clave en https://…"',
-                            hintStyle: const TextStyle(color: _W.gris),
-                            filled: true,
-                            contentPadding: const EdgeInsets.all(20),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(18),
-                              borderSide: const BorderSide(
-                                color: Tono.borde,
-                                width: 1.5,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(18),
-                              borderSide: const BorderSide(
-                                color: _W.azul,
-                                width: 3,
-                              ),
-                            ),
-                            helperText:
-                                'Atajo de teclado: Ctrl + Enter para revisar.',
-                            helperStyle: const TextStyle(
-                              color: _W.gris,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: [
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(minWidth: 280),
-                            child: SizedBox(
-                              height: 60,
-                              child: FilledButton.icon(
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: _W.azul,
-                                  foregroundColor: _W.sobreAzul,
-                                  shape: const StadiumBorder(),
-                                  textStyle: const TextStyle(
-                                    fontFamily:
-                                        'packages/theme_light/ThemeLightLexend',
-                                    fontVariations: [
-                                      FontVariation('wght', 600),
-                                    ],
-                                    fontSize: 19,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                onPressed: _ocupado ? null : _revisar,
-                                icon: _estado == EstadoRobot.analizando
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
-                                          color: _W.sobreAzul,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.manage_search_rounded,
-                                        size: 26,
-                                      ),
-                                label: Text(
-                                  _estado == EstadoRobot.analizando
-                                      ? 'Revisando…'
-                                      : 'Revisar con AIess',
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          _BotonTexto(
-                            icono: _escuchando
-                                ? Icons.graphic_eq_rounded
-                                : Icons.mic_rounded,
-                            texto: _escuchando ? 'Te escucho…' : 'Dictar',
-                            activo: _escuchando,
-                            onTap: _ocupado ? null : _hablar,
-                          ),
-                          const SizedBox(width: 12),
-                          _BotonTexto(
-                            icono: Icons.backspace_outlined,
-                            texto: 'Borrar',
-                            onTap: _limpiar,
-                          ),
-                          _BotonTexto(
-                            icono: Icons.upload_file_rounded,
-                            texto: 'Subir correo (.eml, PDF o imagen)',
-                            onTap: _ocupado ? null : _subir,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 28),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: _resultado(),
-                      ),
-                      const SizedBox(height: 32),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 8,
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: () => abrirAulaVirtual(context),
-                            icon: const Icon(Icons.school_rounded),
-                            label: const Text('Aprender con microlecciones'),
-                          ),
-                          OutlinedButton.icon(
-                            onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const PracticarPage(),
-                              ),
-                            ),
-                            icon: const Icon(Icons.sports_esports_rounded),
-                            label: const Text('Practicar'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -590,120 +778,145 @@ class _WebEscritorioState extends State<WebEscritorio> {
           color: _W.azulOscuro,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: PasosCarga(
-          pasos: _pasos,
-          progreso: _progreso,
-          color: Tono.tinta,
-          acento: _W.amarillo,
+        child: Semantics(
+          liveRegion: true,
+          label: _pasos.isEmpty ? null : _pasos.last,
+          child: PasosCarga(
+            pasos: _pasos,
+            progreso: _progreso,
+            color: Tono.tinta,
+            acento: _W.amarillo,
+          ),
         ),
       );
     }
     if (_aviso != null) {
-      return Container(
+      return SacudirAlEntrar(
         key: ValueKey(_aviso),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: ThemeLightTokens.warnBackground,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.info_outline_rounded,
-              color: ThemeLightTokens.warnForeground,
+        child: Semantics(
+          liveRegion: true,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: ThemeLightTokens.warnBackground,
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                _aviso!,
-                style: const TextStyle(
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.info_outline_rounded,
                   color: ThemeLightTokens.warnForeground,
-                  fontSize: 17,
-                  height: 1.4,
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _aviso!,
+                    style: const TextStyle(
+                      color: ThemeLightTokens.warnForeground,
+                      fontSize: 17,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       );
     }
     final v = _v;
     if (v == null) return const SizedBox(key: ValueKey('vacio'));
     final color = v.phishing ? _W.rojo : _W.verde;
-    return Semantics(
-      key: ValueKey(v),
-      liveRegion: true,
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: Tono.superficie,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withValues(alpha: 0.35), width: 1.5),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              color: color,
-              padding: const EdgeInsets.fromLTRB(24, 18, 24, 18),
-              child: Row(
-                children: [
-                  Icon(
-                    v.phishing
-                        ? Icons.gpp_bad_rounded
-                        : Icons.verified_user_rounded,
-                    color: _W.sobreAzul,
-                    size: 32,
-                  ),
-                  const SizedBox(width: 14),
-                  Flexible(
-                    child: Text(
-                      v.resumen,
-                      style: const TextStyle(
-                        fontFamily: 'packages/theme_light/ThemeLightLexend',
-                        fontVariations: const [FontVariation('wght', 700)],
-                        color: _W.sobreAzul,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
+    final tarjeta = Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: Tono.superficie,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.35), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Focus(
+            focusNode: _focoResultado,
+            child: Semantics(
+              header: true,
+              child: Container(
+                color: color,
+                padding: const EdgeInsets.fromLTRB(24, 18, 24, 18),
+                child: Row(
+                  children: [
+                    Onda(
+                      color: _W.sobreAzul,
+                      child: Saltar(
+                        duracion: const Duration(milliseconds: 800),
+                        child: Icon(
+                          v.phishing
+                              ? Icons.gpp_bad_rounded
+                              : Icons.verified_user_rounded,
+                          color: _W.sobreAzul,
+                          size: 32,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 14),
+                    Flexible(
+                      child: Aparecer(
+                        orden: 1,
+                        desplazamiento: 12,
+                        child: Text(
+                          v.resumen,
+                          style: const TextStyle(
+                            fontFamily: 'packages/theme_light/ThemeLightLexend',
+                            fontVariations: const [FontVariation('wght', 700)],
+                            color: _W.sobreAzul,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextoVivo(
-                    v.voz,
-                    estilo: const TextStyle(
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextoVivo(
+                  v.voz,
+                  estilo: const TextStyle(
+                    fontFamily: 'packages/theme_light/ThemeLightLexend',
+                    fontVariations: const [FontVariation('wght', 600)],
+                    color: _W.tinta,
+                    fontSize: 20,
+                    height: 1.45,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (v.phishing && v.indicios.isNotEmpty) ...[
+                  const SizedBox(height: 18),
+                  const Text(
+                    'Señales que encontré',
+                    style: TextStyle(
                       fontFamily: 'packages/theme_light/ThemeLightLexend',
-                      fontVariations: const [FontVariation('wght', 600)],
-                      color: _W.tinta,
-                      fontSize: 20,
-                      height: 1.45,
-                      fontWeight: FontWeight.w600,
+                      fontVariations: const [FontVariation('wght', 700)],
+                      color: _W.gris,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  if (v.phishing && v.indicios.isNotEmpty) ...[
-                    const SizedBox(height: 18),
-                    const Text(
-                      'Señales que encontré',
-                      style: TextStyle(
-                        fontFamily: 'packages/theme_light/ThemeLightLexend',
-                        fontVariations: const [FontVariation('wght', 700)],
-                        color: _W.gris,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    for (final k in v.indicios.take(3))
-                      if (motivoVoz[k] != null)
-                        Padding(
+                  const SizedBox(height: 8),
+                  for (final (i, k) in v.indicios.take(3).indexed)
+                    if (motivoVoz[k] != null)
+                      Aparecer(
+                        orden: 3 + i * 2,
+                        desplazamiento: 14,
+                        child: Padding(
                           padding: const EdgeInsets.only(bottom: 6),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -727,9 +940,12 @@ class _WebEscritorioState extends State<WebEscritorio> {
                             ],
                           ),
                         ),
-                  ],
-                  const SizedBox(height: 14),
-                  Text(
+                      ),
+                ],
+                const SizedBox(height: 14),
+                Aparecer(
+                  orden: 8,
+                  child: Text(
                     v.queHacer,
                     style: const TextStyle(
                       color: _W.gris,
@@ -737,62 +953,77 @@ class _WebEscritorioState extends State<WebEscritorio> {
                       height: 1.45,
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  Wrap(
+                ),
+                const SizedBox(height: 18),
+                Aparecer(
+                  orden: 9,
+                  child: Wrap(
                     spacing: 10,
                     runSpacing: 10,
                     children: [
                       if (v.phishing)
-                        FilledButton.icon(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: color,
-                            minimumSize: const Size(0, 52),
-                            shape: const StadiumBorder(),
-                          ),
-                          onPressed: _reportar,
-                          icon: const Icon(Icons.campaign_rounded),
-                          label: const Text(
-                            'Avisar al IESS',
-                            style: TextStyle(
-                              fontFamily:
-                                  'packages/theme_light/ThemeLightLexend',
-                              fontVariations: const [
-                                FontVariation('wght', 700),
-                              ],
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
+                        Flotar(
+                          child: FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: color,
+                              minimumSize: const Size(0, 52),
+                              shape: const StadiumBorder(),
+                            ),
+                            onPressed: _reportar,
+                            icon: const Icon(Icons.campaign_rounded),
+                            label: const Text(
+                              'Avisar al IESS',
+                              style: TextStyle(
+                                fontFamily:
+                                    'packages/theme_light/ThemeLightLexend',
+                                fontVariations: const [
+                                  FontVariation('wght', 700),
+                                ],
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
-                      OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: _W.tinta,
-                          minimumSize: const Size(0, 52),
-                          shape: const StadiumBorder(),
-                        ),
-                        onPressed: () => Voz.i.decir('${v.voz} ${v.queHacer}'),
-                        icon: const Icon(Icons.volume_up_rounded),
-                        label: const Text(
-                          'Escuchar de nuevo',
-                          style: TextStyle(fontSize: 17),
+                      Flotar(
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _W.tinta,
+                            minimumSize: const Size(0, 52),
+                            shape: const StadiumBorder(),
+                          ),
+                          onPressed: () =>
+                              Voz.i.decir('${v.voz} ${v.queHacer}'),
+                          icon: const Icon(Icons.volume_up_rounded),
+                          label: const Text(
+                            'Escuchar de nuevo',
+                            style: TextStyle(fontSize: 17),
+                          ),
                         ),
                       ),
-                      TextButton.icon(
-                        onPressed: _limpiar,
-                        icon: const Icon(Icons.forward_to_inbox_rounded),
-                        label: const Text(
-                          'Revisar otro correo',
-                          style: TextStyle(fontSize: 17),
+                      Flotar(
+                        child: TextButton.icon(
+                          onPressed: _limpiar,
+                          icon: const Icon(Icons.forward_to_inbox_rounded),
+                          label: const Text(
+                            'Revisar otro correo',
+                            style: TextStyle(fontSize: 17),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+    return Semantics(
+      key: ValueKey(v),
+      liveRegion: true,
+      child: v.phishing ? SacudirAlEntrar(child: tarjeta) : tarjeta,
     );
   }
 }
@@ -811,33 +1042,38 @@ class _BotonTexto extends StatelessWidget {
   final bool activo;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 60,
-    child: OutlinedButton.icon(
-      style:
-          OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            backgroundColor: activo ? _W.azul : Tono.superficie,
-            foregroundColor: activo ? _W.sobreAzul : _W.tinta,
-            shape: const StadiumBorder(),
-          ).copyWith(
-            side: WidgetStateProperty.resolveWith(
-              (e) => e.contains(WidgetState.focused)
-                  ? const BorderSide(color: _W.azul, width: 3)
-                  : const BorderSide(color: Tono.borde, width: 1.5),
-            ),
-            textStyle: const WidgetStatePropertyAll(
-              TextStyle(
-                fontFamily: 'packages/theme_light/ThemeLightLexend',
-                fontVariations: [FontVariation('wght', 600)],
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+  // El borde de foco ya lo dibuja el propio botón (3 px): Flotar solo pone el movimiento.
+  Widget build(BuildContext context) => Flotar(
+    activo: onTap != null,
+    foco: false,
+    child: SizedBox(
+      height: 60,
+      child: OutlinedButton.icon(
+        style:
+            OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              backgroundColor: activo ? _W.azul : Tono.superficie,
+              foregroundColor: activo ? _W.sobreAzul : _W.tinta,
+              shape: const StadiumBorder(),
+            ).copyWith(
+              side: WidgetStateProperty.resolveWith(
+                (e) => e.contains(WidgetState.focused)
+                    ? const BorderSide(color: _W.azul, width: 3)
+                    : const BorderSide(color: Tono.borde, width: 1.5),
+              ),
+              textStyle: const WidgetStatePropertyAll(
+                TextStyle(
+                  fontFamily: 'packages/theme_light/ThemeLightLexend',
+                  fontVariations: [FontVariation('wght', 600)],
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
-      onPressed: onTap,
-      icon: Icon(icono, size: 26),
-      label: Text(texto),
+        onPressed: onTap,
+        icon: Icon(icono, size: 26),
+        label: Text(texto),
+      ),
     ),
   );
 }

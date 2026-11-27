@@ -577,6 +577,11 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   }
 
   Future<void> _hablar() async {
+    // Segundo toque mientras escucha = «Parar»: se usa lo que alcanzó a entender y se revisa.
+    if (_estado == EstadoRobot.escuchando) {
+      Voz.i.pararEscucha();
+      return;
+    }
     final previo = _modo;
     _modo = _Modo.hablar;
     await _pulsar();
