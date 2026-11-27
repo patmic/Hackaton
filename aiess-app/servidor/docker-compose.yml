@@ -8,6 +8,9 @@
 #
 # Privacidad: llama-server NO guarda los correos: sin --log-prompts-dir, sin endpoint /slots (--no-slots)
 # y sin escribir nada a disco. El texto queda solo en memoria y se reemplaza con la siguiente revisión.
+# Nombre propio: no choca con otros proyectos del mismo servidor.
+name: aiess
+
 services:
   ia:
     image: ghcr.io/ggml-org/llama.cpp:server
@@ -17,7 +20,7 @@ services:
     command: >
       -m /modelos/aiess-lfm2-1.2b-Q4_K_M.gguf
       --host 0.0.0.0 --port 8080
-      -c 8192 -np 4
+      -c ${CONTEXTO:-8192} -np ${PARALELO:-4}
       --threads ${HILOS:-4}
       --cache-reuse 256
       --no-slots
@@ -36,9 +39,11 @@ services:
     image: caddy:2
     restart: unless-stopped
     depends_on: [ia]
+    # Puertos configurables: si el servidor ya usa 80/443 para otro proyecto, usa PUERTO_HTTP=8090
+    # y PUERTO_HTTPS=127.0.0.1:8443 (así no se toca lo que ya está corriendo).
     ports:
-      - "80:80"
-      - "443:443"
+      - "${PUERTO_HTTP:-80}:80"
+      - "${PUERTO_HTTPS:-443}:443"
     environment:
       DOMINIO: ${DOMINIO:-:80}
     volumes:
