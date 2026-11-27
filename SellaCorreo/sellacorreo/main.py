@@ -213,7 +213,7 @@ def page(title: str, body: str, user: dict | None = None, request: Request | Non
         return f'<a href="{href}"{cur}>{label}</a>'
     links = (f'<nav class="sc-foot-links" aria-label="Secciones">' + foot("/", "Inicio", "inicio")
              + foot("/genkey", "Sello", "genkey") + foot("/checkin", "Validador", "checkin")
-             + foot("/observatorio", "Observatorio", "observatorio")
+             + foot("/radar", "Radar Phishing", "radar")
              + foot("/reportar-incidente", "Reportar Incidente", "incidente") + sesion + "</nav>")
     head = ""
     return HTMLResponse(status_code=status, content=f"""<!doctype html><html lang="es"><head>
@@ -305,14 +305,12 @@ def home(request: Request):
     <div class="sc-dial">{dial_svg()}
       <img class="sc-dial__img sc-dial__img--base sc-dial__img--robot" src="/static/img/robot-aiess.svg" alt="Robot AIESS" width="410" height="410">
       <img class="sc-dial__img sc-dial__img--sello" src="/static/img/sello.jpg" alt="Sobre digital protegido por un escudo" width="410" height="410" aria-hidden="true">
-      <img class="sc-dial__img sc-dial__img--escudo sc-dial__img--observatorio" src="/static/img/observatorio.svg" alt="" width="410" height="410" aria-hidden="true">
+      <img class="sc-dial__img sc-dial__img--escudo sc-dial__img--radar" src="/static/img/observatorio.svg" alt="" width="410" height="410" aria-hidden="true">
     </div>
     {home_card("sello", "/genkey", "Sellar Correo", "Crea tu sello de seguridad y evita el phishing", ICON_DOC)}
     {home_card("validador", "/checkin", "Validador", "Valida el hash y evita la suplantación de identidad", ICON_SHIELD,
                 "Haga clic en el encabezado de su correo o pegue su enlace en este Validador.")}
-    {home_card("observatorio", "/observatorio", "Observatorio", "Aprende del comportamiento y personaliza la capacitación", ICON_CHART,
-                "Qué indicios engañan a cada grupo y qué debe practicar cada persona.")}
-    {home_card("radar", "/radar", "Radar Phishing", "Monitorea en vivo los intentos de phishing detectados", ICON_RADAR)}
+    {home_card("radar", "/radar", "Radar Phishing", "Intentos de phishing y Observatorio de comportamiento", ICON_RADAR)}
   </div>
 </section>
 <section class="tl-grid-stats sc-home__stats" aria-label="Resumen">
@@ -359,6 +357,16 @@ def radar_data(dias: int = 14, limite: int = 20) -> dict:
             "motivos": [dict(r) for r in motivos], "ultimos": [dict(r) for r in ultimos], "serie": serie}
 
 
+def radar_tabs(actual: str) -> str:
+    """Radar Phishing y Observatorio son una sola opción: dos pestañas de la misma sección."""
+    def tab(href, label, key, nota=""):
+        cur = ' aria-current="page"' if key == actual else ""
+        return f'<a class="sc-rtabs__tab" href="{href}"{cur}>{label}{nota}</a>'
+    return ('<nav class="sc-rtabs" aria-label="Radar Phishing">' + tab("/radar", "Intentos de phishing", "radar")
+            + tab("/observatorio", "Observatorio de comportamiento", "observatorio",
+                  ' <span class="sc-rtabs__nota">con sesión</span>') + '</nav>')
+
+
 @app.get("/radar", response_class=HTMLResponse)
 def radar(request: Request):
     d = radar_data()
@@ -382,7 +390,7 @@ def radar(request: Request):
         ult = f'<table class="sc-table sc-radar__ult"><tr><th>Hora (Ecuador)</th><th>Estado</th><th>Motivo</th></tr>{ult}</table>'
     else:
         ult = '<p class="tl-hint">Sin intentos registrados.</p>'
-    body = f"""<header class="tl-page-head"><h1 class="tl-h1">Radar Phishing</h1>
+    body = radar_tabs("radar") + f"""<header class="tl-page-head"><h1 class="tl-h1">Radar Phishing</h1>
 <p class="tl-page-desc">Monitoreo de las consultas al Validador: cuántos enlaces resultaron auténticos y cuántos fueron
 inválidos, alterados o caducados. Solo se registran la hora y el resultado; nunca correos ni direcciones IP.</p></header>
 <section class="sc-home__stats sc-radar__kpis" aria-label="Resumen del radar">
@@ -557,8 +565,11 @@ def initials(name: str) -> str:
     return "".join(p[0].upper() for p in parts[:2]) or "SC"
 
 
+PALABRA_POR_DEFECTO = "IESS-KEY"  # la palabra segura es obligatoria; el formulario la trae escrita
+
+
 def genkey_form(request: Request, user: dict, error: str = "", values: dict | None = None) -> str:
-    v = {"taxonomia": "comunicacional", "asunto": "", "destinatario": "", "pol_palabra": "", "palabra": "",
+    v = {"taxonomia": "comunicacional", "asunto": "", "destinatario": "", "pol_palabra": "1", "palabra": PALABRA_POR_DEFECTO,
          "pol_caducidad": "", "caducidad": "7", "pol_asunto": "1", **(values or {})}
     taxs = store.taxonomias()
     left = "".join(
@@ -569,7 +580,9 @@ def genkey_form(request: Request, user: dict, error: str = "", values: dict | No
     def pol(name, label, hint):
         return (f'<label class="sc-node sc-node--right" data-node title="{E(hint)}"><input type="checkbox" name="{name}" value="1"'
                 f'{" checked" if v[name] else ""} data-policy="{name}"><span class="sc-node__dot sc-node__dot--pol"></span>{E(label)}</label>')
-    right = (pol("pol_palabra", "Palabra segura", "El destinatario verá esta palabra en CheckIn si el correo es auténtico")
+    right = (('<label class="sc-node sc-node--right sc-node--locked" data-node title="Obligatoria: el destinatario verá esta '
+              'palabra en CheckIn si el correo es auténtico"><input type="checkbox" name="pol_palabra" value="1" checked disabled '
+              'data-policy="pol_palabra"><span class="sc-node__dot sc-node__dot--pol"></span>Palabra segura</label>')
              + pol("pol_caducidad", "Caducidad del enlace", "Después de la fecha, CheckIn lo marcará inválido")
              + pol("pol_asunto", "Asunto del correo", "Incluye el asunto en el hash; CheckIn lo muestra para que compare con el correo recibido")
              + ('<label class="sc-node sc-node--right sc-node--locked" data-node title="Siempre activa: el correo del emisor '
@@ -605,8 +618,8 @@ def genkey_form(request: Request, user: dict, error: str = "", values: dict | No
 <input class="tl-input" id="asunto" name="asunto" maxlength="300" value="{E(v['asunto'])}">
 <span class="tl-hint">Forma parte del hash del sello y CheckIn lo muestra para que el destinatario compare.</span></div>
 <div class="tl-field sc-policy" data-for="pol_palabra"><label class="tl-field__label" for="palabra">Palabra segura</label>
-<input class="tl-input" id="palabra" name="palabra" maxlength="40" value="{E(v['palabra'])}" placeholder="p. ej. girasol-azul">
-<span class="tl-hint">Acuérdela antes con el destinatario. CheckIn la muestra solo si el correo es válido; se guarda cifrada.</span></div>
+<input class="tl-input" id="palabra" name="palabra" maxlength="40" minlength="3" required value="{E(v['palabra'])}" placeholder="{PALABRA_POR_DEFECTO}">
+<span class="tl-hint">Obligatoria. Acuérdela antes con el destinatario. CheckIn la muestra solo si el correo es válido; se guarda cifrada.</span></div>
 <div class="tl-field sc-policy" data-for="pol_caducidad"><label class="tl-field__label" for="caducidad">El enlace caduca en</label>
 <select class="tl-select" id="caducidad" name="caducidad">{cad}</select></div>
 <div class="tl-row"><button class="tl-btn tl-btn--default" type="submit">Generar enlace e imagen</button>
@@ -634,8 +647,8 @@ def observatorio_get(request: Request, persona: str = ""):
     user = current_user(request)
     if not user:
         return RedirectResponse("/login?siguiente=/observatorio", status_code=303)
-    return page("Observatorio", observatorio.panel(csrf_token(request), persona[:64]), user, request,
-                active="observatorio", chrome="observatorio")
+    return page("Observatorio", radar_tabs("observatorio") + observatorio.panel(csrf_token(request), persona[:64]), user, request,
+                active="radar", chrome="observatorio")
 
 
 @app.post("/observatorio/borrar-sinteticos")
@@ -707,16 +720,16 @@ def genkey_post(request: Request, csrf: str = Form(""), taxonomia: str = Form(..
         err = "Taxonomía no válida."
     elif pol_asunto and not asunto.strip():
         err = "Escriba el asunto o desmarque «Asunto del correo»."
-    elif pol_palabra and not (3 <= len(palabra) <= 40):
-        err = "La palabra segura debe tener entre 3 y 40 caracteres."
+    elif not (3 <= len(palabra) <= 40):  # la palabra segura es obligatoria
+        err = "La palabra segura es obligatoria y debe tener entre 3 y 40 caracteres."
     elif pol_caducidad and caducidad not in CADUCIDADES:
         err = "Caducidad no válida."
     if err:
         return page("GenKey", genkey_form(request, user, err, values), user, request, 422, "genkey", chrome="genkey")
-    s = create_seal(user, taxonomia, asunto, "", palabra if pol_palabra else None,
+    s = create_seal(user, taxonomia, asunto, "", palabra,
                     int(caducidad) if pol_caducidad else None, False, bool(pol_asunto))
     politicas = [p for p, on in [("correo del emisor (siempre, en el hash)", True), ("asunto en el hash", pol_asunto),
-                                 ("palabra segura", pol_palabra),
+                                 ("palabra segura", True),
                                  (f"caduca {s['expira']}" if s["expira"] else "", pol_caducidad)] if on and p]
     snippet = (f'<a href="{s["enlace"]}"><img src="{s["imagen"]}" width="240" height="240" '
                f'alt="ANTI-PHISHING" style="display:block;border:0"></a>')
