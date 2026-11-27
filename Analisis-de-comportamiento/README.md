@@ -56,7 +56,7 @@ prioridad(indicio) = riesgo × relevancia + exploración + repaso
 | Término | Qué es |
 |---|---|
 | riesgo | 1 − probabilidad de reconocerlo. Con poca evidencia propia, se apoya en su segmento |
-| relevancia | 0,5 a 1, según cuánto se usa ese indicio para suplantar las tipologías que recibe la persona (`suplantacion_frecuente` y `publico` de `tipologias-correo/tipologias.json`) |
+| relevancia | 0,5 a 1, según cuánto se usa ese indicio para suplantar las tipologías que recibe la persona (`suplantacion_frecuente` y `publico` de `tipologias-correo/tipologias.json`). **1 si ya le engañó alguna vez**: su propia evidencia manda |
 | exploración | +0,1 si nunca se probó: la escalera exige al menos un indicio DEBIL o SIN_PROBAR (§11) |
 | repaso | +0,1 si lo dominaba hace más de 60 días |
 
@@ -83,6 +83,15 @@ IN1 · 50-64   más engañan: I3 43%, I2 41%, I1 36%   (vulnerabilidad oculta: I
 
 También detecta que los seis «primeros correos por tipo» de §11 engañan como un nivel 3. Apuntan justo al ataque típico de cada tipo, así que conviene recalibrarlos. La prueba `test_el_observador_descubre_las_vulnerabilidades_ocultas` lo verifica.
 
+**Por persona.** Entre las personas sintéticas que ya cayeron alguna vez en su vulnerabilidad oculta, ¿su plan (solo con sus acciones, sin datos del segmento) la muestra entre sus 3 falencias? Medido el 2026-11-27 en 3 poblaciones de 400 (semillas 7, 11 y 2026); los segmentos, en 5 (además 42 y 99):
+
+| Relevancia | La muestra en el top 3 | La pone primera | Segmentos que la descubren (1.ª / top 3) |
+|---|---|---|---|
+| Solo por tipología (antes) | 9 % | 2 % | 63 % / 91 % |
+| Máxima si ya le engañó (ahora) | 56 % | 23 % | 65 % / 91 % |
+
+Antes, un indicio poco usado contra su tipo de cuenta (por ejemplo «pide pago», I10, para un afiliado: relevancia 0) nunca llegaba a su plan aunque le hubiera engañado: lo tapaban los indicios sin probar. La prueba `test_aprende_la_debilidad_de_cada_persona` exige al menos 45 %.
+
 ## Contrato HTTP (prefijo `/api/v1/observatorio`)
 
 | Método y ruta | Quién | Qué hace |
@@ -98,6 +107,32 @@ Ejemplos en `contrato/`:
 - `observacion_decision.json`
 - `observacion_verificacion.json`
 - `plan.ejemplo.json`, que genera una prueba y lee la app.
+
+## Cómo lo usa la app (aula virtual de `Capacitacion/`)
+
+```text
+¿Real o estafa? (cada tarjeta) ─┐
+Caza la señal (cada señal) ─────┤  ObservacionConducta    observadorProvider
+correo de prueba (mock) ────────┼──────────────────────▶ (guarda en el dispositivo)
+verificar un código ────────────┘                           │            │ solo si la persona
+                                                            ▼            ▼ activa «Compartir»
+                                      ObservadorLocal (mismo modelo)   POST /observaciones
+                                                            │            GET /personas/{id}/plan
+                                                            ▼            ▼
+                                            planPersonalizadoProvider (servidor si ya tiene todo;
+                                                            │           si no, el del dispositivo)
+                              ┌─────────────────────────────┼───────────────────────────┐
+                              ▼                             ▼                           ▼
+                 MotorRecomendacion: «Para ti»   PlanPersonalCard: «Lo que más    MockCapacitacionApi:
+                 sube lo que le costó            te conviene practicar»           el 2.º correo de prueba
+                                                                                  en adelante trabaja eso
+```
+
+- **Sin servidor también aprende.** `ObservadorLocal` (Dart) es el mismo modelo de `modelo.py` y la relevancia de `plan.py`, sin el arranque por segmento. Una prueba de Flutter compara su mapa de indicios con `contrato/plan.ejemplo.json`; otra lee ese plan con `PlanPersonalizado.fromJson`.
+- **Compartir es opcional** (interruptor en la tarjeta, apagado al empezar). La app envía al Radar Phishing con un código aleatorio del dispositivo (32 hex), nunca nombre, cédula ni correo. Sin conexión reintenta con la siguiente práctica; un lote rechazado (4xx) se descarta para no frenar a los demás.
+- **«Borrar mis prácticas»** llama a `DELETE /personas/{id}`, borra lo guardado y crea un código nuevo.
+- **Servidor:** `--dart-define=OBSERVADOR_URL=https://…` o, si falta, `AIESS_SELLO` (el observador vive en SellaCorreo). El origen web debe estar en `SELLACORREO_OBSERVATORIO_ORIGENES` (por defecto solo localhost).
+- **[PENDIENTE]** Con la API de Capacitación real, la persona tiene dos códigos: el HMAC de su correo (correos de prueba) y el del dispositivo (aula). Falta que `/me` o `/estado` devuelvan el `id_seudonimo` para que el aula use el mismo.
 
 ## Privacidad (reglas 3 y 6 de CLAUDE.md)
 

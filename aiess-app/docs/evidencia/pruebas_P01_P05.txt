@@ -1,0 +1,6 @@
+P01 → Phishing: SÍ · 6 indicios [I3, I10, I2, I4, I6, I7]
+P02 → Phishing: NO · 0 indicios []
+P03 → Phishing: SÍ · 1 indicio [I2]
+P04 → Phishing: NO · 0 indicios []
+P05 → Phishing: SÍ · 3 indicios [I9, I11, I7]
+00:00 +5: All tests passed!

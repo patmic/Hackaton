@@ -1,0 +1,71 @@
+From: IESS - Instituto Ecuatoriano de Seguridad Social
+ <notificaciones9894@iess-servicios-tu2.xyz>
+To: afiliado@correo.test
+Subject: Reembolso =?utf-8?q?=C3=BAnico?= por pago en exceso
+Date: Sun, 29 Jun 2025 19:37:29 -0500
+Message-ID: <t3q4zgiml8k069fwzxorpqw8@iess-servicios-tu2.xyz>
+Received: from mx1.relay-b.test by mx2.gateway.test with SMTP id jd3wnx8vw9;
+ Sun, 29 Jun 2025 19:36:49 -0500
+Received: from mx2.relay-a.test by mx3.gateway.test with SMTP id v9tqk018p6;
+ Sun, 29 Jun 2025 19:37:15 -0500
+Received: from mx3.relay-b.test by mx4.gateway.test with SMTP id 9dm6x13ctd;
+ Sun, 29 Jun 2025 19:37:17 -0500
+Received: from mx4.gw.example by mx5.gateway.test with SMTP id f7t4km79pp;
+ Sun, 29 Jun 2025 19:37:19 -0500
+Received: from mx5.mail.example by mx6.gateway.test with SMTP id u024lryr0q;
+ Sun, 29 Jun 2025 19:37:13 -0500
+Received: from mx6.gw.example by mx7.gateway.test with SMTP id f4xwek4k3e;
+ Sun, 29 Jun 2025 19:37:17 -0500
+Received: from mx7.relay-a.test by mx8.gateway.test with SMTP id idl36do1tc;
+ Sun, 29 Jun 2025 19:37:25 -0500
+Received: from mx8.relay-a.test by mx9.gateway.test with SMTP id b4zuz0kuu1;
+ Sun, 29 Jun 2025 19:37:27 -0500
+X-Simulacion: Correo sintetico - Hackaton Codigo Confianza IESS 2026 - P01
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="===============5244215778022740074=="
+
+--===============5244215778022740074==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+Estimado usuario:
+
+Tras la conciliaci=C3=B3n de aportes del periodo octubre-diciembre de 2025, e=
+l sistema registra un saldo a su favor.
+
+Monto aprobado: USD 155,50 =E2=80=94 Referencia IESS-2026-11404.
+
+Para validar su identidad, ingrese su usuario y contrase=C3=B1a en el portal.
+
+Transfiera $250,00 a la cuenta que le indicaremos para activar el servicio.
+
+Para continuar ingrese aqu=C3=AD: https://t.ly/6sx3tyqs
+
+Reciba un cordial saludo.
+
+Servicio de Verificaci=C3=B3n
+
+Ver este mensaje en el navegador.
+
+--===============5244215778022740074==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html><body style=3D'font-family:Arial,sans-serif;font-size:14px'><p>Estimado=
+ usuario:</p>
+<p>Tras la conciliaci=C3=B3n de aportes del periodo octubre-diciembre de 2025=
+, el sistema registra un saldo a su favor.</p>
+<p>Monto aprobado: USD 155,50 =E2=80=94 Referencia IESS-2026-11404.</p>
+<p>Para validar su identidad, ingrese su usuario y contrase=C3=B1a en el port=
+al.</p>
+<p>Transfiera $250,00 a la cuenta que le indicaremos para activar el servicio=
+.</p>
+<p>Para continuar ingrese aqu=C3=AD: <a href=3D"https://t.ly/6sx3tyqs">https:=
+//t.ly/6sx3tyqs</a></p>
+<p>Reciba un cordial saludo.</p>
+<p>Servicio de Verificaci=C3=B3n</p>
+<p>Ver este mensaje en el navegador.</p></body></html>
+
+--===============5244215778022740074==--

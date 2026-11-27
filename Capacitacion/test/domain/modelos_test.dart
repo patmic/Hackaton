@@ -13,7 +13,7 @@ void main() {
     };
 
     test('se parsea completo y con ids únicos', () {
-      expect(catalogo, hasLength(12));
+      expect(catalogo, hasLength(17));
       expect(porId, hasLength(catalogo.length));
     });
 
@@ -24,13 +24,16 @@ void main() {
       );
     });
 
-    test('cada actividad es breve y tiene paso 4R y mensaje clave', () {
-      for (final a in catalogo) {
-        expect(a.duracionSegundos, inInclusiveRange(30, 300), reason: a.id);
-        expect(a.pasos4r, isNotEmpty, reason: a.id);
-        expect(a.mensajeClave, isNotEmpty, reason: a.id);
-      }
-    });
+    test(
+      'cada actividad dura de 1 a 3 min y tiene paso 4R y mensaje clave',
+      () {
+        for (final a in catalogo) {
+          expect(a.duracionSegundos, inInclusiveRange(60, 180), reason: a.id);
+          expect(a.pasos4r, isNotEmpty, reason: a.id);
+          expect(a.mensajeClave, isNotEmpty, reason: a.id);
+        }
+      },
+    );
 
     test('módulo, mecánica y tipos son coherentes con §10.2', () {
       for (final a in catalogo) {
@@ -132,6 +135,17 @@ void main() {
         isTrue,
       );
     });
+
+    test('M15 (deepfakes) llega a externos e internos', () {
+      for (final tipo in TipoUsuario.values) {
+        final ids = [
+          for (final a in catalogo)
+            if (a.modulo == 'M15' && a.elegiblePara(Perfil(tipos: {tipo})))
+              a.id,
+        ];
+        expect(ids, isNotEmpty, reason: tipo.codigo);
+      }
+    });
   });
 
   group('enums', () {
@@ -153,14 +167,14 @@ void main() {
       expect(() => Indicio.desdeCodigo('I12'), throwsFormatException);
       expect(() => TipoUsuario.desdeCodigo('EX9'), throwsFormatException);
       expect(() => Mecanica.desdeCodigo('A10'), throwsFormatException);
-      expect(() => Modulo.porCodigo('M15'), throwsFormatException);
+      expect(() => Modulo.porCodigo('M16'), throwsFormatException);
     });
 
-    test('hay 11 indicios, 9 tipos, 9 mecánicas y 14 módulos', () {
+    test('hay 11 indicios, 9 tipos, 9 mecánicas y 15 módulos', () {
       expect(Indicio.values, hasLength(11));
       expect(TipoUsuario.values, hasLength(9));
       expect(Mecanica.values, hasLength(9));
-      expect(catalogoModulos.map((m) => m.codigo).toSet(), hasLength(14));
+      expect(catalogoModulos.map((m) => m.codigo).toSet(), hasLength(15));
     });
 
     test('«Expuesto» nunca se muestra al usuario (regla 7)', () {

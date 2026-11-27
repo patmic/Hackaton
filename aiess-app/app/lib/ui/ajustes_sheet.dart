@@ -4,13 +4,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../features/llm/cerebro.dart';
 import '../features/llm/remoto.dart';
 import '../features/osint/cti.dart';
 import '../features/sello/sello.dart';
+import '../features/observatorio/observatorio.dart';
 import 'aula_virtual.dart';
 import 'bienvenida_page.dart';
 import 'tema.dart';
@@ -47,15 +47,14 @@ class _AjustesState extends State<_Ajustes> {
   bool _probando = false;
   double? _progreso;
   String? _error;
-  bool _red = false;
 
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then(
-      (p) => setState(() => _red = p.getBool('red') ?? false),
-    );
+    Observatorio.activo().then((v) => setState(() => _observatorio = v));
   }
+
+  bool _observatorio = true;
 
   Future<void> _descargar(ModeloDescargable m) async {
     setState(() {
@@ -336,25 +335,28 @@ class _AjustesState extends State<_Ajustes> {
                   Text(_error!, style: const TextStyle(color: Tono.rojo)),
               ],
               const Divider(height: 32),
-              if (!kIsWeb)
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: _red,
-                  activeThumbColor: Tono.sobreLima,
-                  activeTrackColor: Tono.lima,
-                  title: const Text(
-                    'Revisar enlaces en internet',
-                    style: TextStyle(color: tinta, fontSize: 17),
-                  ),
-                  subtitle: const Text(
-                    'Comprueba el certificado y las redirecciones sin abrir la página.',
-                    style: TextStyle(color: Tono.gris),
-                  ),
-                  onChanged: (v) async {
-                    (await SharedPreferences.getInstance()).setBool('red', v);
-                    setState(() => _red = v);
-                  },
+              // Observatorio del IESS: resultado anónimo de cada revisión (rúbrica: solo datos mínimos).
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _observatorio,
+                activeThumbColor: Tono.sobreLima,
+                activeTrackColor: Tono.lima,
+                title: const Text(
+                  'Ayudar al Observatorio del IESS',
+                  style: TextStyle(color: tinta, fontSize: 17),
                 ),
+                subtitle: const Text(
+                  'Envía solo el resultado (rojo, amarillo o verde) y los códigos de los indicios (I1 a I11), '
+                  'con un código al azar. Nunca el correo, el asunto ni tus datos.',
+                  style: TextStyle(color: Tono.gris),
+                ),
+                onChanged: (v) async {
+                  await Observatorio.activar(v);
+                  setState(() => _observatorio = v);
+                },
+              ),
+              // (Se quitó «Revisar enlaces en internet»: contactar el sitio sospechoso le avisa al atacante.
+              // El bot solo LEE los enlaces; nunca los abre.)
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.school_outlined, color: tinta),

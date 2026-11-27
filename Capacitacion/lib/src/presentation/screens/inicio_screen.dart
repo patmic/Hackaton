@@ -1,5 +1,11 @@
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../application/logica/logica.dart';
+import '../../application/providers.dart';
+import '../widgets/ilustracion_modulo.dart';
 import '../widgets/marca_iess.dart';
 import '../widgets/responsivo.dart';
 import 'catalogo_tab.dart';
@@ -7,11 +13,11 @@ import 'para_ti_tab.dart';
 import 'progreso_tab.dart';
 import 'verificar_tab.dart';
 
-class InicioScreen extends StatefulWidget {
+class InicioScreen extends ConsumerStatefulWidget {
   const InicioScreen({super.key});
 
   @override
-  State<InicioScreen> createState() => _InicioScreenState();
+  ConsumerState<InicioScreen> createState() => _InicioScreenState();
 }
 
 class _Seccion {
@@ -20,8 +26,14 @@ class _Seccion {
   final IconData icono, iconoActivo;
 }
 
-class _InicioScreenState extends State<InicioScreen> {
+class _InicioScreenState extends ConsumerState<InicioScreen> {
   int _indice = 0;
+
+  /// «Mi avance», donde están las insignias.
+  static const _indiceProgreso = 3;
+
+  /// Insignias ya celebradas en esta visita (mientras se terminan de guardar).
+  final _celebradas = <String>{};
 
   static const _secciones = [
     _Seccion(
@@ -50,17 +62,78 @@ class _InicioScreenState extends State<InicioScreen> {
     ),
   ];
 
-  static const _paginas = [
-    ParaTiTab(),
-    VerificarTab(),
-    CatalogoTab(),
-    ProgresoTab(),
-  ];
+  /// Al ganar una insignia (en cualquier lección abierta encima del aula) se
+  /// guarda en el progreso y se avisa una sola vez.
+  void _alCambiarInsignias(
+    AsyncValue<ResumenInsignias>? _,
+    AsyncValue<ResumenInsignias> siguiente,
+  ) {
+    // Mientras se recalcula, el valor anterior puede traer insignias ya guardadas.
+    if (siguiente.isLoading) return;
+    if (siguiente case AsyncData(value: final resumen)) {
+      final nuevas = [
+        for (final i in resumen.nuevas)
+          if (!_celebradas.contains(i.id)) i,
+      ];
+      if (nuevas.isEmpty) return;
+      _celebradas.addAll(nuevas.map((i) => i.id));
+      unawaited(
+        ref.read(progresoProvider.notifier).otorgarInsignias({
+          for (final i in nuevas) i.id,
+        }),
+      );
+      // Fuera de la construcción del cuadro: el aviso cambia el estado del ScaffoldMessenger.
+      scheduleMicrotask(() {
+        if (mounted) _avisar(nuevas);
+      });
+    }
+  }
+
+  void _avisar(List<Insignia> nuevas) {
+    final primera = nuevas.first;
+    final texto = nuevas.length == 1
+        ? '¡Ganaste la insignia «${primera.nombre}»!'
+        : '¡Ganaste ${nuevas.length} insignias!';
+    ScaffoldMessenger.maybeOf(context)
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          key: const ValueKey('aviso-insignia'),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 6),
+          content: Row(
+            children: [
+              InsigniaVista(insignia: primera, tam: 40, animada: true),
+              const SizedBox(width: 12),
+              Expanded(child: Text(texto)),
+            ],
+          ),
+          action: SnackBarAction(label: 'Ver', onPressed: _verInsignias),
+        ),
+      );
+  }
+
+  /// Cierra la lección que esté abierta y muestra «Mi avance».
+  void _verInsignias() {
+    if (!mounted) return;
+    final propia = ModalRoute.of(context);
+    Navigator.of(context).popUntil((r) => r == propia || r.isFirst);
+    setState(() => _indice = _indiceProgreso);
+  }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(insigniasProvider, _alCambiarInsignias);
     final escritorio = MediaQuery.sizeOf(context).width >= anchoEscritorio;
-    final cuerpo = IndexedStack(index: _indice, children: _paginas);
+    final paginas = [
+      ParaTiTab(
+        onVerInsignias: () => setState(() => _indice = _indiceProgreso),
+      ),
+      const VerificarTab(),
+      const CatalogoTab(),
+      const ProgresoTab(),
+    ];
+    final cuerpo = IndexedStack(index: _indice, children: paginas);
     return Scaffold(
       // Logo del IESS + dónde estoy (visibilidad del estado y confianza).
       appBar: AppBar(title: TituloConLogo(_secciones[_indice].titulo)),

@@ -78,26 +78,32 @@ class _TextoVivoState extends State<TextoVivo> {
             (mismoTexto ? (dicho > _escrito ? dicho : _escrito) : _escrito)
                 .clamp(0, t.length);
         final hablado = mismoTexto ? dicho.clamp(0, visible) : visible;
-        return Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(text: t.substring(0, hablado), style: base),
-              TextSpan(
-                text: t.substring(hablado, visible),
-                style: base.copyWith(
-                  color: base.color?.withValues(alpha: 0.55),
-                ),
-              ),
-              if (visible < t.length)
+        // El lector de pantalla recibe el texto COMPLETO y fijo: si siguiera la animación (letra por letra o
+        // al ritmo de la voz), cada cambio volvería a anunciarse dentro de una región «en vivo».
+        return Semantics(
+          label: t,
+          excludeSemantics: true,
+          child: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(text: t.substring(0, hablado), style: base),
                 TextSpan(
-                  text: ' ▍',
+                  text: t.substring(hablado, visible),
                   style: base.copyWith(
-                    color: base.color?.withValues(alpha: 0.7),
+                    color: base.color?.withValues(alpha: 0.55),
                   ),
                 ),
-            ],
+                if (visible < t.length)
+                  TextSpan(
+                    text: ' ▍',
+                    style: base.copyWith(
+                      color: base.color?.withValues(alpha: 0.7),
+                    ),
+                  ),
+              ],
+            ),
+            textAlign: widget.alineacion,
           ),
-          textAlign: widget.alineacion,
         );
       },
     );

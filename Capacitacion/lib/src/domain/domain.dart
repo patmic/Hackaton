@@ -14,6 +14,7 @@ export 'microcurso.dart';
 export 'modulo.dart';
 export 'perfil.dart';
 export 'perfil_conducta.dart';
+export 'plan_personalizado.dart';
 export 'plantillas_prueba.dart';
 export 'progreso.dart';
 export 'rango_etario.dart';

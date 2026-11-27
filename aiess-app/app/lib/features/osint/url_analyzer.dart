@@ -40,6 +40,9 @@ class AnalisisOsint {
 
   /// Hallazgos de fuentes externas (RDAP, OpenPhish) y su peso.
   final List<String> cti = [];
+
+  /// Qué se envió a internet (solo dominios). OpenPhish no cuenta: la lista se descarga y se compara aquí.
+  final List<String> consultados = [];
   int ctiPuntaje = 0;
 
   int get puntaje => [

@@ -14,11 +14,17 @@ import 'package:material_ui/material_ui.dart';
 import '../features/mascota/robot_guardia.dart';
 import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
 
+import 'package:theme_light/theme_light.dart';
+import 'globo_deepfake.dart';
 import 'tema.dart';
+import 'partes_correo.dart';
+import '../features/analisis/motor.dart' show nombreIndicio;
 import 'texto_vivo.dart';
+import 'tutorial_copiar.dart';
 
 /// Estado visual de la pantalla.
-enum EstadoHoja { listo, analizando, estafa, seguro }
+/// duda = sin indicios pero sin sello válido del IESS: no es estafa (catálogo), pero no se confirma.
+enum EstadoHoja { listo, analizando, estafa, seguro, duda }
 
 class AiessHomeScreen extends StatelessWidget {
   const AiessHomeScreen({
@@ -41,6 +47,10 @@ class AiessHomeScreen extends StatelessWidget {
     this.onReanalizar,
     this.onRevisarIA,
     this.iaLocal = false,
+    this.indicios = const [],
+    this.avisoSello,
+    this.textoCorreo,
+    this.queSalio,
     this.onAula,
     this.onPracticar,
     this.resumen,
@@ -60,6 +70,18 @@ class AiessHomeScreen extends StatelessWidget {
 
   /// ¿La IA corre en este equipo? (cambia el texto del botón «Revisar con la IA»).
   final bool iaLocal;
+
+  /// Indicios del catálogo encontrados (se listan TODOS: la cantidad coincide con el resumen y el avatar).
+  final List<String> indicios;
+
+  /// Aviso aparte sobre el sello del IESS.
+  final String? avisoSello;
+
+  /// Texto del correo revisado (para mostrar sus partes sin abrir nada).
+  final String? textoCorreo;
+
+  /// «Lo que salió del equipo: …» (rúbrica: seguridad y datos).
+  final String? queSalio;
 
   /// «Phishing: SÍ · 3 indicios» (veredicto claro).
   final String? resumen;
@@ -185,14 +207,23 @@ class AiessHomeScreen extends StatelessWidget {
                     progreso: progreso,
                     dur: dur,
                     resumen: resumen,
+                    indicios: indicios,
+                    avisoSello: avisoSello,
+                    textoCorreo: textoCorreo,
+                    queSalio: queSalio,
                   ),
+                  // Si quiere aprender más: sugerencias sobre deepfakes que dice el robot.
+                  if (estado == EstadoHoja.listo) ...[
+                    const SizedBox(height: 12),
+                    const GloboDeepfake(),
+                  ],
                   const Spacer(),
                   const SizedBox(height: 16),
                   AnimatedSwitcher(
                     duration: dur,
                     child: KeyedSubtree(
                       key: ValueKey(estado),
-                      child: _acciones(),
+                      child: _acciones(context),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -206,7 +237,7 @@ class AiessHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _acciones() {
+  Widget _acciones(BuildContext context) {
     switch (estado) {
       case EstadoHoja.analizando:
         // Escuchando: un botón grande para PARAR (callarse 4 s también termina y revisa).
@@ -226,6 +257,7 @@ class AiessHomeScreen extends StatelessWidget {
         );
       case EstadoHoja.estafa:
       case EstadoHoja.seguro:
+      case EstadoHoja.duda:
         final estafa = estado == EstadoHoja.estafa;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -287,7 +319,7 @@ class AiessHomeScreen extends StatelessWidget {
                     child: _BotonTarjeta(
                       // En la web se sube un PDF o una foto (OCR en el navegador).
                       texto: kIsWeb ? 'Subir correo' : 'Escanear o subir',
-                      ayuda: kIsWeb ? '.eml, PDF o foto' : 'Foto o correo .eml',
+                      ayuda: kIsWeb ? '.eml, PDF o foto' : 'Foto, .eml o PDF',
                       icono: kIsWeb
                           ? Icons.upload_file_rounded
                           : Icons.document_scanner_rounded,
@@ -313,6 +345,15 @@ class AiessHomeScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 4),
+            // Tutorial corto: cómo copiar el contenido de un correo para pegarlo.
+            TextButton.icon(
+              key: const ValueKey('boton-tutorial-copiar'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: () => mostrarTutorialCopiar(context),
+              icon: const Icon(Icons.help_outline_rounded),
+              label: const Text('¿Cómo copio un correo?'),
+            ),
           ],
         );
     }
@@ -332,8 +373,16 @@ class _Globo extends StatelessWidget {
     required this.progreso,
     required this.dur,
     this.resumen,
+    this.indicios = const [],
+    this.avisoSello,
+    this.textoCorreo,
+    this.queSalio,
   });
   final String? resumen;
+  final String? textoCorreo;
+  final String? queSalio;
+  final List<String> indicios;
+  final String? avisoSello;
   final EstadoHoja estado;
   final String titulo, indicacion;
   final String? texto;
@@ -356,6 +405,12 @@ class _Globo extends StatelessWidget {
         Tono.verde,
         Icons.verified_user_rounded,
         resumen ?? 'Parece seguro',
+      ),
+      EstadoHoja.duda => (
+        ThemeLightTokens.warnBackground,
+        ThemeLightTokens.warnForeground,
+        Icons.gpp_maybe_rounded,
+        resumen ?? 'Sin sello del IESS',
       ),
       _ => (Tono.superficie, Tono.linea, null, null),
     };
@@ -443,6 +498,91 @@ class _Globo extends StatelessWidget {
                       ),
               ),
             ),
+            if (indicios.isNotEmpty && pasos.isEmpty) ...[
+              const SizedBox(height: 12),
+              Semantics(
+                header: true,
+                child: Text(
+                  'Indicios encontrados (${indicios.length})',
+                  style: Letra.lexend(
+                    16,
+                    peso: FontWeight.w700,
+                    color: borde,
+                    espacio: 0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              for (final k in indicios)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '$k · ',
+                          style: TextStyle(
+                            color: borde,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        TextSpan(text: nombreIndicio[k] ?? k),
+                      ],
+                    ),
+                    style: Letra.lectura(17, color: Tono.tinta),
+                  ),
+                ),
+            ],
+            if (textoCorreo != null && pasos.isEmpty)
+              PanelPartesCorreo(texto: textoCorreo!),
+            if (queSalio != null && pasos.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.shield_outlined,
+                      size: 20,
+                      color: Tono.gris,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        queSalio!,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Tono.gris,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (avisoSello != null && pasos.isEmpty) ...[
+              const SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.mark_email_unread_outlined,
+                    size: 22,
+                    color: ThemeLightTokens.warnForeground,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      avisoSello!,
+                      style: Letra.lectura(
+                        16,
+                        color: ThemeLightTokens.warnForeground,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

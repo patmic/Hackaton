@@ -15,7 +15,7 @@ class Modulo {
     this.incluyeCentinelas = false,
   });
 
-  /// M1…M14.
+  /// M1…M15.
   final String codigo;
   final String nombre;
 
@@ -43,7 +43,7 @@ class Modulo {
   );
 }
 
-/// Los 14 módulos de CLAUDE.md §10.2.
+/// Los 15 módulos de CLAUDE.md §10.2.
 const List<Modulo> catalogoModulos = [
   Modulo(
     codigo: 'M1',
@@ -180,5 +180,18 @@ const List<Modulo> catalogoModulos = [
     objetivo: 'Suplantación con IA y por WhatsApp.',
     mecanicas: [Mecanica.a4, Mecanica.a5],
     incluyeCentinelas: true,
+  ),
+  // Agregado el 2026-11-27 a pedido del equipo: deepfakes para todos los
+  // tipos, con lecciones de 1 a 3 minutos.
+  Modulo(
+    codigo: 'M15',
+    nombre: 'Deepfakes: voces y videos falsos',
+    nivel: 2,
+    tipos: TipoUsuario.todos,
+    minutos: 3,
+    objetivo:
+        'Reconocer voces, videos y fotos falsos hechos con inteligencia '
+        'artificial y verificar siempre por otro canal.',
+    mecanicas: [Mecanica.a1, Mecanica.a2],
   ),
 ];

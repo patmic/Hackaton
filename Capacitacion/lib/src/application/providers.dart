@@ -6,6 +6,7 @@ import '../data/actividad_repository.dart';
 import '../data/adaptador_verificacion.dart';
 import '../data/capacitacion_api.dart';
 import '../data/nucleo_api.dart';
+import '../data/observador_api.dart';
 import '../data/progreso_repository.dart';
 import '../data/tipologia_repository.dart';
 import '../domain/domain.dart';
@@ -57,8 +58,24 @@ final alertasProvider = FutureProvider<List<AlertaObservatorio>>((ref) async {
 final relojProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
 /// API de Capacitación simulada hasta que el otro bloque publique la suya.
+/// El mock elige el siguiente correo con lo que el observador aprendió de la
+/// persona y le cuenta cada reacción, como haría el servidor.
 final capacitacionApiProvider = Provider<CapacitacionApi>(
-  (ref) => MockCapacitacionApi(reloj: ref.watch(relojProvider)),
+  (ref) => MockCapacitacionApi(
+    reloj: ref.watch(relojProvider),
+    mapaObservado: () => ref.read(planPersonalizadoProvider).value?.mapa,
+    alReaccionar: (correo, resultado, momento) => unawaited(
+      ref
+          .read(observadorProvider.notifier)
+          .observar(
+            ObservacionConducta.simulacro(
+              correo: correo,
+              resultado: resultado,
+              momento: momento,
+            ),
+          ),
+    ),
+  ),
 );
 
 // ---------- Sesión (GET /api/v1/me) ----------
@@ -259,6 +276,10 @@ class ProgresoNotifier extends AsyncNotifier<Progreso> {
     (p) => p.registrarPuntaje(resultado.actividadId, resultado.puntaje),
   );
 
+  /// Guarda insignias recién ganadas para no perderlas después.
+  Future<void> otorgarInsignias(Set<String> ids) =>
+      _actualizar((p) => p.otorgarInsignias(ids));
+
   Future<void> _actualizar(Progreso Function(Progreso) cambio) async {
     final actual = await future;
     final nuevo = cambio(actual);
@@ -271,6 +292,23 @@ final progresoProvider = AsyncNotifierProvider<ProgresoNotifier, Progreso>(
   ProgresoNotifier.new,
 );
 
+// ---------- Insignias (gamificación) ----------
+
+/// Insignias del usuario: logros y módulos terminados de su ruta. Si el
+/// estado de «Quiero capacitarme» todavía no carga, se calculan sin él.
+final insigniasProvider = FutureProvider<ResumenInsignias>((ref) async {
+  final perfil = ref.watch(perfilProvider);
+  final capacitacion = ref.watch(capacitacionProvider).value;
+  final actividades = await ref.watch(actividadesDelPerfilProvider.future);
+  final progreso = await ref.watch(progresoProvider.future);
+  return Insignias.calcular(
+    actividades: actividades,
+    progreso: progreso,
+    capacitacion: capacitacion,
+    perfil: perfil,
+  );
+});
+
 // ---------- Recomendaciones ----------
 
 final recomendacionesProvider = FutureProvider<List<Recomendacion>>((
@@ -281,11 +319,18 @@ final recomendacionesProvider = FutureProvider<List<Recomendacion>>((
   final catalogo = await ref.watch(catalogoProvider.future);
   final progreso = await ref.watch(progresoProvider.future);
   final alertas = await ref.watch(alertasProvider.future);
+  PlanPersonalizado? plan;
+  try {
+    plan = await ref.watch(planPersonalizadoProvider.future);
+  } on Object {
+    plan = null; // sin plan, la ruta de su tipo sigue funcionando
+  }
   return motor.recomendar(
     actividades: catalogo,
     perfil: perfil,
     progreso: progreso,
     alertas: alertas,
+    plan: plan,
   );
 });
 
@@ -363,6 +408,21 @@ class RealOEstafaController extends Notifier<RealOEstafaEstado> {
           momento: _registro.ahora(),
         ),
       ),
+    );
+    unawaited(
+      ref
+          .read(observadorProvider.notifier)
+          .observar(
+            ObservacionConducta.decision(
+              actividadId: actividad.id,
+              itemId: tarjeta.id,
+              esEstafa: tarjeta.esEstafa,
+              acerto: retro.acerto,
+              indicios: tarjeta.indicios,
+              tipologia: actividad.tipologia,
+              momento: _registro.ahora(),
+            ),
+          ),
     );
   }
 
@@ -471,6 +531,19 @@ class VerificacionController extends AsyncNotifier<VerificacionEstado?> {
               ),
               adaptador,
             );
+      // Verificar antes de actuar es un hábito que el observador cuenta
+      // para el perfil (Prudente), no para el dominio de un indicio.
+      unawaited(
+        ref
+            .read(observadorProvider.notifier)
+            .observar(
+              ObservacionConducta.verificacion(
+                semaforo: resultado.semaforo,
+                tipologia: tipologiaPercibida,
+                momento: ref.read(relojProvider)(),
+              ),
+            ),
+      );
       return _conSugerencia(resultado);
     });
   }
@@ -532,3 +605,146 @@ final verificacionProvider =
     AsyncNotifierProvider<VerificacionController, VerificacionEstado?>(
       VerificacionController.new,
     );
+
+// ---------- Observador (Radar Phishing) ----------
+
+/// Prácticas guardadas en el dispositivo. Se sobrescribe en pruebas.
+final almacenObservadorProvider = Provider<AlmacenObservador>(
+  (ref) => PreferenciasAlmacenObservador(),
+);
+
+/// Cliente del Radar Phishing (observador en SellaCorreo). Null si la app se
+/// compiló sin `OBSERVADOR_URL` ni `AIESS_SELLO`: todo se calcula aquí.
+final observadorApiProvider = Provider<ObservadorApi?>(
+  (ref) => HttpObservadorApi.desdeEntorno(),
+);
+
+final observadorLocalProvider = Provider((ref) => const ObservadorLocal());
+
+/// Aprende de lo que la persona hace: cada tarjeta de «¿Real o estafa?»,
+/// cada señal de «Caza la señal», cada reacción a un correo de prueba y cada
+/// verificación. Todo se guarda en el dispositivo; si la persona acepta
+/// compartir, también se envía al Radar Phishing con su código aleatorio
+/// (nunca nombre, cédula ni correo).
+class ObservadorController extends AsyncNotifier<DatosObservador> {
+  /// Las escrituras van en fila para no perder ninguna.
+  Future<void> _fila = Future.value();
+
+  AlmacenObservador get _almacen => ref.read(almacenObservadorProvider);
+
+  @override
+  Future<DatosObservador> build() =>
+      ref.watch(almacenObservadorProvider).cargar();
+
+  Future<void> observar(ObservacionConducta observacion) =>
+      observarVarias([observacion]);
+
+  Future<void> observarVarias(List<ObservacionConducta> observaciones) =>
+      _enFila((d) async {
+        var nuevo = d;
+        for (final o in observaciones) {
+          // Un ítem estafa sin indicios no enseña nada y el observador lo
+          // rechazaría (y con él todo el lote).
+          if (o.esEstafa == true && o.indicios.isEmpty) continue;
+          nuevo = nuevo.con(o);
+        }
+        return nuevo;
+      });
+
+  /// La persona decide si comparte sus prácticas con el Radar Phishing.
+  Future<void> compartir(bool valor) =>
+      _enFila((d) async => d.copyWith(compartir: valor));
+
+  /// Borra todo lo aprendido, aquí y en el Radar Phishing (LOPDP), y crea
+  /// un código nuevo.
+  Future<void> borrarDatos() => _enFila((d) async {
+    final api = ref.read(observadorApiProvider);
+    if (api != null && (d.compartir || d.enviadas > 0)) {
+      try {
+        await api.borrar(d.idSeudonimo);
+      } on ObservadorNoDisponible {
+        // Sin conexión igual se borra aquí y se cambia el código: lo que
+        // quedó en el servidor ya no se puede ligar a este dispositivo.
+      }
+    }
+    return DatosObservador.nuevo().copyWith(compartir: d.compartir);
+  });
+
+  Future<void> _enFila(
+    Future<DatosObservador> Function(DatosObservador) cambio,
+  ) {
+    final paso = _fila.then((_) async {
+      try {
+        final nuevo = await _enviarPendientes(await cambio(await future));
+        await _almacen.guardar(nuevo);
+        state = AsyncData(nuevo);
+      } on Exception {
+        // Fail-open: si no se pudo guardar, la lección sigue igual.
+      }
+    });
+    _fila = paso;
+    return paso;
+  }
+
+  /// Envía lo que el Radar Phishing aún no tiene. Si no responde, se
+  /// reintenta con la siguiente práctica (fail-open).
+  Future<DatosObservador> _enviarPendientes(DatosObservador d) async {
+    final api = ref.read(observadorApiProvider);
+    if (api == null || !d.compartir || d.pendientes.isEmpty) return d;
+    final perfil = ref.read(perfilProvider);
+    try {
+      await api.registrar([
+        for (final o in d.pendientes)
+          o.toJson(
+            idSeudonimo: d.idSeudonimo,
+            tipos: perfil.tipos,
+            rangoEtario: perfil.rangoEtario,
+          ),
+      ]);
+    } on ObservadorNoDisponible catch (e) {
+      // Un lote rechazado (4xx) nunca se aceptará: no debe frenar a los
+      // siguientes. Sin conexión o con límite (429) se reintenta.
+      if (!e.rechazado) return d;
+    }
+    return d.copyWith(enviadas: d.observaciones.length);
+  }
+}
+
+final observadorProvider =
+    AsyncNotifierProvider<ObservadorController, DatosObservador>(
+      ObservadorController.new,
+    );
+
+/// Plan personalizado según sus falencias. Viene del Radar Phishing si la
+/// persona comparte y el servidor ya tiene todas sus prácticas (así también
+/// usa lo aprendido de personas con su mismo tipo de cuenta); si no, se
+/// calcula en el dispositivo con el mismo modelo.
+final planPersonalizadoProvider = FutureProvider<PlanPersonalizado>((
+  ref,
+) async {
+  final datos = await ref.watch(observadorProvider.future);
+  final perfil = ref.watch(perfilProvider);
+  final actividades = await ref.watch(actividadesDelPerfilProvider.future);
+  final local = ref
+      .watch(observadorLocalProvider)
+      .plan(
+        idSeudonimo: datos.idSeudonimo,
+        observaciones: datos.observaciones,
+        ahora: ref.read(relojProvider)(),
+        tipos: perfil.tipos,
+        actividades: actividades,
+      );
+  final api = ref.watch(observadorApiProvider);
+  if (api == null || !datos.compartir || datos.pendientes.isNotEmpty) {
+    return local;
+  }
+  try {
+    return await api.plan(
+      datos.idSeudonimo,
+      tipos: perfil.tipos,
+      rangoEtario: perfil.rangoEtario,
+    );
+  } on ObservadorNoDisponible {
+    return local;
+  }
+});

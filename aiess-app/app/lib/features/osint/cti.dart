@@ -47,6 +47,7 @@ Future<void> consultarCti(AnalisisOsint o, {http.Client? cliente}) async {
 }
 
 Future<void> _rdap(AnalisisOsint o, String dominio, http.Client c) async {
+  o.consultados.add('el dominio $dominio a RDAP');
   try {
     final r = await c
         .get(Uri.parse('${FuentesCti.rdap}$dominio'))

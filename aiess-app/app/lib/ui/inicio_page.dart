@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../core/canales.dart';
 import '../features/analisis/analizador.dart';
@@ -18,9 +18,11 @@ import '../features/ocr/ocr.dart';
 import '../features/voz/voz.dart';
 import 'ajustes_sheet.dart';
 import 'practicar_page.dart';
+import 'reporte_simulado.dart';
 import 'aiess_home_screen.dart';
 import 'aula_virtual.dart';
 import '../features/sello/sello.dart';
+import '../features/observatorio/observatorio.dart';
 
 enum _Modo { copiado, hablar, resultado }
 
@@ -164,11 +166,12 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   Future<void> _analizar(
     Entrada e, {
     List<String> pasosPrevios = const [],
-    // Correo ya descartado por el sello: la IA solo agrega señales; el veredicto sigue siendo SÍ.
-    String? motivoSello,
+    // Resultado del sello ('valido', 'falso', 'sin_sello', 'sin_verificar'): se combina con los indicios.
+    String? estadoSello,
     String? mensajeSello,
-    // La firma era válida: si la IA ve una estafa, es que cambiaron el texto del correo firmado.
-    bool firmaValida = false,
+    bool verificadorAjeno = false,
+    // false = solo reglas locales + fuentes públicas (al instante, sin la IA); la IA va con su botón.
+    bool usarModelo = true,
   }) async {
     HapticFeedback.mediumImpact();
     setState(() {
@@ -179,10 +182,13 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       _progreso = null;
       _entrada = e;
     });
-    if (pasosPrevios.isEmpty) unawaited(Voz.i.decir('Déjame revisarlo.'));
+    if (pasosPrevios.isEmpty && usarModelo) {
+      unawaited(Voz.i.decir('Déjame revisarlo.'));
+    }
     var adelantado = '';
     final vIA = await Analizador.analizar(
       e,
+      usarModelo: usarModelo,
       // Los pasos se van agregando en vivo, cada uno con su animación.
       alAvanzar: (paso, progreso) {
         if (!mounted) return;
@@ -195,7 +201,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       alSospechar: () => Voz.i.decir('Mmm, veo algo raro. Déjame confirmarlo.'),
       // El modelo ya escribió veredicto y voz: el robot habla sin esperar el resto.
       alAdelantar: (phishing, voz) {
-        if (!mounted || motivoSello != null) return;
+        if (!mounted || estadoSello != null) return;
         adelantado = voz;
         HapticFeedback.heavyImpact();
         setState(() {
@@ -207,24 +213,28 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         Voz.i.decir(voz);
       },
     );
-    final v = motivoSello == null
-        ? (firmaValida ? conFirmaValida(vIA) : vIA)
-        : descartarPorSello(
-            motivo: motivoSello,
-            mensajeSello: mensajeSello,
-            ia: vIA,
+    final v = estadoSello == null
+        ? vIA
+        : aplicarSello(
+            vIA,
+            estado: estadoSello,
+            mensaje: mensajeSello,
+            verificadorAjeno: verificadorAjeno,
           );
     _ultimoAnalizado = '${e.texto.trim().hashCode}';
     if (!mounted) return;
     if (adelantado.isEmpty) HapticFeedback.heavyImpact();
     setState(() {
       _veredicto = v;
-      _estado = v.phishing ? EstadoRobot.alerta : EstadoRobot.seguro;
+      _estado = v.phishing
+          ? EstadoRobot.alerta
+          : (v.sinConfirmar ? EstadoRobot.reposo : EstadoRobot.seguro);
       _titular = v.titular;
       _modo = _Modo.resultado;
       _pasos = [];
     });
-    if (v.voz != adelantado) await _decir(v.voz);
+    unawaited(Observatorio.registrar(v));
+    if (v.voz != adelantado) await _decir(v.locucion);
   }
 
   /// Algo compartido con AIESS desde otra app: texto o una captura de pantalla.
@@ -254,36 +264,52 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     unawaited(Voz.i.decir('Verifico el sello de ese correo con el IESS.'));
     final r = await Sello.porAsunto(asunto);
     if (!mounted) return;
-    final v = Sello.veredictoPorAsunto(r);
+    final v = Sello.veredictoPorAsunto(r, asunto);
     HapticFeedback.heavyImpact();
     setState(() {
       _entrada = Entrada(asunto, canal: 'aviso');
       _veredicto = v;
-      _estado = v.phishing ? EstadoRobot.alerta : EstadoRobot.seguro;
-      _titular = v.phishing ? '¡Es una estafa!' : 'Sellado por el IESS';
+      _estado = v.phishing
+          ? EstadoRobot.alerta
+          : (v.sinConfirmar ? EstadoRobot.reposo : EstadoRobot.seguro);
+      _titular = v.phishing
+          ? '¡Es una estafa!'
+          : (v.sinConfirmar ? 'Sin sello: cuidado' : 'Sellado por el IESS');
       _subtitulo = '';
       _modo = _Modo.resultado;
       _pasos = [];
     });
-    await _decir('${v.voz} ${v.queHacer}');
+    unawaited(Observatorio.registrar(v));
+    await _decir(v.locucion);
   }
 
-  /// Primero la firma del IESS (sello SellaCorreo); el resultado sale al instante y NO se lee el correo.
-  /// Sin sello válido (o sin poder comprobarlo) es estafa. La IA solo lee el correo si la persona toca
-  /// «Revisar con la IA» en el resultado.
+  /// Primero la firma del IESS (sello SellaCorreo). Luego, al instante y SIN la IA, los indicios del catálogo
+  /// con reglas locales y fuentes públicas (solo el dominio sale): Sí/No y cuántos. El sello va como aviso.
+  /// La IA solo lee el correo si la persona toca «Revisar con la IA» en el resultado.
   Future<void> _revisarTexto(
     String t, {
     String canal = 'mensaje copiado',
     List<String> pasosPrevios = const [],
   }) async {
+    var estado = 'sin_sello';
+    String? mensaje;
+    var ajeno = false;
     if (Sello.codigoEn(t) != null) {
       final r = await _verificarSello(t, pasosPrevios: pasosPrevios);
       if (r == null || !mounted) return;
-      if (r.sinRespuesta) _mostrarDescarte(t, 'sin_verificar');
-      return;
+      if (r.valido) return;
+      estado = r.sinRespuesta ? 'sin_verificar' : 'falso';
+      mensaje = r.sinRespuesta ? null : r.mensaje;
+      ajeno = r.motivo == 'dominio_ajeno';
     }
-    _mostrarDescarte(t, 'sin_sello');
-    await _decir('${_veredicto!.voz} ${_veredicto!.queHacer}');
+    await _analizar(
+      Entrada(t, canal: canal),
+      pasosPrevios: pasosPrevios,
+      estadoSello: estado,
+      mensajeSello: mensaje,
+      verificadorAjeno: ajeno,
+      usarModelo: false,
+    );
   }
 
   /// Botón «Revisar con la IA» (tocarlo ES el permiso: el botón dice dónde corre y que todo se borra).
@@ -309,39 +335,11 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       }
     }
     final previo = _veredicto;
-    final firmaValida =
-        previo != null && previo.fuente == 'sello' && !previo.phishing;
-    final motivo =
-        (previo != null &&
-            previo.phishing &&
-            const [
-              'sin_sello',
-              'sin_verificar',
-              'sello',
-            ].contains(previo.fuente))
-        ? previo.fuente
-        : null;
     await _analizar(
       Entrada(t, canal: 'correo revisado con la IA'),
-      motivoSello: motivo,
-      mensajeSello: motivo == 'sello' ? previo!.voz : null,
-      firmaValida: firmaValida,
+      estadoSello: previo?.selloEstado,
+      verificadorAjeno: previo?.indicios.contains('I2') ?? false,
     );
-  }
-
-  /// Veredicto inmediato por falta de sello válido (no se lee el correo).
-  void _mostrarDescarte(String t, String motivo) {
-    final v = descartarPorSello(motivo: motivo);
-    HapticFeedback.heavyImpact();
-    setState(() {
-      _entrada = Entrada(t, canal: 'sello');
-      _veredicto = v;
-      _estado = EstadoRobot.alerta;
-      _titular = v.titular;
-      _modo = _Modo.resultado;
-      _pasos = [];
-    });
-    _ultimoAnalizado = '${t.trim().hashCode}';
   }
 
   /// Verifica el sello contra el servidor oficial de SellaCorreo (firma Ed25519, hash, emisor, caducidad).
@@ -361,15 +359,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     final r = await Sello.verificar(t);
     _ultimoAnalizado = '${t.trim().hashCode}';
     if (!mounted) return null;
-    if (r.sinRespuesta) {
-      setState(() {
-        _estado = EstadoRobot.reposo;
-        _titular = 'No pude comprobarlo';
-        _pasos = [];
-      });
-      await _decir(r.mensaje);
-      return r;
-    }
+    // Sello falso o sin conexión: el resultado lo arma el análisis por indicios (con el aviso del sello).
+    if (!r.valido) return r;
     final d = r.datos;
     final detalle = r.valido
         ? 'Firma válida del IESS. ${d['emisor'] ?? ''}${d['unidad'] != null ? ', ${d['unidad']}' : ''}'
@@ -388,12 +379,14 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
             ? 'Puedes confiar en este correo. Igual, nunca entregues tu clave.'
             : 'No abras sus enlaces ni entregues datos. Puedes avisar al IESS.',
         fuente: 'sello',
+        selloEstado: 'valido',
       );
       _estado = r.valido ? EstadoRobot.seguro : EstadoRobot.alerta;
       _titular = r.valido ? 'Firma válida' : 'Sello falso';
       _modo = _Modo.resultado;
       _pasos = [];
     });
+    unawaited(Observatorio.registrar(_veredicto!));
     await _decir(detalle);
     return r;
   }
@@ -441,10 +434,10 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       );
       return;
     }
-    // Celular: una captura (OCR con ML Kit) o un correo guardado (.eml).
+    // Celular: una captura (OCR con ML Kit), un correo guardado (.eml) o un PDF.
     final r = await FilePicker.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['eml', 'png', 'jpg', 'jpeg', 'webp'],
+      allowedExtensions: ['eml', 'pdf', 'png', 'jpg', 'jpeg', 'webp'],
     );
     if (r.isEmpty) return;
     final f = r.single;
@@ -453,8 +446,56 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       await _revisarTexto(correo.paraAnalizar, canal: 'correo .eml');
       return;
     }
+    if (f.name.toLowerCase().endsWith('.pdf') && f.path != null) {
+      await _leerPdf(f.path!);
+      return;
+    }
     final ruta = f.path;
     if (ruta != null) await _analizarImagen(ruta);
+  }
+
+  /// PDF en el celular: Android dibuja cada página como imagen (sin abrir enlaces ni ejecutar nada del PDF)
+  /// y el OCR de ML Kit las lee en el equipo. Las imágenes temporales se borran al terminar.
+  Future<void> _leerPdf(String ruta) async {
+    HapticFeedback.mediumImpact();
+    setState(() {
+      _estado = EstadoRobot.analizando;
+      _titular = 'Revisando…';
+      _subtitulo = '';
+      _pasos = ['Leyendo el PDF en tu celular'];
+      _progreso = null;
+    });
+    unawaited(Voz.i.decir('Déjame leer el PDF.'));
+    final partes = <String>[];
+    try {
+      final paginas = await const MethodChannel(
+        'aiess/plataforma',
+      ).invokeListMethod<String>('pdfAImagenes', {'ruta': ruta});
+      for (final p in paginas ?? const <String>[]) {
+        try {
+          partes.add((await LectorImagen.leer(p)).paraAnalizar());
+        } catch (_) {}
+        try {
+          await File(p).delete();
+        } catch (_) {}
+      }
+    } catch (_) {}
+    if (!mounted) return;
+    final texto = partes.where((t) => t.isNotEmpty).join('\n\n');
+    if (texto.trim().length < 8) {
+      setState(() {
+        _estado = EstadoRobot.reposo;
+        _titular = 'Hola, soy AIess';
+        _pasos = [];
+      });
+      await _decir('No pude leer el PDF. Prueba con una captura del correo.');
+      return;
+    }
+    await _revisarTexto(
+      texto,
+      canal: 'PDF',
+      pasosPrevios: ['Leyendo el PDF en tu celular'],
+    );
   }
 
   /// OCR + QR en el celular y luego el análisis normal.
@@ -581,23 +622,12 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     _revisarPortapapeles();
   }
 
+  /// Reporte al IESS SIMULADO (reglas del reto): no abre el correo ni envía nada; arma el caso y lo guarda.
   Future<void> _reportar() async {
-    final c = Canales.i.contacto;
-    final uri = Uri(
-      scheme: 'mailto',
-      path: c['seguridad_informacion'],
-      query: _query({
-        'subject': 'Reporte de posible phishing (AIESS)',
-        'body':
-            'Recibí este mensaje sospechoso:\n\n${_entrada?.texto ?? ''}\n\nSeñales detectadas: ${_veredicto?.explicacion ?? ''}',
-      }),
-    );
-    await launchUrl(uri);
+    final v = _veredicto;
+    if (v == null) return;
+    await mostrarReporteSimulado(context, v, _entrada?.texto ?? '');
   }
-
-  String _query(Map<String, String> m) => m.entries
-      .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
-      .join('&');
 
   void _tocarRobot() {
     final v = _veredicto;
@@ -664,7 +694,11 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final escuchando = _estado == EstadoRobot.escuchando;
     final hoja = _modo == _Modo.resultado
-        ? (_veredicto!.phishing ? EstadoHoja.estafa : EstadoHoja.seguro)
+        ? (_veredicto!.phishing
+              ? EstadoHoja.estafa
+              : (_veredicto!.sinConfirmar
+                    ? EstadoHoja.duda
+                    : EstadoHoja.seguro))
         : (_estado == EstadoRobot.analizando || escuchando
               ? EstadoHoja.analizando
               : EstadoHoja.listo);
@@ -691,6 +725,16 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       onReanalizar: _entrada == null ? null : () => _analizar(_entrada!),
       onRevisarIA: _modo == _Modo.resultado ? _revisarConIA : null,
       iaLocal: Cerebro.i.enEsteEquipo,
+      indicios: _modo == _Modo.resultado ? _veredicto!.indicios : const [],
+      avisoSello: _modo == _Modo.resultado ? _veredicto!.avisoSello : null,
+      queSalio: _modo == _Modo.resultado ? _veredicto!.queSalio : null,
+      textoCorreo:
+          _modo == _Modo.resultado &&
+              _entrada != null &&
+              _entrada!.canal != 'aviso' &&
+              _entrada!.texto.length > 40
+          ? _entrada!.texto
+          : null,
       onAula: () => abrirAulaVirtual(context),
       onPracticar: _abrirPractica,
       resumen: _modo == _Modo.resultado ? _veredicto?.resumen : null,

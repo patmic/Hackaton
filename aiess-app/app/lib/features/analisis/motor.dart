@@ -41,6 +41,97 @@ const motivoVoz = {
   'I7': 'Quien lo envía no es una dirección oficial.',
 };
 
+/// Nombre de cada indicio (catálogo oficial del reto, sección 3).
+const nombreIndicio = {
+  'I1': 'Urgencia artificial',
+  'I2': 'Enlace a dominio no oficial',
+  'I3': 'Pide claves, códigos o tarjeta',
+  'I4': 'Enlace acortado u oculto',
+  'I5': 'Adjunto o instalación sospechosa',
+  'I6': 'Premio, bono o reembolso inesperado',
+  'I7': 'Remitente no oficial',
+  'I8': 'Amenaza o pérdida de beneficio',
+  'I9': 'Pide datos personales o documentos',
+  'I10': 'Pide pago o transferencia',
+  'I11': 'Código QR a un sitio no verificable',
+};
+
+/// «Qué te podría pasar si caes en el engaño», por indicio (lo dice el avatar).
+const riesgoIndicio = {
+  'I3':
+      'podrían entrar a tu cuenta del IESS y quedarse con tu pensión o tus préstamos',
+  'I9':
+      'con tu cédula y tu foto podrían sacar préstamos o abrir cuentas a tu nombre',
+  'I10': 'perderías ese dinero y es muy difícil recuperarlo',
+  'I6': 'te pedirían un pago o tus datos para cobrar un premio que no existe',
+  'I5':
+      'el archivo podría meter un virus que espía tu celular o tu computadora',
+  'I2': 'la página es una copia falsa que roba lo que escribas',
+  'I4': 'el enlace te lleva a un sitio distinto del que crees',
+  'I11': 'el código QR te lleva a una página falsa sin que lo notes',
+  'I7': 'no te escribe el IESS, aunque lo parezca',
+  'I8': 'te asustan para que actúes sin pensar',
+  'I1': 'el apuro es para que no tengas tiempo de verificar',
+};
+
+/// Solo códigos del catálogo, sin repetir, en el orden en que el avatar los explica.
+List<String> indiciosValidos(Iterable<String> lista) {
+  final set = {for (final i in lista) i.trim().toUpperCase()};
+  return [
+    for (final k in motivoVoz.keys)
+      if (set.contains(k)) k,
+  ];
+}
+
+const _ordinales = [
+  'Primero',
+  'Segundo',
+  'Tercero',
+  'Cuarto',
+  'Quinto',
+  'Sexto',
+  'Séptimo',
+  'Octavo',
+  'Noveno',
+  'Décimo',
+  'Undécimo',
+];
+
+/// Lo que el avatar dice ante un phishing (rúbrica del jurado): «Encontré N indicios» y explica CADA uno,
+/// qué te podría pasar, el aviso de deepfake y (en [queHacerEstafa]) qué hacer y dónde reportar.
+String guionEstafa(List<String> indicios) {
+  final n = indicios.length;
+  final b = StringBuffer(
+    n == 0
+        ? 'Cuidado, este mensaje no es confiable. '
+        : 'Encontré $n ${n == 1 ? 'indicio' : 'indicios'} de estafa. ',
+  );
+  for (var i = 0; i < n; i++) {
+    final k = indicios[i];
+    b.write('${n == 1 ? '' : '${_ordinales[i]}: '}${motivoVoz[k]} ');
+  }
+  final riesgos = [
+    for (final k in indicios) riesgoIndicio[k]!,
+  ].take(2).toList();
+  if (riesgos.isNotEmpty) {
+    b.write('Si caes en el engaño, ${riesgos.join(', y además ')}. ');
+  }
+  b.write(
+    'Y ojo con los deepfakes: con tus fotos o videos de redes sociales pueden crear un video falso tuyo, '
+    'con tu cara y tu voz, para pedirles dinero a tus amigos y familiares. Si alguien te pide dinero por video, '
+    'llámale tú a su número de siempre. ',
+  );
+  return b.toString().trim();
+}
+
+/// Qué hacer y dónde reportar al IESS (canales oficiales del catálogo, sección 4).
+String queHacerEstafa() {
+  final c = Canales.i.contacto;
+  return 'No abras sus enlaces ni adjuntos y no respondas. Repórtalo al IESS a ${c['seguridad_informacion']}, '
+      'en ${c['denuncias_web']} o por WhatsApp al ${c['whatsapp']}. Si ya diste tu clave, cámbiala en '
+      '${c['aplicaciones']} o llama al ${c['atencion_telefono']}.';
+}
+
 class Veredicto {
   Veredicto({
     required this.phishing,
@@ -50,64 +141,124 @@ class Veredicto {
     required this.explicacion,
     required this.queHacer,
     this.fuente = 'reglas',
+    this.avisoSello,
+    this.selloEstado,
+    this.salio = const [],
   });
   final bool phishing;
+
+  /// Lo que salió del equipo durante la revisión (rúbrica: solo el dominio o la URL). Ej.: 'el dominio x a RDAP'.
+  final List<String> salio;
+
+  /// Frase fija para la pantalla: qué salió a internet y que el correo no salió.
+  String get queSalio => salio.isEmpty
+      ? 'Lo que salió del equipo: nada. Todo se revisó aquí y el correo no salió.'
+      : 'Lo que salió del equipo: solo ${salio.join(' y ')}. El correo no salió.';
   final int puntaje;
   final String voz, explicacion, queHacer, fuente;
   final List<String> indicios;
 
+  /// Aviso aparte sobre el sello del IESS (no cambia el Sí/No, que lo deciden los indicios del catálogo).
+  final String? avisoSello;
+
+  /// 'valido', 'falso', 'sin_sello' o 'sin_verificar' (null si no se miró el sello).
+  final String? selloEstado;
+
+  /// Lo que el avatar dice completo (voz + subtítulos): el veredicto, y en una estafa también qué hacer.
+  String get locucion => [
+    voz,
+    if (phishing) queHacer,
+    if (avisoSello != null) avisoSello!,
+  ].join(' ');
+
+  /// Sin indicios, pero tampoco con sello válido: no es estafa según el catálogo, pero no se confirma.
+  bool get sinConfirmar =>
+      !phishing && selloEstado != null && selloEstado != 'valido';
+
+  Veredicto copiar({
+    bool? phishing,
+    int? puntaje,
+    String? voz,
+    List<String>? indicios,
+    String? explicacion,
+    String? queHacer,
+    String? fuente,
+    String? avisoSello,
+    String? selloEstado,
+    List<String>? salio,
+  }) => Veredicto(
+    phishing: phishing ?? this.phishing,
+    puntaje: puntaje ?? this.puntaje,
+    voz: voz ?? this.voz,
+    indicios: indicios ?? this.indicios,
+    explicacion: explicacion ?? this.explicacion,
+    queHacer: queHacer ?? this.queHacer,
+    fuente: fuente ?? this.fuente,
+    avisoSello: avisoSello ?? this.avisoSello,
+    selloEstado: selloEstado ?? this.selloEstado,
+    salio: salio ?? this.salio,
+  );
+
   /// 2-3 palabras para la pantalla (poka-yoke: el detalle lo dice la voz).
-  /// Veredicto claro (requisito del reto): Sí o No, y cuántos indicios.
+  /// Veredicto claro (requisito del reto): Sí o No, y cuántos indicios (los mismos de la lista).
   String get resumen {
     final n = indicios.length;
     final cuantos = '$n ${n == 1 ? 'indicio' : 'indicios'}';
-    if (fuente == 'sello')
-      return phishing
-          ? 'Phishing: SÍ · sello falso${n > 0 ? ' · $cuantos' : ''}'
-          : 'Phishing: NO · firma válida del IESS';
-    if (fuente == 'sin_sello')
-      return 'Phishing: SÍ · sin sello del IESS${n > 0 ? ' · $cuantos' : ''}';
-    if (fuente == 'sin_verificar')
-      return 'Phishing: SÍ · sello sin comprobar${n > 0 ? ' · $cuantos' : ''}';
+    if (selloEstado == 'valido' && !phishing)
+      return 'Phishing: NO · firma válida del IESS';
+    if (selloEstado == 'falso') return 'Phishing: SÍ · sello falso · $cuantos';
     return phishing ? 'Phishing: SÍ · $cuantos' : 'Phishing: NO · $cuantos';
   }
 
   String get titular => phishing
       ? (puntaje >= 60 ? '¡Es una estafa!' : 'Mejor no confíes')
-      : 'Es seguro';
+      : (sinConfirmar ? 'Sin sello: no confíes aún' : 'Es seguro');
 }
 
-/// Regla del sello (SellaCorreo): todo correo sin un sello válido se DESCARTA de inmediato como estafa,
-/// sin leerlo con la IA. [motivo] = 'sin_sello' (no trae sello), 'sello' (el sello no valida) o
-/// 'sin_verificar' (no se pudo consultar a SellaCorreo).
-/// Si después la persona acepta que la IA lo revise, [ia] agrega sus señales, pero el veredicto sigue siendo
-/// SÍ: sin un sello válido el correo no es confiable aunque el texto parezca normal.
-Veredicto descartarPorSello({
-  required String motivo,
-  String? mensajeSello,
-  Veredicto? ia,
+/// Avisos del sello (SellaCorreo) que se muestran APARTE del veredicto.
+const avisoSinSello =
+    'Este correo no trae el sello del IESS. Si dice ser del IESS, no confíes hasta confirmarlo por un canal oficial.';
+const avisoSinVerificar =
+    'No pude comprobar el sello del IESS ahora (sin conexión). No confíes hasta poder comprobarlo.';
+
+/// Combina el resultado del sello con el análisis por indicios (catálogo: Sí si hay al menos un indicio).
+/// - 'valido': la firma es del IESS (si además la IA ve una estafa, cambiaron el texto: [conFirmaValida]).
+/// - 'falso': el sello existe pero no valida → estafa; suma el indicio que corresponde
+///   (verificador ajeno = I2; enlace alterado = I4).
+/// - 'sin_sello' / 'sin_verificar': el Sí/No lo deciden los indicios; el sello va como aviso aparte.
+Veredicto aplicarSello(
+  Veredicto v, {
+  required String estado,
+  String? mensaje,
+  bool verificadorAjeno = false,
 }) {
-  final base = motivo == 'sello'
-      ? (mensajeSello ??
-            'El sello de este correo no es válido: alguien lo copió o lo alteró.')
-      : motivo == 'sin_verificar'
-      ? 'No pude comprobar el sello del IESS (sin conexión). Por seguridad, trátalo como estafa hasta poder comprobarlo.'
-      : 'Este correo no trae el sello del IESS, así que no es confiable. Los correos verdaderos del IESS siempre lo llevan.';
-  final extra = ia == null
-      ? ''
-      : (ia.phishing
-            ? ' Además, ${ia.voz}'
-            : ' El texto no tiene otras señales claras, pero sin un sello válido no es confiable.');
-  return Veredicto(
-    phishing: true,
-    puntaje: ia == null ? 80 : (ia.puntaje > 80 ? ia.puntaje : 80),
-    voz: '$base$extra',
-    indicios: ia?.indicios ?? const [],
-    explicacion: '$base$extra',
-    queHacer:
-        'No abras sus enlaces, no descargues adjuntos y no respondas. Si quieres, avisa al IESS.',
-    fuente: motivo,
-  );
+  switch (estado) {
+    case 'valido':
+      return conFirmaValida(v).copiar(selloEstado: 'valido');
+    case 'falso':
+      final ind = indiciosValidos([
+        ...v.indicios,
+        verificadorAjeno ? 'I2' : 'I4',
+      ]);
+      return v.copiar(
+        phishing: true,
+        puntaje: v.puntaje > 90 ? v.puntaje : 90,
+        indicios: ind,
+        voz:
+            '${mensaje ?? 'El sello de este correo es falso: lo copiaron o lo alteraron.'} ${guionEstafa(ind)}',
+        explicacion: [for (final k in ind) motivoVoz[k]!].join(' '),
+        queHacer: queHacerEstafa(),
+        fuente: 'sello',
+        selloEstado: 'falso',
+      );
+    case 'sin_verificar':
+      return v.copiar(
+        avisoSello: avisoSinVerificar,
+        selloEstado: 'sin_verificar',
+      );
+    default:
+      return v.copiar(avisoSello: avisoSinSello, selloEstado: 'sin_sello');
+  }
 }
 
 /// Entrada normalizada desde portapapeles, voz, compartir o notificación.
@@ -120,6 +271,18 @@ class Entrada {
   });
   final String texto, canal, asunto;
   final String? remitente;
+}
+
+/// Remitente escrito en el texto («De: Nombre <correo>» o «From: …»), para revisar el indicio I7.
+String? remitenteEn(String texto) {
+  final l = RegExp(
+    r'^\s*(?:de|from|remitente)\s*:\s*(.+)$',
+    caseSensitive: false,
+    multiLine: true,
+  ).firstMatch(texto)?.group(1);
+  return l == null
+      ? null
+      : RegExp(r'[\w.+-]+@[\w-]+(\.[\w-]+)+').firstMatch(l)?.group(0);
 }
 
 /// Regla determinista: ¿el texto (p. ej. leído de una imagen) es un correo o mensaje real?
@@ -177,15 +340,10 @@ Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
       if (re.hasMatch(t)) k,
     ...osint.indicios,
   };
-  // Regla C (medida en el set de prueba: correos 95,5 % de exactitud, falsos positivos 23 -> 7 de 200):
-  // estafa si hay un enlace riesgoso, o una señal fuerte acompañada de otra, o dos señales débiles.
-  // Una sola palabra como "pago" o "cuenta" ya no basta (las usan facturas y bancos legítimos).
-  const fuertes = {'I3', 'I5', 'I9', 'I11'};
-  const debiles = {'I1', 'I6', 'I8', 'I10', 'I7'};
-  final nF = ind.where(fuertes.contains).length;
-  final nD = ind.where(debiles.contains).length;
   final enlaceRiesgoso = osint.puntaje >= 30 || osint.enganosos.isNotEmpty;
-  final phishing = enlaceRiesgoso || (nF >= 1 && nF + nD >= 2) || nD >= 2;
+  // Catálogo del reto (sección 1): un correo es phishing cuando presenta AL MENOS UN indicio.
+  // Si un legítimo da falso positivo, se ajusta el léxico, no este umbral (plan 1.2).
+  final phishing = enlaceRiesgoso || ind.isNotEmpty;
   final orden = motivoVoz.keys.where(ind.contains).toList();
   final c = Canales.i.contacto;
   if (phishing) {
@@ -193,12 +351,10 @@ Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
       98,
       58 + 8 * orden.length + (osint.puntaje >= 60 ? 6 : 0),
     );
-    final motivos = orden.take(2).map((k) => motivoVoz[k]!).join(' ');
     return Veredicto(
       phishing: true,
       puntaje: puntaje,
-      voz:
-          'Cuidado, este mensaje parece una estafa. $motivos No abras el enlace ni respondas.',
+      voz: guionEstafa(orden),
       indicios: orden,
       explicacion: [
         ...orden.map((k) => motivoVoz[k]!),
@@ -206,9 +362,7 @@ Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
           (c) => c.startsWith('OpenPhish') || c.contains('se creó hace'),
         ),
       ].join(' '),
-      queHacer:
-          'No abras enlaces ni adjuntos. Avísale al IESS a ${c['seguridad_informacion']}. '
-          'Si ya diste tu clave, cámbiala en ${c['aplicaciones']} o llama al ${c['atencion_telefono']}.',
+      queHacer: queHacerEstafa(),
     );
   }
   final hosts = osint.urls
@@ -304,42 +458,23 @@ Veredicto? leerSalidaModelo(String s) {
   );
 }
 
-/// Fusión determinista: el modelo explica, pero nunca rebaja una alerta fuerte del OSINT.
+/// Fusión determinista (plan 1.2): el veredicto y la LISTA de indicios salen siempre de las reglas, que
+/// aciertan los correos de práctica (la IA no decide sola). Del modelo solo se toma su explicación, y solo si
+/// habla de los mismos indicios; si propone otros, se ignoran.
 Veredicto fusionar(Veredicto reglas, Veredicto? modelo, AnalisisOsint osint) {
   if (modelo == null) return reglas;
-  if (!modelo.phishing && (osint.puntaje >= 60 || reglas.puntaje >= 80))
-    return reglas;
-  if (modelo.voz.trim().isEmpty) return reglas;
-  if (modelo.queHacer.trim().isEmpty || modelo.explicacion.trim().isEmpty) {
-    // El servidor corta antes de "que_hacer": se completa con el consejo fijo de las reglas.
-    return Veredicto(
-      phishing: modelo.phishing,
-      puntaje: modelo.puntaje,
-      voz: modelo.voz,
-      indicios: modelo.indicios,
-      explicacion: modelo.explicacion.trim().isEmpty
-          ? reglas.explicacion
-          : modelo.explicacion,
-      queHacer: modelo.phishing
-          ? analizarConReglas(
-              Entrada('clave pago', canal: ''),
-              AnalisisOsint([], [], null),
-            ).queHacer
-          : reglas.queHacer,
-      fuente: 'modelo',
-    );
-  }
-  return modelo;
+  final mismos = indiciosValidos(
+    modelo.indicios,
+  ).toSet().difference(reglas.indicios.toSet()).isEmpty;
+  final extra = modelo.explicacion.trim();
+  return reglas.copiar(
+    explicacion:
+        mismos && extra.isNotEmpty && reglas.phishing == modelo.phishing
+        ? '${reglas.explicacion} $extra'.trim()
+        : reglas.explicacion,
+    fuente: 'modelo',
+  );
 }
-
-/// Lo que se dice antes de pedir permiso para que la IA revise un correo ya descartado por el sello.
-String introPorSello(String motivo) =>
-    '${motivo == 'sin_sello'
-        ? 'Este correo no trae el sello del IESS: es una estafa.'
-        : motivo == 'sello'
-        ? 'El sello no es válido: es una estafa.'
-        : 'No pude comprobar el sello: trátalo como estafa.'} '
-    'Si quieres, la IA revisa qué otras señales tiene. ';
 
 /// La firma del IESS era válida, pero la IA ve señales de estafa en el TEXTO: alguien pudo pegar un sello
 /// verdadero a un contenido cambiado. Se avisa así, con las señales que vio la IA.
