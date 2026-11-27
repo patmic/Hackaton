@@ -1,0 +1,31 @@
+# SellaCorreo · un solo servicio en http://localhost:8090
+# Base de datos: un único archivo SQLite (/data/sellacorreo.db) en el volumen "sellacorreo-data",
+# junto con la clave Ed25519. No hay otro motor de base de datos.
+name: sellacorreo
+
+services:
+  sellacorreo:
+    build: .
+    restart: unless-stopped
+    environment:
+      SELLACORREO_PUBLIC_URL: ${SELLACORREO_PUBLIC_URL:-http://localhost:8090}
+      SELLACORREO_SESSION_KEY: ${SELLACORREO_SESSION_KEY:?defina SELLACORREO_SESSION_KEY en .env}
+      SELLACORREO_HMAC_KEY: ${SELLACORREO_HMAC_KEY:?defina SELLACORREO_HMAC_KEY en .env}
+      SELLACORREO_USUARIO_1: ${SELLACORREO_USUARIO_1:?defina SELLACORREO_USUARIO_1 en .env}
+      SELLACORREO_USUARIO_2: ${SELLACORREO_USUARIO_2:-}
+      SELLACORREO_USUARIO_3: ${SELLACORREO_USUARIO_3:-}
+      SELLACORREO_USUARIO_4: ${SELLACORREO_USUARIO_4:-}
+      SELLACORREO_USUARIO_5: ${SELLACORREO_USUARIO_5:-}
+      SELLACORREO_DEMO: ${SELLACORREO_DEMO:-true}
+      SELLACORREO_DEMO_PASSWORD: ${SELLACORREO_DEMO_PASSWORD:-}
+      SELLACORREO_TAXONOMIAS: ${SELLACORREO_TAXONOMIAS:-comunicacional,informativo,recordatorio}
+      SELLACORREO_INSTITUCION: ${SELLACORREO_INSTITUCION:-IESS · entorno de demostración}
+      SELLACORREO_RATE_LIMIT_PER_MIN: ${SELLACORREO_RATE_LIMIT_PER_MIN:-30}
+      SELLACORREO_LOGIN_LIMIT_PER_MIN: ${SELLACORREO_LOGIN_LIMIT_PER_MIN:-10}
+    ports:
+      - "8090:8090"
+    volumes:
+      - sellacorreo-data:/data
+
+volumes:
+  sellacorreo-data: {}

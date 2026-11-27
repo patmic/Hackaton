@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="SellaCorreo">
+  <rect x="4" y="14" width="44" height="32" rx="5" fill="#145962"/>
+  <path d="M6 18l20 15 20-15" fill="none" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="46" cy="44" r="14" fill="#5eead4" stroke="#0a1a26" stroke-width="3"/>
+  <path d="M39.5 44.5l4.5 4.5 8-9" fill="none" stroke="#0a1a26" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

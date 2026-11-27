@@ -1,0 +1,133 @@
+/* =====================================================================
+   ThemeLight · Design tokens
+   Fuente: epnPoliEmpleo/src/app/globals.css (+ colores de ui.tsx y
+   layout.tsx). Valores reales. Tema claro, azul-petróleo como marca.
+   Usa Tailwind v4 (@theme inline); estos tokens sirven también sin él.
+   ===================================================================== */
+
+:root{
+  /* ---------- Color · marca ---------- */
+  --theme-color:#145962;             /* color de acción (botón primario, enlaces activos) */
+  --theme-color-hover:rgba(20,89,98,.9);
+  --brand:#355872;                   /* azul-petróleo secundario */
+  --deep:#0e434b;                    /* sidebar-accent, fondo profundo */
+  --nav-bg:#0a1a26;                  /* barra de navegación (oscura) */
+
+  /* ---------- Color · superficies y texto (oklch, del CSS original) ---------- */
+  --background:oklch(1 0 0);                 /* #fff */
+  --foreground:oklch(0.145 0 0);             /* texto principal */
+  --card:oklch(1 0 0);
+  --card-foreground:oklch(0.145 0 0);
+  --popover:oklch(1 0 0);
+  --muted:oklch(0.97 0 0);
+  --muted-foreground:oklch(0.556 0 0);       /* texto secundario */
+  --accent:oklch(0.97 0 0);
+  --secondary:oklch(0.967 0.001 286.375);
+  --secondary-foreground:oklch(0.21 0.006 285.885);
+  --border:oklch(0.922 0 0);
+  --input:oklch(0.922 0 0);
+  --ring:var(--theme-color);
+
+  /* Primario y su texto (teal muy claro) */
+  --primary:oklch(0.38 0.06 200);
+  --primary-foreground:oklch(0.98 0.02 200);
+
+  /* Destructivo */
+  --destructive:oklch(0.58 0.22 27);
+
+  /* ---------- Color · gráficos (verde-teal) ---------- */
+  --chart-1:oklch(0.85 0.13 165);
+  --chart-2:oklch(0.77 0.15 163);
+  --chart-3:oklch(0.7 0.15 162);
+  --chart-4:oklch(0.6 0.13 163);
+  --chart-5:oklch(0.51 0.1 166);
+
+  /* ---------- Color · estados usados en componentes (Tailwind slate/emerald/amber/red) ---------- */
+  --slate-300:#cbd5e1;                       /* borde de tarjetas, botón cancel */
+  --slate-600:#475569;                       /* texto de apoyo */
+  --slate-900:#0f172a;                       /* títulos */
+  --status-ok-bg:#ecfdf5;  --status-ok-fg:#065f46;     /* emerald-50 / emerald-800 */
+  --status-warn-bg:#fffbeb; --status-warn-fg:#92400e;  /* amber-50 / amber-800 */
+  --status-err-bg:#fef2f2; --status-err-fg:#991b1b;    /* red-50 / red-800 */
+
+  /* ---------- Superficies de página ---------- */
+  --page-bg:#f8fafc;                         /* slate-50 con /60 en layout */
+
+  /* ---------- Tipografía ---------- */
+  --font-sans:"Google Sans", system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono:"Geist Mono", ui-monospace, monospace;
+  --font-serif:"Times New Roman", Times, serif;
+  --font-garamond:"EB Garamond", Garamond, "Times New Roman", serif;  /* hoja de CV */
+
+  --fs-h1:1.5rem;        /* text-2xl, font-semibold */
+  --fs-title:1rem;       /* text-base, font-medium (CardHeader) */
+  --fs-body:.875rem;     /* text-sm (base de la UI) */
+  --fs-small:.75rem;     /* text-xs (hints, badges) */
+  --fs-stat:1.5rem;      /* text-2xl tabular-nums (Stat) */
+  --fs-btn:14px;         /* botón */
+  --fs-btn-sm:13px;
+
+  --fw-medium:500; --fw-semibold:600; --fw-bold:700;
+
+  /* ---------- Espaciado y tamaños de control ---------- */
+  --btn-h:34px;          /* h-[34px] */
+  --btn-h-sm:32px;       /* h-8 */
+  --btn-h-xs:24px;       /* h-6 */
+  --btn-h-lg:40px;       /* h-10 */
+  --input-h:36px;        /* h-9 */
+  --badge-h:20px;        /* h-5 */
+  --avatar:36px;         /* size-9 */
+
+  /* ---------- Radios ---------- */
+  --radius:.625rem;                          /* 10px base */
+  --r-sm:calc(var(--radius) - 4px);          /* 6px */
+  --r-md:calc(var(--radius) - 2px);          /* 8px: botones, inputs */
+  --r-lg:var(--radius);                      /* 10px */
+  --r-xl:calc(var(--radius) + 4px);          /* 14px */
+  --r-2xl:calc(var(--radius) + 8px);         /* 18px */
+  --r-pill:9999px;                           /* badges, chips */
+
+  /* ---------- Sombras ---------- */
+  --shadow-xs:0 1px 2px 0 rgb(0 0 0 / .05);  /* shadow-xs de inputs */
+  --shadow-sm:0 1px 3px 0 rgb(0 0 0 / .10), 0 1px 2px -1px rgb(0 0 0 / .10);
+  --shadow-md:0 4px 6px -1px rgb(0 0 0 / .10), 0 2px 4px -2px rgb(0 0 0 / .10);
+  --shadow-2xl:0 25px 50px -12px rgb(0 0 0 / .25);
+  --shadow-hero:0 0 50px rgba(20,89,98,.18);
+
+  /* ---------- Movimiento ---------- */
+  --ease-default:cubic-bezier(.4,0,.2,1);
+}
+
+/* Tokens expuestos a Tailwind v4 (copiar al @theme de globals.css) */
+@theme inline{
+  --color-background:var(--background);
+  --color-foreground:var(--foreground);
+  --color-card:var(--card);
+  --color-card-foreground:var(--card-foreground);
+  --color-popover:var(--popover);
+  --color-primary:var(--primary);
+  --color-primary-foreground:var(--primary-foreground);
+  --color-secondary:var(--secondary);
+  --color-secondary-foreground:var(--secondary-foreground);
+  --color-muted:var(--muted);
+  --color-muted-foreground:var(--muted-foreground);
+  --color-accent:var(--accent);
+  --color-destructive:var(--destructive);
+  --color-border:var(--border);
+  --color-input:var(--input);
+  --color-ring:var(--ring);
+  --color-theme:var(--theme-color);
+  --color-theme-hover:var(--theme-color-hover);
+  --color-brand:var(--brand);
+  --color-deep:var(--deep);
+  --color-chart-1:var(--chart-1);
+  --color-chart-2:var(--chart-2);
+  --color-chart-3:var(--chart-3);
+  --color-chart-4:var(--chart-4);
+  --color-chart-5:var(--chart-5);
+  --radius-sm:var(--r-sm);
+  --radius-md:var(--r-md);
+  --radius-lg:var(--r-lg);
+  --radius-xl:var(--r-xl);
+  --radius-2xl:var(--r-2xl);
+}

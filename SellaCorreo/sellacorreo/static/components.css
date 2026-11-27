@@ -1,0 +1,182 @@
+/* =====================================================================
+   ThemeLight · Componentes base
+   Requiere ../tokens/tokens.css. Clases con prefijo "tl-".
+   Equivalentes CSS de components/ui.tsx (Button, Badge, Card, Input…).
+   ===================================================================== */
+
+/* ---------- Base ---------- */
+.tl-body{margin:0;min-height:100vh;background:var(--page-bg);color:var(--foreground);font-family:var(--font-sans);-webkit-font-smoothing:antialiased}
+.tl-body button,.tl-body [role="button"]{cursor:pointer}
+.tl-body :focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.tl-main{padding:32px 16px}
+.tl-container{max-width:72rem;margin:0 auto}          /* max-w-6xl */
+
+/* ---------- Tipografía ---------- */
+.tl-h1{margin:0;font-size:var(--fs-h1);font-weight:var(--fw-semibold);color:var(--slate-900);line-height:1.3}
+.tl-title{margin:0;font-size:var(--fs-title);font-weight:var(--fw-medium);line-height:1.5}
+.tl-text{margin:0;font-size:var(--fs-body);color:var(--slate-600)}
+.tl-hint{margin:0;font-size:var(--fs-small);color:var(--muted-foreground)}
+.tl-page-desc{margin:4px 0 0;font-size:var(--fs-body);color:var(--muted-foreground)}
+
+/* ---------- Botón (Button / buttonClass) ----------
+   Variantes: default · secondary · cancel · ghost · destructive · link
+   Tamaños:   default · sm · xs · lg · icon                              */
+.tl-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  white-space:nowrap;border:1px solid transparent;border-radius:var(--r-md);
+  font-size:var(--fs-btn);font-weight:var(--fw-semibold);line-height:1;
+  height:var(--btn-h);padding:0 16px;text-decoration:none;user-select:none;
+  transition:background-color .15s,border-color .15s,color .15s,transform .15s;
+}
+.tl-btn:active{transform:scale(.985)}
+.tl-btn:disabled{pointer-events:none;opacity:.5}
+.tl-btn--default{background:var(--theme-color);color:#fff}
+.tl-btn--default:hover{background:var(--theme-color-hover)}
+.tl-btn--secondary{background:#404040;color:#fff}           /* neutral-700 */
+.tl-btn--secondary:hover{background:#525252}                  /* neutral-600 */
+.tl-btn--cancel{background:#fff;border-color:var(--slate-300);color:#334155;font-weight:var(--fw-medium)}
+.tl-btn--cancel:hover{background:#f8fafc;color:var(--slate-900)}
+.tl-btn--ghost{background:transparent;color:var(--foreground)}
+.tl-btn--ghost:hover{background:var(--muted)}
+.tl-btn--destructive{background:#dc2626;color:#fff}           /* red-600 */
+.tl-btn--destructive:hover{background:#ef4444}                 /* red-500 */
+.tl-btn--link{background:none;color:var(--primary);padding:0;height:auto;text-decoration:none}
+.tl-btn--link:hover{text-decoration:underline;text-underline-offset:4px}
+.tl-btn--sm{height:32px;padding:0 12px;font-size:var(--fs-btn-sm)}
+.tl-btn--xs{height:24px;padding:0 8px;font-size:12px;border-radius:var(--r-md)}
+.tl-btn--lg{height:40px;padding:0 20px}
+.tl-btn--icon{width:var(--btn-h);padding:0}
+
+/* ---------- Badge ----------
+   Variantes: default · secondary · outline · destructive · success · warning · theme */
+.tl-badge{
+  display:inline-flex;align-items:center;gap:4px;width:fit-content;flex-shrink:0;white-space:nowrap;
+  height:var(--badge-h);padding:0 8px;border:1px solid transparent;border-radius:var(--r-pill);
+  font-size:var(--fs-small);font-weight:var(--fw-medium);
+}
+.tl-badge--default{background:var(--primary);color:var(--primary-foreground)}
+.tl-badge--secondary{background:var(--secondary);color:var(--secondary-foreground)}
+.tl-badge--outline{border-color:var(--slate-300);color:var(--foreground);background:transparent}
+.tl-badge--destructive{background:#fef2f2;color:#b91c1c}
+.tl-badge--success{background:var(--status-ok-bg);color:var(--status-ok-fg)}
+.tl-badge--warning{background:var(--status-warn-bg);color:var(--status-warn-fg)}
+.tl-badge--theme{background:rgba(20,89,98,.1);color:var(--theme-color)}
+
+/* ---------- Tarjeta (Card / CardHeader / CardBody) ---------- */
+.tl-card{border:1px solid var(--slate-300);border-radius:var(--r-xl);background:var(--card);color:var(--card-foreground);font-size:var(--fs-body);box-shadow:var(--shadow-xs)}
+.tl-card__head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:24px 24px 0}
+.tl-card__body{padding:24px}
+.tl-card__desc{margin-top:4px;font-size:var(--fs-body);color:var(--muted-foreground)}
+.tl-card--hover:hover{border-color:rgba(20,89,98,.5)}      /* hover:border-theme/50 */
+
+/* Tarjeta de estadística (Stat) */
+.tl-stat{padding:16px 20px}
+.tl-stat__label{font-size:var(--fs-small);font-weight:var(--fw-medium);color:var(--muted-foreground)}
+.tl-stat__value{margin-top:4px;font-size:var(--fs-stat);font-weight:var(--fw-semibold);font-variant-numeric:tabular-nums}
+
+/* ---------- Campos (Input / Textarea / Select / Field) ---------- */
+.tl-input,.tl-textarea,.tl-select{
+  width:100%;min-width:0;border:1px solid var(--input);border-radius:var(--r-md);
+  background:transparent;padding:4px 10px;font-size:var(--fs-body);color:inherit;
+  box-shadow:var(--shadow-xs);outline:none;
+}
+.tl-input{height:var(--input-h)}
+.tl-textarea{min-height:80px;padding:8px 10px}
+.tl-select{height:var(--input-h);background:#fff;padding-right:32px}
+.tl-input::placeholder,.tl-textarea::placeholder{color:var(--muted-foreground)}
+.tl-input:focus-visible,.tl-textarea:focus-visible,.tl-select:focus-visible{border-color:var(--theme-color);outline:none}
+.tl-input[aria-invalid="true"],.tl-textarea[aria-invalid="true"]{border-color:var(--destructive)}
+.tl-input:disabled,.tl-textarea:disabled,.tl-select:disabled{opacity:.5}
+.tl-field{display:flex;flex-direction:column;gap:6px;font-size:var(--fs-body)}
+.tl-field__label{font-size:var(--fs-body);font-weight:var(--fw-medium)}
+
+/* ---------- Chips de selección única (ChoiceChips) ---------- */
+.tl-chips{display:flex;flex-wrap:wrap;gap:8px}
+.tl-chip{height:32px;padding:0 14px;border:1px solid var(--border);border-radius:var(--r-pill);background:transparent;font-size:var(--fs-body);font-weight:var(--fw-medium);color:var(--foreground)}
+.tl-chip:hover{background:var(--muted)}
+.tl-chip[aria-checked="true"]{background:var(--theme-color);border-color:var(--theme-color);color:#fff}
+
+/* ---------- Puntaje de afinidad (ScoreBadge) ---------- */
+.tl-score{display:inline-flex;align-items:center;gap:6px}
+.tl-score__value{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:24px;padding:0 6px;border-radius:6px;font-size:12px;font-weight:var(--fw-semibold);font-variant-numeric:tabular-nums;background:#f1f5f9;color:#64748b}
+.tl-score--high .tl-score__value{background:var(--status-ok-bg);color:var(--status-ok-fg)}   /* ≥70 */
+.tl-score--mid .tl-score__value{background:var(--status-warn-bg);color:var(--status-warn-fg)} /* 40–69 */
+.tl-score--low .tl-score__value{background:var(--status-err-bg);color:var(--status-err-fg)}  /* <40 */
+
+/* ---------- Alertas (Alert / Flash) ---------- */
+.tl-alert{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:12px 16px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--card);font-size:var(--fs-body)}
+.tl-alert--theme{border-color:rgba(20,89,98,.3);background:rgba(20,89,98,.05)}
+.tl-alert--destructive{border-color:#fecaca;background:rgba(254,242,242,.5);color:#b91c1c}
+.tl-alert--ok{border-color:#a7f3d0;background:#ecfdf5;color:#065f46}
+.tl-alert__title{font-weight:var(--fw-medium)}
+.tl-alert__body{margin-top:2px;color:var(--muted-foreground)}
+
+/* ---------- Estado vacío (Empty) ---------- */
+.tl-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:48px 24px;border:1px dashed var(--slate-300);border-radius:var(--r-xl);text-align:center}
+
+/* ---------- Encabezado de página (PageHeader) ---------- */
+.tl-page-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px}
+
+/* ---------- Avatar con iniciales ---------- */
+.tl-avatar{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:var(--avatar);height:var(--avatar);border-radius:50%;background:rgba(20,89,98,.1);color:var(--theme-color);font-size:12px;font-weight:var(--fw-semibold)}
+.tl-avatar--sm{width:24px;height:24px;font-size:10px}
+.tl-avatar--lg{width:48px;height:48px;font-size:16px}
+
+/* ---------- Etiquetas (TagList) ---------- */
+.tl-tags{display:flex;flex-wrap:wrap;gap:6px}
+
+/* ---------- Pasos de proceso (Stepper) ---------- */
+.tl-steps{display:flex;align-items:center;gap:8px;list-style:none;margin:0;padding:0;font-size:var(--fs-small)}
+.tl-steps li{display:flex;align-items:center;gap:8px}
+.tl-step__dot{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--muted);color:var(--muted-foreground);font-size:10px;font-weight:var(--fw-semibold)}
+.tl-step--done .tl-step__dot{background:var(--theme-color);color:#fff}
+.tl-step__line{width:24px;height:1px;background:var(--border)}
+.tl-step__line--done{background:var(--theme-color)}
+
+/* ---------- Barras horizontales (BarList) ---------- */
+.tl-bars{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.tl-bars li{display:grid;grid-template-columns:minmax(0,10rem) 1fr auto;align-items:center;gap:12px;font-size:var(--fs-body)}
+.tl-bars__track{height:8px;border-radius:999px;background:var(--muted);overflow:hidden}
+.tl-bars__fill{display:block;height:8px;border-radius:999px;background:var(--theme-color)}
+.tl-bars__val{width:40px;text-align:right;font-weight:var(--fw-medium);font-variant-numeric:tabular-nums}
+
+/* ---------- Navegación superior oscura (Navbar) ---------- */
+.tl-nav{position:sticky;top:0;z-index:40;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(10,26,38,.95);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.tl-nav__inner{max-width:72rem;margin:0 auto;padding:12px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px}
+.tl-nav__brand{font-weight:var(--fw-semibold);letter-spacing:-.01em;color:#fff;text-decoration:none;font-size:18px}
+.tl-nav__brand em{font-style:normal;color:#5eead4}           /* teal-300 */
+.tl-nav__links{display:flex;flex-wrap:wrap;gap:4px;font-size:var(--fs-body)}
+.tl-nav__link{padding:6px 10px;border-radius:6px;font-weight:var(--fw-medium);color:#cbd5e1;text-decoration:none}
+.tl-nav__link:hover{background:rgba(255,255,255,.1);color:#fff}
+.tl-nav__icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:6px;color:#cbd5e1}
+.tl-nav__icon:hover{background:rgba(255,255,255,.1)}
+.tl-nav__badge{position:absolute;top:-2px;right:-2px;min-width:16px;padding:0 4px;border-radius:999px;background:#dc2626;color:#fff;font-size:10px;font-weight:var(--fw-semibold);line-height:16px;text-align:center}
+
+/* ---------- Pie (Footer) ---------- */
+.tl-foot{margin-top:48px;border-top:1px solid var(--slate-300);background:#fff;color:var(--slate-900)}
+.tl-foot__inner{max-width:72rem;margin:0 auto;padding:32px 24px;display:flex;flex-direction:column;gap:24px}
+.tl-foot__sep{display:none;width:1px;height:40px;background:#e2e8f0}
+.tl-foot__small{font-size:var(--fs-small);line-height:1.6;color:#64748b}
+@media (min-width:768px){ .tl-foot__inner{flex-direction:row;align-items:center;gap:32px} .tl-foot__sep{display:block} }
+
+/* ---------- Marquesina y animaciones (globals.css) ---------- */
+@keyframes tl-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tl-marquee{animation:tl-marquee 40s linear infinite}
+.tl-marquee:hover{animation-play-state:paused}
+@keyframes tl-flow{to{stroke-dashoffset:-24}}
+.tl-flow-line{stroke-dasharray:6 6;animation:tl-flow 1.2s linear infinite}
+@keyframes tl-ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.7);opacity:0}}
+.tl-ring{animation:tl-ring 2.4s ease-out infinite}
+@keyframes tl-draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.tl-draw-in{stroke-dasharray:1;stroke-dashoffset:0;animation:tl-draw 1s ease-out}
+@media (prefers-reduced-motion:reduce){
+  .tl-marquee,.tl-flow-line,.tl-ring,.tl-draw-in{animation:none}
+}
+
+/* ---------- Hoja de CV estilo Harvard (serif) ---------- */
+.tl-cv{font-family:var(--font-garamond);color:#111;font-size:14px;line-height:1.3}
+.tl-cv h1{margin:0;font-size:22px;font-weight:700;text-align:center;letter-spacing:.02em}
+.tl-cv h2{margin:14px 0 6px;padding-bottom:1px;border-bottom:1px solid #111;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.tl-cv .contact{margin-top:2px;text-align:center;font-size:12px}
+.tl-cv .row{display:flex;justify-content:space-between;gap:12px}
+.tl-cv ul{margin:2px 0 0;padding-left:18px;list-style:disc}
