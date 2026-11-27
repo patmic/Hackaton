@@ -11,6 +11,7 @@ import '../features/analisis/analizador.dart';
 import '../features/analisis/motor.dart';
 import '../features/chat/persona.dart';
 import '../features/mascota/robot_guardia.dart';
+import '../features/ocr/documento.dart';
 import '../features/ocr/ocr.dart';
 import '../features/voz/voz.dart';
 import 'ajustes_sheet.dart';
@@ -326,8 +327,41 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
 
   Future<void> _elegirCaptura() async {
     if (kIsWeb) {
-      await _decir(
-        'En la versión web no puedo leer imágenes. Copia el texto del correo y toca Pegar y revisar.',
+      // Web: PDF o imagen, leídos con OCR en el propio navegador (el archivo no sale del equipo).
+      final r = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'bmp'],
+      );
+      if (r.isEmpty) return;
+      final f = r.single;
+      setState(() {
+        _estado = EstadoRobot.analizando;
+        _titular = 'Revisando…';
+        _subtitulo = '';
+        _pasos = ['Leyendo el archivo'];
+        _progreso = null;
+      });
+      unawaited(Voz.i.decir('Déjame leer el archivo.'));
+      var texto = '';
+      try {
+        texto = await LectorDocumento.leer(await f.readAsBytes(), f.name);
+      } catch (_) {}
+      if (!mounted) return;
+      if (texto.trim().length < 8) {
+        setState(() {
+          _estado = EstadoRobot.reposo;
+          _titular = 'Hola, soy AIess';
+          _pasos = [];
+        });
+        await _decir(
+          'No pude leer texto en ese archivo. Prueba con una captura más clara.',
+        );
+        return;
+      }
+      await _revisarTexto(
+        texto,
+        canal: 'archivo subido',
+        pasosPrevios: ['Leyendo el archivo'],
       );
       return;
     }
@@ -403,7 +437,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
             _titular = 'Hola, soy AIess';
           });
           await _decir(
-            'No te escuché bien. Toca el botón y vuelve a intentarlo.',
+            Voz.i.problemaEscucha ??
+                'No te escuché bien. Toca el botón y vuelve a intentarlo.',
           );
           return;
         }

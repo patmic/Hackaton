@@ -14,6 +14,8 @@ import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
 import 'aula_virtual.dart';
 import 'consentimiento.dart';
+import '../features/ocr/documento.dart';
+import 'package:file_picker/file_picker.dart';
 import '../features/sello/sello.dart';
 import 'practicar_page.dart';
 import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
@@ -165,9 +167,52 @@ class _WebEscritorioState extends State<WebEscritorio> {
     if (!mounted) return;
     setState(() => _escuchando = false);
     if (dicho != null) {
+      // Lo dictado queda escrito en el campo para que la persona lo vea; luego se revisa (con su permiso).
       _texto.text = dicho;
       await _revisar();
+    } else {
+      final motivo =
+          Voz.i.problemaEscucha ?? 'No te escuché bien. Vuelve a intentarlo.';
+      setState(() => _aviso = motivo);
+      Voz.i.decir(motivo);
     }
+  }
+
+  /// PDF o imagen: el OCR corre en el navegador (el archivo no sale del equipo). El texto leído queda
+  /// en el campo para que la persona lo vea, y sigue el flujo normal (sello primero, IA con permiso).
+  Future<void> _subir() async {
+    final r = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'bmp'],
+    );
+    if (r.isEmpty) return;
+    final f = r.single;
+    setState(() {
+      _estado = EstadoRobot.analizando;
+      _aviso = null;
+      _v = null;
+      _pasos = ['Leyendo «${f.name}» en tu navegador'];
+      _progreso = null;
+    });
+    Voz.i.decir('Déjame leer el archivo.');
+    var texto = '';
+    try {
+      texto = await LectorDocumento.leer(await f.readAsBytes(), f.name);
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() {
+      _estado = EstadoRobot.reposo;
+      _pasos = [];
+    });
+    if (texto.trim().length < 8) {
+      const m =
+          'No pude leer texto en ese archivo. Prueba con una captura más clara o copia el texto del correo.';
+      setState(() => _aviso = m);
+      Voz.i.decir(m);
+      return;
+    }
+    _texto.text = texto;
+    await _revisar();
   }
 
   Future<void> _reportar() async {
@@ -478,6 +523,11 @@ class _WebEscritorioState extends State<WebEscritorio> {
                             icono: Icons.backspace_outlined,
                             texto: 'Borrar',
                             onTap: _limpiar,
+                          ),
+                          _BotonTexto(
+                            icono: Icons.upload_file_rounded,
+                            texto: 'Subir PDF o imagen',
+                            onTap: _ocupado ? null : _subir,
                           ),
                         ],
                       ),

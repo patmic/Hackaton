@@ -72,41 +72,97 @@ class Voz {
   }
 
   /// Escucha una frase y la devuelve (null si no se entendió o no hay permiso de micrófono).
+  /// Por qué no se pudo escuchar la última vez (para decírselo a la persona). Null si funcionó.
+  String? problemaEscucha;
+  bool _sttListo = false;
+
+  /// Cierra la escucha en curso (los avisos del micrófono se registran una sola vez y llaman aquí).
+  void Function(String?) _terminarActual = (_) {};
+
+  /// Escucha una frase y la devuelve escrita. Nunca se queda colgada: termina con el resultado,
+  /// con silencio, con un error del micrófono o a los 25 segundos.
   Future<String?> escuchar() async {
     await callar();
-    final ok = await _stt.initialize(onError: (_) => escuchando.value = false);
-    if (!ok) return null;
-    final locales = await _stt.locales();
-    final ids = locales.map((l) => l.localeId).toList();
-    _localeStt = [
-      'es_EC',
-      'es_US',
-      'es_MX',
-      'es_419',
-      'es_ES',
-    ].firstWhere(ids.contains, orElse: () => _localeStt);
+    problemaEscucha = null;
     final c = Completer<String?>();
-    escuchando.value = true;
-    await _stt.listen(
-      listenOptions: SpeechListenOptions(
-        partialResults: false,
-        localeId: _localeStt,
-        listenFor: const Duration(seconds: 20),
-        pauseFor: const Duration(seconds: 3),
-      ),
-      onResult: (r) {
-        if (r.finalResult && !c.isCompleted) c.complete(r.recognizedWords);
-      },
-    );
-    _stt.statusListener = (s) {
-      if ((s == 'done' || s == 'notListening') && !c.isCompleted) {
-        Future.delayed(const Duration(milliseconds: 400), () {
-          if (!c.isCompleted) c.complete(null);
-        });
+    void terminar(String? texto) {
+      if (!c.isCompleted) c.complete(texto);
+    }
+
+    _terminarActual = terminar;
+
+    try {
+      if (!_sttListo) {
+        _sttListo = await _stt.initialize(
+          onError: (e) {
+            problemaEscucha =
+                e.errorMsg.contains('permission') ||
+                    e.errorMsg.contains('not-allowed')
+                ? 'No tengo permiso para usar el micrófono. Permítelo y vuelve a intentar.'
+                : (e.errorMsg.contains('no-speech') ||
+                      e.errorMsg.contains('no_match') ||
+                      e.errorMsg.contains('speech_timeout'))
+                ? 'No te escuché. Habla un poco más fuerte, cerca del micrófono.'
+                : 'El micrófono tuvo un problema. Vuelve a intentarlo.';
+            _terminarActual(null);
+          },
+          onStatus: (s) {
+            if (s == 'done' || s == 'notListening') {
+              final cerrar = _terminarActual;
+              Future.delayed(
+                const Duration(milliseconds: 600),
+                () => cerrar(null),
+              );
+            }
+          },
+        );
       }
-    };
-    final r = await c.future;
-    escuchando.value = false;
-    return (r == null || r.trim().isEmpty) ? null : r;
+      if (!_sttListo) {
+        problemaEscucha = kIsWeb
+            ? 'Este navegador no permite dictar. Abre AIESS en Chrome o Edge, o escribe el correo.'
+            : 'Este celular no tiene el dictado por voz activado. Puedes pegar el correo en su lugar.';
+        return null;
+      }
+      final locales = await _stt.locales();
+      final ids = locales.map((l) => l.localeId).toList();
+      // Android usa "es_EC"; el navegador, "es-EC".
+      final preferidos = kIsWeb
+          ? ['es-EC', 'es-US', 'es-MX', 'es-419', 'es-ES']
+          : ['es_EC', 'es_US', 'es_MX', 'es_419', 'es_ES'];
+      _localeStt = preferidos.firstWhere(
+        ids.contains,
+        orElse: () => preferidos.first,
+      );
+      escuchando.value = true;
+      await _stt.listen(
+        listenOptions: SpeechListenOptions(
+          partialResults: false,
+          localeId: _localeStt,
+          listenFor: const Duration(seconds: 20),
+          pauseFor: const Duration(seconds: 3),
+        ),
+        onResult: (r) {
+          if (r.finalResult) terminar(r.recognizedWords);
+        },
+      );
+      final r = await c.future.timeout(
+        const Duration(seconds: 25),
+        onTimeout: () {
+          _stt.stop();
+          return null;
+        },
+      );
+      if ((r == null || r.trim().isEmpty) && problemaEscucha == null) {
+        problemaEscucha =
+            'No te escuché bien. Toca el botón y vuelve a intentarlo.';
+      }
+      return (r == null || r.trim().isEmpty) ? null : r;
+    } catch (_) {
+      problemaEscucha ??=
+          'El micrófono no está disponible ahora. Puedes pegar el correo en su lugar.';
+      return null;
+    } finally {
+      escuchando.value = false;
+    }
   }
 }

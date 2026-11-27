@@ -258,17 +258,18 @@ class AiessHomeScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // En la web no hay lector de imágenes: no se muestra un botón que no funciona.
-                  if (!kIsWeb) ...[
-                    Expanded(
-                      child: _BotonTarjeta(
-                        texto: 'Escanear foto',
-                        ayuda: 'De una captura',
-                        icono: Icons.document_scanner_rounded,
-                        onTap: onPickImage,
-                      ),
+                  Expanded(
+                    child: _BotonTarjeta(
+                      // En la web se sube un PDF o una foto (OCR en el navegador).
+                      texto: kIsWeb ? 'Subir PDF o foto' : 'Escanear foto',
+                      ayuda: kIsWeb ? 'Se lee en tu equipo' : 'De una captura',
+                      icono: kIsWeb
+                          ? Icons.upload_file_rounded
+                          : Icons.document_scanner_rounded,
+                      onTap: onPickImage,
                     ),
-                    const SizedBox(width: 12),
-                  ],
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: _BotonTarjeta(
                       texto: escuchando ? 'Te escucho…' : 'Hablar',
