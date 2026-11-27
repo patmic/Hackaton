@@ -154,7 +154,10 @@ class _RobotGuardiaState extends State<RobotGuardia>
               return LayoutBuilder(
                 builder: (context, constraints) {
                   final lado = min(
-                    min(constraints.maxWidth * 0.8, constraints.maxHeight * 0.9),
+                    min(
+                      constraints.maxWidth * 0.8,
+                      constraints.maxHeight * 0.9,
+                    ),
                     460.0,
                   );
                   return DecoratedBox(
@@ -171,10 +174,7 @@ class _RobotGuardiaState extends State<RobotGuardia>
                     child: Center(
                       child: Transform.scale(
                         scale: escala,
-                        child: SizedBox.square(
-                          dimension: lado,
-                          child: robot,
-                        ),
+                        child: SizedBox.square(dimension: lado, child: robot),
                       ),
                     ),
                   );
@@ -245,10 +245,7 @@ class _RobotPintor extends CustomPainter {
     final sombra = Paint()
       ..color = ThemeLightTokens.deep.withValues(alpha: 0.12)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14);
-    canvas.drawOval(
-      const Rect.fromLTWH(60, 307, 180, 20),
-      sombra,
-    );
+    canvas.drawOval(const Rect.fromLTWH(60, 307, 180, 20), sombra);
 
     _dibujarAntena(canvas);
     _dibujarOrejas(canvas);
@@ -313,7 +310,10 @@ class _RobotPintor extends CustomPainter {
         ..shader = const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [ThemeLightTokens.background, ThemeLightTokens.primaryContainer],
+          colors: [
+            ThemeLightTokens.background,
+            ThemeLightTokens.primaryContainer,
+          ],
         ).createShader(cuerpo.outerRect),
     );
     canvas.drawRRect(
@@ -344,10 +344,7 @@ class _RobotPintor extends CustomPainter {
       const Rect.fromLTWH(95, 205, 110, 77),
       const Radius.circular(18),
     );
-    canvas.drawRRect(
-      pecho,
-      Paint()..color = ThemeLightTokens.background,
-    );
+    canvas.drawRRect(pecho, Paint()..color = ThemeLightTokens.background);
     canvas.drawRRect(
       pecho,
       Paint()
@@ -377,7 +374,13 @@ class _RobotPintor extends CustomPainter {
         ..strokeWidth = 2
         ..color = ThemeLightTokens.background,
     );
-    _texto(canvas, 'A', const Offset(150, 236), 23, ThemeLightTokens.background);
+    _texto(
+      canvas,
+      'A',
+      const Offset(150, 236),
+      23,
+      ThemeLightTokens.background,
+    );
 
     final luz = estado == EstadoRobot.alerta
         ? ThemeLightTokens.errorForeground
@@ -425,10 +428,7 @@ class _RobotPintor extends CustomPainter {
       const Rect.fromLTWH(71, 82, 158, 86),
       const Radius.circular(22),
     );
-    canvas.drawRRect(
-      visor,
-      Paint()..color = ThemeLightTokens.nav,
-    );
+    canvas.drawRRect(visor, Paint()..color = ThemeLightTokens.nav);
     canvas.drawRRect(
       visor,
       Paint()
@@ -469,9 +469,12 @@ class _RobotPintor extends CustomPainter {
 
     final avance = escaner;
     if (avance != null) {
-      final y = 86 + Curves.easeInOut.transform(
-        avance < 0.5 ? avance * 2 : 2 - avance * 2,
-      ) * 78;
+      final y =
+          86 +
+          Curves.easeInOut.transform(
+                avance < 0.5 ? avance * 2 : 2 - avance * 2,
+              ) *
+              78;
       final banda = Rect.fromLTWH(71, y - 8, 158, 16);
       canvas.drawRect(
         banda,
@@ -506,7 +509,13 @@ class _RobotPintor extends CustomPainter {
     );
   }
 
-  void _texto(Canvas canvas, String texto, Offset centro, double tam, Color color) {
+  void _texto(
+    Canvas canvas,
+    String texto,
+    Offset centro,
+    double tam,
+    Color color,
+  ) {
     final painter = TextPainter(
       text: TextSpan(
         text: texto,
@@ -519,7 +528,10 @@ class _RobotPintor extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    painter.paint(canvas, centro - Offset(painter.width / 2, painter.height / 2));
+    painter.paint(
+      canvas,
+      centro - Offset(painter.width / 2, painter.height / 2),
+    );
   }
 
   @override
@@ -557,16 +569,15 @@ class _AuraRobot extends CustomPainter {
     );
     final arriba = Radius.circular(rect.width / 2);
     final abajo = Radius.circular(arco ? 44 + extra : rect.width / 2);
-    return Path()
-      ..addRRect(
-        RRect.fromRectAndCorners(
-          rect,
-          topLeft: arriba,
-          topRight: arriba,
-          bottomLeft: abajo,
-          bottomRight: abajo,
-        ),
-      );
+    return Path()..addRRect(
+      RRect.fromRectAndCorners(
+        rect,
+        topLeft: arriba,
+        topRight: arriba,
+        bottomLeft: abajo,
+        bottomRight: abajo,
+      ),
+    );
   }
 
   @override
@@ -590,7 +601,10 @@ class _AuraRobot extends CustomPainter {
         final inicio = giro * metric.length;
         final fin = inicio + metric.length * 0.2;
         if (fin <= metric.length) {
-          canvas.drawPath(metric.extractPath(inicio, fin), borde..strokeWidth = 5);
+          canvas.drawPath(
+            metric.extractPath(inicio, fin),
+            borde..strokeWidth = 5,
+          );
         } else {
           canvas.drawPath(
             metric.extractPath(inicio, metric.length),

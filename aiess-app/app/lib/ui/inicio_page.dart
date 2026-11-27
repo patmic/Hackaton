@@ -17,6 +17,8 @@ import 'ajustes_sheet.dart';
 import 'practicar_page.dart';
 import 'aiess_home_screen.dart';
 import 'aula_virtual.dart';
+import 'consentimiento.dart';
+import '../features/sello/sello.dart';
 
 enum _Modo { copiado, hablar, resultado }
 
@@ -142,7 +144,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     } catch (_) {}
     final t = d?.text?.trim();
     setState(() {
-      _copiado = (t != null && t.length >= 8 && t != _ultimoAnalizado)
+      _copiado =
+          (t != null && t.length >= 8 && '${t.hashCode}' != _ultimoAnalizado)
           ? t
           : null;
       if (_modo != _Modo.resultado)
@@ -197,7 +200,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         Voz.i.decir(voz);
       },
     );
-    _ultimoAnalizado = e.texto.trim();
+    _ultimoAnalizado = '${e.texto.trim().hashCode}';
     if (!mounted) return;
     if (adelantado.isEmpty) HapticFeedback.heavyImpact();
     setState(() {
@@ -216,9 +219,109 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     final txt = m['texto'] as String?;
     if (img != null) {
       _analizarImagen(img);
+    } else if (txt != null && txt.startsWith(marcaAvisoIess)) {
+      _guiarVerificacion(txt.substring(marcaAvisoIess.length).trim());
     } else if (txt != null && txt.trim().isNotEmpty) {
-      _analizar(Entrada(txt, canal: 'mensaje compartido'));
+      _revisarTexto(txt, canal: 'mensaje compartido');
     }
+  }
+
+  /// Llegó un correo cuyo ASUNTO habla del IESS (el aviso no leyó nada más): se guía a verificar el sello.
+  Future<void> _guiarVerificacion(String asunto) async {
+    setState(() {
+      _estado = EstadoRobot.reposo;
+      _titular = 'Verifiquemos el sello';
+      _modo = _Modo.hablar;
+    });
+    await _decir(
+      'Te llegó un correo que dice ser del IESS${asunto.isEmpty ? '' : ': «$asunto»'}. '
+      'Ábrelo y toca la imagen del sello, o copia su enlace y toca Pegar y revisar. '
+      'Si no trae sello, no abras sus enlaces.',
+    );
+  }
+
+  /// Primero la firma del IESS (sello SellaCorreo). La IA solo revisa el texto si la persona lo acepta.
+  Future<void> _revisarTexto(
+    String t, {
+    String canal = 'mensaje copiado',
+    List<String> pasosPrevios = const [],
+  }) async {
+    if (Sello.codigoEn(t) != null) {
+      final r = await _verificarSello(t, pasosPrevios: pasosPrevios);
+      if (r == null || !r.valido) return;
+      // Firma válida: el correo es del IESS. Revisarlo con la IA es opcional y con permiso.
+      if (!mounted) return;
+      if (!await pedirConsentimientoIA(context, firmaValida: true)) return;
+    } else {
+      if (!await pedirConsentimientoIA(context)) {
+        if (!mounted) return;
+        setState(() {
+          _estado = EstadoRobot.reposo;
+          _titular = 'Hola, soy AIess';
+          _pasos = [];
+        });
+        await _decir(
+          'Está bien, no lo leí. Si el correo trae la imagen del sello del IESS, cópiame su enlace y lo verifico sin leer el correo.',
+        );
+        return;
+      }
+    }
+    if (!mounted) return;
+    await _analizar(Entrada(t, canal: canal), pasosPrevios: pasosPrevios);
+  }
+
+  /// Verifica el sello contra el servidor oficial de SellaCorreo (firma Ed25519, hash, emisor, caducidad).
+  Future<ResultadoSello?> _verificarSello(
+    String t, {
+    List<String> pasosPrevios = const [],
+  }) async {
+    HapticFeedback.mediumImpact();
+    setState(() {
+      _estado = EstadoRobot.analizando;
+      _titular = 'Revisando el sello…';
+      _subtitulo = '';
+      _pasos = [...pasosPrevios, 'Comprobando la firma del IESS'];
+      _progreso = null;
+    });
+    unawaited(Voz.i.decir('Déjame comprobar la firma del IESS.'));
+    final r = await Sello.verificar(t);
+    _ultimoAnalizado = '${t.trim().hashCode}';
+    if (!mounted) return null;
+    if (r.sinRespuesta) {
+      setState(() {
+        _estado = EstadoRobot.reposo;
+        _titular = 'No pude comprobarlo';
+        _pasos = [];
+      });
+      await _decir(r.mensaje);
+      return r;
+    }
+    final d = r.datos;
+    final detalle = r.valido
+        ? 'Firma válida del IESS. ${d['emisor'] ?? ''}${d['unidad'] != null ? ', ${d['unidad']}' : ''}'
+              '${d['asunto'] != null ? '. Asunto: «${d['asunto']}»' : ''}. Revisa que el asunto coincida con el correo.'
+        : r.mensaje;
+    HapticFeedback.heavyImpact();
+    setState(() {
+      _entrada = Entrada(t, canal: 'sello');
+      _veredicto = Veredicto(
+        phishing: !r.valido,
+        puntaje: r.valido ? 0 : 100,
+        voz: detalle,
+        indicios: const [],
+        explicacion: detalle,
+        queHacer: r.valido
+            ? 'Puedes confiar en este correo. Igual, nunca entregues tu clave.'
+            : 'No abras sus enlaces ni entregues datos. Puedes avisar al IESS.',
+        fuente: 'sello',
+      );
+      _estado = r.valido ? EstadoRobot.seguro : EstadoRobot.alerta;
+      _titular = r.valido ? 'Firma válida' : 'Sello falso';
+      _modo = _Modo.resultado;
+      _pasos = [];
+    });
+    await _decir(detalle);
+    return r;
   }
 
   Future<void> _elegirCaptura() async {
@@ -276,8 +379,9 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       );
       return;
     }
-    await _analizar(
-      Entrada(lectura.paraAnalizar(), canal: 'captura de pantalla'),
+    await _revisarTexto(
+      lectura.paraAnalizar(),
+      canal: 'captura de pantalla',
       pasosPrevios: ['Leyendo la imagen'],
     );
   }
@@ -285,7 +389,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   Future<void> _pulsar() async {
     switch (_modo) {
       case _Modo.copiado:
-        await _analizar(Entrada(_copiado!));
+        await _revisarTexto(_copiado!);
       case _Modo.hablar:
         setState(() {
           _estado = EstadoRobot.escuchando;
@@ -310,7 +414,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
           return;
         }
         if (urlRe.hasMatch(dicho) || dicho.length > 90) {
-          await _analizar(Entrada(dicho, canal: 'mensaje dictado'));
+          await _revisarTexto(dicho, canal: 'mensaje dictado');
           return;
         }
         setState(() {
@@ -336,6 +440,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     Voz.i.callar();
     setState(() {
       _veredicto = null;
+      _entrada = null; // la conversación se borra al terminar
       _estado = EstadoRobot.reposo;
       _titular = 'Hola, soy AIess';
       _subtitulo = '';
@@ -382,6 +487,11 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       d = await Clipboard.getData(Clipboard.kTextPlain);
     } catch (_) {}
     final t = d?.text?.trim() ?? '';
+    // Un enlace de sello se verifica directo (no hace falta leer el correo).
+    if (Sello.codigoEn(t) != null) {
+      await _revisarTexto(t);
+      return;
+    }
     if (t.length < 8) {
       HapticFeedback.mediumImpact();
       setState(() => _titular = 'No hay nada copiado');
@@ -403,7 +513,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         setState(() => _titular = 'Hola, soy AIess');
       return;
     }
-    await _analizar(Entrada(t));
+    await _revisarTexto(t);
   }
 
   Future<void> _hablar() async {

@@ -7,43 +7,62 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 Widget _web(Size tam, double letra) => MaterialApp(
-      theme: temaAIess(),
-      home: MediaQuery(
-        data: MediaQueryData(size: tam, textScaler: TextScaler.linear(letra), disableAnimations: true),
-        child: const WebEscritorio(),
-      ),
-    );
+  theme: temaAIess(),
+  home: MediaQuery(
+    data: MediaQueryData(
+      size: tam,
+      textScaler: TextScaler.linear(letra),
+      disableAnimations: true,
+    ),
+    child: const WebEscritorio(),
+  ),
+);
 
 void main() {
-  for (final tam in const [Size(1024, 700), Size(1366, 768), Size(1920, 1080)]) {
+  for (final tam in const [
+    Size(1024, 700),
+    Size(1366, 768),
+    Size(1920, 1080),
+  ]) {
     for (final letra in [1.0, 1.5, 2.0]) {
       // Con zoom alto en pantallas angostas la web pasa a una columna (se prueba en accesibilidad_test).
       if (tam.width / letra < 860) continue;
-      testWidgets('web sin desbordes: ${tam.width.toInt()}x${tam.height.toInt()}, zoom ${letra}x', (t) async {
-        t.view.physicalSize = tam;
-        t.view.devicePixelRatio = 1;
-        addTearDown(t.view.reset);
-        await t.pumpWidget(_web(tam, letra));
-        await t.pump(const Duration(milliseconds: 500));
-        final e = t.takeException();
-        expect(e, isNull, reason: '$e');
-      });
+      testWidgets(
+        'web sin desbordes: ${tam.width.toInt()}x${tam.height.toInt()}, zoom ${letra}x',
+        (t) async {
+          t.view.physicalSize = tam;
+          t.view.devicePixelRatio = 1;
+          addTearDown(t.view.reset);
+          await t.pumpWidget(_web(tam, letra));
+          await t.pump(const Duration(milliseconds: 500));
+          final e = t.takeException();
+          expect(e, isNull, reason: '$e');
+        },
+      );
     }
   }
 
-  testWidgets('web: con zoom alto en pantalla angosta pasa a una columna', (t) async {
+  testWidgets('web: con zoom alto en pantalla angosta pasa a una columna', (
+    t,
+  ) async {
     late bool dos;
-    await t.pumpWidget(MediaQuery(
-      data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-      child: Builder(builder: (c) {
-        dos = WebEscritorio.cabe(c, 1366);
-        return const SizedBox();
-      }),
-    ));
+    await t.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+        child: Builder(
+          builder: (c) {
+            dos = WebEscritorio.cabe(c, 1366);
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
     expect(dos, isFalse);
   });
 
-  testWidgets('web: controles con nombre, de buen tamaño y con contraste', (t) async {
+  testWidgets('web: controles con nombre, de buen tamaño y con contraste', (
+    t,
+  ) async {
     t.view.physicalSize = const Size(1366, 768);
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.reset);
@@ -56,14 +75,20 @@ void main() {
     s.dispose();
   });
 
-  testWidgets('web: el campo recibe el foco al abrir y Ctrl+Enter revisa', (t) async {
+  testWidgets('web: el campo recibe el foco al abrir y Ctrl+Enter revisa', (
+    t,
+  ) async {
     t.view.physicalSize = const Size(1366, 768);
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.reset);
     await t.pumpWidget(_web(const Size(1366, 768), 1));
     await t.pump(const Duration(milliseconds: 300));
     final campo = t.widget<EditableText>(find.byType(EditableText));
-    expect(campo.focusNode.hasFocus, isTrue, reason: 'el cursor debe empezar en el campo del correo');
+    expect(
+      campo.focusNode.hasFocus,
+      isTrue,
+      reason: 'el cursor debe empezar en el campo del correo',
+    );
     // Texto demasiado corto: Ctrl+Enter debe dar el aviso de que falta pegar el correo.
     await t.enterText(find.byType(TextField), 'hola');
     await t.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);

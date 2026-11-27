@@ -151,10 +151,7 @@ class _PracticarPageState extends State<PracticarPage> {
                       children: [
                         Row(
                           children: [
-                            RobotGuardia(
-                              estado: estado,
-                              tam: 64,
-                            ),
+                            RobotGuardia(estado: estado, tam: 64),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
@@ -162,7 +159,8 @@ class _PracticarPageState extends State<PracticarPage> {
                                     ? '¿Estafa o seguro?'
                                     : (_acerto! ? '¡Correcto!' : 'Casi…'),
                                 style: const TextStyle(
-                                  fontFamily: 'packages/theme_light/ThemeLightLexend',
+                                  fontFamily:
+                                      'packages/theme_light/ThemeLightLexend',
                                   fontVariations: const [
                                     FontVariation('wght', 700),
                                   ],
@@ -346,10 +344,7 @@ class _Tarjeta extends StatelessWidget {
                     Expanded(
                       child: Text(
                         l['url'] as String,
-                        style: const TextStyle(
-                          color: Tono.gris,
-                          fontSize: 15,
-                        ),
+                        style: const TextStyle(color: Tono.gris, fontSize: 15),
                       ),
                     ),
                   ],

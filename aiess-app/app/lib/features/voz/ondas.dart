@@ -14,8 +14,12 @@ class OndasVoz extends StatefulWidget {
   State<OndasVoz> createState() => _OndasVozState();
 }
 
-class _OndasVozState extends State<OndasVoz> with SingleTickerProviderStateMixin {
-  late final _t = AnimationController(vsync: this, duration: const Duration(seconds: 6))..repeat();
+class _OndasVozState extends State<OndasVoz>
+    with SingleTickerProviderStateMixin {
+  late final _t = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 6),
+  )..repeat();
   double _energia = 0.08;
 
   @override
@@ -28,15 +32,29 @@ class _OndasVozState extends State<OndasVoz> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return ExcludeSemantics(
       child: AnimatedBuilder(
-        animation: Listenable.merge([_t, Voz.i.silaba, Voz.i.hablando, Voz.i.escuchando]),
+        animation: Listenable.merge([
+          _t,
+          Voz.i.silaba,
+          Voz.i.hablando,
+          Voz.i.escuchando,
+        ]),
         builder: (_, __) {
           final activo = Voz.i.hablando.value || Voz.i.escuchando.value;
-          final meta = Voz.i.hablando.value ? 0.45 + Voz.i.silaba.value * 0.55 : (Voz.i.escuchando.value ? 0.55 : 0.08);
+          final meta = Voz.i.hablando.value
+              ? 0.45 + Voz.i.silaba.value * 0.55
+              : (Voz.i.escuchando.value ? 0.55 : 0.08);
           _energia += (meta - _energia) * 0.12; // suavizado
           return SizedBox(
             height: widget.alto,
             width: double.infinity,
-            child: CustomPaint(painter: _Ondas(_t.value * 2 * pi * 6, _energia, widget.color, activo)),
+            child: CustomPaint(
+              painter: _Ondas(
+                _t.value * 2 * pi * 6,
+                _energia,
+                widget.color,
+                activo,
+              ),
+            ),
           );
         },
       ),
@@ -63,18 +81,29 @@ class _Ondas extends CustomPainter {
       for (var x = 0.0; x <= s.width; x += 3) {
         final u = x / s.width;
         final envolvente = sin(pi * u); // se apaga en los bordes
-        final y = mitad +
-            sin(u * 2 * pi * c.frec + fase * c.vel) * mitad * 0.85 * energia * c.amp * envolvente +
-            sin(u * 2 * pi * c.frec * 2.1 - fase * 0.6) * mitad * 0.12 * energia * envolvente;
+        final y =
+            mitad +
+            sin(u * 2 * pi * c.frec + fase * c.vel) *
+                mitad *
+                0.85 *
+                energia *
+                c.amp *
+                envolvente +
+            sin(u * 2 * pi * c.frec * 2.1 - fase * 0.6) *
+                mitad *
+                0.12 *
+                energia *
+                envolvente;
         x == 0 ? path.moveTo(x, y) : path.lineTo(x, y);
       }
       canvas.drawPath(
-          path,
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = c.grosor
-            ..strokeCap = StrokeCap.round
-            ..color = color.withValues(alpha: c.alfa * (activo ? 1 : 0.6)));
+        path,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = c.grosor
+          ..strokeCap = StrokeCap.round
+          ..color = color.withValues(alpha: c.alfa * (activo ? 1 : 0.6)),
+      );
     }
   }
 

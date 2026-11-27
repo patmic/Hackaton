@@ -12,7 +12,12 @@ class Persona {
       while (_historial.length > 6) {
         _historial.removeAt(0);
       }
-      final r = (await Cerebro.i.generar(formatoLfm2(systemPrompt(), _historial), prefijo: prefijoLfm2(systemPrompt()), maxTokens: 160, temperatura: 0.3)).trim();
+      final r = (await Cerebro.i.generar(
+        formatoLfm2(systemPrompt(), _historial),
+        prefijo: prefijoLfm2(systemPrompt()),
+        maxTokens: 160,
+        temperatura: 0.3,
+      )).trim();
       if (r.isNotEmpty && !r.startsWith('{')) {
         _historial.add(('assistant', r));
         return r;
@@ -25,7 +30,9 @@ class Persona {
     final t = plegar(p);
     final c = Canales.i.contacto;
     bool tiene(String re) => RegExp(re).hasMatch(t);
-    if (tiene(r'(hice clic|di mis datos|me estafaron|ingrese mi clave|ya pague)')) {
+    if (tiene(
+      r'(hice clic|di mis datos|me estafaron|ingrese mi clave|ya pague)',
+    )) {
       return 'Tranquilo, actuemos rápido. Cambia tu clave en ${c['aplicaciones']}, llama a tu banco si diste tu tarjeta '
           'y avisa al IESS a ${c['seguridad_informacion']}.';
     }
@@ -44,7 +51,8 @@ class Persona {
     if (tiene(r'(phishing|estafa|que es)')) {
       return 'Es cuando alguien finge ser el IESS para robarte claves o dinero. Cópiame el mensaje y lo reviso.';
     }
-    if (tiene(r'(gracias|chao|adios)')) return 'Con gusto. Ante la duda, no hagas clic.';
+    if (tiene(r'(gracias|chao|adios)'))
+      return 'Con gusto. Ante la duda, no hagas clic.';
     if (tiene(r'(hola|buenas|quien eres)')) {
       return 'Hola, soy $nombreMascota, tu robot guardián. Copia un mensaje sospechoso y toca el botón.';
     }

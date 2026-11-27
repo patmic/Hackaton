@@ -21,47 +21,71 @@ import 'ui/web_escritorio.dart';
 Future<void> _preparar() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Canales.cargar();
-  unawaited(Cerebro.i.iniciar()); // si hay un modelo descargado lo carga en segundo plano
+  unawaited(
+    Cerebro.i.iniciar(),
+  ); // si hay un modelo descargado lo carga en segundo plano
 }
 
 /// App principal.
 Future<void> main() async {
   await _preparar();
   // Siempre vertical: más simple para personas mayores y el robot no se descuadra.
-  if (!kIsWeb) await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+  if (!kIsWeb)
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
       systemNavigationBarColor: Tono.fondo,
-      systemNavigationBarIconBrightness: Brightness.dark));
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
   // Web: el árbol de accesibilidad siempre activo, para que los lectores de pantalla (NVDA, VoiceOver) lean la página.
   if (kIsWeb) SemanticsBinding.instance.ensureSemantics();
-  final yaConfigurado = (await SharedPreferences.getInstance()).getBool('bienvenida') ?? false;
-  runApp(ProviderScope(
-    // El aula virtual lee su catálogo desde el paquete del módulo de capacitación.
-    overrides: [
-      cap.actividadRepositoryProvider.overrideWithValue(
-          AssetActividadRepository(ruta: 'packages/capacitacion/assets/data/actividades.json')),
-    ],
-    child: MaterialApp(
-    // App Link del correo firmado ("Verificar en App") -> pantalla de verificación del módulo de capacitación.
-    onGenerateRoute: cap_rutas.generarRuta,
-    title: 'AIESS',
-    debugShowCheckedModeBanner: false,
-    theme: temaAIess(),
-    // En web no hay permisos de Android que configurar: se entra directo.
-    // Web angosta (celular en el navegador): la pantalla de la app con el fondo de ThemeLight.
-    builder: (context, child) => kIsWeb && !WebEscritorio.cabe(context, MediaQuery.sizeOf(context).width)
-        ? ColoredBox(
-            color: Tono.fondo,
-            child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: child)),
-          )
-        : child!,
-    // Web en computadora: diseño propio de dos columnas.
-    home: kIsWeb
-        ? LayoutBuilder(builder: (context, c) => WebEscritorio.cabe(context, c.maxWidth) ? const WebEscritorio() : const InicioPage())
-        : (yaConfigurado ? const InicioPage() : const BienvenidaPage()),
-  )));
+  final yaConfigurado =
+      (await SharedPreferences.getInstance()).getBool('bienvenida') ?? false;
+  runApp(
+    ProviderScope(
+      // El aula virtual lee su catálogo desde el paquete del módulo de capacitación.
+      overrides: [
+        cap.actividadRepositoryProvider.overrideWithValue(
+          AssetActividadRepository(
+            ruta: 'packages/capacitacion/assets/data/actividades.json',
+          ),
+        ),
+      ],
+      child: MaterialApp(
+        // App Link del correo firmado ("Verificar en App") -> pantalla de verificación del módulo de capacitación.
+        onGenerateRoute: cap_rutas.generarRuta,
+        title: 'AIESS',
+        debugShowCheckedModeBanner: false,
+        theme: temaAIess(),
+        // En web no hay permisos de Android que configurar: se entra directo.
+        // Web angosta (celular en el navegador): la pantalla de la app con el fondo de ThemeLight.
+        builder: (context, child) =>
+            kIsWeb &&
+                !WebEscritorio.cabe(context, MediaQuery.sizeOf(context).width)
+            ? ColoredBox(
+                color: Tono.fondo,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: child,
+                  ),
+                ),
+              )
+            : child!,
+        // Web en computadora: diseño propio de dos columnas.
+        home: kIsWeb
+            ? LayoutBuilder(
+                builder: (context, c) => WebEscritorio.cabe(context, c.maxWidth)
+                    ? const WebEscritorio()
+                    : const InicioPage(),
+              )
+            : (yaConfigurado ? const InicioPage() : const BienvenidaPage()),
+      ),
+    ),
+  );
 }
 
 /// Pop-up tipo Truecaller (lo abre AlertaActivity desde el lector de notificaciones).

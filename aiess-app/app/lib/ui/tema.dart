@@ -81,24 +81,35 @@ class Letra {
 /// Tema Flutter con la paleta, superficies y controles de ThemeLight.
 ThemeData temaAIess() {
   final base = themeLight();
-  final texto = TextTheme(
-    displaySmall: Letra.lexend(34, peso: FontWeight.w700, alto: 1.1),
-    headlineLarge: Letra.lexend(30, peso: FontWeight.w700, alto: 1.15),
-    headlineMedium: Letra.lexend(26, peso: FontWeight.w700, alto: 1.2),
-    headlineSmall: Letra.lexend(23, peso: FontWeight.w600, alto: 1.25),
-    titleLarge: Letra.lexend(21, peso: FontWeight.w600, alto: 1.3),
-    titleMedium: Letra.lexend(18, peso: FontWeight.w600, alto: 1.3, espacio: 0),
-    titleSmall: Letra.lexend(16, peso: FontWeight.w600, alto: 1.3, espacio: 0),
-    bodyLarge: Letra.lectura(19),
-    bodyMedium: Letra.lectura(17),
-    bodySmall: Letra.lectura(15, alto: 1.45),
-    labelLarge: Letra.lexend(17, peso: FontWeight.w600, espacio: 0),
-    labelMedium: Letra.lexend(15, peso: FontWeight.w500, espacio: 0),
-    labelSmall: Letra.lexend(14, peso: FontWeight.w500, espacio: 0.2),
-  ).apply(
-    bodyColor: ThemeLightTokens.foreground,
-    displayColor: ThemeLightTokens.foreground,
-  );
+  final texto =
+      TextTheme(
+        displaySmall: Letra.lexend(34, peso: FontWeight.w700, alto: 1.1),
+        headlineLarge: Letra.lexend(30, peso: FontWeight.w700, alto: 1.15),
+        headlineMedium: Letra.lexend(26, peso: FontWeight.w700, alto: 1.2),
+        headlineSmall: Letra.lexend(23, peso: FontWeight.w600, alto: 1.25),
+        titleLarge: Letra.lexend(21, peso: FontWeight.w600, alto: 1.3),
+        titleMedium: Letra.lexend(
+          18,
+          peso: FontWeight.w600,
+          alto: 1.3,
+          espacio: 0,
+        ),
+        titleSmall: Letra.lexend(
+          16,
+          peso: FontWeight.w600,
+          alto: 1.3,
+          espacio: 0,
+        ),
+        bodyLarge: Letra.lectura(19),
+        bodyMedium: Letra.lectura(17),
+        bodySmall: Letra.lectura(15, alto: 1.45),
+        labelLarge: Letra.lexend(17, peso: FontWeight.w600, espacio: 0),
+        labelMedium: Letra.lexend(15, peso: FontWeight.w500, espacio: 0),
+        labelSmall: Letra.lexend(14, peso: FontWeight.w500, espacio: 0.2),
+      ).apply(
+        bodyColor: ThemeLightTokens.foreground,
+        displayColor: ThemeLightTokens.foreground,
+      );
 
   return base.copyWith(
     textTheme: texto,

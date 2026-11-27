@@ -8,8 +8,11 @@ class Canales {
   final Map<String, dynamic> _j;
   static Canales? _inst;
 
-  static Future<Canales> cargar() async =>
-      _inst ??= Canales._(jsonDecode(await rootBundle.loadString('assets/data/canales_oficiales.json')));
+  static Future<Canales> cargar() async => _inst ??= Canales._(
+    jsonDecode(
+      await rootBundle.loadString('assets/data/canales_oficiales.json'),
+    ),
+  );
   static Canales get i => _inst!;
 
   List<String> _l(String k) => List<String>.from(_j[k] as List);
@@ -21,7 +24,8 @@ class Canales {
   List<String> get correoGratuito => _l('proveedores_correo_gratuito');
   List<String> get marcas => _l('marcas_vigiladas');
   List<String> get extPeligrosas => _l('extensiones_peligrosas');
-  Map<String, String> get contacto => Map<String, String>.from(_j['contacto'] as Map);
+  Map<String, String> get contacto =>
+      Map<String, String>.from(_j['contacto'] as Map);
 }
 
 /// minúsculas sin tildes (equivale a plegar() de Python).
@@ -37,4 +41,7 @@ String plegar(String s) {
   return b.toString().toLowerCase();
 }
 
-final urlRe = RegExp(r'''(?:https?://|www\.)[^\s\[\]<>"«»,;)]+''', caseSensitive: false);
+final urlRe = RegExp(
+  r'''(?:https?://|www\.)[^\s\[\]<>"«»,;)]+''',
+  caseSensitive: false,
+);

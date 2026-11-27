@@ -13,6 +13,8 @@ import '../features/llm/remoto.dart';
 import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
 import 'aula_virtual.dart';
+import 'consentimiento.dart';
+import '../features/sello/sello.dart';
 import 'practicar_page.dart';
 import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
 import 'tema.dart';
@@ -57,6 +59,49 @@ class _WebEscritorioState extends State<WebEscritorio> {
 
   Future<void> _revisar() async {
     final t = _texto.text.trim();
+    // 1) Si trae el sello del IESS, se verifica la firma sin leer el correo.
+    if (Sello.codigoEn(t) != null) {
+      setState(() {
+        _estado = EstadoRobot.analizando;
+        _aviso = null;
+        _v = null;
+        _pasos = ['Comprobando la firma del IESS'];
+        _progreso = null;
+      });
+      final r = await Sello.verificar(t);
+      if (!mounted) return;
+      if (r.sinRespuesta) {
+        setState(() {
+          _estado = EstadoRobot.reposo;
+          _pasos = [];
+          _aviso = r.mensaje;
+        });
+        Voz.i.decir(r.mensaje);
+        return;
+      }
+      final d = r.datos;
+      final texto = r.valido
+          ? 'Firma válida del IESS. ${d['emisor'] ?? ''}${d['asunto'] != null ? '. Asunto: «${d['asunto']}»' : ''}. '
+                'Revisa que el asunto coincida con el correo.'
+          : r.mensaje;
+      setState(() {
+        _v = Veredicto(
+          phishing: !r.valido,
+          puntaje: r.valido ? 0 : 100,
+          voz: texto,
+          indicios: const [],
+          explicacion: texto,
+          queHacer: r.valido
+              ? 'Puedes confiar en este correo. Si igual quieres, pega su texto y la IA lo revisa (con tu permiso).'
+              : 'No abras sus enlaces ni entregues datos. Puedes avisar al IESS.',
+          fuente: 'sello',
+        );
+        _estado = r.valido ? EstadoRobot.seguro : EstadoRobot.alerta;
+        _pasos = [];
+      });
+      Voz.i.decir(texto);
+      return;
+    }
     if (t.length < 8) {
       setState(
         () => _aviso =
@@ -74,6 +119,15 @@ class _WebEscritorioState extends State<WebEscritorio> {
       Voz.i.decir(_aviso!);
       return;
     }
+    // 2) Sin sello: la IA solo lee el correo si la persona lo acepta.
+    if (!await pedirConsentimientoIA(context)) {
+      setState(
+        () => _aviso =
+            'No lo leí. Si el correo trae la imagen del sello del IESS, pega su enlace y verifico la firma sin leer el correo.',
+      );
+      return;
+    }
+    if (!mounted) return;
     HapticFeedback.mediumImpact();
     setState(() {
       _estado = EstadoRobot.analizando;
@@ -299,7 +353,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Sirve el texto completo, un SMS o solo el enlace.',
+                        'Si trae la imagen del sello del IESS, pega su enlace: verifico la firma sin leer el correo.',
                         style: TextStyle(
                           color: _W.gris,
                           fontSize: 18,
@@ -379,7 +433,8 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                   foregroundColor: _W.sobreAzul,
                                   shape: const StadiumBorder(),
                                   textStyle: const TextStyle(
-                                    fontFamily: 'packages/theme_light/ThemeLightLexend',
+                                    fontFamily:
+                                        'packages/theme_light/ThemeLightLexend',
                                     fontVariations: [
                                       FontVariation('wght', 600),
                                     ],
@@ -636,7 +691,8 @@ class _WebEscritorioState extends State<WebEscritorio> {
                           label: const Text(
                             'Avisar al IESS',
                             style: TextStyle(
-                              fontFamily: 'packages/theme_light/ThemeLightLexend',
+                              fontFamily:
+                                  'packages/theme_light/ThemeLightLexend',
                               fontVariations: const [
                                 FontVariation('wght', 700),
                               ],

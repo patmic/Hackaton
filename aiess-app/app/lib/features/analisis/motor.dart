@@ -9,13 +9,20 @@ import '../osint/url_analyzer.dart';
 const nombreMascota = 'AIess';
 
 final Map<String, RegExp> lexico = {
-  'I1': r'\b(hoy mismo|de inmediato|inmediat[oa]mente|urgente|urgencia|ultimo aviso|ultima oportunidad|en las proximas \d+|dentro de (las )?(\d+|veinticuatro|cuarenta y ocho) (horas|minutos|dias)|\d+\s?(h|horas|minutos)\b|antes de (las|que)|plazo (maximo|de|limite)|vence (hoy|manana)|caduca|expira|lo antes posible|sin demora)',
-  'I3': r'\b(contrasena|clave|usuario y|credencial\w*|codigo de (verificacion|seguridad|acceso)|codigo que (le|te)|\bpin\b|\botp\b|token|tarjeta|cvv|inicie sesion|iniciar sesion|ingrese su usuario)',
-  'I5': r'(\.(zip|rar|exe|apk|html?|docm|xlsm|iso|js|scr|msi)\b|instal(e|ar|a) (la |nuestra |esta )?(aplicacion|app)|descargue (la )?(app|aplicacion)|habilite (el contenido|las macros)|macros)',
-  'I6': r'\b(reembolso|bono|premio|ganad(or|ora)|sorteo|devolucion|beneficio (unico|especial|extraordinario)|derecho a (un|una|recibir)|acreditar\w*|usd\s?\d|\$\s?\d)',
-  'I8': r'\b(suspend\w*|bloque\w*|multa|embargo|perdida|perdera|cancelacion|cancelad[oa]|desactiv\w*|sancion\w*|proceso (judicial|legal|coactivo)|citacion|demanda|accion legal|coactiva|expediente)',
-  'I9': r'\b(cedula|fecha de nacimiento|selfie|fotografia de su|foto de su|documento de identidad|datos personales|direccion domiciliaria|estado civil)',
-  'I10': r'\b(pago|pague|cancele|transfer\w*|deposit\w*|tasa|arancel|criptomoneda\w*|bitcoin|usdt|abono|comision)',
+  'I1':
+      r'\b(hoy mismo|de inmediato|inmediat[oa]mente|urgente|urgencia|ultimo aviso|ultima oportunidad|en las proximas \d+|dentro de (las )?(\d+|veinticuatro|cuarenta y ocho) (horas|minutos|dias)|\d+\s?(h|horas|minutos)\b|antes de (las|que)|plazo (maximo|de|limite)|vence (hoy|manana)|caduca|expira|lo antes posible|sin demora)',
+  'I3':
+      r'\b(contrasena|clave|usuario y|credencial\w*|codigo de (verificacion|seguridad|acceso)|codigo que (le|te)|\bpin\b|\botp\b|token|tarjeta|cvv|inicie sesion|iniciar sesion|ingrese su usuario)',
+  'I5':
+      r'(\.(zip|rar|exe|apk|html?|docm|xlsm|iso|js|scr|msi)\b|instal(e|ar|a) (la |nuestra |esta )?(aplicacion|app)|descargue (la )?(app|aplicacion)|habilite (el contenido|las macros)|macros)',
+  'I6':
+      r'\b(reembolso|bono|premio|ganad(or|ora)|sorteo|devolucion|beneficio (unico|especial|extraordinario)|derecho a (un|una|recibir)|acreditar\w*|usd\s?\d|\$\s?\d)',
+  'I8':
+      r'\b(suspend\w*|bloque\w*|multa|embargo|perdida|perdera|cancelacion|cancelad[oa]|desactiv\w*|sancion\w*|proceso (judicial|legal|coactivo)|citacion|demanda|accion legal|coactiva|expediente)',
+  'I9':
+      r'\b(cedula|fecha de nacimiento|selfie|fotografia de su|foto de su|documento de identidad|datos personales|direccion domiciliaria|estado civil)',
+  'I10':
+      r'\b(pago|pague|cancele|transfer\w*|deposit\w*|tasa|arancel|criptomoneda\w*|bitcoin|usdt|abono|comision)',
   'I11': r'(\bqr\b|escane\w*)',
 }.map((k, v) => MapEntry(k, RegExp(v)));
 
@@ -35,20 +42,34 @@ const motivoVoz = {
 };
 
 class Veredicto {
-  Veredicto({required this.phishing, required this.puntaje, required this.voz, required this.indicios,
-      required this.explicacion, required this.queHacer, this.fuente = 'reglas'});
+  Veredicto({
+    required this.phishing,
+    required this.puntaje,
+    required this.voz,
+    required this.indicios,
+    required this.explicacion,
+    required this.queHacer,
+    this.fuente = 'reglas',
+  });
   final bool phishing;
   final int puntaje;
   final String voz, explicacion, queHacer, fuente;
   final List<String> indicios;
 
   /// 2-3 palabras para la pantalla (poka-yoke: el detalle lo dice la voz).
-  String get titular => phishing ? (puntaje >= 60 ? '¡Es una estafa!' : 'Mejor no confíes') : 'Es seguro';
+  String get titular => phishing
+      ? (puntaje >= 60 ? '¡Es una estafa!' : 'Mejor no confíes')
+      : 'Es seguro';
 }
 
 /// Entrada normalizada desde portapapeles, voz, compartir o notificación.
 class Entrada {
-  Entrada(this.texto, {this.canal = 'mensaje copiado', this.asunto = '', this.remitente});
+  Entrada(
+    this.texto, {
+    this.canal = 'mensaje copiado',
+    this.asunto = '',
+    this.remitente,
+  });
   final String texto, canal, asunto;
   final String? remitente;
 }
@@ -66,20 +87,34 @@ String? motivoNoEsMensaje(String texto) {
   if (letras < 25) return 'No encontré texto suficiente en la imagen.';
 
   final tecnico = RegExp(
-      r'\b(api|smtp|proxy|hash|json|http|endpoint|fastapi|sqlite|postgresql|postgres|servidor|base de datos|logs?|whitelist|topologia|firma digital|auditoria|interceptor|get /|post /|diagrama|flujo|arquitectura|backend|frontend|deploy)\b');
+    r'\b(api|smtp|proxy|hash|json|http|endpoint|fastapi|sqlite|postgresql|postgres|servidor|base de datos|logs?|whitelist|topologia|firma digital|auditoria|interceptor|get /|post /|diagrama|flujo|arquitectura|backend|frontend|deploy)\b',
+  );
   final nTecnico = tecnico.allMatches(t).map((m) => m.group(0)).toSet().length;
-  if (nTecnico >= 3) return 'Esto parece un documento o diagrama técnico, no un correo ni un mensaje.';
+  if (nTecnico >= 3)
+    return 'Esto parece un documento o diagrama técnico, no un correo ni un mensaje.';
 
-  final encabezados = RegExp(r'\b(de|para|asunto|cc|enviado|fecha|responder a)\s*:').allMatches(t).length;
+  final encabezados = RegExp(
+    r'\b(de|para|asunto|cc|enviado|fecha|responder a)\s*:',
+  ).allMatches(t).length;
   final remitente = RegExp(r'[\w.+-]+@[\w-]+\.[\w.]+').hasMatch(t);
-  final saludo = RegExp(r'(^|\n)\s*(estimad[oa]s?|senor(a|es)?|hola|buen(os|as) (dias|tardes|noches)|querid[oa])\b').hasMatch(t) ||
-      RegExp(r'\b(estimad[oa] (afiliad[oa]|jubilad[oa]|cliente|usuario|senor))').hasMatch(t);
-  final despedida = RegExp(r'\b(atentamente|saludos( cordiales)?|cordialmente|gracias|que tenga)\b').hasMatch(t);
+  final saludo =
+      RegExp(
+        r'(^|\n)\s*(estimad[oa]s?|senor(a|es)?|hola|buen(os|as) (dias|tardes|noches)|querid[oa])\b',
+      ).hasMatch(t) ||
+      RegExp(
+        r'\b(estimad[oa] (afiliad[oa]|jubilad[oa]|cliente|usuario|senor))',
+      ).hasMatch(t);
+  final despedida = RegExp(
+    r'\b(atentamente|saludos( cordiales)?|cordialmente|gracias|que tenga)\b',
+  ).hasMatch(t);
   final enlace = urlRe.hasMatch(texto);
   final corto = texto.trim().length <= 400;
-  final remitenteSms = RegExp(r'^\s*[a-z]{2,15}\s*:').hasMatch(t); // "IESS: su pension..."
+  final remitenteSms = RegExp(
+    r'^\s*[a-z]{2,15}\s*:',
+  ).hasMatch(t); // "IESS: su pension..."
 
-  final esMensaje = encabezados >= 2 ||
+  final esMensaje =
+      encabezados >= 2 ||
       (remitente && (saludo || encabezados >= 1)) ||
       (saludo && (despedida || enlace)) ||
       (corto && enlace && (remitenteSms || saludo)) ||
@@ -106,19 +141,27 @@ Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
   final orden = motivoVoz.keys.where(ind.contains).toList();
   final c = Canales.i.contacto;
   if (phishing) {
-    final puntaje = min(98, 58 + 8 * orden.length + (osint.puntaje >= 60 ? 6 : 0));
+    final puntaje = min(
+      98,
+      58 + 8 * orden.length + (osint.puntaje >= 60 ? 6 : 0),
+    );
     final motivos = orden.take(2).map((k) => motivoVoz[k]!).join(' ');
     return Veredicto(
       phishing: true,
       puntaje: puntaje,
-      voz: 'Cuidado, este mensaje parece una estafa. $motivos No abras el enlace ni respondas.',
+      voz:
+          'Cuidado, este mensaje parece una estafa. $motivos No abras el enlace ni respondas.',
       indicios: orden,
       explicacion: orden.map((k) => motivoVoz[k]!).join(' '),
-      queHacer: 'No abras enlaces ni adjuntos. Avísale al IESS a ${c['seguridad_informacion']}. '
+      queHacer:
+          'No abras enlaces ni adjuntos. Avísale al IESS a ${c['seguridad_informacion']}. '
           'Si ya diste tu clave, cámbiala en ${c['aplicaciones']} o llama al ${c['atencion_telefono']}.',
     );
   }
-  final hosts = osint.urls.map((u) => u.host).where((h) => h.isNotEmpty).toSet();
+  final hosts = osint.urls
+      .map((u) => u.host)
+      .where((h) => h.isNotEmpty)
+      .toSet();
   return Veredicto(
     phishing: false,
     puntaje: min(15, 3 + osint.puntaje ~/ 4),
@@ -127,7 +170,8 @@ Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
         : 'Tranquilo, el enlace es oficial y no te pide datos. Igual, nunca compartas tu clave.',
     indicios: const [],
     explicacion: 'No encontré señales de engaño.',
-    queHacer: 'Si tienes dudas, escribe tú mismo ${c['portal']} en el navegador.',
+    queHacer:
+        'Si tienes dudas, escribe tú mismo ${c['portal']} en el navegador.',
   );
 }
 
@@ -155,14 +199,18 @@ String promptAnalisis(Entrada e, AnalisisOsint osint) {
     if (e.asunto.isNotEmpty) 'Asunto: ${e.asunto}',
     'Adjuntos: ninguno',
     'Enlaces reales: ${hrefs.isEmpty ? 'ninguno' : hrefs.join(', ')}',
-    'Mensaje:', '<<<', cuerpo, '>>>',
+    'Mensaje:',
+    '<<<',
+    cuerpo,
+    '>>>',
     osint.resumen(),
   ].join('\n');
 }
 
 /// Plantilla de chat de LFM2 (ChatML con <|startoftext|>).
 /// Parte fija del prompt (se guarda en la caché de llama.cpp y no se recalcula).
-String prefijoLfm2(String system) => '<|startoftext|><|im_start|>system\n$system<|im_end|>\n';
+String prefijoLfm2(String system) =>
+    '<|startoftext|><|im_start|>system\n$system<|im_end|>\n';
 
 String formatoLfm2(String system, List<(String rol, String texto)> turnos) {
   final b = StringBuffer(prefijoLfm2(system));
@@ -179,7 +227,10 @@ Veredicto? leerSalidaModelo(String s) {
   if (i < 0) return null;
   var cuerpo = s.substring(i).trim();
   Map<String, dynamic>? j;
-  for (final intento in [cuerpo, '${cuerpo.replaceAll(RegExp(r'[,\s]+$'), '')}}']) {
+  for (final intento in [
+    cuerpo,
+    '${cuerpo.replaceAll(RegExp(r'[,\s]+$'), '')}}',
+  ]) {
     try {
       final f = intento.lastIndexOf('}');
       j = jsonDecode(intento.substring(0, f + 1)) as Map<String, dynamic>;
@@ -203,7 +254,8 @@ Veredicto? leerSalidaModelo(String s) {
 /// Fusión determinista: el modelo explica, pero nunca rebaja una alerta fuerte del OSINT.
 Veredicto fusionar(Veredicto reglas, Veredicto? modelo, AnalisisOsint osint) {
   if (modelo == null) return reglas;
-  if (!modelo.phishing && (osint.puntaje >= 60 || reglas.puntaje >= 80)) return reglas;
+  if (!modelo.phishing && (osint.puntaje >= 60 || reglas.puntaje >= 80))
+    return reglas;
   if (modelo.voz.trim().isEmpty) return reglas;
   if (modelo.queHacer.trim().isEmpty || modelo.explicacion.trim().isEmpty) {
     // El servidor corta antes de "que_hacer": se completa con el consejo fijo de las reglas.
@@ -212,8 +264,15 @@ Veredicto fusionar(Veredicto reglas, Veredicto? modelo, AnalisisOsint osint) {
       puntaje: modelo.puntaje,
       voz: modelo.voz,
       indicios: modelo.indicios,
-      explicacion: modelo.explicacion.trim().isEmpty ? reglas.explicacion : modelo.explicacion,
-      queHacer: modelo.phishing ? analizarConReglas(Entrada('clave pago', canal: ''), AnalisisOsint([], [], null)).queHacer : reglas.queHacer,
+      explicacion: modelo.explicacion.trim().isEmpty
+          ? reglas.explicacion
+          : modelo.explicacion,
+      queHacer: modelo.phishing
+          ? analizarConReglas(
+              Entrada('clave pago', canal: ''),
+              AnalisisOsint([], [], null),
+            ).queHacer
+          : reglas.queHacer,
       fuente: 'modelo',
     );
   }

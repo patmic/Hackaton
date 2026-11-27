@@ -1,13 +1,13 @@
 // Pop-up tipo Truecaller: aparece sobre la app donde llegó el mensaje, el robot dice por qué es (o no) una estafa.
 import 'dart:ui' show FontVariation;
 import 'package:material_ui/material_ui.dart';
+
+import '../features/sello/sello.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../core/canales.dart';
-import '../features/analisis/analizador.dart';
 import '../features/analisis/motor.dart';
-import '../features/llm/cerebro.dart';
 import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
 import 'tema.dart';
@@ -70,62 +70,17 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  /// El guardián solo vio el ASUNTO (y solo porque habla del IESS). Aquí no se analiza nada:
+  /// se ofrece verificar el sello; la IA solo leería el correo si la persona lo acepta en la app.
   Future<void> _procesar(Map<String, dynamic> p) async {
     setState(() {
       _p = p;
       _v = null;
     });
-    final app = p['app'] as String? ?? '';
-    final esCorreo = RegExp(
-      r'(gmail|outlook|correo|mail)',
-      caseSensitive: false,
-    ).hasMatch(app);
-    final e = Entrada(
-      p['texto'] as String? ?? '',
-      canal: 'notificación de $app (vista previa)',
-      remitente: esCorreo ? p['titulo'] as String? : null,
+    HapticFeedback.mediumImpact();
+    await Voz.i.decir(
+      'Te llegó un correo que dice ser del IESS. Antes de abrir sus enlaces, verifiquemos su sello.',
     );
-
-    // 1) Al instante: reglas OSINT (milisegundos). Con modelo cargado, solo se adelanta una estafa CLARA;
-    //    un "seguro" por reglas en una vista previa corta no es confiable, así que se espera al modelo.
-    final rapido = await Analizador.analizar(e, usarModelo: false);
-    if (!mounted || !identical(_p, p)) return;
-    final hayModelo = Cerebro.i.afinado;
-    Future<void> hablando = Future.value();
-    if (!hayModelo || rapido.phishing) {
-      HapticFeedback.heavyImpact();
-      setState(() => _v = rapido);
-      hablando = Voz.i.decir(
-        rapido.phishing ? rapido.voz : 'Este correo parece seguro.',
-      );
-    }
-
-    // 2) Segundos después: el modelo entrenado confirma; si cambia algo, la tarjeta se actualiza sola.
-    if (hayModelo) {
-      final v = await Analizador.analizar(e);
-      if (!mounted || !identical(_p, p)) return;
-      final yaMostrado = _v != null;
-      if (!yaMostrado || v.phishing != rapido.phishing || v.voz != rapido.voz) {
-        HapticFeedback.heavyImpact();
-        setState(() => _v = v);
-        if (!yaMostrado) {
-          hablando = Voz.i.decir(
-            v.phishing ? v.voz : 'Este correo parece seguro.',
-          );
-        } else if (v.phishing != rapido.phishing) {
-          hablando = Voz.i.decir(
-            v.phishing ? v.voz : 'Revisé mejor: este correo parece seguro.',
-          );
-        }
-      }
-    }
-    await hablando;
-    final fin = _v;
-    if (fin != null && !fin.phishing) {
-      // Como un identificador de llamadas: si es seguro, se cierra solo.
-      await Future.delayed(const Duration(seconds: 4));
-      if (mounted && identical(_v, fin)) await _cerrar();
-    }
   }
 
   Future<void> _cerrar() async {
@@ -146,10 +101,10 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
     await _cerrar();
   }
 
-  Future<void> _verDetalle() async {
+  Future<void> _verificar() async {
     await Voz.i.callar();
     await _canal.invokeMethod('abrirApp', {
-      'texto': '${_p['titulo'] ?? ''}\n${_p['texto'] ?? ''}',
+      'texto': '$marcaAvisoIess${_p['texto'] ?? ''}',
     });
   }
 
@@ -158,20 +113,17 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) => _informarTamano());
     final v = _v;
     final estado = v == null
-        ? EstadoRobot.analizando
+        ? EstadoRobot.reposo
         : (v.phishing ? EstadoRobot.alerta : EstadoRobot.seguro);
     // Tarjeta de UN color, como el identificador de llamadas: rojo estafa, verde seguro, azul IESS analizando.
     final color = v == null
         ? Tono.azulSuave
         : (v.phishing ? Tono.rojoSuave : Tono.verdeSuave);
     final veredicto = v == null
-        ? 'Revisando correo…'
+        ? '¿Es del IESS de verdad?'
         : (v.phishing ? 'Posible estafa' : 'Correo seguro');
-    final titulo = (_p['titulo'] as String?)?.trim() ?? '';
-    final origen = [
-      (_p['app'] as String?) ?? '',
-      titulo,
-    ].where((x) => x.isNotEmpty).join(' · ');
+    final asunto = (_p['texto'] as String?)?.trim() ?? '';
+    final origen = (_p['app'] as String?) ?? '';
     const blanco = Tono.tinta;
 
     return Scaffold(
@@ -205,7 +157,10 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
               ),
               padding: const EdgeInsets.fromLTRB(16, 12, 8, 16),
               child: DefaultTextStyle(
-                style: const TextStyle(fontFamily: 'packages/theme_light/ThemeLightAtkinson', color: blanco),
+                style: const TextStyle(
+                  fontFamily: 'packages/theme_light/ThemeLightAtkinson',
+                  color: blanco,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,30 +184,6 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                           ),
                         ),
                         const Spacer(),
-                        // Repetir el análisis del mismo correo.
-                        Semantics(
-                          button: true,
-                          label: 'Analizar de nuevo',
-                          child: InkResponse(
-                            onTap: v == null
-                                ? null
-                                : () {
-                                    HapticFeedback.selectionClick();
-                                    _procesar(Map<String, dynamic>.from(_p));
-                                  },
-                            radius: 22,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Icon(
-                                Icons.refresh_rounded,
-                                color: blanco.withValues(
-                                  alpha: v == null ? 0.4 : 1,
-                                ),
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ),
                         Semantics(
                           button: true,
                           label: 'Cerrar',
@@ -305,7 +236,8 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                               Text(
                                 veredicto,
                                 style: const TextStyle(
-                                  fontFamily: 'packages/theme_light/ThemeLightLexend',
+                                  fontFamily:
+                                      'packages/theme_light/ThemeLightLexend',
                                   fontVariations: const [
                                     FontVariation('wght', 700),
                                   ],
@@ -331,19 +263,59 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                         const SizedBox(width: 8),
                       ],
                     ),
-                    if (v == null)
+                    if (v == null) ...[
+                      const SizedBox(height: 12),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 16, 8, 0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            minHeight: 5,
-                            color: Tono.lima,
-                            backgroundColor: Tono.borde,
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text(
+                          asunto.isEmpty
+                              ? 'Llegó un correo que dice ser del IESS.'
+                              : 'Asunto: «$asunto»',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 17, height: 1.38),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text(
+                          'Solo leí el asunto. Verifica el sello antes de abrir sus enlaces.',
+                          style: TextStyle(
+                            fontSize: 15,
+                            height: 1.35,
+                            color: blanco.withValues(alpha: 0.8),
                           ),
                         ),
-                      )
-                    else ...[
+                      ),
+                      const SizedBox(height: 14),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _PildoraPopup(
+                                texto: 'Verificar sello',
+                                icono: Icons.verified_user_rounded,
+                                relleno: true,
+                                color: color,
+                                onTap: _verificar,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _PildoraPopup(
+                                texto: 'Ahora no',
+                                icono: Icons.close_rounded,
+                                relleno: false,
+                                color: color,
+                                onTap: _cerrar,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ] else ...[
                       const SizedBox(height: 12),
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
@@ -373,11 +345,11 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                             const SizedBox(width: 10),
                             Expanded(
                               child: _PildoraPopup(
-                                texto: 'Ver detalle',
-                                icono: Icons.open_in_new_rounded,
+                                texto: 'Verificar sello',
+                                icono: Icons.verified_user_rounded,
                                 relleno: false,
                                 color: color,
-                                onTap: _verDetalle,
+                                onTap: _verificar,
                               ),
                             ),
                           ],

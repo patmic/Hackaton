@@ -7,10 +7,15 @@ import 'package:aiess/ui/tema.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
-Widget _app(EstadoHoja estado, {double letra = 1, bool escuchando = false}) => MaterialApp(
+Widget _app(EstadoHoja estado, {double letra = 1, bool escuchando = false}) =>
+    MaterialApp(
       theme: temaAIess(),
       home: MediaQuery(
-        data: MediaQueryData(size: const Size(320, 640), textScaler: TextScaler.linear(letra), disableAnimations: true),
+        data: MediaQueryData(
+          size: const Size(320, 640),
+          textScaler: TextScaler.linear(letra),
+          disableAnimations: true,
+        ),
         child: AiessHomeScreen(
           estado: estado,
           estadoMascota: switch (estado) {
@@ -19,8 +24,12 @@ Widget _app(EstadoHoja estado, {double letra = 1, bool escuchando = false}) => M
             EstadoHoja.analizando => EstadoRobot.analizando,
             EstadoHoja.listo => EstadoRobot.reposo,
           },
-          titulo: estado == EstadoHoja.estafa ? '¡Es una estafa!' : 'Hola, soy AIess',
-          pasos: estado == EstadoHoja.analizando ? const ['Mirando el enlace', 'Pensándolo con mi cerebro'] : const [],
+          titulo: estado == EstadoHoja.estafa
+              ? '¡Es una estafa!'
+              : 'Hola, soy AIess',
+          pasos: estado == EstadoHoja.analizando
+              ? const ['Mirando el enlace', 'Pensándolo con mi cerebro']
+              : const [],
           escuchando: escuchando,
           onPasteAndCheck: () {},
           onVoiceInput: () {},
@@ -51,18 +60,21 @@ void main() {
     }
   }
 
-  testWidgets('botones de al menos 48 dp y con nombre para el lector de pantalla', (t) async {
-    t.view.physicalSize = const Size(360, 760);
-    t.view.devicePixelRatio = 1;
-    addTearDown(t.view.reset);
-    final semantica = t.ensureSemantics();
-    for (final estado in [EstadoHoja.listo, EstadoHoja.estafa]) {
-      await t.pumpWidget(_app(estado));
-      await t.pump(const Duration(milliseconds: 300));
-      await expectLater(t, meetsGuideline(androidTapTargetGuideline));
-      await expectLater(t, meetsGuideline(labeledTapTargetGuideline));
-      await expectLater(t, meetsGuideline(textContrastGuideline));
-    }
-    semantica.dispose();
-  });
+  testWidgets(
+    'botones de al menos 48 dp y con nombre para el lector de pantalla',
+    (t) async {
+      t.view.physicalSize = const Size(360, 760);
+      t.view.devicePixelRatio = 1;
+      addTearDown(t.view.reset);
+      final semantica = t.ensureSemantics();
+      for (final estado in [EstadoHoja.listo, EstadoHoja.estafa]) {
+        await t.pumpWidget(_app(estado));
+        await t.pump(const Duration(milliseconds: 300));
+        await expectLater(t, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(t, meetsGuideline(labeledTapTargetGuideline));
+        await expectLater(t, meetsGuideline(textContrastGuideline));
+      }
+      semantica.dispose();
+    },
+  );
 }

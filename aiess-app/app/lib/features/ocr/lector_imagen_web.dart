@@ -7,5 +7,6 @@ class LecturaImagen {
 }
 
 class LectorImagen {
-  static Future<LecturaImagen> leer(String ruta) async => const LecturaImagen('');
+  static Future<LecturaImagen> leer(String ruta) async =>
+      const LecturaImagen('');
 }

@@ -13,8 +13,10 @@ class Voz {
   final _stt = SpeechToText();
   final hablando = ValueNotifier(false);
   final escuchando = ValueNotifier(false);
+
   /// 0..1: "volumen" aproximado de la sílaba actual, para mover la cabeza del robot.
   final silaba = ValueNotifier(0.0);
+
   /// Hasta qué carácter del texto actual va hablando (para el efecto karaoke).
   final avance = ValueNotifier(0);
   String actual = '';
@@ -24,9 +26,13 @@ class Voz {
   Future<void> iniciar() async {
     if (_listo) return;
     _listo = true;
-    final idiomas = List<String>.from(((await _tts.getLanguages) as List?) ?? const []);
+    final idiomas = List<String>.from(
+      ((await _tts.getLanguages) as List?) ?? const [],
+    );
     final pref = ['es-EC', 'es-US', 'es-MX', 'es-419', 'es-ES'];
-    await _tts.setLanguage(pref.firstWhere(idiomas.contains, orElse: () => 'es-ES'));
+    await _tts.setLanguage(
+      pref.firstWhere(idiomas.contains, orElse: () => 'es-ES'),
+    );
     await _tts.setSpeechRate(0.46); // pausado, pensado para personas mayores
     await _tts.setPitch(1.05);
     await _tts.awaitSpeakCompletion(true);
@@ -55,7 +61,9 @@ class Voz {
     if (texto.trim().isEmpty) return;
     hablando.value = true;
     // En pantalla se escribe AIess; en voz se pronuncia como una palabra.
-    await _tts.speak(texto.replaceAll('AIess', 'Ayés').replaceAll('AIESS', 'Ayés'));
+    await _tts.speak(
+      texto.replaceAll('AIess', 'Ayés').replaceAll('AIESS', 'Ayés'),
+    );
   }
 
   Future<void> callar() async {
@@ -70,7 +78,13 @@ class Voz {
     if (!ok) return null;
     final locales = await _stt.locales();
     final ids = locales.map((l) => l.localeId).toList();
-    _localeStt = ['es_EC', 'es_US', 'es_MX', 'es_419', 'es_ES'].firstWhere(ids.contains, orElse: () => _localeStt);
+    _localeStt = [
+      'es_EC',
+      'es_US',
+      'es_MX',
+      'es_419',
+      'es_ES',
+    ].firstWhere(ids.contains, orElse: () => _localeStt);
     final c = Completer<String?>();
     escuchando.value = true;
     await _stt.listen(

@@ -8,13 +8,18 @@ import 'package:aiess/ui/tema.dart';
 
 void main() {
   testWidgets('el aula virtual abre con el tema de AIESS', (t) async {
-    await t.pumpWidget(ProviderScope(
-      overrides: [
-        cap.actividadRepositoryProvider
-            .overrideWithValue(AssetActividadRepository(ruta: 'packages/capacitacion/assets/data/actividades.json')),
-      ],
-      child: MaterialApp(theme: temaAIess(), home: const InicioScreen()),
-    ));
+    await t.pumpWidget(
+      ProviderScope(
+        overrides: [
+          cap.actividadRepositoryProvider.overrideWithValue(
+            AssetActividadRepository(
+              ruta: 'packages/capacitacion/assets/data/actividades.json',
+            ),
+          ),
+        ],
+        child: MaterialApp(theme: temaAIess(), home: const InicioScreen()),
+      ),
+    );
     await t.pump(const Duration(seconds: 1));
     expect(find.byType(NavigationBar), findsOneWidget);
   });
@@ -23,19 +28,27 @@ void main() {
     t.view.physicalSize = const Size(320, 640);
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.reset);
-    await t.pumpWidget(ProviderScope(
-      overrides: [
-        cap.actividadRepositoryProvider
-            .overrideWithValue(AssetActividadRepository(ruta: 'packages/capacitacion/assets/data/actividades.json')),
-      ],
-      child: MaterialApp(
-        theme: temaAIess(),
-        home: const MediaQuery(
-          data: MediaQueryData(size: Size(320, 640), textScaler: TextScaler.linear(2)),
-          child: InicioScreen(),
+    await t.pumpWidget(
+      ProviderScope(
+        overrides: [
+          cap.actividadRepositoryProvider.overrideWithValue(
+            AssetActividadRepository(
+              ruta: 'packages/capacitacion/assets/data/actividades.json',
+            ),
+          ),
+        ],
+        child: MaterialApp(
+          theme: temaAIess(),
+          home: const MediaQuery(
+            data: MediaQueryData(
+              size: Size(320, 640),
+              textScaler: TextScaler.linear(2),
+            ),
+            child: InicioScreen(),
+          ),
         ),
       ),
-    ));
+    );
     await t.pump(const Duration(seconds: 1));
     final e = t.takeException();
     expect(e, isNull, reason: '$e');

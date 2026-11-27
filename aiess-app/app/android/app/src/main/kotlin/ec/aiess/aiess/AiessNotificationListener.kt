@@ -128,29 +128,29 @@ class AiessNotificationListener : NotificationListenerService() {
         requestRebind(android.content.ComponentName(this, AiessNotificationListener::class.java))
     }
 
+    /**
+     * Privacidad: de cada correo se lee SOLO el asunto (la línea corta del aviso), nunca el cuerpo ni la
+     * vista previa. Si el asunto no habla del IESS, el correo se ignora sin guardar ni registrar nada.
+     */
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        // Diagnóstico: registra TODO aviso que llega, antes de cualquier filtro.
-        Log.i(TAG, "aviso recibido de ${sbn.packageName} (resumen=${sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY != 0})")
         val app = APPS[sbn.packageName] ?: return
-        if (!guardianActivo(this)) { Log.i(TAG, "descartado: guardian apagado"); return }
+        if (!guardianActivo(this)) return
         val n = sbn.notification
         if (n.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
         if (n.flags and Notification.FLAG_ONGOING_EVENT != 0) return
-        val e = n.extras
-        val titulo = e.getCharSequence(Notification.EXTRA_TITLE)?.toString().orEmpty()
-        val texto = (e.getCharSequence(Notification.EXTRA_BIG_TEXT) ?: e.getCharSequence(Notification.EXTRA_TEXT))
-            ?.toString().orEmpty()
-        if (texto.isBlank()) return
+        // En Gmail, Outlook y la mayoría de apps de correo, EXTRA_TEXT es el asunto (EXTRA_TITLE es el remitente
+        // y EXTRA_BIG_TEXT agrega el inicio del mensaje: ese NO se lee).
+        val asunto = n.extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+            ?.lineSequence()?.firstOrNull()?.trim().orEmpty()
+        if (asunto.isBlank() || !PreFiltro.asuntoDelIess(asunto)) return
 
-        val firma = (sbn.key + sbn.postTime + texto).hashCode()
+        val firma = (sbn.key + sbn.postTime + asunto).hashCode()
         synchronized(vistos) {
             if (firma in vistos) return
             vistos.addLast(firma)
             if (vistos.size > 60) vistos.removeFirst()
         }
-        val p = PreFiltro.puntaje(titulo, texto)
-        Log.i(TAG, "correo de $app: puntaje $p (umbral ${umbral(this)})")
-        if (p < umbral(this)) return
-        abrirAlerta(this, app, titulo, texto, sbn.packageName)
+        Log.i(TAG, "correo con asunto del IESS en $app: aviso de verificación")
+        abrirAlerta(this, app, "", asunto, sbn.packageName)
     }
 }

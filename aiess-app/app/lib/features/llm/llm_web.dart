@@ -29,17 +29,31 @@ class Cerebro {
     cargando.value = false;
     return ok;
   }
+
   Future<bool> cargar(String path) async => false;
-  Future<String> generar(String prompt,
-      {String prefijo = '', int maxTokens = 400, double temperatura = 0.0, List<String> stop = const [], void Function(String)? alToken}) async {
+  Future<String> generar(
+    String prompt, {
+    String prefijo = '',
+    int maxTokens = 400,
+    double temperatura = 0.0,
+    List<String> stop = const [],
+    void Function(String)? alToken,
+  }) async {
     if (!ServidorIA.i.disponible) return '';
     try {
-      return await ServidorIA.i.completar(prompt, maxTokens: maxTokens, temperatura: temperatura, stop: stop, alToken: alToken);
+      return await ServidorIA.i.completar(
+        prompt,
+        maxTokens: maxTokens,
+        temperatura: temperatura,
+        stop: stop,
+        alToken: alToken,
+      );
     } catch (_) {
       ServidorIA.i.disponible = false;
       return '';
     }
   }
+
   Future<void> detener() async {}
   Stream<double> descargar(ModeloDescargable m) => const Stream.empty();
   Future<bool> importar(String origen) async => false;

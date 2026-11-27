@@ -153,9 +153,7 @@ class _BienvenidaPageState extends State<BienvenidaPage>
   Widget build(BuildContext context) {
     final p = _pasos[_i];
     return EscenaRobot(
-      estado: _i == _pasos.length - 1
-          ? EstadoRobot.seguro
-          : EstadoRobot.reposo,
+      estado: _i == _pasos.length - 1 ? EstadoRobot.seguro : EstadoRobot.reposo,
       titular: p.titulo,
       alTocarRobot: _hablar,
       izquierda: Container(

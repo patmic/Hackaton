@@ -20,8 +20,9 @@ class ServidorIA {
   static const _urlSecreta = String.fromEnvironment('AIESS_SERVIDOR');
   static const _claveSecreta = String.fromEnvironment('AIESS_CLAVE');
 
-  static String get porDefecto =>
-      _urlSecreta.isNotEmpty ? _urlSecreta : (kIsWeb ? Uri.base.origin : 'http://127.0.0.1:8080');
+  static String get porDefecto => _urlSecreta.isNotEmpty
+      ? _urlSecreta
+      : (kIsWeb ? Uri.base.origin : 'http://127.0.0.1:8080');
 
   String url = porDefecto;
   String clave = _claveSecreta;
@@ -32,7 +33,9 @@ class ServidorIA {
 
   Future<void> cargarAjustes() async {
     final p = await SharedPreferences.getInstance();
-    url = (p.getString('servidor_url') ?? '').trim().isEmpty ? porDefecto : p.getString('servidor_url')!.trim();
+    url = (p.getString('servidor_url') ?? '').trim().isEmpty
+        ? porDefecto
+        : p.getString('servidor_url')!.trim();
     final guardada = p.getString('servidor_clave') ?? '';
     clave = guardada.isEmpty ? _claveSecreta : guardada;
   }
@@ -46,22 +49,32 @@ class ServidorIA {
   }
 
   Map<String, String> get _cabeceras => {
-        'Content-Type': 'application/json',
-        if (clave.isNotEmpty) 'Authorization': 'Bearer $clave',
-      };
+    'Content-Type': 'application/json',
+    if (clave.isNotEmpty) 'Authorization': 'Bearer $clave',
+  };
 
-  Uri _u(String ruta) => Uri.parse('${url.replaceAll(RegExp(r'/+$'), '')}$ruta');
+  Uri _u(String ruta) =>
+      Uri.parse('${url.replaceAll(RegExp(r'/+$'), '')}$ruta');
 
   /// ¿Responde el servidor? (3 s máximo, para no trabar la app).
   Future<bool> comprobar() async {
     try {
-      final r = await http.get(_u('/health'), headers: _cabeceras).timeout(const Duration(seconds: 3));
+      final r = await http
+          .get(_u('/health'), headers: _cabeceras)
+          .timeout(const Duration(seconds: 3));
       disponible = r.statusCode == 200;
       if (disponible) {
-        final m = await http.get(_u('/v1/models'), headers: _cabeceras).timeout(const Duration(seconds: 3));
+        final m = await http
+            .get(_u('/v1/models'), headers: _cabeceras)
+            .timeout(const Duration(seconds: 3));
         final datos = jsonDecode(m.body) as Map<String, dynamic>;
         final lista = (datos['data'] ?? datos['models'] ?? []) as List;
-        modelo = lista.isEmpty ? '' : ((lista.first as Map)['id'] ?? (lista.first as Map)['model'] ?? '').toString();
+        modelo = lista.isEmpty
+            ? ''
+            : ((lista.first as Map)['id'] ??
+                      (lista.first as Map)['model'] ??
+                      '')
+                  .toString();
       }
     } catch (_) {
       disponible = false;
@@ -69,14 +82,39 @@ class ServidorIA {
     return disponible;
   }
 
+  /// Borra la conversación del servidor: reemplaza su memoria de trabajo (caché del contexto) por el prompt
+  /// de sistema solo, así el correo analizado deja de estar en la memoria del modelo. No genera nada.
+  Future<void> olvidar(String soloSistema) async {
+    if (!disponible) return;
+    try {
+      await http
+          .post(
+            _u('/completion'),
+            headers: _cabeceras,
+            body: jsonEncode({
+              'prompt': soloSistema,
+              'n_predict': 0,
+              'cache_prompt': true,
+            }),
+          )
+          .timeout(const Duration(seconds: 20));
+    } catch (_) {}
+  }
+
   /// Genera con streaming. [alToken] recibe cada trozo apenas llega (Android); en web llega todo junto.
-  Future<String> completar(String prompt,
-      {int maxTokens = 300, double temperatura = 0, List<String> stop = const [], void Function(String)? alToken}) async {
+  Future<String> completar(
+    String prompt, {
+    int maxTokens = 300,
+    double temperatura = 0,
+    List<String> stop = const [],
+    void Function(String)? alToken,
+  }) async {
     final cuerpo = jsonEncode({
       'prompt': prompt,
       'n_predict': maxTokens,
       'temperature': temperatura,
-      'cache_prompt': true, // reutiliza el prompt de sistema: cada análisis solo procesa el correo nuevo
+      'cache_prompt':
+          true, // reutiliza el prompt de sistema: cada análisis solo procesa el correo nuevo
       'stream': true,
       if (stop.isNotEmpty) 'stop': stop,
     });
@@ -87,9 +125,13 @@ class ServidorIA {
         ..headers.addAll(_cabeceras)
         ..body = cuerpo;
       final resp = await cliente.send(req).timeout(const Duration(seconds: 20));
-      if (resp.statusCode != 200) throw Exception('servidor ${resp.statusCode}');
+      if (resp.statusCode != 200)
+        throw Exception('servidor ${resp.statusCode}');
       var pendiente = '';
-      await for (final trozo in resp.stream.transform(utf8.decoder).timeout(const Duration(seconds: 60))) {
+      await for (final trozo
+          in resp.stream
+              .transform(utf8.decoder)
+              .timeout(const Duration(seconds: 60))) {
         pendiente += trozo;
         final lineas = pendiente.split('\n');
         pendiente = lineas.removeLast();
