@@ -23,10 +23,12 @@ sudo usermod -aG docker $USER && newgrp docker
 ```
 
 ## 4. Compilar la web para el servidor
-La web usa la misma dirección desde la que se abre (Caddy pasa la API al modelo), así que se compila sin URL fija:
+La web usa la misma dirección desde la que se abre (Caddy pasa la API al modelo), así que se compila sin URL fija.
+Cada versión va bajo su propia ruta (`/v<commit>/`): así Cloudflare y los navegadores nunca muestran una versión vieja
+(en Git Bash de Windows antepón `MSYS_NO_PATHCONV=1` para que no convierta la ruta):
 ```bash
 cd app
-flutter build web --release --no-web-resources-cdn --dart-define-from-file=secretos.json --dart-define=AIESS_SERVIDOR=
+flutter build web --release --no-web-resources-cdn --base-href /v$(git rev-parse --short HEAD)/ --dart-define-from-file=secretos.json --dart-define=AIESS_SERVIDOR=
 ```
 Para probarla en tu PC igual que en el servidor: `python servidor/servir_web_local.py app/build/web 8090 http://127.0.0.1:8080`
 y abre http://127.0.0.1:8090.

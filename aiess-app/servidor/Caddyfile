@@ -17,6 +17,10 @@
 	# La web de AIESS (contenido de app/build/web).
 	handle {
 		root * /web
+		# Cada versión de la web se publica bajo /v<versión>/ (flutter build web --base-href /v<versión>/):
+		# son URLs nuevas, así que ningún caché (Cloudflare, navegador) sirve una versión vieja.
+		@version path_regexp version ^/v[0-9a-z]+(/.*)$
+		rewrite @version {re.version.1}
 		try_files {path} /index.html
 		# Los archivos de Flutter no cambian de nombre entre versiones: que Cloudflare (o el navegador)
 		# siempre pregunte si hay una nueva antes de usar su copia.
