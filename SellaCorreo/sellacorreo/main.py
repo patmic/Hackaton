@@ -23,6 +23,7 @@ import threading
 import time
 import uuid
 from collections import defaultdict, deque
+from functools import lru_cache
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -34,7 +35,8 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Resp
 from fastapi.staticfiles import StaticFiles
 
 from autenticidad import canonical_content, composite_hash, normalize_email, recipient_hmac, seal_payload, sha256_hex
-from autenticidad.banner import banner_png, invalid_png
+from autenticidad.banner import invalid_png
+from autenticidad.sello import wax_seal_png
 
 from . import firma, store
 
@@ -174,7 +176,8 @@ def page(title: str, body: str, user: dict | None = None, request: Request | Non
         cur = ' aria-current="page"' if key == active else ""
         return f'<a href="{href}"{cur}>{label}</a>'
     links = (f'<nav class="sc-foot-links" aria-label="Secciones">' + foot("/", "Inicio", "inicio")
-             + foot("/genkey", "Sello", "genkey") + foot("/checkin", "Validador", "checkin") + sesion + "</nav>")
+             + foot("/genkey", "Sello", "genkey") + foot("/checkin", "Validador", "checkin")
+             + foot("/reportar-incidente", "Reportar Incidente", "incidente") + sesion + "</nav>")
     head = ""
     return HTMLResponse(status_code=status, content=f"""<!doctype html><html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -184,8 +187,13 @@ def page(title: str, body: str, user: dict | None = None, request: Request | Non
 <link rel="stylesheet" href="/static/sella.css"></head><body class="tl-body">
 {head}
 <main class="tl-main sc-main">{body}</main>
-<footer class="tl-foot"><div class="tl-foot__inner"><span>SellaCorreo · sello anti-phishing para correo institucional</span>
-<span class="tl-foot__small">La institución nunca pide contraseñas ni datos bancarios por correo.</span>{links}</div></footer>
+<footer class="sc-footer"><div class="sc-footer__inner sc-footer__inner--fila">
+<div class="sc-footer__brand"><img class="sc-footer__logo" src="/static/img/iess-logo.png" alt="Instituto Ecuatoriano de Seguridad Social" width="163" height="70">
+<span class="sc-footer__sep" aria-hidden="true"></span>
+<div class="sc-footer__name"><strong>AI-IESS · SellaCorreo</strong><span>Sello anti-phishing para correo institucional</span>
+<p class="sc-footer__copy">© Instituto Ecuatoriano de Seguridad Social - Todos los derechos reservados.</p></div></div>
+<div class="sc-footer__nav">{links}<div class="sc-tricolor" aria-hidden="true"><i></i><i></i><i></i></div></div>
+</div></footer>
 <script src="/static/app.js"></script></body></html>""")
 
 
@@ -220,18 +228,23 @@ def dial_svg() -> str:
             f'<g class="sc-dial__pointer"><path d="M250 18 l-9 -16 h18 z"/></g></svg>')
 
 
+# Posible phishing: todo resultado que no sea válido; los estados «pendiente_*» (de versiones anteriores) no cuentan.
+SOSPECHOSO = "estado NOT LIKE 'valido%' AND estado NOT LIKE 'pendiente%'"
+
+
 def home_stats() -> dict:
     with store.connect() as conn:
         sellos = conn.execute("SELECT COUNT(*) FROM sellos").fetchone()[0]
         checks = conn.execute("SELECT COUNT(*) FROM verificaciones").fetchone()[0]
-        bloqueados = conn.execute("SELECT COUNT(*) FROM verificaciones WHERE estado NOT LIKE 'valido%' "
-                                  "AND estado <> 'pendiente_destinatario'").fetchone()[0]
+        bloqueados = conn.execute(f"SELECT COUNT(*) FROM verificaciones WHERE {SOSPECHOSO}").fetchone()[0]
     return {"sellos": sellos, "checks": checks, "bloqueados": bloqueados}
 
 
 ICON_SHIELD = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/></svg>')
 ICON_DOC = ('<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/>'
             '<path d="M9 8h6M9 12h6M9 16h3"/></svg>')
+ICON_RADAR = ('<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/>'
+              '<path d="M12 12l6-6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>')
 ICON_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>'
 
 
@@ -248,16 +261,16 @@ def home(request: Request):
     st = home_stats()
     body = f"""<section class="sc-home" aria-labelledby="home-title">
   <h1 class="sc-home__title" id="home-title">AI-IESS</h1>
-  <p class="sc-home__sub">SellaCorreo: sella los correos institucionales y permite que cualquiera compruebe si son auténticos.</p>
+  <p class="sc-home__sub">ANTI-PHISHING</p>
   <div class="sc-home__stage" id="sc-home-stage">
     <div class="sc-dial">{dial_svg()}
       <img class="sc-dial__img sc-dial__img--base sc-dial__img--escudo" src="/static/img/escudo-correo.png" alt="Escudo azul con un sobre de correo" width="410" height="410">
       <img class="sc-dial__img sc-dial__img--sello" src="/static/img/sello.jpg" alt="Sobre digital protegido por un escudo" width="410" height="410" aria-hidden="true">
-      <span class="sc-dial__cap sc-dial__cap--bottom">Anti-phishing</span>
     </div>
-    {home_card("sello", "/genkey", "Sello", "Crea tu sello de seguridad y evita el phishing", ICON_DOC)}
+    {home_card("sello", "/genkey", "Sellar Correo", "Crea tu sello de seguridad y evita el phishing", ICON_DOC)}
     {home_card("validador", "/checkin", "Validador", "Valida el hash y evita la suplantación de identidad", ICON_SHIELD,
                 "Haga clic en el encabezado de su correo o pegue su enlace en este Validador.")}
+    {home_card("radar", "/radar", "Radar Phishing", "Monitorea en vivo los intentos de phishing detectados", ICON_RADAR)}
   </div>
 </section>
 <section class="tl-grid-stats sc-home__stats" aria-label="Resumen">
@@ -267,6 +280,91 @@ def home(request: Request):
 </section>
 """
     return page("Inicio", body, user, request, active="inicio", chrome="home")
+
+
+# ------------------------------------------------------------------ Radar Phishing
+ECUADOR = timezone(timedelta(hours=-5))
+
+
+def hora_ecuador(ts_utc: str) -> str:
+    try:
+        dt = datetime.strptime(ts_utc, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except ValueError:
+        return ts_utc
+    return dt.astimezone(ECUADOR).strftime("%Y-%m-%d %H:%M")
+
+
+def radar_data(dias: int = 14, limite: int = 20) -> dict:
+    """Solo lo que ya guarda la tabla verificaciones (hora y estado); nunca correos ni IP."""
+    desde = (datetime.now(timezone.utc) - timedelta(days=dias - 1)).strftime("%Y-%m-%dT00:00:00Z")
+    with store.connect() as conn:
+        total = conn.execute("SELECT COUNT(*) FROM verificaciones").fetchone()[0]
+        validas = conn.execute("SELECT COUNT(*) FROM verificaciones WHERE estado LIKE 'valido%'").fetchone()[0]
+        sospechosas = conn.execute(f"SELECT COUNT(*) FROM verificaciones WHERE {SOSPECHOSO}").fetchone()[0]
+        motivos = conn.execute(f"SELECT estado, COUNT(*) n, MAX(ts_utc) ultimo FROM verificaciones WHERE {SOSPECHOSO} "
+                               "GROUP BY estado ORDER BY n DESC").fetchall()
+        ultimos = conn.execute(f"SELECT ts_utc, estado FROM verificaciones WHERE {SOSPECHOSO} "
+                               "ORDER BY ts_utc DESC, vid DESC LIMIT ?", (limite,)).fetchall()
+        filas = conn.execute(f"SELECT ts_utc, estado FROM verificaciones WHERE ts_utc >= ?", (desde,)).fetchall()
+    hoy = datetime.now(ECUADOR).date()
+    serie = {(hoy - timedelta(days=i)).isoformat(): [0, 0] for i in range(dias - 1, -1, -1)}
+    for r in filas:
+        dia = hora_ecuador(r["ts_utc"])[:10]
+        if dia not in serie or r["estado"].startswith("pendiente"):
+            continue
+        serie[dia][0 if r["estado"].startswith("valido") else 1] += 1
+    return {"total": total, "validas": validas, "sospechosas": sospechosas,
+            "motivos": [dict(r) for r in motivos], "ultimos": [dict(r) for r in ultimos], "serie": serie}
+
+
+@app.get("/radar", response_class=HTMLResponse)
+def radar(request: Request):
+    d = radar_data()
+    tasa = f"{round(100 * d['sospechosas'] / d['total'])} %" if d["total"] else "—"
+    tope = max([v[0] + v[1] for v in d["serie"].values()] + [1])
+    barras = "".join(
+        f'<div class="sc-radar__day" title="{dia}: {v[0]} válidas, {v[1]} sospechosas">'
+        f'<svg class="sc-radar__bar" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true">'
+        f'<rect class="sc-radar__ok" x="0" y="{100 - 100 * v[0] / tope:.1f}" width="10" height="{100 * v[0] / tope:.1f}"/>'
+        f'<rect class="sc-radar__mal" x="0" y="{100 - 100 * (v[0] + v[1]) / tope:.1f}" width="10" height="{100 * v[1] / tope:.1f}"/></svg>'
+        f'<span class="sc-radar__lbl">{dia[8:10]}/{dia[5:7]}</span></div>' for dia, v in d["serie"].items())
+    if d["motivos"]:
+        mot = "".join(f'<tr><td>{E(MOTIVOS.get(r["estado"], r["estado"]))}</td><td class="sc-num">{r["n"]}</td>'
+                      f'<td>{E(hora_ecuador(r["ultimo"]))}</td></tr>' for r in d["motivos"])
+        mot = f'<table class="sc-table"><tr><th>Motivo</th><th class="sc-num">Intentos</th><th>Último (Ecuador)</th></tr>{mot}</table>'
+    else:
+        mot = '<p class="tl-hint">Aún no se han detectado intentos sospechosos.</p>'
+    if d["ultimos"]:
+        ult = "".join(f'<tr><td>{E(hora_ecuador(r["ts_utc"]))}</td><td><span class="sc-radar__tag">{E(r["estado"].replace("_", " "))}</span></td>'
+                      f'<td>{E(MOTIVOS.get(r["estado"], r["estado"]))}</td></tr>' for r in d["ultimos"])
+        ult = f'<table class="sc-table sc-radar__ult"><tr><th>Hora (Ecuador)</th><th>Estado</th><th>Motivo</th></tr>{ult}</table>'
+    else:
+        ult = '<p class="tl-hint">Sin intentos registrados.</p>'
+    body = f"""<header class="tl-page-head"><h1 class="tl-h1">Radar Phishing</h1>
+<p class="tl-page-desc">Monitoreo de las consultas al Validador: cuántos enlaces resultaron auténticos y cuántos fueron
+inválidos, alterados o caducados. Solo se registran la hora y el resultado; nunca correos ni direcciones IP.</p></header>
+<section class="sc-home__stats sc-radar__kpis" aria-label="Resumen del radar">
+  <div class="tl-card tl-stat"><div class="tl-stat__label">Verificaciones</div><div class="tl-stat__value">{d["total"]}</div><div class="tl-hint">Consultas en el Validador</div></div>
+  <div class="tl-card tl-stat"><div class="tl-stat__label">Correos auténticos</div><div class="tl-stat__value">{d["validas"]}</div><div class="tl-hint">Sello válido y seguro</div></div>
+  <div class="tl-card tl-stat"><div class="tl-stat__label">Posibles phishing</div><div class="tl-stat__value">{d["sospechosas"]}</div><div class="tl-hint">{tasa} de las verificaciones</div></div>
+</section>
+<section class="tl-card"><div class="tl-card__body"><h2 class="tl-title">Actividad de los últimos 14 días</h2>
+<div class="sc-radar__legend"><span><i class="sc-radar__sw sc-radar__sw--ok"></i>Auténticos</span><span><i class="sc-radar__sw sc-radar__sw--mal"></i>Posibles phishing</span></div>
+<div class="sc-radar__chart" role="img" aria-label="Verificaciones por día">{barras}</div></div></section>
+<section class="tl-card"><div class="tl-card__body"><h2 class="tl-title">Intentos por motivo</h2>{mot}</div></section>
+<section class="tl-card"><div class="tl-card__body"><h2 class="tl-title">Últimos intentos sospechosos</h2>{ult}</div></section>"""
+    return page("Radar Phishing", body, current_user(request), request, active="radar")
+
+
+@app.get("/reportar-incidente", response_class=HTMLResponse)
+def report_incident(request: Request):
+    return page("Reportar incidente", """<header class="tl-page-head"><h1 class="tl-h1">Reportar incidente</h1>
+<p class="tl-page-desc">¿Recibió un correo que dice ser del IESS y le parece sospechoso?</p></header>
+<section class="tl-card"><div class="tl-card__body"><ol class="sc-steps">
+<li><strong>No haga clic</strong> en enlaces ni abra adjuntos, y no entregue contraseñas ni datos bancarios.</li>
+<li><strong>Verifíquelo en el <a href="/checkin">Validador</a>:</strong> haga clic en la imagen del sello del encabezado o pegue su enlace.</li>
+<li>Si el Validador muestra <strong>«Correo falso»</strong>, o el correo no trae el sello, repórtelo a la mesa de ayuda de su
+institución y reenvíelo como adjunto.</li></ol></div></section>""", current_user(request), request, active="incidente")
 
 
 @app.get("/.well-known/sellacorreo-key")
@@ -381,6 +479,24 @@ def seal_content(asunto: str, expira: str | None, tag: str | None, exige: bool, 
     return canonical_content(asunto if exige_asunto else "", policy_line(expira, tag, exige, emisor_fp, exige_asunto))
 
 
+def hash_options(seal: dict) -> list[str]:
+    """Opciones de «Hash de seguridad» integradas en el enlace del sello: una por asterisco.
+    «Correo del emisor» siempre va; las demás según lo guardado en el sello."""
+    ops = ["Correo del emisor"]
+    if seal.get("exige_asunto", 1):
+        ops.append("Asunto del correo")
+    if seal.get("palabra_tag"):
+        ops.append("Palabra segura")
+    if seal.get("expira_utc"):
+        ops.append("Caducidad del enlace")
+    return ops
+
+
+@lru_cache(maxsize=256)
+def _sello_png(codigo: str, taxonomia: str, asteriscos: int) -> bytes:
+    return wax_seal_png(codigo, taxonomia, asteriscos)
+
+
 # ------------------------------------------------------------------ GenKey
 def initials(name: str) -> str:
     parts = [p for p in re.split(r"\s+", name) if p and p[0].isalpha() and p.lower() not in {"de", "del", "la", "y"}]
@@ -492,7 +608,8 @@ def create_seal(user: dict, taxonomia: str, asunto: str, destinatario: str, pala
         "exige_emisor": 1, "exige_asunto": 1 if exige_asunto else 0, "emisor_hmac": emisor_fp})
     store.append_log(usuario=user["usuario"], taxonomia=taxonomia, token_hash=store.sha(token), h=h, seal_sig=sig)
     base = public_base()
-    return {"token": token, "codigo": fmt_code(codigo), "h": h, "expira": expira,
+    opciones = hash_options({"exige_asunto": exige_asunto, "palabra_tag": tag, "expira_utc": expira})
+    return {"token": token, "codigo": fmt_code(codigo), "h": h, "expira": expira, "opciones": opciones,
             "enlace": f"{base}/checkin/{token}.{h[:16]}", "imagen": f"{base}/img/{token}.png"}
 
 
@@ -526,14 +643,16 @@ def genkey_post(request: Request, csrf: str = Form(""), taxonomia: str = Form(..
     politicas = [p for p, on in [("correo del emisor (siempre, en el hash)", True), ("asunto en el hash", pol_asunto),
                                  ("palabra segura", pol_palabra),
                                  (f"caduca {s['expira']}" if s["expira"] else "", pol_caducidad)] if on and p]
-    snippet = (f'<a href="{s["enlace"]}"><img src="{s["imagen"]}" width="640" height="120" '
-               f'alt="SellaCorreo: haga clic para verificar este correo" style="display:block;border:0"></a>')
+    snippet = (f'<a href="{s["enlace"]}"><img src="{s["imagen"]}" width="240" height="240" '
+               f'alt="ANTI-PHISHING" style="display:block;border:0"></a>')
     body = f"""<div class="tl-alert tl-alert--ok" role="status"><div class="tl-alert__title">Sello generado · código {E(s['codigo'])}</div>
 <div class="tl-alert__body">Pegue la imagen al inicio del correo «{E(asunto)}» ({E(taxonomia)}).
-Políticas: {E(", ".join(politicas) or "ninguna")}.</div></div>
+Políticas: {E(", ".join(politicas) or "ninguna")}. El sello lleva {len(s["opciones"])} {"asterisco" if len(s["opciones"]) == 1 else "asteriscos"}.</div></div>
 <section class="tl-card"><div class="tl-card__body sc-form">
 <div class="tl-field"><span class="tl-field__label">1 · Imagen con enlace (cópiela y péguela en Outlook o Gmail)</span>
-<div id="sello-preview" class="sc-preview"><a href="{E(s['enlace'])}"><img class="sc-banner" src="{E(s['imagen'])}" width="640" height="120" alt="SellaCorreo: haga clic para verificar este correo"></a></div>
+<div id="sello-preview" class="sc-preview"><a href="{E(s['enlace'])}"><img class="sc-banner sc-seal" src="{E(s['imagen'])}" width="240" height="240" alt="ANTI-PHISHING"></a></div>
+<p class="sc-stars-legend" data-asteriscos="{len(s['opciones'])}"><span class="sc-stars" aria-hidden="true">{'*' * len(s['opciones'])}</span>
+{len(s['opciones'])} {'asterisco' if len(s['opciones']) == 1 else 'asteriscos'}: uno por cada opción de «Hash de seguridad» integrada en el enlace ({E(", ".join(s['opciones']))}).</p>
 <div class="tl-row"><button class="tl-btn tl-btn--default" type="button" data-copy-html="sello-preview">Copiar imagen con enlace</button>
 <a class="tl-btn tl-btn--secondary" href="{E(s['enlace'])}" target="_blank" rel="noopener">Probar en CheckIn</a></div></div>
 <div class="tl-field"><label class="tl-field__label" for="enlace">2 · Enlace dinámico</label>
@@ -608,6 +727,8 @@ def seal_details(seal: dict) -> str:
         ("Taxonomía", seal["taxonomia"]), ("Emisor", seal["nombre_emisor"]),
         ("Unidad", seal["unidad"]), ("Buzón", seal["emisor"]), ("Institución", seal["institucion"]),
         ("Fecha (UTC)", seal["ts_utc"]), ("Código", fmt_code(seal["codigo"]))]
+    ops = hash_options(seal)
+    rows.append(("Hash de seguridad", "*" * len(ops) + " · " + ", ".join(o.lower() for o in ops)))
     if seal.get("expira_utc"):
         rows.append(("Válido hasta (UTC)", seal["expira_utc"]))
     dl = "".join(f"<dt>{E(k)}</dt><dd>{E(v)}</dd>" for k, v in rows)
@@ -673,5 +794,5 @@ def image(token: str):
     seal = store.get_seal(token) if re.fullmatch(r"[A-Za-z0-9_-]{20,64}", token) else None
     if seal is None:
         return Response(invalid_png(), media_type="image/png", status_code=404)
-    return Response(banner_png(fmt_code(seal["codigo"]), seal["taxonomia"]), media_type="image/png",
+    return Response(_sello_png(fmt_code(seal["codigo"]), seal["taxonomia"], len(hash_options(seal))), media_type="image/png",
                     headers={"Cache-Control": "public, max-age=86400"})

@@ -26,10 +26,9 @@
         return { kind: card.dataset.homeCard, card, angle: (a + 360) % 360 };
       });
       // En móvil las tarjetas quedan apiladas bajo el dial y comparten ángulo: se separan a ambos lados
-      if (zones.length === 2 && dist(zones[0].angle, zones[1].angle) < 2 * HALF) {
-        const mid = zones[0].angle;
-        zones[0].angle = (mid - 40 + 360) % 360;
-        zones[1].angle = (mid + 40) % 360;
+      if (zones.length > 1 && zones.every((z) => dist(z.angle, zones[0].angle) < 2 * HALF)) {
+        const mid = zones[0].angle, step = 360 / zones.length;
+        zones.forEach((z, i) => { z.angle = (mid + (i - (zones.length - 1) / 2) * step + 360) % 360; });
       }
       stage.classList.remove("is-measuring");
       applyPills();

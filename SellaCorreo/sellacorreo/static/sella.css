@@ -218,3 +218,121 @@
 /* GenKey: sin bandas vacías arriba; el mapa sigue al título */
 .sc-main:has(.sc-page-center){gap:12px}
 .sc-page-center{margin:0;padding:0}
+
+/* Sello de cera con asteriscos */
+.sc-seal{width:240px;height:240px;border-radius:0;margin:0 auto}
+.sc-preview{text-align:center}
+.sc-stars-legend{margin:8px 0 0;font-size:13px;color:var(--slate-600,#475569);text-align:center}
+.sc-stars{display:inline-block;margin-right:6px;font-size:22px;line-height:1;font-weight:700;letter-spacing:3px;color:#2f6d08;vertical-align:-4px}
+
+/* Pie de página institucional (logo IESS, enlaces con barra tricolor y derechos) */
+.sc-footer{margin-top:48px;background:#fff;border-top:1px solid var(--slate-200,#e2e8f0)}
+.sc-footer__inner{max-width:1200px;margin:0 auto;padding:22px 24px 20px;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between}
+.sc-footer__brand{display:flex;align-items:center;gap:20px;min-width:0}
+.sc-footer__logo{height:70px;width:auto;display:block}
+.sc-footer__sep{align-self:stretch;width:1px;background:#1f2937;opacity:.55;margin:4px 0}
+.sc-footer__name{display:flex;flex-direction:column;gap:2px}
+.sc-footer__name strong{font-size:18px;font-weight:600;color:#12435b}
+.sc-footer__name span{font-size:14px;color:#64748b}
+.sc-footer__side{display:flex;flex-direction:column;align-items:flex-end;gap:0}
+.sc-footer .sc-foot-links{margin:0;gap:0;font-size:15px;flex-wrap:wrap;justify-content:flex-end}
+.sc-footer .sc-foot-links>a,.sc-footer .sc-foot-links>.sc-logout{padding:0 16px;border-left:1px solid #cbd5e1;line-height:1.2}
+.sc-footer .sc-foot-links>a:first-child{border-left:0}
+.sc-footer .sc-foot-links a[aria-current="page"]{color:#12435b;font-weight:600}
+.sc-footer .sc-logout .tl-btn{padding:0;height:auto;font-size:15px;font-weight:400;background:none;border:0;color:inherit}
+.sc-tricolor{display:flex;width:100%;height:3px;margin-top:10px}
+.sc-tricolor i{flex:1;display:block}
+.sc-tricolor i:nth-child(1){background:#fcd116}
+.sc-tricolor i:nth-child(2){background:#1f4e99}
+.sc-tricolor i:nth-child(3){background:#d52b1e}
+.sc-footer__copy{margin:8px 0 0;font-size:12px;color:#64748b;text-align:right}
+.sc-steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px}
+@media (max-width:760px){.sc-footer__inner{flex-direction:column;align-items:flex-start}.sc-footer__side{align-items:flex-start;width:100%}
+.sc-footer__copy{text-align:left}.sc-footer__brand{flex-wrap:wrap}.sc-footer__sep{display:none}
+.sc-footer .sc-foot-links>a,.sc-footer .sc-foot-links>.sc-logout{border-left:0;padding:0 18px 6px 0}.sc-footer .sc-foot-links{justify-content:flex-start}}
+
+/* Pie (disposición de la referencia): arriba a la derecha enlaces + barra tricolor; debajo, marca a la izquierda y derechos a la derecha */
+.sc-footer__inner{display:block;padding:12px 24px 22px}
+.sc-footer__top{display:flex;justify-content:flex-end;border-bottom:1px solid #e5e7eb}
+.sc-footer__nav{display:flex;flex-direction:column;align-items:stretch}
+.sc-footer__nav .sc-foot-links{padding:4px 0 8px}
+.sc-footer__nav .sc-tricolor{margin-top:0}
+.sc-footer__row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px 24px;margin-top:14px}
+.sc-footer__row .sc-footer__copy{margin:6px 0 0;text-align:right}
+@media (max-width:760px){.sc-footer__top{justify-content:flex-start}.sc-footer__row{flex-direction:column}.sc-footer__row .sc-footer__copy{text-align:left}}
+
+/* Indicadores inferiores de Inicio: sin tarjeta; número a la izquierda, línea divisoria y título con detalle a la derecha */
+.sc-home__stats{display:flex;justify-content:space-between;align-items:flex-start;gap:24px 40px;flex-wrap:wrap}
+.sc-home__stats .tl-card.tl-stat{display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-items:start;padding:0;background:none;border:0;box-shadow:none;border-radius:0}
+.sc-home__stats .tl-stat__value{grid-column:1;grid-row:1 / span 2;margin:0;font-size:32px;line-height:1.1;color:#0f172a;align-self:center}
+.sc-home__stats .tl-stat__label,.sc-home__stats .tl-hint{grid-column:2;padding-left:14px;border-left:1px solid #cbd5e1;margin:0}
+.sc-home__stats .tl-stat__label{grid-row:1;font-size:14px;font-weight:600;color:#475569;padding-top:2px}
+.sc-home__stats .tl-hint{grid-row:2;font-size:13px;color:#64748b;padding-bottom:2px}
+@media (max-width:760px){.sc-home__stats{flex-direction:column}}
+
+/* Botones Sello y Validador pegados al círculo (a ~18 px del punto lateral del reloj) */
+@media (min-width:901px){
+.sc-hcard--sello.sc-hcard--pill{left:auto;right:calc(50% + min(250px,46vw) + 18px)}
+.sc-hcard--validador.sc-hcard--pill{right:auto;left:calc(50% + min(250px,46vw) + 18px)}
+}
+
+/* Pie: el bloque de enlaces termina en el borde derecho, alineado con el aviso de derechos */
+.sc-footer__top{justify-content:flex-end}
+.sc-footer__nav{margin-left:auto}
+.sc-footer .sc-foot-links{justify-content:flex-end}
+.sc-footer .sc-foot-links>:last-child{padding-right:0}
+@media (max-width:760px){.sc-footer__top{justify-content:flex-start}.sc-footer__nav{margin-left:0;width:100%}.sc-footer .sc-foot-links{justify-content:flex-start}}
+
+/* Pie en una sola fila: marca (logo | nombre, lema y derechos) a la izquierda; enlaces con barra tricolor abajo a la derecha */
+.sc-footer__inner.sc-footer__inner--fila{display:flex;flex-wrap:nowrap;justify-content:space-between;align-items:flex-end;gap:16px 32px;padding:14px 24px 16px}
+.sc-footer__inner--fila .sc-footer__brand{flex:0 1 auto;align-items:center;gap:18px}
+.sc-footer__inner--fila .sc-footer__logo{height:62px}
+.sc-footer__inner--fila .sc-footer__name strong{font-size:16px}
+.sc-footer__inner--fila .sc-footer__name span{font-size:13px}
+.sc-footer__inner--fila .sc-footer__copy{margin:2px 0 0;font-size:12px;text-align:left}
+.sc-footer__inner--fila .sc-footer__nav{flex:0 0 auto;margin-left:auto;min-width:0}
+.sc-footer__inner--fila .sc-foot-links{flex-wrap:nowrap;white-space:nowrap;padding:0 0 8px;font-size:14px}
+.sc-footer__inner--fila .sc-foot-links>a,.sc-footer__inner--fila .sc-foot-links>.sc-logout{padding:0 14px}
+.sc-footer__inner--fila .sc-foot-links>:last-child{padding-right:0}
+.sc-footer__inner--fila .sc-logout .tl-btn{font-size:14px}
+@media (max-width:1100px){.sc-footer__inner.sc-footer__inner--fila{flex-wrap:wrap}.sc-footer__inner--fila .sc-footer__nav{margin-left:0}}
+@media (max-width:760px){.sc-footer__inner.sc-footer__inner--fila{flex-direction:column;align-items:flex-start}
+.sc-footer__inner--fila .sc-foot-links{flex-wrap:wrap;white-space:normal;row-gap:6px}
+.sc-footer__inner--fila .sc-foot-links>a,.sc-footer__inner--fila .sc-foot-links>.sc-logout{padding:0 18px 0 0;border-left:0}
+.sc-footer__inner--fila .sc-footer__nav{width:100%}}
+.sc-hcard--pill .sc-hcard__title{white-space:nowrap}
+
+/* Radar Phishing: tarjeta bajo el dial (misma disposición que Sellar Correo y Validador) */
+.sc-hcard--radar{border-color:#38bdf8}
+.sc-hcard--radar .sc-hcard__icon{background:#f0f9ff;border-color:#bae6fd}
+.sc-hcard--radar .sc-hcard__icon svg{stroke:#0284c7}
+.sc-hcard--radar.sc-hcard--pill{border-color:#7dd3fc}
+.sc-home__stage[data-show="radar"] .sc-hcard--radar{box-shadow:0 12px 30px rgba(2,132,199,.2)}
+@media (min-width:901px){
+.sc-home__stage{padding-bottom:150px}
+.sc-hcard--radar{top:calc(18px + min(500px,92vw) + 18px);left:50%;right:auto;translate:-50% 0}
+.sc-hcard--radar:hover,.sc-hcard--radar:focus-visible{transform:translateY(-2px)}
+}
+/* Página /radar */
+.sc-radar__kpis{margin:8px 0 20px}
+.sc-radar__legend{display:flex;gap:18px;font-size:13px;color:var(--muted-foreground);margin:4px 0 10px}
+.sc-radar__sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.sc-radar__sw--ok,.sc-radar__bar--ok{background:#1f4e99}
+.sc-radar__sw--mal,.sc-radar__bar--mal{background:#d52b1e}
+.sc-radar__chart{display:grid;grid-template-columns:repeat(14,1fr);gap:6px;align-items:end;height:170px}
+.sc-radar__day{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%}
+.sc-radar__bar{flex:1;width:100%;max-width:34px;display:flex;flex-direction:column;justify-content:flex-end;background:#f1f5f9;border-radius:4px 4px 0 0;overflow:hidden}
+.sc-radar__bar span{display:block;width:100%}
+.sc-radar__lbl{font-size:11px;color:var(--muted-foreground)}
+.sc-radar__tag{display:inline-block;padding:2px 8px;border-radius:999px;background:#fef2f2;color:#b91c1c;font-size:12px;white-space:nowrap}
+.sc-num{text-align:right!important}
+.sc-radar__kpis~.tl-card{margin-top:16px}
+@media (max-width:760px){.sc-radar__chart{gap:3px}.sc-radar__lbl{font-size:9px}}
+.sc-radar__chart{align-items:stretch}
+.sc-radar__bar{flex:none;height:140px}
+/* barras en SVG (la CSP no admite estilos en línea) */
+svg.sc-radar__bar{display:block;margin:0 auto}
+.sc-radar__ok{fill:#1f4e99}
+.sc-radar__mal{fill:#d52b1e}
+.sc-radar__ult td:first-child,.sc-radar__ult th:first-child{white-space:nowrap}
+@media (max-width:760px){.sc-radar__ult td:nth-child(2),.sc-radar__ult th:nth-child(2){display:none}.sc-radar__lbl{writing-mode:vertical-rl;transform:rotate(180deg)}}
