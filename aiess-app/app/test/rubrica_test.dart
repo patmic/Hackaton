@@ -10,6 +10,8 @@ import 'package:aiess/features/observatorio/observatorio.dart';
 import 'package:aiess/features/osint/url_analyzer.dart';
 import 'package:aiess/features/sello/sello.dart';
 import 'package:aiess/ui/partes_correo.dart';
+import 'package:aiess/ui/reporte_simulado.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -135,6 +137,33 @@ void main() {
       expect(falso.$1, 'Ingrese en www.iess.gob.ec');
       expect(falso.$3, isFalse);
       expect(p.adjuntos, contains('detalle.zip'));
+    },
+  );
+
+  test(
+    'reporte SIMULADO: caso, indicios y dominio; nunca el texto ni datos personales (2.6)',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      const correo =
+          'De: avisos@iess-pagos.net\nAsunto: Hola Juan Pérez, cédula 1712345678\n\n'
+          'Ingrese su contraseña en http://iess-pagos.net/login';
+      final v = reglas(correo);
+      final r = ReporteSimulado.preparar(
+        v,
+        correo,
+        ahora: DateTime(2026, 11, 27),
+      );
+      expect(r.caso, matches(RegExp(r'^AIESS-20261127-[A-Z0-9]{4}$')));
+      expect(r.destinatario, 'seguridad.informacion@iess.gob.ec');
+      expect(r.dominios, contains('iess-pagos.net'));
+      expect(r.asunto, isNot(contains('1712345678')));
+      await r.guardar();
+      final guardado = (await SharedPreferences.getInstance())
+          .getStringList('reportes_simulados')!
+          .join();
+      expect(guardado, contains(r.caso));
+      expect(guardado, isNot(contains('contraseña')));
+      expect(guardado, isNot(contains('iess-pagos')));
     },
   );
 }

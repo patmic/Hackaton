@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../features/llm/cerebro.dart';
@@ -48,14 +47,10 @@ class _AjustesState extends State<_Ajustes> {
   bool _probando = false;
   double? _progreso;
   String? _error;
-  bool _red = false;
 
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then(
-      (p) => setState(() => _red = p.getBool('red') ?? false),
-    );
     Observatorio.activo().then((v) => setState(() => _observatorio = v));
   }
 
@@ -360,25 +355,8 @@ class _AjustesState extends State<_Ajustes> {
                   setState(() => _observatorio = v);
                 },
               ),
-              if (!kIsWeb)
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: _red,
-                  activeThumbColor: Tono.sobreLima,
-                  activeTrackColor: Tono.lima,
-                  title: const Text(
-                    'Revisar enlaces en internet',
-                    style: TextStyle(color: tinta, fontSize: 17),
-                  ),
-                  subtitle: const Text(
-                    'Comprueba el certificado y las redirecciones sin abrir la página.',
-                    style: TextStyle(color: Tono.gris),
-                  ),
-                  onChanged: (v) async {
-                    (await SharedPreferences.getInstance()).setBool('red', v);
-                    setState(() => _red = v);
-                  },
-                ),
+              // (Se quitó «Revisar enlaces en internet»: contactar el sitio sospechoso le avisa al atacante.
+              // El bot solo LEE los enlaces; nunca los abre.)
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.school_outlined, color: tinta),

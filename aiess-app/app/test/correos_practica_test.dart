@@ -20,7 +20,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(Canales.cargar);
 
-  for (final MapEntry(key: id, value: (phishing, indicios)) in esperado.entries) {
+  for (final MapEntry(key: id, value: (phishing, indicios))
+      in esperado.entries) {
     test('$id: phishing=$phishing, indicios=$indicios', () {
       final c = leerEml(File('test/fixtures/$id.eml').readAsBytesSync());
       final v = analizarConReglas(

@@ -5,12 +5,11 @@ import 'package:material_ui/material_ui.dart';
 
 import '../features/sello/sello.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../core/canales.dart';
 import '../features/analisis/motor.dart';
 import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
+import 'reporte_simulado.dart';
 import 'tema.dart';
 
 class AlertaApp extends StatelessWidget {
@@ -101,17 +100,23 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
     await _canal.invokeMethod('cerrar');
   }
 
+  /// Reporte SIMULADO (reglas del reto): se arma el caso con el asunto (sin datos personales) y se guarda en el
+  /// celular; no se envía nada. La ventana flotante es chica: el número de caso se muestra en la misma tarjeta.
   Future<void> _avisar() async {
-    final c = Canales.i.contacto;
-    final cuerpo =
-        'Recibí este mensaje sospechoso (${_p['app']}):\n\n${_p['titulo']}\n${_p['texto']}\n\nSeñales: ${_v?.explicacion ?? ''}';
-    await launchUrl(
-      Uri.parse(
-        'mailto:${c['seguridad_informacion']}?subject=${Uri.encodeComponent('Reporte de posible phishing (AIESS)')}'
-        '&body=${Uri.encodeComponent(cuerpo)}',
+    final v = _v;
+    if (v == null) return;
+    final r = ReporteSimulado.preparar(v, 'Asunto: ${_p['texto'] ?? ''}');
+    await r.guardar();
+    if (!mounted) return;
+    setState(
+      () => _v = v.copiar(
+        voz:
+            'Reporte preparado (simulación), caso ${r.caso}, para ${r.destinatario}. En la demo no sale del celular.',
       ),
     );
-    await _cerrar();
+    await Voz.i.decir(
+      'Listo, preparé el reporte. En la demo no sale de tu celular.',
+    );
   }
 
   Future<void> _verificar() async {

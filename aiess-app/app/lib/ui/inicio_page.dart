@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../core/canales.dart';
 import '../features/analisis/analizador.dart';
@@ -18,6 +18,7 @@ import '../features/ocr/ocr.dart';
 import '../features/voz/voz.dart';
 import 'ajustes_sheet.dart';
 import 'practicar_page.dart';
+import 'reporte_simulado.dart';
 import 'aiess_home_screen.dart';
 import 'aula_virtual.dart';
 import '../features/sello/sello.dart';
@@ -433,10 +434,10 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       );
       return;
     }
-    // Celular: una captura (OCR con ML Kit) o un correo guardado (.eml).
+    // Celular: una captura (OCR con ML Kit), un correo guardado (.eml) o un PDF.
     final r = await FilePicker.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['eml', 'png', 'jpg', 'jpeg', 'webp'],
+      allowedExtensions: ['eml', 'pdf', 'png', 'jpg', 'jpeg', 'webp'],
     );
     if (r.isEmpty) return;
     final f = r.single;
@@ -445,8 +446,56 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       await _revisarTexto(correo.paraAnalizar, canal: 'correo .eml');
       return;
     }
+    if (f.name.toLowerCase().endsWith('.pdf') && f.path != null) {
+      await _leerPdf(f.path!);
+      return;
+    }
     final ruta = f.path;
     if (ruta != null) await _analizarImagen(ruta);
+  }
+
+  /// PDF en el celular: Android dibuja cada página como imagen (sin abrir enlaces ni ejecutar nada del PDF)
+  /// y el OCR de ML Kit las lee en el equipo. Las imágenes temporales se borran al terminar.
+  Future<void> _leerPdf(String ruta) async {
+    HapticFeedback.mediumImpact();
+    setState(() {
+      _estado = EstadoRobot.analizando;
+      _titular = 'Revisando…';
+      _subtitulo = '';
+      _pasos = ['Leyendo el PDF en tu celular'];
+      _progreso = null;
+    });
+    unawaited(Voz.i.decir('Déjame leer el PDF.'));
+    final partes = <String>[];
+    try {
+      final paginas = await const MethodChannel(
+        'aiess/plataforma',
+      ).invokeListMethod<String>('pdfAImagenes', {'ruta': ruta});
+      for (final p in paginas ?? const <String>[]) {
+        try {
+          partes.add((await LectorImagen.leer(p)).paraAnalizar());
+        } catch (_) {}
+        try {
+          await File(p).delete();
+        } catch (_) {}
+      }
+    } catch (_) {}
+    if (!mounted) return;
+    final texto = partes.where((t) => t.isNotEmpty).join('\n\n');
+    if (texto.trim().length < 8) {
+      setState(() {
+        _estado = EstadoRobot.reposo;
+        _titular = 'Hola, soy AIess';
+        _pasos = [];
+      });
+      await _decir('No pude leer el PDF. Prueba con una captura del correo.');
+      return;
+    }
+    await _revisarTexto(
+      texto,
+      canal: 'PDF',
+      pasosPrevios: ['Leyendo el PDF en tu celular'],
+    );
   }
 
   /// OCR + QR en el celular y luego el análisis normal.
@@ -573,23 +622,12 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     _revisarPortapapeles();
   }
 
+  /// Reporte al IESS SIMULADO (reglas del reto): no abre el correo ni envía nada; arma el caso y lo guarda.
   Future<void> _reportar() async {
-    final c = Canales.i.contacto;
-    final uri = Uri(
-      scheme: 'mailto',
-      path: c['seguridad_informacion'],
-      query: _query({
-        'subject': 'Reporte de posible phishing (AIESS)',
-        'body':
-            'Recibí este mensaje sospechoso:\n\n${_entrada?.texto ?? ''}\n\nSeñales detectadas: ${_veredicto?.explicacion ?? ''}',
-      }),
-    );
-    await launchUrl(uri);
+    final v = _veredicto;
+    if (v == null) return;
+    await mostrarReporteSimulado(context, v, _entrada?.texto ?? '');
   }
-
-  String _query(Map<String, String> m) => m.entries
-      .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
-      .join('&');
 
   void _tocarRobot() {
     final v = _veredicto;
@@ -689,6 +727,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       iaLocal: Cerebro.i.enEsteEquipo,
       indicios: _modo == _Modo.resultado ? _veredicto!.indicios : const [],
       avisoSello: _modo == _Modo.resultado ? _veredicto!.avisoSello : null,
+      queSalio: _modo == _Modo.resultado ? _veredicto!.queSalio : null,
       textoCorreo:
           _modo == _Modo.resultado &&
               _entrada != null &&

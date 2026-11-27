@@ -5,7 +5,6 @@ import 'dart:ui' show FontVariation;
 import 'package:material_ui/material_ui.dart';
 import 'package:theme_light/theme_light.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../core/canales.dart';
 import '../features/analisis/analizador.dart';
@@ -23,6 +22,7 @@ import '../features/sello/sello.dart';
 import '../features/observatorio/observatorio.dart';
 import 'practicar_page.dart';
 import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
+import 'reporte_simulado.dart';
 import 'tema.dart';
 import 'texto_vivo.dart';
 import 'partes_correo.dart';
@@ -325,14 +325,11 @@ class _WebEscritorioState extends State<WebEscritorio> {
     await _revisar();
   }
 
+  /// Reporte al IESS SIMULADO (reglas del reto): no abre el correo ni envía nada; arma el caso y lo guarda.
   Future<void> _reportar() async {
-    final c = Canales.i.contacto;
-    await launchUrl(
-      Uri.parse(
-        'mailto:${c['seguridad_informacion']}?subject=${Uri.encodeComponent('Reporte de posible phishing (AIESS)')}'
-        '&body=${Uri.encodeComponent('Recibí este mensaje sospechoso:\n\n${_texto.text}\n\nSeñales: ${_v?.explicacion ?? ''}')}',
-      ),
-    );
+    final v = _v;
+    if (v == null) return;
+    await mostrarReporteSimulado(context, v, _texto.text);
   }
 
   void _limpiar() {
@@ -1052,6 +1049,28 @@ class _WebEscritorioState extends State<WebEscritorio> {
                 ],
                 const SizedBox(height: 10),
                 PanelPartesCorreo(texto: _texto.text),
+                // Rúbrica (seguridad y datos): qué salió de verdad a internet.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.shield_outlined,
+                      size: 20,
+                      color: Tono.gris,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        v.queSalio,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Tono.gris,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 14),
                 Aparecer(
                   orden: 8,

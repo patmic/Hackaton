@@ -48,6 +48,7 @@ class AiessHomeScreen extends StatelessWidget {
     this.indicios = const [],
     this.avisoSello,
     this.textoCorreo,
+    this.queSalio,
     this.onAula,
     this.onPracticar,
     this.resumen,
@@ -76,6 +77,9 @@ class AiessHomeScreen extends StatelessWidget {
 
   /// Texto del correo revisado (para mostrar sus partes sin abrir nada).
   final String? textoCorreo;
+
+  /// «Lo que salió del equipo: …» (rúbrica: seguridad y datos).
+  final String? queSalio;
 
   /// «Phishing: SÍ · 3 indicios» (veredicto claro).
   final String? resumen;
@@ -204,6 +208,7 @@ class AiessHomeScreen extends StatelessWidget {
                     indicios: indicios,
                     avisoSello: avisoSello,
                     textoCorreo: textoCorreo,
+                    queSalio: queSalio,
                   ),
                   const Spacer(),
                   const SizedBox(height: 16),
@@ -307,7 +312,7 @@ class AiessHomeScreen extends StatelessWidget {
                     child: _BotonTarjeta(
                       // En la web se sube un PDF o una foto (OCR en el navegador).
                       texto: kIsWeb ? 'Subir correo' : 'Escanear o subir',
-                      ayuda: kIsWeb ? '.eml, PDF o foto' : 'Foto o correo .eml',
+                      ayuda: kIsWeb ? '.eml, PDF o foto' : 'Foto, .eml o PDF',
                       icono: kIsWeb
                           ? Icons.upload_file_rounded
                           : Icons.document_scanner_rounded,
@@ -355,9 +360,11 @@ class _Globo extends StatelessWidget {
     this.indicios = const [],
     this.avisoSello,
     this.textoCorreo,
+    this.queSalio,
   });
   final String? resumen;
   final String? textoCorreo;
+  final String? queSalio;
   final List<String> indicios;
   final String? avisoSello;
   final EstadoHoja estado;
@@ -512,6 +519,31 @@ class _Globo extends StatelessWidget {
             ],
             if (textoCorreo != null && pasos.isEmpty)
               PanelPartesCorreo(texto: textoCorreo!),
+            if (queSalio != null && pasos.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.shield_outlined,
+                      size: 20,
+                      color: Tono.gris,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        queSalio!,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Tono.gris,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             if (avisoSello != null && pasos.isEmpty) ...[
               const SizedBox(height: 10),
               Row(

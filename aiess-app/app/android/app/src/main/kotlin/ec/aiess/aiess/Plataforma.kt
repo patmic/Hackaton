@@ -1,6 +1,12 @@
 package ec.aiess.aiess
 
 import android.app.Activity
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.pdf.PdfRenderer
+import android.os.ParcelFileDescriptor
+import java.io.File
+import java.io.FileOutputStream
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -123,6 +129,33 @@ object Plataforma {
                         "Suspensión de su afiliación\nEstimado afiliado: su afiliación será suspendida hoy. Actualice sus datos y su clave en https://iess-afiliados.example/verificar",
                         "demo")
                     result.success(null)
+                }
+                // PDF en el celular: cada página se dibuja como imagen (PdfRenderer de Android, sin abrir enlaces
+                // ni ejecutar nada del PDF) y luego el OCR de ML Kit la lee en el equipo. Máximo 5 páginas.
+                "pdfAImagenes" -> {
+                    val ruta = call.argument<String>("ruta")
+                    if (ruta == null) { result.success(emptyList<String>()); return@setMethodCallHandler }
+                    Thread {
+                        val salida = mutableListOf<String>()
+                        try {
+                            ParcelFileDescriptor.open(File(ruta), ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
+                                PdfRenderer(fd).use { pdf ->
+                                    for (i in 0 until minOf(pdf.pageCount, 5)) {
+                                        pdf.openPage(i).use { pag ->
+                                            val bmp = Bitmap.createBitmap(pag.width * 2, pag.height * 2, Bitmap.Config.ARGB_8888)
+                                            bmp.eraseColor(Color.WHITE)
+                                            pag.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                                            val f = File(act.cacheDir, "aiess_pdf_$i.png")
+                                            FileOutputStream(f).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                                            bmp.recycle()
+                                            salida.add(f.absolutePath)
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (_: Exception) {}
+                        act.runOnUiThread { result.success(salida) }
+                    }.start()
                 }
                 else -> result.notImplemented()
             }

@@ -109,14 +109,8 @@ class Cerebro {
     await ServidorIA.i.cargarAjustes();
     final prefs = await SharedPreferences.getInstance();
     final lista = await disponibles();
-    // Celular SIN el modelo entrenado de AIESS (quien recibe solo el APK): se usa el servidor, salvo que la
-    // persona lo haya apagado en Ajustes. Antes de leer cualquier correo el permiso dice que va al servidor.
-    final hayAiess = lista.any(
-      (f) => f.path.split('/').last.startsWith('aiess'),
-    );
-    if (!hayAiess && prefs.getBool('usar_servidor') == null) {
-      ServidorIA.i.permitido = true;
-    }
+    // Sin el modelo en el celular, el veredicto lo dan las reglas locales (aciertan P01–P05). El servidor solo
+    // se usa si la persona lo activa en Ajustes: el correo no sale del celular por defecto (rúbrica: seguridad).
     if (ServidorIA.i.permitido) unawaited(ServidorIA.i.comprobar());
     if (lista.isEmpty) return _servidorUsable;
     final guardado = prefs.getString('modelo');

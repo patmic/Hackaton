@@ -118,7 +118,8 @@ String guionEstafa(List<String> indicios) {
   }
   b.write(
     'Y ojo con los deepfakes: con tus fotos o videos de redes sociales pueden crear un video falso tuyo, '
-    'con tu cara y tu voz, para pedirles dinero a tus amigos y familiares. ',
+    'con tu cara y tu voz, para pedirles dinero a tus amigos y familiares. Si alguien te pide dinero por video, '
+    'llámale tú a su número de siempre. ',
   );
   return b.toString().trim();
 }
@@ -126,9 +127,9 @@ String guionEstafa(List<String> indicios) {
 /// Qué hacer y dónde reportar al IESS (canales oficiales del catálogo, sección 4).
 String queHacerEstafa() {
   final c = Canales.i.contacto;
-  return 'No abras sus enlaces ni adjuntos y no respondas. Repórtalo al IESS a ${c['seguridad_informacion']} '
-      'o en ${c['denuncias_web']}. Si ya diste tu clave, cámbiala en ${c['aplicaciones']} '
-      'o llama al ${c['atencion_telefono']}.';
+  return 'No abras sus enlaces ni adjuntos y no respondas. Repórtalo al IESS a ${c['seguridad_informacion']}, '
+      'en ${c['denuncias_web']} o por WhatsApp al ${c['whatsapp']}. Si ya diste tu clave, cámbiala en '
+      '${c['aplicaciones']} o llama al ${c['atencion_telefono']}.';
 }
 
 class Veredicto {
@@ -142,8 +143,17 @@ class Veredicto {
     this.fuente = 'reglas',
     this.avisoSello,
     this.selloEstado,
+    this.salio = const [],
   });
   final bool phishing;
+
+  /// Lo que salió del equipo durante la revisión (rúbrica: solo el dominio o la URL). Ej.: 'el dominio x a RDAP'.
+  final List<String> salio;
+
+  /// Frase fija para la pantalla: qué salió a internet y que el correo no salió.
+  String get queSalio => salio.isEmpty
+      ? 'Lo que salió del equipo: nada. Todo se revisó aquí y el correo no salió.'
+      : 'Lo que salió del equipo: solo ${salio.join(' y ')}. El correo no salió.';
   final int puntaje;
   final String voz, explicacion, queHacer, fuente;
   final List<String> indicios;
@@ -175,6 +185,7 @@ class Veredicto {
     String? fuente,
     String? avisoSello,
     String? selloEstado,
+    List<String>? salio,
   }) => Veredicto(
     phishing: phishing ?? this.phishing,
     puntaje: puntaje ?? this.puntaje,
@@ -185,6 +196,7 @@ class Veredicto {
     fuente: fuente ?? this.fuente,
     avisoSello: avisoSello ?? this.avisoSello,
     selloEstado: selloEstado ?? this.selloEstado,
+    salio: salio ?? this.salio,
   );
 
   /// 2-3 palabras para la pantalla (poka-yoke: el detalle lo dice la voz).
@@ -316,15 +328,10 @@ Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
       if (re.hasMatch(t)) k,
     ...osint.indicios,
   };
-  // Regla C (medida en el set de prueba: correos 95,5 % de exactitud, falsos positivos 23 -> 7 de 200):
-  // estafa si hay un enlace riesgoso, o una señal fuerte acompañada de otra, o dos señales débiles.
-  // Una sola palabra como "pago" o "cuenta" ya no basta (las usan facturas y bancos legítimos).
-  const fuertes = {'I3', 'I5', 'I9', 'I11'};
-  const debiles = {'I1', 'I6', 'I8', 'I10', 'I7'};
-  final nF = ind.where(fuertes.contains).length;
-  final nD = ind.where(debiles.contains).length;
   final enlaceRiesgoso = osint.puntaje >= 30 || osint.enganosos.isNotEmpty;
-  final phishing = enlaceRiesgoso || (nF >= 1 && nF + nD >= 2) || nD >= 2;
+  // Catálogo del reto (sección 1): un correo es phishing cuando presenta AL MENOS UN indicio.
+  // Si un legítimo da falso positivo, se ajusta el léxico, no este umbral (plan 1.2).
+  final phishing = enlaceRiesgoso || ind.isNotEmpty;
   final orden = motivoVoz.keys.where(ind.contains).toList();
   final c = Canales.i.contacto;
   if (phishing) {
@@ -439,42 +446,20 @@ Veredicto? leerSalidaModelo(String s) {
   );
 }
 
-/// Fusión determinista: el modelo aporta su juicio e indicios, pero nunca rebaja una alerta fuerte del OSINT.
-/// En una estafa el avatar SIEMPRE dice «Encontré N indicios» con la misma lista que se muestra (rúbrica).
+/// Fusión determinista (plan 1.2): el veredicto y la LISTA de indicios salen siempre de las reglas, que
+/// aciertan los correos de práctica (la IA no decide sola). Del modelo solo se toma su explicación, y solo si
+/// habla de los mismos indicios; si propone otros, se ignoran.
 Veredicto fusionar(Veredicto reglas, Veredicto? modelo, AnalisisOsint osint) {
   if (modelo == null) return reglas;
-  if (!modelo.phishing && (osint.puntaje >= 60 || reglas.puntaje >= 80))
-    return reglas;
-  if (modelo.voz.trim().isEmpty && modelo.indicios.isEmpty) return reglas;
-  if (!modelo.phishing) {
-    return Veredicto(
-      phishing: false,
-      puntaje: modelo.puntaje,
-      voz: modelo.voz.trim().isEmpty ? reglas.voz : modelo.voz,
-      indicios: const [],
-      explicacion: modelo.explicacion.trim().isEmpty
-          ? reglas.explicacion
-          : modelo.explicacion,
-      queHacer: modelo.queHacer.trim().isEmpty
-          ? reglas.queHacer
-          : modelo.queHacer,
-      fuente: 'modelo',
-    );
-  }
-  var ind = indiciosValidos(modelo.indicios);
-  if (ind.isEmpty) ind = indiciosValidos(reglas.indicios);
-  return Veredicto(
-    phishing: true,
-    puntaje: modelo.puntaje,
-    voz: guionEstafa(ind),
-    indicios: ind,
-    explicacion: [
-      for (final k in ind) motivoVoz[k]!,
-      ...osint.cti.where(
-        (c) => c.startsWith('OpenPhish') || c.contains('se creó hace'),
-      ),
-    ].join(' '),
-    queHacer: queHacerEstafa(),
+  final mismos = indiciosValidos(
+    modelo.indicios,
+  ).toSet().difference(reglas.indicios.toSet()).isEmpty;
+  final extra = modelo.explicacion.trim();
+  return reglas.copiar(
+    explicacion:
+        mismos && extra.isNotEmpty && reglas.phishing == modelo.phishing
+        ? '${reglas.explicacion} $extra'.trim()
+        : reglas.explicacion,
     fuente: 'modelo',
   );
 }

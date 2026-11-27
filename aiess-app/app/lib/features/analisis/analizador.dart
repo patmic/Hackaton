@@ -2,15 +2,12 @@ import 'dart:async';
 
 // Orquestador: OSINT offline -> (red opcional) -> LFM2 local -> fusión.
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../llm/cerebro.dart';
 import '../llm/remoto.dart';
 import '../osint/cti.dart';
 import '../osint/url_analyzer.dart';
 import 'anonimizar.dart';
 import 'motor.dart';
-import 'red.dart';
 
 class Analizador {
   /// [alAvanzar]: paso actual y progreso 0..1 (null = indeterminado) para la animación de carga.
@@ -33,11 +30,7 @@ class Analizador {
       );
       await consultarCti(osint);
     }
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool('red') ?? false) {
-      alAvanzar?.call('Revisando el sitio en internet', null);
-      await revisarRed(osint);
-    }
+    // Nunca se visita el sitio sospechoso (ni siquiera una consulta HEAD): el bot solo LEE los enlaces.
     if (usarModelo)
       await Future.delayed(
         const Duration(milliseconds: 350),
@@ -47,7 +40,9 @@ class Analizador {
     if (usarModelo) await Future.delayed(const Duration(milliseconds: 350));
 
     final cerebro = Cerebro.i;
-    if (!usarModelo || !cerebro.afinado) return reglas;
+    if (!usarModelo || !cerebro.afinado) {
+      return reglas.copiar(salio: [...osint.consultados]);
+    }
     if (reglas.phishing) alSospechar?.call();
     // Antes de que el texto salga del celular se tapan los datos personales (cédula, teléfono, nombre…).
     final anonimo = anonimizar(promptAnalisis(e, osint));
@@ -94,6 +89,13 @@ class Analizador {
     alAvanzar?.call('Pensándolo con mi cerebro', 1);
     // La conversación se borra al terminar: el servidor reemplaza el correo por el prompt de sistema solo.
     unawaited(ServidorIA.i.olvidar(prefijoLfm2(system)));
-    return fusionar(reglas, leerSalidaModelo(salida), osint);
+    return fusionar(reglas, leerSalidaModelo(salida), osint).copiar(
+      salio: [
+        ...osint.consultados,
+        // Solo si la persona activó el servidor en Ajustes: va el texto SIN datos personales.
+        if (!cerebro.enEsteEquipo)
+          'el texto sin tus datos al servidor de AIESS',
+      ],
+    );
   }
 }
