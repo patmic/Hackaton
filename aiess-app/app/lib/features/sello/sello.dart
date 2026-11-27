@@ -185,6 +185,7 @@ class Sello {
         queHacer: 'Igual, nunca entregues tu clave.',
         fuente: 'sello',
         selloEstado: 'valido',
+        salio: const ['la huella del asunto a SellaCorreo'],
       );
     }
     final reglas = analizarConReglas(
@@ -194,7 +195,7 @@ class Sello {
     final v = aplicarSello(
       reglas,
       estado: r.sinRespuesta ? 'sin_verificar' : 'sin_sello',
-    );
+    ).copiar(salio: const ['la huella del asunto a SellaCorreo']);
     // Solo se vio el asunto: sin indicios no se dice «tranquilo», se pide revisar el correo completo.
     return v.phishing
         ? v

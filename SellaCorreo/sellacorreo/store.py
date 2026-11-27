@@ -100,7 +100,8 @@ def init() -> None:
         conn.executescript(SCHEMA.read_text(encoding="utf-8"))
         cols = {r[1] for r in conn.execute("PRAGMA table_info(sellos)")}
         for col, ddl in [("palabra_cifrada", "TEXT"), ("palabra_tag", "TEXT"), ("expira_utc", "TEXT"),
-                         ("exige_destinatario", "INTEGER NOT NULL DEFAULT 0"), ("exige_emisor", "INTEGER NOT NULL DEFAULT 0"), ("emisor_hmac", "TEXT"), ("exige_asunto", "INTEGER NOT NULL DEFAULT 1")]:
+                         ("exige_destinatario", "INTEGER NOT NULL DEFAULT 0"), ("exige_emisor", "INTEGER NOT NULL DEFAULT 0"), ("emisor_hmac", "TEXT"), ("exige_asunto", "INTEGER NOT NULL DEFAULT 1"),
+                         ("destinatario_cifrado", "TEXT")]:
             if col not in cols:  # migración de bases creadas con la versión anterior
                 conn.execute(f"ALTER TABLE sellos ADD COLUMN {col} {ddl}")
         for item in os.environ.get("SELLACORREO_TAXONOMIAS", "").split(","):
@@ -206,3 +207,16 @@ def verify_chain() -> dict:
 def record_verification(estado: str, ip_hash: str) -> None:
     with connect() as conn:
         conn.execute("INSERT INTO verificaciones (ts_utc, estado, ip_hash) VALUES (?,?,?)", (now_utc(), estado, ip_hash))
+
+
+def save_greeting(clave: str, palabra_cifrada: str) -> None:
+    with connect() as conn:
+        conn.execute("INSERT INTO saludos (clave, palabra_cifrada, ts_utc) VALUES (?,?,?) "
+                     "ON CONFLICT(clave) DO UPDATE SET palabra_cifrada=excluded.palabra_cifrada, ts_utc=excluded.ts_utc",
+                     (clave, palabra_cifrada, now_utc()))
+
+
+def get_greeting(clave: str) -> str | None:
+    with connect() as conn:
+        row = conn.execute("SELECT palabra_cifrada FROM saludos WHERE clave=?", (clave,)).fetchone()
+    return row[0] if row else None

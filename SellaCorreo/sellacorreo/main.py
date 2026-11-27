@@ -511,6 +511,17 @@ def encrypt_word(token: str, word: str) -> str:
     return _b64(nonce + AESGCM(_pw_key(token)).encrypt(nonce, word.encode(), token.encode()))
 
 
+def greeting_key(emisor: str, destinatario: str) -> str:
+    """Clave de la palabra saludo: HMAC(emisor-destinatario), igual que el sello; nunca el correo en claro."""
+    return recipient_hmac(_secret("SELLACORREO_HMAC_KEY"), emisor, destinatario)
+
+
+def greeting_for(emisor: str, destinatario: str) -> str | None:
+    clave = greeting_key(emisor, destinatario)
+    blob = store.get_greeting(clave)
+    return decrypt_word("saludo|" + clave, blob) if blob else None
+
+
 def decrypt_word(token: str, blob: str | None) -> str | None:
     if not blob:
         return None
@@ -548,15 +559,15 @@ def hash_options(seal: dict) -> list[str]:
     if seal.get("exige_asunto", 1):
         ops.append("Asunto del correo")
     if seal.get("palabra_tag"):
-        ops.append("Palabra segura")
+        ops.append("Palabra saludo")
     if seal.get("expira_utc"):
         ops.append("Caducidad del enlace")
     return ops
 
 
 @lru_cache(maxsize=256)
-def _sello_png(codigo: str, taxonomia: str, asteriscos: int) -> bytes:
-    return wax_seal_png(codigo, taxonomia, asteriscos)
+def _sello_png(codigo: str, taxonomia: str, asteriscos: int, saludo: str = "") -> bytes:
+    return wax_seal_png(codigo, taxonomia, asteriscos, saludo=saludo or None)
 
 
 # ------------------------------------------------------------------ GenKey
@@ -570,7 +581,7 @@ PALABRA_POR_DEFECTO = "IESS-KEY"  # la palabra segura es obligatoria; el formula
 
 def genkey_form(request: Request, user: dict, error: str = "", values: dict | None = None) -> str:
     v = {"taxonomia": "comunicacional", "asunto": "", "destinatario": "", "pol_palabra": "1", "palabra": PALABRA_POR_DEFECTO,
-         "pol_caducidad": "", "caducidad": "7", "pol_asunto": "1", **(values or {})}
+         "pol_caducidad": "", "caducidad": "7", "pol_asunto": "1", "para": "", **(values or {})}
     taxs = store.taxonomias()
     left = "".join(
         f'<label class="sc-node sc-node--left" data-node><input type="radio" name="taxonomia" value="{E(t["codigo"])}"'
@@ -582,7 +593,7 @@ def genkey_form(request: Request, user: dict, error: str = "", values: dict | No
                 f'{" checked" if v[name] else ""} data-policy="{name}"><span class="sc-node__dot sc-node__dot--pol"></span>{E(label)}</label>')
     right = (('<label class="sc-node sc-node--right sc-node--locked" data-node title="Obligatoria: el destinatario verá esta '
               'palabra en CheckIn si el correo es auténtico"><input type="checkbox" name="pol_palabra" value="1" checked disabled '
-              'data-policy="pol_palabra"><span class="sc-node__dot sc-node__dot--pol"></span>Palabra segura</label>')
+              'data-policy="pol_palabra"><span class="sc-node__dot sc-node__dot--pol"></span>Palabra saludo</label>')
              + pol("pol_caducidad", "Caducidad del enlace", "Después de la fecha, CheckIn lo marcará inválido")
              + pol("pol_asunto", "Asunto del correo", "Incluye el asunto en el hash; CheckIn lo muestra para que compare con el correo recibido")
              + ('<label class="sc-node sc-node--right sc-node--locked" data-node title="Siempre activa: el correo del emisor '
@@ -617,9 +628,12 @@ def genkey_form(request: Request, user: dict, error: str = "", values: dict | No
 <div class="tl-field sc-policy" data-for="pol_asunto"><label class="tl-field__label" for="asunto">Asunto del correo</label>
 <input class="tl-input" id="asunto" name="asunto" maxlength="300" value="{E(v['asunto'])}">
 <span class="tl-hint">Forma parte del hash del sello y CheckIn lo muestra para que el destinatario compare.</span></div>
-<div class="tl-field sc-policy" data-for="pol_palabra"><label class="tl-field__label" for="palabra">Palabra segura</label>
+<div class="tl-field sc-policy" data-for="pol_palabra"><label class="tl-field__label" for="palabra">Palabra saludo</label>
 <input class="tl-input" id="palabra" name="palabra" maxlength="40" minlength="3" required value="{E(v['palabra'])}" placeholder="{PALABRA_POR_DEFECTO}">
 <span class="tl-hint">Obligatoria. Acuérdela antes con el destinatario. CheckIn la muestra solo si el correo es válido; se guarda cifrada.</span></div>
+<div class="tl-field"><label class="tl-field__label" for="para">Correo del destinatario (opcional)</label>
+<input class="tl-input" id="para" name="para" type="email" maxlength="254" value="{E(v['para'])}" placeholder="afiliado@correo.com">
+<span class="tl-hint">Si ese destinatario ya eligió su palabra saludo al validar un correo suyo, el sello usa esa palabra.</span></div>
 <div class="tl-field sc-policy" data-for="pol_caducidad"><label class="tl-field__label" for="caducidad">El enlace caduca en</label>
 <select class="tl-select" id="caducidad" name="caducidad">{cad}</select></div>
 <div class="tl-row"><button class="tl-btn tl-btn--default" type="submit">Generar enlace e imagen</button>
@@ -692,6 +706,7 @@ def create_seal(user: dict, taxonomia: str, asunto: str, destinatario: str, pala
         "institucion": store.INSTITUCION, "taxonomia": taxonomia, "asunto": asunto.strip()[:300], "ts_utc": ts,
         "recipient_hmac": rh if destinatario else None, "h": h, "content_size": size, "content_sha256": csha,
         "kid": kid, "sig": sig, "palabra_cifrada": encrypt_word(token, palabra) if palabra else None,
+        "destinatario_cifrado": encrypt_word("dest|" + token, destinatario) if destinatario else None,
         "palabra_tag": tag, "expira_utc": expira, "exige_destinatario": 1 if exige_destinatario else 0,
         "exige_emisor": 1, "exige_asunto": 1 if exige_asunto else 0, "emisor_hmac": emisor_fp})
     store.append_log(usuario=user["usuario"], taxonomia=taxonomia, token_hash=store.sha(token), h=h, seal_sig=sig)
@@ -702,39 +717,46 @@ def create_seal(user: dict, taxonomia: str, asunto: str, destinatario: str, pala
 
 
 @app.post("/genkey", response_class=HTMLResponse)
-def genkey_post(request: Request, csrf: str = Form(""), taxonomia: str = Form(...), asunto: str = Form(""),
+def genkey_post(request: Request, csrf: str = Form(""), taxonomia: str = Form(""), asunto: str = Form(""),
                 destinatario: str = Form(""), pol_palabra: str = Form(""), palabra: str = Form(""),
-                pol_caducidad: str = Form(""), caducidad: str = Form(""), pol_asunto: str = Form("")):
+                pol_caducidad: str = Form(""), caducidad: str = Form(""), pol_asunto: str = Form(""),
+                para: str = Form("")):
     user = current_user(request)
     if not user:
         return RedirectResponse("/login", status_code=303)
     values = {"taxonomia": taxonomia, "asunto": asunto, "destinatario": destinatario, "pol_palabra": pol_palabra,
-              "palabra": palabra, "pol_caducidad": pol_caducidad, "caducidad": caducidad, "pol_asunto": pol_asunto}
+              "palabra": palabra, "pol_caducidad": pol_caducidad, "caducidad": caducidad, "pol_asunto": pol_asunto, "para": para}
     if not csrf_ok(request, csrf):
         return page("GenKey", genkey_form(request, user, "La sesión del formulario expiró. Intente de nuevo.", values),
                     user, request, 403, "genkey", chrome="genkey")
     destinatario = destinatario.strip().lower()
     palabra = palabra.strip()
+    para = para.strip().lower()
+    elegida = greeting_for(user["emisor"], para) if para and EMAIL_RE.match(para) else None
+    if elegida:  # la palabra que eligió el destinatario manda sobre la del formulario
+        palabra = elegida
     err = ""
     if taxonomia not in {t["codigo"] for t in store.taxonomias()}:
         err = "Taxonomía no válida."
     elif pol_asunto and not asunto.strip():
         err = "Escriba el asunto o desmarque «Asunto del correo»."
+    elif para and not EMAIL_RE.match(para):
+        err = "El correo del destinatario no es válido."
     elif not (3 <= len(palabra) <= 40):  # la palabra segura es obligatoria
-        err = "La palabra segura es obligatoria y debe tener entre 3 y 40 caracteres."
+        err = "La palabra saludo es obligatoria y debe tener entre 3 y 40 caracteres."
     elif pol_caducidad and caducidad not in CADUCIDADES:
         err = "Caducidad no válida."
     if err:
         return page("GenKey", genkey_form(request, user, err, values), user, request, 422, "genkey", chrome="genkey")
-    s = create_seal(user, taxonomia, asunto, "", palabra,
+    s = create_seal(user, taxonomia, asunto, para, palabra,
                     int(caducidad) if pol_caducidad else None, False, bool(pol_asunto))
     politicas = [p for p, on in [("correo del emisor (siempre, en el hash)", True), ("asunto en el hash", pol_asunto),
-                                 ("palabra segura", True),
+                                 ("palabra saludo elegida por el destinatario" if elegida else "palabra saludo", True),
                                  (f"caduca {s['expira']}" if s["expira"] else "", pol_caducidad)] if on and p]
     snippet = (f'<a href="{s["enlace"]}"><img src="{s["imagen"]}" width="240" height="240" '
                f'alt="ANTI-PHISHING" style="display:block;border:0"></a>')
     body = f"""<div class="tl-alert tl-alert--ok" role="status"><div class="tl-alert__title">Sello generado · código {E(s['codigo'])}</div>
-<div class="tl-alert__body">Pegue la imagen al inicio del correo «{E(asunto)}» ({E(taxonomia)}).
+<div class="tl-alert__body">Pegue la imagen al inicio del correo{(" «" + E(asunto) + "»") if asunto.strip() else ""} ({E(taxonomia)}).
 Políticas: {E(", ".join(politicas) or "ninguna")}. El sello lleva {len(s["opciones"])} {"asterisco" if len(s["opciones"]) == 1 else "asteriscos"}.</div></div>
 <section class="tl-card"><div class="tl-card__body sc-form">
 <div class="tl-field"><span class="tl-field__label">1 · Imagen con enlace (cópiela y péguela en Outlook o Gmail)</span>
@@ -860,8 +882,81 @@ def _valido(seal: dict, user, request):
     store.record_verification("valido", ip_hash(request))
     texto = (f"Emitido por {seal['nombre_emisor']} ({seal['institucion']}). El hash, la firma digital y el correo "
              "del emisor, sellado dentro del hash, coinciden.")
-    return page("Correo válido y seguro", verdict(True, texto) + safe_word_box(seal) + seal_details(seal),
+    # La clave de la palabra saludo es el mismo HMAC(emisor-destinatario) que el sello lleva en su hash:
+    # si el destinatario ya eligió palabra, los sellos siguientes no le vuelven a pedir cambio.
+    ya_eligio = bool(seal.get("recipient_hmac")) and store.get_greeting(seal["recipient_hmac"]) is not None
+    por_defecto = (not ya_eligio) and decrypt_word(seal["token"], seal.get("palabra_cifrada")) == PALABRA_POR_DEFECTO
+    aviso = (f'<div class="tl-alert tl-alert--destructive" role="status"><div class="tl-alert__body">'
+             f'La palabra segura es la predeterminada ({E(PALABRA_POR_DEFECTO)}). Le pedimos que elija su palabra saludo.'
+             f'</div></div>') if por_defecto else ""
+    pedir = bool(seal.get("recipient_hmac")) and not ya_eligio
+    extra = aviso + (greeting_form(seal, request) if pedir else "")  # el correo ya está en el sello: solo se confirma
+    return page("Correo válido y seguro", verdict(True, texto) + safe_word_box(seal) + extra + seal_details(seal),
                 user, request, active="checkin")
+
+
+def destinatario_guardado(seal: dict) -> str | None:
+    """Correo del destinatario que se guardó cifrado al crear el sello (None si el sello no lo trae)."""
+    return decrypt_word("dest|" + seal["token"], seal.get("destinatario_cifrado"))
+
+
+def greeting_form(seal: dict, request: Request, aviso: str = "", ok: bool = False, correo: str = "") -> str:
+    """Tras validar, el destinatario confirma su correo y escribe su palabra saludo."""
+    msg = (f'<div class="tl-alert {"tl-alert--ok" if ok else "tl-alert--destructive"}" role="status">'
+           f'<div class="tl-alert__body">{E(aviso)}</div></div>') if aviso else ""
+    link = f"{seal['token']}.{seal['h'][:16]}"
+    guardado = destinatario_guardado(seal)
+    if guardado:  # el correo ya viene en el sello: solo se confirma
+        campo_correo = (f'<p class="tl-hint">Este mensaje fue enviado a <strong>{E(guardado)}</strong>. '
+                        f'¿Es usted? Si no, no ingrese su palabra.</p>')
+    else:
+        campo_correo = (f'<div class="tl-field"><label class="tl-field__label" for="s-correo">Su correo (donde recibió este mensaje)</label>'
+                        f'<input class="tl-input" id="s-correo" name="correo" type="email" required maxlength="254" value="{E(correo)}"></div>')
+    return f"""<section class="tl-card sc-saludo" data-saludo><div class="tl-card__body">
+<h2 class="tl-title">Elija su palabra saludo</h2>
+<p class="tl-hint">Los próximos correos de {E(seal['nombre_emisor'])} para usted llevarán esta palabra en su sello.
+Si un correo suyo llega sin ella, desconfíe.</p>{msg}
+<form class="sc-form" method="post" action="/checkin/{E(link)}/saludo" autocomplete="off">
+<input type="hidden" name="csrf" value="{csrf_token(request)}">
+{campo_correo}
+<div class="tl-field"><label class="tl-field__label" for="s-palabra">Su palabra saludo</label>
+<input class="tl-input" id="s-palabra" name="palabra" required minlength="3" maxlength="24" placeholder="p. ej. HOLA-MARÍA"></div>
+<div class="tl-row"><button class="tl-btn tl-btn--default" type="submit">Guardar mi palabra saludo</button>
+<span class="tl-hint">Se guarda cifrada; su correo no se guarda en claro.</span></div>
+</form></div></section>"""
+
+
+@app.post("/checkin/{link}/saludo", response_class=HTMLResponse)
+def checkin_saludo(link: str, request: Request, csrf: str = Form(""), correo: str = Form(""), palabra: str = Form("")):
+    user = current_user(request)
+    if not checkin_limiter.allow(ip_of(request)):
+        return _limitado(user, request)
+    ok, motivo, seal = check_link(link)
+    if not ok:  # solo desde un correo auténtico
+        return _falso(motivo, user, request)
+    if not seal.get("recipient_hmac"):
+        return page("Correo válido y seguro", verdict(True, "Este sello no tiene destinatario.") + seal_details(seal),
+                    user, request, 422, "checkin")
+    guardado = destinatario_guardado(seal)
+    correo, palabra = (guardado or correo).strip().lower(), " ".join(palabra.split())  # con correo guardado, manda ese
+    aviso = ""
+    if not csrf_ok(request, csrf):
+        aviso = "El formulario expiró. Intente de nuevo."
+    elif not EMAIL_RE.match(correo):
+        aviso = "Escriba un correo válido."
+    elif not hmac.compare_digest(seal["recipient_hmac"], greeting_key(seal["emisor"], correo)):
+        aviso = "Ese correo no es el destinatario de este mensaje."
+    elif not (3 <= len(palabra) <= 24):
+        aviso = "La palabra saludo debe tener entre 3 y 24 caracteres."
+    texto = f"Emitido por {seal['nombre_emisor']} ({seal['institucion']})."
+    if aviso:
+        return page("Correo válido y seguro", verdict(True, texto) + greeting_form(seal, request, aviso, False, correo)
+                    + seal_details(seal), user, request, 422, "checkin")
+    clave = greeting_key(seal["emisor"], correo)
+    store.save_greeting(clave, encrypt_word("saludo|" + clave, palabra))
+    hecho = f"Listo. Los próximos correos de {seal['nombre_emisor']} para usted llevarán «{palabra.upper()}» en el sello."
+    return page("Palabra saludo guardada", verdict(True, texto) + greeting_form(seal, request, hecho, True, correo)
+                + seal_details(seal), user, request, active="checkin")
 
 
 @app.get("/checkin/{link}", response_class=HTMLResponse)
@@ -957,5 +1052,6 @@ def image(token: str):
     seal = store.get_seal(token) if re.fullmatch(r"[A-Za-z0-9_-]{20,64}", token) else None
     if seal is None:
         return Response(invalid_png(), media_type="image/png", status_code=404)
-    return Response(_sello_png(fmt_code(seal["codigo"]), seal["taxonomia"], len(hash_options(seal))), media_type="image/png",
+    saludo = decrypt_word(seal["token"], seal.get("palabra_cifrada")) or ""  # la palabra saludo va visible en el sello
+    return Response(_sello_png(fmt_code(seal["codigo"]), seal["taxonomia"], len(hash_options(seal)), saludo), media_type="image/png",
                     headers={"Cache-Control": "public, max-age=86400"})

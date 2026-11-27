@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS sellos (
     expira_utc     TEXT,                      -- caducidad del enlace (NULL = no caduca)
     exige_destinatario INTEGER NOT NULL DEFAULT 0,
     exige_asunto   INTEGER NOT NULL DEFAULT 1,     -- 1 = el asunto va en el hash y CheckIn lo muestra
+    destinatario_cifrado TEXT,                -- correo del destinatario, cifrado (AES-GCM); se muestra solo como confirmación
     exige_emisor   INTEGER NOT NULL DEFAULT 0,
     emisor_hmac    TEXT                      -- HMAC del correo del emisor (dentro del contenido sellado)
 );
@@ -71,3 +72,11 @@ INSERT OR IGNORE INTO taxonomias (codigo, nombre) VALUES
   ('comunicacional', 'Comunicacional'),
   ('informativo',    'Informativo'),
   ('recordatorio',   'Recordatorio');
+
+-- Palabra saludo que elige el destinatario al validar un correo suyo; la usan los próximos sellos a ese destinatario.
+-- La clave es HMAC(emisor-destinatario): el correo del destinatario nunca se guarda en claro.
+CREATE TABLE IF NOT EXISTS saludos (
+    clave           TEXT PRIMARY KEY,
+    palabra_cifrada TEXT NOT NULL,
+    ts_utc          TEXT NOT NULL
+);
