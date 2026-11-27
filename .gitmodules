@@ -1,0 +1,3 @@
+[submodule "aiess-app/third_party/llama.cpp"]
+	path = aiess-app/third_party/llama.cpp
+	url = https://github.com/ggml-org/llama.cpp.git

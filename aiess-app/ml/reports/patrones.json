@@ -1,0 +1,1815 @@
+{
+  "archivo": "datos/dataset_entrenamiento_IESS_1000.csv",
+  "filas_validas": 1000,
+  "avisos_limpieza": [],
+  "balance": {
+    "phishing": 500,
+    "legitimo": 500
+  },
+  "indicios": {
+    "I1": {
+      "nombre": "Urgencia artificial",
+      "n": 252
+    },
+    "I2": {
+      "nombre": "Enlace a dominio no oficial",
+      "n": 430
+    },
+    "I3": {
+      "nombre": "Pide credenciales, claves, códigos o tarjeta",
+      "n": 159
+    },
+    "I4": {
+      "nombre": "Enlace acortado u oculto",
+      "n": 106
+    },
+    "I5": {
+      "nombre": "Adjunto o instalación sospechosa",
+      "n": 62
+    },
+    "I6": {
+      "nombre": "Premio, bono o reembolso inesperado",
+      "n": 117
+    },
+    "I7": {
+      "nombre": "Remitente no oficial",
+      "n": 440
+    },
+    "I8": {
+      "nombre": "Amenaza o pérdida de beneficio",
+      "n": 198
+    },
+    "I9": {
+      "nombre": "Pide datos personales o documentos",
+      "n": 176
+    },
+    "I10": {
+      "nombre": "Pide pago o transferencia",
+      "n": 123
+    },
+    "I11": {
+      "nombre": "Código QR hacia sitio no verificable",
+      "n": 28
+    }
+  },
+  "coocurrencia_top": [
+    {
+      "par": "I2+I7",
+      "n": 372
+    },
+    {
+      "par": "I1+I7",
+      "n": 223
+    },
+    {
+      "par": "I1+I2",
+      "n": 211
+    },
+    {
+      "par": "I7+I8",
+      "n": 176
+    },
+    {
+      "par": "I2+I8",
+      "n": 167
+    },
+    {
+      "par": "I2+I9",
+      "n": 156
+    },
+    {
+      "par": "I7+I9",
+      "n": 156
+    },
+    {
+      "par": "I2+I3",
+      "n": 143
+    },
+    {
+      "par": "I3+I7",
+      "n": 138
+    },
+    {
+      "par": "I1+I8",
+      "n": 124
+    },
+    {
+      "par": "I7+I10",
+      "n": 113
+    },
+    {
+      "par": "I2+I4",
+      "n": 106
+    }
+  ],
+  "n_indicios_por_phishing": {
+    "1": 5,
+    "2": 42,
+    "3": 100,
+    "4": 159,
+    "5": 125,
+    "6": 46,
+    "7": 19,
+    "8": 4
+  },
+  "ngramas_phishing": [
+    {
+      "ngrama": "enlace",
+      "z": 8.86,
+      "docs_clase": 314,
+      "docs_contraste": 51
+    },
+    {
+      "ngrama": "siguiente",
+      "z": 6.9,
+      "docs_clase": 157,
+      "docs_contraste": 16
+    },
+    {
+      "ngrama": "datos",
+      "z": 6.82,
+      "docs_clase": 181,
+      "docs_contraste": 28
+    },
+    {
+      "ngrama": "proceso",
+      "z": 6.18,
+      "docs_clase": 120,
+      "docs_contraste": 8
+    },
+    {
+      "ngrama": "verificacion",
+      "z": 5.96,
+      "docs_clase": 112,
+      "docs_contraste": 8
+    },
+    {
+      "ngrama": "ingrese",
+      "z": 5.45,
+      "docs_clase": 174,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "identidad",
+      "z": 5.42,
+      "docs_clase": 137,
+      "docs_contraste": 27
+    },
+    {
+      "ngrama": "usd",
+      "z": 5.4,
+      "docs_clase": 171,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "continuar",
+      "z": 5.28,
+      "docs_clase": 114,
+      "docs_contraste": 19
+    },
+    {
+      "ngrama": "cedula",
+      "z": 5.0,
+      "docs_clase": 124,
+      "docs_contraste": 26
+    },
+    {
+      "ngrama": "debe",
+      "z": 4.71,
+      "docs_clase": 130,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "horas",
+      "z": 4.62,
+      "docs_clase": 125,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "confirme",
+      "z": 4.62,
+      "docs_clase": 125,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "pago",
+      "z": 4.21,
+      "docs_clase": 82,
+      "docs_contraste": 16
+    },
+    {
+      "ngrama": "aqui",
+      "z": 4.11,
+      "docs_clase": 99,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "notificacion",
+      "z": 4.02,
+      "docs_clase": 66,
+      "docs_contraste": 11
+    },
+    {
+      "ngrama": "codigo",
+      "z": 4.0,
+      "docs_clase": 94,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "numero",
+      "z": 3.98,
+      "docs_clase": 93,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "mantener",
+      "z": 3.71,
+      "docs_clase": 53,
+      "docs_contraste": 8
+    },
+    {
+      "ngrama": "sera",
+      "z": 3.62,
+      "docs_clase": 94,
+      "docs_contraste": 26
+    },
+    {
+      "ngrama": "ayuda",
+      "z": 3.58,
+      "docs_clase": 46,
+      "docs_contraste": 6
+    },
+    {
+      "ngrama": "haga",
+      "z": 3.55,
+      "docs_clase": 74,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "confirmar",
+      "z": 3.55,
+      "docs_clase": 74,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "clic",
+      "z": 3.54,
+      "docs_clase": 74,
+      "docs_contraste": 18
+    },
+    {
+      "ngrama": "reembolso",
+      "z": 3.53,
+      "docs_clase": 73,
+      "docs_contraste": 0
+    }
+  ],
+  "ngramas_legitimo": [
+    {
+      "ngrama": "puede",
+      "z": 9.5,
+      "docs_clase": 171,
+      "docs_contraste": 72
+    },
+    {
+      "ngrama": "portal",
+      "z": 7.51,
+      "docs_clase": 186,
+      "docs_contraste": 125
+    },
+    {
+      "ngrama": "solicitud",
+      "z": 6.92,
+      "docs_clase": 66,
+      "docs_contraste": 13
+    },
+    {
+      "ngrama": "dia",
+      "z": 6.64,
+      "docs_clase": 117,
+      "docs_contraste": 68
+    },
+    {
+      "ngrama": "consultar",
+      "z": 6.54,
+      "docs_clase": 60,
+      "docs_contraste": 13
+    },
+    {
+      "ngrama": "mensaje",
+      "z": 6.42,
+      "docs_clase": 264,
+      "docs_contraste": 239
+    },
+    {
+      "ngrama": "informacion",
+      "z": 6.18,
+      "docs_clase": 131,
+      "docs_contraste": 90
+    },
+    {
+      "ngrama": "necesita",
+      "z": 6.15,
+      "docs_clase": 57,
+      "docs_contraste": 16
+    },
+    {
+      "ngrama": "coordinacion",
+      "z": 5.86,
+      "docs_clase": 71,
+      "docs_contraste": 33
+    },
+    {
+      "ngrama": "atencion",
+      "z": 5.84,
+      "docs_clase": 240,
+      "docs_contraste": 224
+    },
+    {
+      "ngrama": "gracias",
+      "z": 5.84,
+      "docs_clase": 150,
+      "docs_contraste": 117
+    },
+    {
+      "ngrama": "equipo",
+      "z": 5.75,
+      "docs_clase": 107,
+      "docs_contraste": 71
+    },
+    {
+      "ngrama": "buen",
+      "z": 5.7,
+      "docs_clase": 66,
+      "docs_contraste": 30
+    },
+    {
+      "ngrama": "laboral",
+      "z": 5.67,
+      "docs_clase": 47,
+      "docs_contraste": 12
+    },
+    {
+      "ngrama": "historia",
+      "z": 5.67,
+      "docs_clase": 47,
+      "docs_contraste": 12
+    },
+    {
+      "ngrama": "iess",
+      "z": 5.64,
+      "docs_clase": 122,
+      "docs_contraste": 89
+    },
+    {
+      "ngrama": "servicios",
+      "z": 5.61,
+      "docs_clase": 72,
+      "docs_contraste": 37
+    },
+    {
+      "ngrama": "registrado",
+      "z": 5.53,
+      "docs_clase": 42,
+      "docs_contraste": 8
+    },
+    {
+      "ngrama": "seguridad",
+      "z": 5.08,
+      "docs_clase": 97,
+      "docs_contraste": 70
+    },
+    {
+      "ngrama": "realizara",
+      "z": 5.08,
+      "docs_clase": 35,
+      "docs_contraste": 5
+    },
+    {
+      "ngrama": "marzo",
+      "z": 5.08,
+      "docs_clase": 38,
+      "docs_contraste": 10
+    },
+    {
+      "ngrama": "invitacion",
+      "z": 5.07,
+      "docs_clase": 37,
+      "docs_contraste": 9
+    },
+    {
+      "ngrama": "cita",
+      "z": 4.97,
+      "docs_clase": 43,
+      "docs_contraste": 16
+    },
+    {
+      "ngrama": "hacer",
+      "z": 4.96,
+      "docs_clase": 46,
+      "docs_contraste": 19
+    },
+    {
+      "ngrama": "nuevo",
+      "z": 4.89,
+      "docs_clase": 34,
+      "docs_contraste": 3
+    }
+  ],
+  "ngramas_por_indicio": {
+    "I1": [
+      {
+        "ngrama": "enlace",
+        "z": 7.81,
+        "docs_clase": 158,
+        "docs_contraste": 51
+      },
+      {
+        "ngrama": "proceso",
+        "z": 6.74,
+        "docs_clase": 83,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "datos",
+        "z": 6.21,
+        "docs_clase": 94,
+        "docs_contraste": 28
+      },
+      {
+        "ngrama": "siguiente",
+        "z": 5.72,
+        "docs_clase": 69,
+        "docs_contraste": 16
+      },
+      {
+        "ngrama": "horas",
+        "z": 5.28,
+        "docs_clase": 125,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "identidad",
+        "z": 5.11,
+        "docs_clase": 75,
+        "docs_contraste": 27
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 5.1,
+        "docs_clase": 49,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "usd",
+        "z": 4.75,
+        "docs_clase": 101,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "continuar",
+        "z": 4.62,
+        "docs_clase": 57,
+        "docs_contraste": 19
+      },
+      {
+        "ngrama": "debe",
+        "z": 4.56,
+        "docs_clase": 93,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "ingrese",
+        "z": 4.56,
+        "docs_clase": 93,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "pago",
+        "z": 4.48,
+        "docs_clase": 51,
+        "docs_contraste": 16
+      }
+    ],
+    "I2": [
+      {
+        "ngrama": "enlace",
+        "z": 9.63,
+        "docs_clase": 299,
+        "docs_contraste": 51
+      },
+      {
+        "ngrama": "datos",
+        "z": 6.84,
+        "docs_clase": 156,
+        "docs_contraste": 28
+      },
+      {
+        "ngrama": "siguiente",
+        "z": 6.75,
+        "docs_clase": 130,
+        "docs_contraste": 16
+      },
+      {
+        "ngrama": "proceso",
+        "z": 6.33,
+        "docs_clase": 108,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 6.03,
+        "docs_clase": 98,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "identidad",
+        "z": 5.57,
+        "docs_clase": 121,
+        "docs_contraste": 27
+      },
+      {
+        "ngrama": "continuar",
+        "z": 5.55,
+        "docs_clase": 104,
+        "docs_contraste": 19
+      },
+      {
+        "ngrama": "ingrese",
+        "z": 5.52,
+        "docs_clase": 165,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "cedula",
+        "z": 5.22,
+        "docs_clase": 111,
+        "docs_contraste": 26
+      },
+      {
+        "ngrama": "usd",
+        "z": 4.82,
+        "docs_clase": 126,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "confirme",
+        "z": 4.7,
+        "docs_clase": 120,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "debe",
+        "z": 4.52,
+        "docs_clase": 111,
+        "docs_contraste": 0
+      }
+    ],
+    "I3": [
+      {
+        "ngrama": "enlace",
+        "z": 8.19,
+        "docs_clase": 109,
+        "docs_contraste": 51
+      },
+      {
+        "ngrama": "datos",
+        "z": 6.91,
+        "docs_clase": 70,
+        "docs_contraste": 28
+      },
+      {
+        "ngrama": "identidad",
+        "z": 6.82,
+        "docs_clase": 68,
+        "docs_contraste": 27
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 6.69,
+        "docs_clase": 53,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "proceso",
+        "z": 6.44,
+        "docs_clase": 49,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "siguiente",
+        "z": 6.07,
+        "docs_clase": 49,
+        "docs_contraste": 16
+      },
+      {
+        "ngrama": "mantener",
+        "z": 5.47,
+        "docs_clase": 36,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "continuar",
+        "z": 5.34,
+        "docs_clase": 44,
+        "docs_contraste": 19
+      },
+      {
+        "ngrama": "ingrese",
+        "z": 5.09,
+        "docs_clase": 95,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "clave",
+        "z": 4.72,
+        "docs_clase": 40,
+        "docs_contraste": 21
+      },
+      {
+        "ngrama": "cuenta",
+        "z": 4.64,
+        "docs_clase": 88,
+        "docs_contraste": 81
+      },
+      {
+        "ngrama": "pago",
+        "z": 4.55,
+        "docs_clase": 34,
+        "docs_contraste": 16
+      }
+    ],
+    "I4": [
+      {
+        "ngrama": "enlace",
+        "z": 7.54,
+        "docs_clase": 69,
+        "docs_contraste": 51
+      },
+      {
+        "ngrama": "siguiente",
+        "z": 6.55,
+        "docs_clase": 38,
+        "docs_contraste": 16
+      },
+      {
+        "ngrama": "datos",
+        "z": 6.12,
+        "docs_clase": 42,
+        "docs_contraste": 28
+      },
+      {
+        "ngrama": "identidad",
+        "z": 5.12,
+        "docs_clase": 34,
+        "docs_contraste": 27
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 4.94,
+        "docs_clase": 21,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "continuar",
+        "z": 4.64,
+        "docs_clase": 26,
+        "docs_contraste": 19
+      },
+      {
+        "ngrama": "proceso",
+        "z": 4.47,
+        "docs_clase": 18,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "como",
+        "z": 4.13,
+        "docs_clase": 14,
+        "docs_contraste": 4
+      },
+      {
+        "ngrama": "cedula",
+        "z": 4.1,
+        "docs_clase": 27,
+        "docs_contraste": 26
+      },
+      {
+        "ngrama": "devolucion",
+        "z": 3.99,
+        "docs_clase": 16,
+        "docs_contraste": 9
+      },
+      {
+        "ngrama": "mantener",
+        "z": 3.92,
+        "docs_clase": 15,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "sera",
+        "z": 3.75,
+        "docs_clase": 25,
+        "docs_contraste": 26
+      }
+    ],
+    "I5": [
+      {
+        "ngrama": "archivo",
+        "z": 7.72,
+        "docs_clase": 37,
+        "docs_contraste": 22
+      },
+      {
+        "ngrama": "documento",
+        "z": 7.02,
+        "docs_clase": 53,
+        "docs_contraste": 71
+      },
+      {
+        "ngrama": "adjunto",
+        "z": 6.59,
+        "docs_clase": 50,
+        "docs_contraste": 71
+      },
+      {
+        "ngrama": "detalle",
+        "z": 6.03,
+        "docs_clase": 37,
+        "docs_contraste": 47
+      },
+      {
+        "ngrama": "proceso",
+        "z": 5.58,
+        "docs_clase": 18,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "importante",
+        "z": 5.45,
+        "docs_clase": 17,
+        "docs_contraste": 7
+      },
+      {
+        "ngrama": "enlace",
+        "z": 5.42,
+        "docs_clase": 35,
+        "docs_contraste": 51
+      },
+      {
+        "ngrama": "caso",
+        "z": 5.33,
+        "docs_clase": 21,
+        "docs_contraste": 18
+      },
+      {
+        "ngrama": "revision",
+        "z": 4.78,
+        "docs_clase": 21,
+        "docs_contraste": 24
+      },
+      {
+        "ngrama": "seguro",
+        "z": 4.6,
+        "docs_clase": 15,
+        "docs_contraste": 12
+      },
+      {
+        "ngrama": "notificacion",
+        "z": 4.46,
+        "docs_clase": 14,
+        "docs_contraste": 11
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 4.3,
+        "docs_clase": 12,
+        "docs_contraste": 8
+      }
+    ],
+    "I6": [
+      {
+        "ngrama": "datos",
+        "z": 7.84,
+        "docs_clase": 61,
+        "docs_contraste": 28
+      },
+      {
+        "ngrama": "devolucion",
+        "z": 6.89,
+        "docs_clase": 41,
+        "docs_contraste": 9
+      },
+      {
+        "ngrama": "pago",
+        "z": 6.83,
+        "docs_clase": 43,
+        "docs_contraste": 16
+      },
+      {
+        "ngrama": "enlace",
+        "z": 6.39,
+        "docs_clase": 62,
+        "docs_contraste": 51
+      },
+      {
+        "ngrama": "siguiente",
+        "z": 6.29,
+        "docs_clase": 38,
+        "docs_contraste": 16
+      },
+      {
+        "ngrama": "usd",
+        "z": 5.92,
+        "docs_clase": 112,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 5.87,
+        "docs_clase": 30,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "identidad",
+        "z": 5.5,
+        "docs_clase": 39,
+        "docs_contraste": 27
+      },
+      {
+        "ngrama": "recibir",
+        "z": 5.26,
+        "docs_clase": 54,
+        "docs_contraste": 54
+      },
+      {
+        "ngrama": "cedula",
+        "z": 4.76,
+        "docs_clase": 33,
+        "docs_contraste": 26
+      },
+      {
+        "ngrama": "fecha",
+        "z": 4.55,
+        "docs_clase": 29,
+        "docs_contraste": 22
+      },
+      {
+        "ngrama": "ingrese",
+        "z": 4.18,
+        "docs_clase": 56,
+        "docs_contraste": 0
+      }
+    ],
+    "I7": [
+      {
+        "ngrama": "enlace",
+        "z": 8.83,
+        "docs_clase": 279,
+        "docs_contraste": 51
+      },
+      {
+        "ngrama": "siguiente",
+        "z": 6.9,
+        "docs_clase": 140,
+        "docs_contraste": 16
+      },
+      {
+        "ngrama": "datos",
+        "z": 6.67,
+        "docs_clase": 157,
+        "docs_contraste": 28
+      },
+      {
+        "ngrama": "proceso",
+        "z": 5.97,
+        "docs_clase": 100,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 5.81,
+        "docs_clase": 95,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "continuar",
+        "z": 5.51,
+        "docs_clase": 107,
+        "docs_contraste": 19
+      },
+      {
+        "ngrama": "usd",
+        "z": 5.31,
+        "docs_clase": 156,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "ingrese",
+        "z": 5.28,
+        "docs_clase": 154,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "identidad",
+        "z": 5.19,
+        "docs_clase": 117,
+        "docs_contraste": 27
+      },
+      {
+        "ngrama": "cedula",
+        "z": 5.02,
+        "docs_clase": 111,
+        "docs_contraste": 26
+      },
+      {
+        "ngrama": "debe",
+        "z": 4.52,
+        "docs_clase": 113,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "horas",
+        "z": 4.42,
+        "docs_clase": 108,
+        "docs_contraste": 0
+      }
+    ],
+    "I8": [
+      {
+        "ngrama": "enlace",
+        "z": 7.9,
+        "docs_clase": 137,
+        "docs_contraste": 51
+      },
+      {
+        "ngrama": "proceso",
+        "z": 6.96,
+        "docs_clase": 76,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "sera",
+        "z": 6.59,
+        "docs_clase": 84,
+        "docs_contraste": 26
+      },
+      {
+        "ngrama": "notificacion",
+        "z": 5.4,
+        "docs_clase": 49,
+        "docs_contraste": 11
+      },
+      {
+        "ngrama": "caso",
+        "z": 5.24,
+        "docs_clase": 55,
+        "docs_contraste": 18
+      },
+      {
+        "ngrama": "siguiente",
+        "z": 5.03,
+        "docs_clase": 50,
+        "docs_contraste": 16
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 4.8,
+        "docs_clase": 38,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "acceso",
+        "z": 4.65,
+        "docs_clase": 48,
+        "docs_contraste": 18
+      },
+      {
+        "ngrama": "pension",
+        "z": 4.28,
+        "docs_clase": 29,
+        "docs_contraste": 5
+      },
+      {
+        "ngrama": "continuar",
+        "z": 4.27,
+        "docs_clase": 45,
+        "docs_contraste": 19
+      },
+      {
+        "ngrama": "identidad",
+        "z": 4.24,
+        "docs_clase": 54,
+        "docs_contraste": 27
+      },
+      {
+        "ngrama": "horas",
+        "z": 4.19,
+        "docs_clase": 73,
+        "docs_contraste": 0
+      }
+    ],
+    "I9": [
+      {
+        "ngrama": "cedula",
+        "z": 9.29,
+        "docs_clase": 116,
+        "docs_contraste": 26
+      },
+      {
+        "ngrama": "datos",
+        "z": 8.2,
+        "docs_clase": 97,
+        "docs_contraste": 28
+      },
+      {
+        "ngrama": "enlace",
+        "z": 7.7,
+        "docs_clase": 112,
+        "docs_contraste": 51
+      },
+      {
+        "ngrama": "fecha",
+        "z": 7.12,
+        "docs_clase": 74,
+        "docs_contraste": 22
+      },
+      {
+        "ngrama": "identidad",
+        "z": 7.05,
+        "docs_clase": 78,
+        "docs_contraste": 27
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 6.67,
+        "docs_clase": 58,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "siguiente",
+        "z": 6.6,
+        "docs_clase": 61,
+        "docs_contraste": 16
+      },
+      {
+        "ngrama": "proceso",
+        "z": 5.17,
+        "docs_clase": 36,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "continuar",
+        "z": 5.12,
+        "docs_clase": 46,
+        "docs_contraste": 19
+      },
+      {
+        "ngrama": "numero",
+        "z": 4.54,
+        "docs_clase": 79,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "completar",
+        "z": 4.48,
+        "docs_clase": 27,
+        "docs_contraste": 6
+      },
+      {
+        "ngrama": "ingrese",
+        "z": 4.27,
+        "docs_clase": 70,
+        "docs_contraste": 0
+      }
+    ],
+    "I10": [
+      {
+        "ngrama": "enlace",
+        "z": 5.98,
+        "docs_clase": 70,
+        "docs_contraste": 51
+      },
+      {
+        "ngrama": "continuar",
+        "z": 5.91,
+        "docs_clase": 44,
+        "docs_contraste": 19
+      },
+      {
+        "ngrama": "cancelar",
+        "z": 5.87,
+        "docs_clase": 37,
+        "docs_contraste": 10
+      },
+      {
+        "ngrama": "proceso",
+        "z": 5.29,
+        "docs_clase": 30,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 4.85,
+        "docs_clase": 26,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "siguiente",
+        "z": 4.81,
+        "docs_clase": 32,
+        "docs_contraste": 16
+      },
+      {
+        "ngrama": "datos",
+        "z": 4.5,
+        "docs_clase": 39,
+        "docs_contraste": 28
+      },
+      {
+        "ngrama": "usd",
+        "z": 4.43,
+        "docs_clase": 68,
+        "docs_contraste": 0
+      },
+      {
+        "ngrama": "notificacion",
+        "z": 4.29,
+        "docs_clase": 24,
+        "docs_contraste": 11
+      },
+      {
+        "ngrama": "como",
+        "z": 4.15,
+        "docs_clase": 18,
+        "docs_contraste": 4
+      },
+      {
+        "ngrama": "acceso",
+        "z": 4.05,
+        "docs_clase": 28,
+        "docs_contraste": 18
+      },
+      {
+        "ngrama": "pago",
+        "z": 3.83,
+        "docs_clase": 25,
+        "docs_contraste": 16
+      }
+    ],
+    "I11": [
+      {
+        "ngrama": "adjunta",
+        "z": 9.12,
+        "docs_clase": 28,
+        "docs_contraste": 15
+      },
+      {
+        "ngrama": "acudir",
+        "z": 6.89,
+        "docs_clase": 16,
+        "docs_contraste": 7
+      },
+      {
+        "ngrama": "ninguna",
+        "z": 6.63,
+        "docs_clase": 16,
+        "docs_contraste": 14
+      },
+      {
+        "ngrama": "proceso",
+        "z": 6.18,
+        "docs_clase": 13,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "imagen",
+        "z": 6.05,
+        "docs_clase": 28,
+        "docs_contraste": 74
+      },
+      {
+        "ngrama": "png",
+        "z": 5.96,
+        "docs_clase": 28,
+        "docs_contraste": 1
+      },
+      {
+        "ngrama": "confirmado",
+        "z": 5.67,
+        "docs_clase": 11,
+        "docs_contraste": 4
+      },
+      {
+        "ngrama": "turno medico",
+        "z": 5.61,
+        "docs_clase": 11,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "reprogramado",
+        "z": 5.61,
+        "docs_clase": 11,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "verificacion",
+        "z": 5.3,
+        "docs_clase": 10,
+        "docs_contraste": 8
+      },
+      {
+        "ngrama": "toma",
+        "z": 5.21,
+        "docs_clase": 10,
+        "docs_contraste": 9
+      },
+      {
+        "ngrama": "identidad",
+        "z": 5.0,
+        "docs_clase": 14,
+        "docs_contraste": 27
+      }
+    ]
+  },
+  "asuntos_phishing": [
+    {
+      "ngrama": "afiliado",
+      "z": 3.47,
+      "docs_clase": 25,
+      "docs_contraste": 4
+    },
+    {
+      "ngrama": "devolucion",
+      "z": 3.15,
+      "docs_clase": 29,
+      "docs_contraste": 9
+    },
+    {
+      "ngrama": "medico",
+      "z": 3.1,
+      "docs_clase": 27,
+      "docs_contraste": 8
+    },
+    {
+      "ngrama": "reembolso",
+      "z": 2.9,
+      "docs_clase": 39,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "importante",
+      "z": 2.74,
+      "docs_clase": 35,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "pendiente",
+      "z": 2.7,
+      "docs_clase": 34,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "datos",
+      "z": 2.66,
+      "docs_clase": 33,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "notificacion",
+      "z": 2.58,
+      "docs_clase": 31,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "fwd",
+      "z": 2.53,
+      "docs_clase": 16,
+      "docs_contraste": 4
+    },
+    {
+      "ngrama": "verificacion",
+      "z": 2.52,
+      "docs_clase": 22,
+      "docs_contraste": 8
+    },
+    {
+      "ngrama": "documento",
+      "z": 2.46,
+      "docs_clase": 17,
+      "docs_contraste": 5
+    },
+    {
+      "ngrama": "confirme",
+      "z": 2.32,
+      "docs_clase": 25,
+      "docs_contraste": 0
+    },
+    {
+      "ngrama": "afiliacion",
+      "z": 2.18,
+      "docs_clase": 15,
+      "docs_contraste": 5
+    },
+    {
+      "ngrama": "proceso",
+      "z": 1.96,
+      "docs_clase": 9,
+      "docs_contraste": 2
+    },
+    {
+      "ngrama": "suspension",
+      "z": 1.91,
+      "docs_clase": 17,
+      "docs_contraste": 0
+    }
+  ],
+  "cta_phishing": [
+    [
+      "Solicitar el reembolso",
+      25
+    ],
+    [
+      "Continuar",
+      18
+    ],
+    [
+      "Descargar documento",
+      17
+    ],
+    [
+      "Privacidad",
+      15
+    ],
+    [
+      "Confirmar datos",
+      15
+    ],
+    [
+      "Verificar mi cuenta",
+      15
+    ],
+    [
+      "HAGA CLIC AQUÍ",
+      14
+    ],
+    [
+      "Términos",
+      11
+    ],
+    [
+      "Ayuda",
+      11
+    ],
+    [
+      "Iniciar verificación",
+      11
+    ],
+    [
+      "Actualizar ahora",
+      10
+    ],
+    [
+      "Ver detalle",
+      10
+    ],
+    [
+      "Acceder al documento",
+      8
+    ],
+    [
+      "Reclamar ahora",
+      7
+    ]
+  ],
+  "cta_legitimo": [
+    [
+      "Ingresar",
+      30
+    ],
+    [
+      "Ver detalle",
+      19
+    ],
+    [
+      "Continuar",
+      19
+    ],
+    [
+      "Más información",
+      18
+    ],
+    [
+      "Acceder al portal",
+      14
+    ],
+    [
+      "Mas informacion",
+      1
+    ]
+  ],
+  "dominios_phishing": [
+    [
+      "storage.googleapis.com",
+      9
+    ],
+    [
+      "shorturl.at",
+      8
+    ],
+    [
+      "bit.ly",
+      7
+    ],
+    [
+      "rebrand.ly",
+      6
+    ],
+    [
+      "fiscalia-notificacion.invalid",
+      5
+    ],
+    [
+      "t.ly",
+      5
+    ],
+    [
+      "afiliado-iess.example",
+      5
+    ],
+    [
+      "www.correo-institucional-verificacion.example",
+      5
+    ],
+    [
+      "iess-tramites.invalid",
+      5
+    ],
+    [
+      "cshort.jp",
+      5
+    ],
+    [
+      "unidad-judicial-virtual.invalid",
+      5
+    ],
+    [
+      "mi-iess.invalid",
+      5
+    ],
+    [
+      "promos-beneficios.invalid",
+      5
+    ],
+    [
+      "portal-iess.example",
+      5
+    ],
+    [
+      "citaciones-judiciales.example",
+      4
+    ],
+    [
+      "sri-notificaciones.example",
+      4
+    ],
+    [
+      "is.gd",
+      4
+    ],
+    [
+      "verificacion-segura.invalid",
+      4
+    ],
+    [
+      "cutt.ly",
+      4
+    ],
+    [
+      "www.consulta-multas-ant.invalid",
+      4
+    ],
+    [
+      "sri-devoluciones.test",
+      4
+    ],
+    [
+      "tinyurl.com",
+      4
+    ],
+    [
+      "www.afiliado-iess.test",
+      4
+    ],
+    [
+      "www.microsoft-cuentas-seguridad.example",
+      4
+    ],
+    [
+      "www.webmail-actualizacion.example",
+      4
+    ],
+    [
+      "forms.gle",
+      3
+    ],
+    [
+      "proceso-judicial-en-linea.example",
+      3
+    ],
+    [
+      "office365-acceso.test",
+      3
+    ],
+    [
+      "iess-reembolsos.invalid",
+      3
+    ],
+    [
+      "iess-servicios.test",
+      3
+    ],
+    [
+      "tu-beneficio.example",
+      3
+    ],
+    [
+      "qpjosxztn.webflow.io",
+      3
+    ],
+    [
+      "iessseguro.invalid",
+      3
+    ],
+    [
+      "www.iess-reembolsos.test",
+      3
+    ],
+    [
+      "www.rentas-internas-portal.test",
+      3
+    ],
+    [
+      "www.iess-gob-ec.example",
+      3
+    ],
+    [
+      "afiliado-iess.invalid",
+      3
+    ],
+    [
+      "seguro-iess.invalid",
+      3
+    ],
+    [
+      "microsoft-cuentas-seguridad.invalid",
+      3
+    ],
+    [
+      "soporte-pagos.test",
+      3
+    ]
+  ],
+  "dominios_legitimo": [
+    [
+      "www.iess.gob.ec",
+      127
+    ],
+    [
+      "app.iess.gob.ec",
+      79
+    ],
+    [
+      "zoom.us",
+      35
+    ],
+    [
+      "account.microsoft.com",
+      28
+    ],
+    [
+      "calendar.google.com",
+      25
+    ],
+    [
+      "www.sri.gob.ec",
+      24
+    ],
+    [
+      "myaccount.google.com",
+      21
+    ],
+    [
+      "www.registrocivil.gob.ec",
+      14
+    ],
+    [
+      "www.gob.ec",
+      12
+    ],
+    [
+      "teams.microsoft.com",
+      12
+    ]
+  ],
+  "tlds_phishing": [
+    [
+      "invalid",
+      97
+    ],
+    [
+      "example",
+      89
+    ],
+    [
+      "com",
+      76
+    ],
+    [
+      "test",
+      63
+    ],
+    [
+      "top",
+      41
+    ],
+    [
+      "xyz",
+      38
+    ],
+    [
+      "site",
+      30
+    ],
+    [
+      "info",
+      23
+    ],
+    [
+      "ly",
+      22
+    ],
+    [
+      "net",
+      20
+    ],
+    [
+      "online",
+      20
+    ],
+    [
+      "io",
+      9
+    ],
+    [
+      "at",
+      8
+    ],
+    [
+      "jp",
+      5
+    ],
+    [
+      "gd",
+      4
+    ]
+  ],
+  "acortadores_usados": [
+    "bit.ly",
+    "cshort.jp",
+    "cutt.ly",
+    "is.gd",
+    "rebrand.ly",
+    "shorturl.at",
+    "t.ly",
+    "tinyurl.com"
+  ],
+  "dominios_en_ambas_clases": [],
+  "legitimos_fuera_de_lista_oficial": [],
+  "texto_visible_distinto_al_enlace": 63,
+  "adjuntos": {
+    "phishing": [
+      [
+        "png",
+        28
+      ],
+      [
+        "pdf",
+        26
+      ],
+      [
+        "zip",
+        19
+      ],
+      [
+        "docm",
+        11
+      ],
+      [
+        "exe",
+        7
+      ],
+      [
+        "html",
+        7
+      ],
+      [
+        "iso",
+        7
+      ],
+      [
+        "xlsm",
+        2
+      ]
+    ],
+    "legitimo": [
+      [
+        "pdf",
+        37
+      ],
+      [
+        "xlsx",
+        6
+      ],
+      [
+        "docx",
+        4
+      ],
+      [
+        "jpg",
+        2
+      ],
+      [
+        "pptx",
+        1
+      ],
+      [
+        "png",
+        1
+      ]
+    ]
+  },
+  "hops_media": {
+    "phishing": 4.92,
+    "legitimo": 3.78
+  },
+  "lexico_evidencia": {
+    "I1": {
+      "recall": 0.813,
+      "falsos_pos_legitimos": 0.03
+    },
+    "I3": {
+      "recall": 0.994,
+      "falsos_pos_legitimos": 0.072
+    },
+    "I5": {
+      "recall": 0.935,
+      "falsos_pos_legitimos": 0.0
+    },
+    "I6": {
+      "recall": 1.0,
+      "falsos_pos_legitimos": 0.034
+    },
+    "I8": {
+      "recall": 0.732,
+      "falsos_pos_legitimos": 0.012
+    },
+    "I9": {
+      "recall": 1.0,
+      "falsos_pos_legitimos": 0.064
+    },
+    "I10": {
+      "recall": 0.691,
+      "falsos_pos_legitimos": 0.062
+    },
+    "I11": {
+      "recall": 1.0,
+      "falsos_pos_legitimos": 0.0
+    }
+  },
+  "osint_vs_etiquetas": {
+    "I2": {
+      "tp": 430,
+      "fp": 0,
+      "fn": 0,
+      "tn": 570,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "I4": {
+      "tp": 106,
+      "fp": 9,
+      "fn": 0,
+      "tn": 885,
+      "precision": 0.922,
+      "recall": 1.0
+    }
+  },
+  "osint_url_phishing_detectadas": 0.996,
+  "osint_url_legitimas_falsas_alarmas": 0.0,
+  "split": {
+    "train": 800,
+    "val": 100,
+    "test": 100
+  }
+}

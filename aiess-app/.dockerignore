@@ -1,0 +1,11 @@
+**/.dart_tool
+**/build
+app/android/.gradle
+app/android/app/.cxx
+ml/outputs
+ml/data/sft
+dist
+.mock
+third_party/llama.cpp/.git
+third_party/llama.cpp/build
+**/__pycache__

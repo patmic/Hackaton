@@ -66,55 +66,60 @@ class _ConsentimientoViewState extends ConsumerState<_ConsentimientoView> {
     final sesion = ref.watch(sesionProvider).value ?? SesionUsuario.sinCuenta;
     final pideCorreo = !sesion.tieneCorreo;
 
-    return ListView(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      children: [
-        Text(
-          'Te enviaremos correos de práctica, parecidos a una estafa, para '
-          'que aprendas a reconocerlas.',
-          style: textos.titleMedium,
-        ),
-        const SizedBox(height: 16),
-        for (final punto in Consentimiento.puntos)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.check),
-                const SizedBox(width: 8),
-                Expanded(child: Text(punto)),
-              ],
-            ),
-          ),
-        const SizedBox(height: 8),
-        if (pideCorreo) ...[
-          TextField(
-            key: const ValueKey('campo-correo'),
-            controller: _correo,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'Tu correo',
-              helperText: 'Te enviaremos un enlace para confirmarlo.',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 8),
-        ] else
-          Text('Usaremos el correo de tu cuenta: ${sesion.correoEnmascarado}'),
-        if (_error != null)
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Text(
-            _error!,
-            key: const ValueKey('error-correo'),
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+            'Te enviaremos correos de práctica, parecidos a una estafa, para '
+            'que aprendas a reconocerlas.',
+            style: textos.titleMedium,
           ),
-        const SizedBox(height: 16),
-        FilledButton(
-          key: const ValueKey('boton-acepto'),
-          onPressed: _enviando ? null : () => _aceptar(pideCorreo),
-          child: const Text('Acepto y quiero capacitarme'),
-        ),
-      ],
+          const SizedBox(height: 16),
+          for (final punto in Consentimiento.puntos)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.check),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(punto)),
+                ],
+              ),
+            ),
+          const SizedBox(height: 8),
+          if (pideCorreo) ...[
+            TextField(
+              key: const ValueKey('campo-correo'),
+              controller: _correo,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Tu correo',
+                helperText: 'Te enviaremos un enlace para confirmarlo.',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ] else
+            Text(
+              'Usaremos el correo de tu cuenta: ${sesion.correoEnmascarado}',
+            ),
+          if (_error != null)
+            Text(
+              _error!,
+              key: const ValueKey('error-correo'),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const ValueKey('boton-acepto'),
+            onPressed: _enviando ? null : () => _aceptar(pideCorreo),
+            child: const Text('Acepto y quiero capacitarme'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -132,60 +137,65 @@ class _EstadoView extends ConsumerWidget {
     final controller = ref.read(capacitacionProvider.notifier);
     final desenlace = estado.ultimoDesenlace;
 
-    return ListView(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      children: [
-        Text(
-          _mensajeFase(estado),
-          key: const ValueKey('mensaje-fase'),
-          style: textos.titleLarge,
-        ),
-        if (estado.fase == FaseCapacitacion.esperandoReaccion)
-          const Text(
-            'No te diremos cuál es el correo de práctica. Trátalo como '
-            'cualquier otro: si algo te parece raro, repórtalo.',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            _mensajeFase(estado),
+            key: const ValueKey('mensaje-fase'),
+            style: textos.titleLarge,
           ),
-        if (estado.nivelInicial != null) ...[
-          const SizedBox(height: 8),
-          Text('Tu nivel inicial: ${estado.nivelInicial!.etiqueta}'),
-        ],
-        if (estado.esCentinela)
-          const Text('Eres Centinela: tus reportes alertan a otras personas.'),
-        if (desenlace != null) ...[
-          const SizedBox(height: 16),
-          _DesenlaceCard(desenlace: desenlace),
-        ],
-        const SizedBox(height: 16),
-        _MapaView(mapa: estado.mapa),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 12,
-          runSpacing: 8,
-          children: [
-            if (estado.pausada)
-              OutlinedButton(
-                key: const ValueKey('boton-reanudar'),
-                onPressed: controller.reanudar,
-                child: const Text('Reanudar'),
-              )
-            else
-              OutlinedButton(
-                key: const ValueKey('boton-pausar'),
-                onPressed: controller.pausar,
-                child: const Text('Pausar'),
-              ),
-            TextButton(
-              key: const ValueKey('boton-salir'),
-              onPressed: controller.salir,
-              child: const Text('Salir de la capacitación'),
+          if (estado.fase == FaseCapacitacion.esperandoReaccion)
+            const Text(
+              'No te diremos cuál es el correo de práctica. Trátalo como '
+              'cualquier otro: si algo te parece raro, repórtalo.',
             ),
+          if (estado.nivelInicial != null) ...[
+            const SizedBox(height: 8),
+            Text('Tu nivel inicial: ${estado.nivelInicial!.etiqueta}'),
           ],
-        ),
-        if (controller.demo != null) ...[
-          const SizedBox(height: 24),
-          _PanelDemo(estado: estado),
+          if (estado.esCentinela)
+            const Text(
+              'Eres Centinela: tus reportes alertan a otras personas.',
+            ),
+          if (desenlace != null) ...[
+            const SizedBox(height: 16),
+            _DesenlaceCard(desenlace: desenlace),
+          ],
+          const SizedBox(height: 16),
+          _MapaView(mapa: estado.mapa),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              if (estado.pausada)
+                OutlinedButton(
+                  key: const ValueKey('boton-reanudar'),
+                  onPressed: controller.reanudar,
+                  child: const Text('Reanudar'),
+                )
+              else
+                OutlinedButton(
+                  key: const ValueKey('boton-pausar'),
+                  onPressed: controller.pausar,
+                  child: const Text('Pausar'),
+                ),
+              TextButton(
+                key: const ValueKey('boton-salir'),
+                onPressed: controller.salir,
+                child: const Text('Salir de la capacitación'),
+              ),
+            ],
+          ),
+          if (controller.demo != null) ...[
+            const SizedBox(height: 24),
+            _PanelDemo(estado: estado),
+          ],
         ],
-      ],
+      ),
     );
   }
 
