@@ -134,7 +134,9 @@ class ResultadoVerificacionView extends ConsumerWidget {
           SwitchListTile(
             key: const ValueKey('switch-cuidador'),
             contentPadding: EdgeInsets.zero,
-            title: const Text('Verifico este correo por otra persona (opcional)'),
+            title: const Text(
+              'Verifico este correo por otra persona (opcional)',
+            ),
             value: perfil.esCuidador,
             onChanged: perfilNotifier.marcarCuidador,
           ),

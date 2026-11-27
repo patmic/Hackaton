@@ -155,6 +155,14 @@ def get_seal(token: str) -> dict | None:
     return dict(row) if row else None
 
 
+def seals_with_subject(limit: int = 2000) -> list[dict]:
+    """Sellos recientes que llevan el asunto dentro del hash (para buscar por asunto)."""
+    with connect() as conn:
+        return [dict(r) for r in conn.execute(
+            "SELECT token, h, asunto FROM sellos WHERE COALESCE(exige_asunto, 1)=1 "
+            "ORDER BY ts_utc DESC, rowid DESC LIMIT ?", (limit,))]
+
+
 def seals_of(usuario: str, limit: int = 10) -> list[dict]:
     with connect() as conn:
         return [dict(r) for r in conn.execute(

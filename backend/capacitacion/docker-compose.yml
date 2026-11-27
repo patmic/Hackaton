@@ -1,0 +1,36 @@
+# API de Capacitación + Mailpit (bandeja de pruebas local)
+# Ejecutar desde esta carpeta (`backend/capacitacion/`): docker compose up --build
+name: capacitacion-api
+
+services:
+  capacitacion:
+    build:
+      context: ../..
+      dockerfile: backend/capacitacion/Dockerfile
+    restart: unless-stopped
+    environment:
+      ENTORNO: ${ENTORNO:-demo}
+      ENVIO_MODO: ${ENVIO_MODO:-consola}
+      MAILPIT_HOST: mailpit
+      MAILPIT_PORT: "1025"
+      DOMINIO_PRACTICA: ${DOMINIO_PRACTICA:-escuela-antiphishing.ec}
+      BUZON_REPORTES: ${BUZON_REPORTES:-reportes@escuela-antiphishing.ec}
+      BASE_URL: ${BASE_URL:-http://localhost:8080}
+      SECRETO_SEUDONIMO: ${SECRETO_SEUDONIMO:-dev-insegura-cambiar-en-produccion}
+      NUCLEO_URL: ${NUCLEO_URL:-http://host.docker.internal:8090}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      PROCESAR_VENCIDAS_SEG: ${PROCESAR_VENCIDAS_SEG:-60}
+    ports:
+      - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - mailpit
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+      - "1025:1025"

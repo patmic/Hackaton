@@ -41,9 +41,9 @@ class Actividad {
       pasos4r: listaDeTextos(json['paso_4r']).map(Paso4R.desdeCodigo).toList(),
       tipos: listaDeTextos(json['tipos']).map(TipoUsuario.desdeCodigo).toSet(),
       tipologia: tipologia == null ? null : Tipologia.desdeCodigo(tipologia),
-      indicios: listaDeTextos(
-        json['indicios'],
-      ).map(Indicio.desdeCodigo).toList(),
+      indicios: listaDeTextos(json['indicios'])
+          .map(Indicio.desdeCodigo)
+          .toList(),
       varianteEx2: json['variante_ex2'] as String?,
       duracionSegundos: json['duracion_seg'] as int,
       mensajeClave: json['mensaje_clave'] as String,

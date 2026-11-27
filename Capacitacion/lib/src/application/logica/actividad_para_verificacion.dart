@@ -32,7 +32,8 @@ Actividad? actividadParaVerificacion({
         .where((a) => a.indicios.contains(indicio))
         .toList();
     final delModulo = trabajanIndicio.where((a) => a.modulo == modulo).toList();
-    final elegida = _mejor(delModulo, progreso) ?? _mejor(trabajanIndicio, progreso);
+    final elegida =
+        _mejor(delModulo, progreso) ?? _mejor(trabajanIndicio, progreso);
     if (elegida != null) return elegida;
   }
 

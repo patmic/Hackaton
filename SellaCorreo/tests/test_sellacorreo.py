@@ -503,3 +503,28 @@ def test_radar_phishing(staff, anon):
     assert m.MOTIVOS["hash_distinto"] in r.text and m.MOTIVOS["enlace_malformado"] in r.text
     assert "sc-radar__chart" in r.text and "Hora (Ecuador)" in r.text
     assert "@" not in r.text.split("<main")[1].split("</main>")[0]   # ningún correo en la página
+
+
+def test_api_verificar_para_el_robot(staff, anon):
+    """El robot AIESS verifica la firma por API: mismo resultado que CheckIn, sin la palabra segura."""
+    link = _link(_genkey(staff, taxonomia="informativo", asunto="Boletín informativo de diciembre").text)
+    token_h = link.rsplit("/", 1)[1]
+    for forma in (token_h, link):  # solo «token.huella» o el enlace completo
+        r = anon.get(f"/api/v1/verificar/{forma}")
+        d = r.json()
+        assert r.status_code == 200 and d["valido"] is True and d["motivo"] == "valido"
+        assert d["asunto"] == "Boletín informativo de diciembre" and d["taxonomia"] == "informativo"
+        assert "palabra" not in str(d).lower()
+        assert r.headers["access-control-allow-origin"] == "*"
+    token, h16 = token_h.split(".")
+    otro = ("0" if h16[0] != "0" else "1") + h16[1:]
+    d = anon.get(f"/api/v1/verificar/{token}.{otro}").json()
+    assert d["valido"] is False and d["motivo"] == "hash_distinto" and "asunto" not in d
+    assert anon.get("/api/v1/verificar/inventado.0000000000000000").json()["motivo"] in ("no_registrado", "enlace_malformado")
+
+    # Guardián del celular: solo conoce el ASUNTO de la notificación.
+    d = anon.get("/api/v1/asunto", params={"asunto": "RE:  boletín INFORMATIVO de diciembre "}).json()
+    assert d["sellado"] is True and d["buzon"] and "palabra" not in str(d).lower()
+    assert d["enlace"].endswith(token_h)
+    d = anon.get("/api/v1/asunto", params={"asunto": "IESS: su pensión será suspendida"}).json()
+    assert d["sellado"] is False and d["motivo"] == "sin_sello"

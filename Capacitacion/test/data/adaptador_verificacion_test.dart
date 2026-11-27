@@ -71,10 +71,9 @@ void main() {
     });
 
     test('usa la tipología percibida si el servidor no la envía', () {
-      final r = adaptador.desdeRespuesta(
-        {'valido': false},
-        tipologiaPercibida: Tipologia.t3,
-      );
+      final r = adaptador.desdeRespuesta({
+        'valido': false,
+      }, tipologiaPercibida: Tipologia.t3);
       expect(r.tipologiaSuplantada, Tipologia.t3);
     });
 

@@ -1,0 +1,128 @@
+{
+  "backend": "reglas",
+  "modelo": "",
+  "n": 182,
+  "exactitud": 0.775,
+  "phishing": {
+    "precision": 0.773,
+    "recall": 0.707,
+    "f1": 0.739
+  },
+  "falsos_negativos": 24,
+  "falsos_positivos": 17,
+  "indicios_micro": {
+    "precision": 0.821,
+    "recall": 0.529,
+    "f1": 0.643
+  },
+  "json_invalidos": 0,
+  "latencia_media_s": 0.0,
+  "por_tarea": {
+    "analisis_notificacion": {
+      "n": 82,
+      "exactitud": 0.622,
+      "precision": 0.529,
+      "recall": 0.281,
+      "f1": 0.367
+    },
+    "analisis_correo": {
+      "n": 100,
+      "exactitud": 0.9,
+      "precision": 0.845,
+      "recall": 0.98,
+      "f1": 0.907
+    }
+  },
+  "errores_muestra": [
+    {
+      "id": "E885_notif",
+      "real": "PHISHING",
+      "pred": "SEGURO",
+      "salida": "{\"veredicto\": \"SEGURO\", \"indicios\": []}"
+    },
+    {
+      "id": "E106",
+      "real": "SEGURO",
+      "pred": "PHISHING",
+      "salida": "{\"veredicto\": \"PHISHING\", \"indicios\": [\"I3\"]}"
+    },
+    {
+      "id": "E338_notif",
+      "real": "PHISHING",
+      "pred": "SEGURO",
+      "salida": "{\"veredicto\": \"SEGURO\", \"indicios\": []}"
+    },
+    {
+      "id": "E684",
+      "real": "SEGURO",
+      "pred": "PHISHING",
+      "salida": "{\"veredicto\": \"PHISHING\", \"indicios\": [\"I10\", \"I9\"]}"
+    },
+    {
+      "id": "E737_notif",
+      "real": "PHISHING",
+      "pred": "SEGURO",
+      "salida": "{\"veredicto\": \"SEGURO\", \"indicios\": []}"
+    },
+    {
+      "id": "E305_notif",
+      "real": "PHISHING",
+      "pred": "SEGURO",
+      "salida": "{\"veredicto\": \"SEGURO\", \"indicios\": []}"
+    },
+    {
+      "id": "E574_notif",
+      "real": "PHISHING",
+      "pred": "SEGURO",
+      "salida": "{\"veredicto\": \"SEGURO\", \"indicios\": []}"
+    },
+    {
+      "id": "E418_notif",
+      "real": "PHISHING",
+      "pred": "SEGURO",
+      "salida": "{\"veredicto\": \"SEGURO\", \"indicios\": []}"
+    },
+    {
+      "id": "E107",
+      "real": "SEGURO",
+      "pred": "PHISHING",
+      "salida": "{\"veredicto\": \"PHISHING\", \"indicios\": [\"I10\", \"I9\"]}"
+    },
+    {
+      "id": "E318_notif",
+      "real": "PHISHING",
+      "pred": "SEGURO",
+      "salida": "{\"veredicto\": \"SEGURO\", \"indicios\": []}"
+    },
+    {
+      "id": "E144",
+      "real": "PHISHING",
+      "pred": "SEGURO",
+      "salida": "{\"veredicto\": \"SEGURO\", \"indicios\": []}"
+    },
+    {
+      "id": "E735_notif",
+      "real": "PHISHING",
+      "pred": "SEGURO",
+      "salida": "{\"veredicto\": \"SEGURO\", \"indicios\": []}"
+    },
+    {
+      "id": "E795",
+      "real": "SEGURO",
+      "pred": "PHISHING",
+      "salida": "{\"veredicto\": \"PHISHING\", \"indicios\": [\"I10\"]}"
+    },
+    {
+      "id": "E087_notif",
+      "real": "SEGURO",
+      "pred": "PHISHING",
+      "salida": "{\"veredicto\": \"PHISHING\", \"indicios\": [\"I2\"]}"
+    },
+    {
+      "id": "E582_notif",
+      "real": "SEGURO",
+      "pred": "PHISHING",
+      "salida": "{\"veredicto\": \"PHISHING\", \"indicios\": [\"I2\"]}"
+    }
+  ]
+}

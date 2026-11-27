@@ -11,18 +11,21 @@ void main() {
     SolicitudVerificacion(canal: CanalVerificacion.app, hashRecibido: hash),
   );
 
-  test('código auténtico: VERDE con remitente, fecha y asunto sellados', () async {
-    final r = await verificar(hashValido.toUpperCase());
-    expect(r.semaforo, Semaforo.verde);
-    final m = r.metadatosOficiales!;
-    expect(m.remitente, 'notificaciones@iess.gob.ec');
-    expect(m.emisorNombre, 'Dirección de Prestaciones y Pensiones');
-    expect(m.tipologia, Tipologia.t2);
-    expect(m.asuntoResumen, 'Notificación de rol de pensión mensual');
-    expect(m.fecha, DateTime.utc(2026, 11, 26, 15, 30));
-    expect(r.capsulaEducativa, contains('ESTAFA'));
-    expect(r.analisis?.nivel, NivelRiesgo.bajo);
-  });
+  test(
+    'código auténtico: VERDE con remitente, fecha y asunto sellados',
+    () async {
+      final r = await verificar(hashValido.toUpperCase());
+      expect(r.semaforo, Semaforo.verde);
+      final m = r.metadatosOficiales!;
+      expect(m.remitente, 'notificaciones@iess.gob.ec');
+      expect(m.emisorNombre, 'Dirección de Prestaciones y Pensiones');
+      expect(m.tipologia, Tipologia.t2);
+      expect(m.asuntoResumen, 'Notificación de rol de pensión mensual');
+      expect(m.fecha, DateTime.utc(2026, 11, 26, 15, 30));
+      expect(r.capsulaEducativa, contains('ESTAFA'));
+      expect(r.analisis?.nivel, NivelRiesgo.bajo);
+    },
+  );
 
   test('código inexistente: ROJO con análisis e indicios', () async {
     final r = await verificar('a' * 64);

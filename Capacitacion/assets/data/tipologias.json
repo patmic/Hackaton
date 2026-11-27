@@ -1,0 +1,173 @@
+{
+  "version": "1.0",
+  "fecha": "2026-11-26",
+  "descripcion": "Tipologías de correo oficial del IESS y distintivo de legitimidad (Sello IESS). Explicación completa en README.md.",
+  "regla_general": "Todo correo oficial pertenece a una sola tipología, que el funcionario elige al enviarlo. Un correo legítimo tiene los 11 indicios del Catálogo (I1 a I11) en 0, sea cual sea su tipología.",
+  "remitente_oficial": "@iess.gob.ec",
+  "tipologias": [
+    {
+      "id": "T1",
+      "nombre": "Informativo y eventos",
+      "proposito": "Avisos generales: boletines, horarios, mantenimientos, charlas y encuestas.",
+      "publico": ["afiliados", "pensionistas", "empleadores"],
+      "ejemplo_asunto": "Nuevo horario de atención en agencias",
+      "siempre_trae": [
+        "Asunto que empieza con \"IESS Informa\"",
+        "Enlaces solo a dominios permitidos"
+      ],
+      "nunca_trae": [
+        "Pedidos de datos, claves o pagos",
+        "Adjuntos"
+      ],
+      "dominios_enlace_permitidos": ["www.iess.gob.ec", "app.iess.gob.ec", "zoom.us", "teams.microsoft.com"],
+      "adjuntos_permitidos": [],
+      "suplantacion_frecuente": ["I2", "I7", "I9"],
+      "capsula": "Un aviso informativo del IESS solo informa: no le pide datos, claves ni pagos."
+    },
+    {
+      "id": "T2",
+      "nombre": "Financiero y previsional",
+      "proposito": "Aportes, planillas, pensiones, prestaciones y devoluciones ya procesadas.",
+      "publico": ["afiliados", "pensionistas", "empleadores"],
+      "ejemplo_asunto": "Planilla de aportes de enero disponible",
+      "siempre_trae": [
+        "Monto y período exactos",
+        "Referencia IESS-AAAA-NNNNN que se puede consultar en la app"
+      ],
+      "nunca_trae": [
+        "Enlaces para \"cobrar\"",
+        "Pedido de cuenta bancaria o tarjeta",
+        "Valores que la persona no solicitó"
+      ],
+      "dominios_enlace_permitidos": ["www.iess.gob.ec", "app.iess.gob.ec"],
+      "adjuntos_permitidos": ["pdf"],
+      "suplantacion_frecuente": ["I2", "I7", "I1", "I6"],
+      "capsula": "El IESS nunca le pide datos, claves ni pagos para cobrar un reembolso, una pensión o una devolución."
+    },
+    {
+      "id": "T3",
+      "nombre": "Trámites y certificados",
+      "proposito": "Avance o cierre de solicitudes que la persona inició.",
+      "publico": ["afiliados", "pensionistas", "empleadores"],
+      "ejemplo_asunto": "Su solicitud N.° SOL-2025-78062 fue registrada",
+      "siempre_trae": [
+        "Número de trámite que la persona reconoce",
+        "Estado del trámite"
+      ],
+      "nunca_trae": [
+        "Amenazas legales o multas",
+        "Plazos de horas"
+      ],
+      "dominios_enlace_permitidos": ["www.iess.gob.ec", "app.iess.gob.ec", "www.gob.ec"],
+      "adjuntos_permitidos": ["pdf"],
+      "suplantacion_frecuente": ["I2", "I7", "I8", "I1"],
+      "capsula": "Su trámite se consulta en app.iess.gob.ec. Un trámite real no le amenaza con multas ni le pide su clave."
+    },
+    {
+      "id": "T4",
+      "nombre": "Salud: turnos y citas",
+      "proposito": "Confirmar, recordar o reprogramar citas médicas.",
+      "publico": ["afiliados", "pensionistas"],
+      "ejemplo_asunto": "Su turno en línea fue registrado",
+      "siempre_trae": [
+        "Especialidad, fecha, hora y unidad médica"
+      ],
+      "nunca_trae": [
+        "Códigos QR",
+        "Pedido de cédula o pagos"
+      ],
+      "dominios_enlace_permitidos": ["app.iess.gob.ec", "www.iess.gob.ec"],
+      "adjuntos_permitidos": [],
+      "suplantacion_frecuente": ["I7", "I2", "I1", "I8", "I11"],
+      "capsula": "Un recordatorio de turno no le pide su cédula, pagos ni escanear un código QR."
+    },
+    {
+      "id": "T5",
+      "nombre": "Seguridad de cuenta",
+      "proposito": "Confirmar cambios que la persona hizo y enviar alertas preventivas.",
+      "publico": ["afiliados", "pensionistas", "empleadores", "colaboradores"],
+      "ejemplo_asunto": "Cambio de clave registrado",
+      "siempre_trae": [
+        "Fecha y canal del cambio (por ejemplo: portal web, 25 de noviembre, 10h32)"
+      ],
+      "nunca_trae": [
+        "Enlaces para escribir la clave",
+        "Amenazas de bloqueo de la cuenta"
+      ],
+      "dominios_enlace_permitidos": ["app.iess.gob.ec", "www.iess.gob.ec"],
+      "adjuntos_permitidos": [],
+      "suplantacion_frecuente": ["I7", "I2", "I1", "I3"],
+      "capsula": "El IESS le avisa cambios en su cuenta, pero nunca le pide que confirme su clave en un enlace."
+    },
+    {
+      "id": "T6",
+      "nombre": "Interno para colaboradores",
+      "proposito": "Reuniones, memorandos, circulares e informes entre áreas.",
+      "publico": ["colaboradores"],
+      "ejemplo_asunto": "Convocatoria a reunión de coordinación",
+      "siempre_trae": [
+        "Remitente con nombre de persona @iess.gob.ec",
+        "Firma con cargo y extensión",
+        "Número de memorando cuando aplica"
+      ],
+      "nunca_trae": [
+        "Pedido de clave institucional",
+        "Adjuntos .zip o con macros"
+      ],
+      "dominios_enlace_permitidos": ["teams.microsoft.com", "zoom.us", "www.iess.gob.ec", "app.iess.gob.ec"],
+      "adjuntos_permitidos": ["pdf", "docx", "xlsx", "pptx"],
+      "suplantacion_frecuente": ["I7", "I2", "I8", "I5"],
+      "capsula": "Ningún compañero o área del IESS le pide su clave institucional por correo."
+    }
+  ],
+  "externos": {
+    "id": "EXT",
+    "nombre": "Ajeno al IESS",
+    "descripcion": "Correos legítimos de otras entidades o servicios (SRI, Registro Civil, Microsoft, Google, Zoom). No llevan Sello IESS y se evalúan solo con los indicios I1 a I11.",
+    "ejemplo": "Correo de práctica P04: aviso de inicio de sesión de Microsoft"
+  },
+  "sello": {
+    "nombre": "Sello IESS",
+    "principio": "El correo no lleva datos personales. El sello visual solo aparece dentro de la app oficial, después de verificar.",
+    "en_el_correo": {
+      "codigo_verificacion": {
+        "formato": "IESS-XXXX-XXXX",
+        "origen": "Forma corta del Hash 2 que genera el proxy SMTP",
+        "contiene_datos_personales": false
+      },
+      "boton": "Verificar en App",
+      "texto_fijo": "Abra usted mismo la app IESS para verificar este correo. El IESS nunca le pedirá claves, pagos ni datos por correo."
+    },
+    "en_la_app": {
+      "estados": [
+        {
+          "estado": "VERIFICADO",
+          "color": "verde",
+          "titulo": "Correo oficial del IESS",
+          "muestra": ["tipologia", "area_emisora", "asunto_oficial", "fecha_envio", "imagen_seguridad_usuario"],
+          "mensaje": "Compare el asunto y la fecha con el correo que está leyendo. Si no coinciden, no es este correo."
+        },
+        {
+          "estado": "NO_VALIDO",
+          "color": "rojo",
+          "titulo": "Este código no corresponde a un correo del IESS",
+          "motivos": ["codigo_inexistente", "codigo_revocado", "contenido_no_coincide"],
+          "mensaje": "No abra enlaces ni adjuntos. Reporte a seguridad.informacion@iess.gob.ec."
+        },
+        {
+          "estado": "SIN_SELLO",
+          "color": "gris",
+          "titulo": "Este correo no trae Sello IESS",
+          "mensaje": "Si dice ser del IESS, es sospechoso. Se revisan los indicios I1 a I11."
+        }
+      ],
+      "imagen_seguridad_usuario": {
+        "descripcion": "Imagen que la persona elige al configurar la app. Aparece en el sello verde.",
+        "proposito": "Una página o app falsa no conoce la imagen elegida, así que no puede imitar el sello completo.",
+        "se_envia_por_correo": false,
+        "opcional": true
+      }
+    },
+    "regla_coherencia": "Un sello verificado no basta si el correo contradice su tipología (por ejemplo, un T4 que pide un pago). En ese caso se trata como phishing."
+  }
+}

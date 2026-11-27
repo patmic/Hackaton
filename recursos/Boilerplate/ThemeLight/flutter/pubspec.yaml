@@ -1,0 +1,23 @@
+name: theme_light
+description: "Tokens Flutter compartidos de ThemeLight para las interfaces de AIESS."
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ">=3.11.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_ui: ^1.11.1
+
+flutter:
+  fonts:
+    - family: ThemeLightLexend
+      fonts:
+        - asset: assets/fonts/Lexend-Variable.ttf
+    - family: ThemeLightAtkinson
+      fonts:
+        - asset: assets/fonts/AtkinsonHyperlegible-Regular.ttf
+        - asset: assets/fonts/AtkinsonHyperlegible-Bold.ttf
+          weight: 700

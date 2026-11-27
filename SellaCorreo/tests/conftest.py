@@ -6,7 +6,8 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path[:0] = [str(ROOT), str(ROOT / "common")]
+# El observador del Observatorio vive en ../Analisis-de-comportamiento (en Docker se copia a /app).
+sys.path[:0] = [str(ROOT), str(ROOT / "common"), str(ROOT.parent / "Analisis-de-comportamiento")]
 _tmp = Path(tempfile.mkdtemp(prefix="sellacorreo-tests-"))
 TEST_ENV = {
     "SELLACORREO_DB_PATH": str(_tmp / "sellacorreo.db"),
@@ -21,6 +22,8 @@ TEST_ENV = {
     "SELLACORREO_TAXONOMIAS": "comunicacional,informativo,recordatorio,campaña",
     "SELLACORREO_RATE_LIMIT_PER_MIN": "1000",
     "SELLACORREO_LOGIN_LIMIT_PER_MIN": "1000",
+    "SELLACORREO_OBSERVATORIO_LIMIT_PER_MIN": "1000",
+    "SELLACORREO_OBSERVATORIO_PERSONAS": "200",
 }
 os.environ.update(TEST_ENV)
 

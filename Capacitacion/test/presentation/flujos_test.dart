@@ -35,13 +35,6 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> tocar(WidgetTester tester, Finder finder) async {
-    await tester.ensureVisible(finder);
-    await tester.pumpAndSettle();
-    await tester.tap(finder);
-    await tester.pumpAndSettle();
-  }
-
   testWidgets('la alerta T2 para 65+ aparece solo al elegir ese rango', (
     tester,
   ) async {
@@ -96,35 +89,36 @@ void main() {
     expect(guardado.estaCompletada('M1-A2-01'), isTrue);
   });
 
-  testWidgets('código auténtico pegado: comparar y descubrir un sello copiado', (
-    tester,
-  ) async {
-    await abrirApp(tester);
-    await tocar(tester, find.text('Verificar').last);
+  testWidgets(
+    'código auténtico pegado: comparar y descubrir un sello copiado',
+    (tester) async {
+      await abrirApp(tester);
+      await tocar(tester, find.text('Verificar').last);
 
-    await tester.enterText(
-      find.byKey(const ValueKey('campo-codigo')),
-      hashValido,
-    );
-    await tocar(tester, find.byKey(const ValueKey('boton-verificar')));
+      await tester.enterText(
+        find.byKey(const ValueKey('campo-codigo')),
+        hashValido,
+      );
+      await tocar(tester, find.byKey(const ValueKey('boton-verificar')));
 
-    expect(find.text('VERDE · Correo auténtico'), findsOneWidget);
-    expect(
-      find.text('Remitente verificado: notificaciones@iess.gob.ec'),
-      findsOneWidget,
-    );
-    expect(
-      find.text('Asunto oficial: «Notificación de rol de pensión mensual»'),
-      findsOneWidget,
-    );
+      expect(find.text('VERDE · Correo auténtico'), findsOneWidget);
+      expect(
+        find.text('Remitente verificado: notificaciones@iess.gob.ec'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Asunto oficial: «Notificación de rol de pensión mensual»'),
+        findsOneWidget,
+      );
 
-    // El correo que lee el usuario habla de otra cosa: el sello es copiado.
-    await tocar(tester, find.byKey(const ValueKey('boton-no-coincide')));
-    expect(find.text('ROJO · Alerta de phishing'), findsOneWidget);
-    expect(find.byKey(const ValueKey('correo-reportes')), findsOneWidget);
-    expect(find.text('Aprende a reconocerlo'), findsOneWidget);
-    expect(find.textContaining('en qué rango de edad'), findsOneWidget);
-  });
+      // El correo que lee el usuario habla de otra cosa: el sello es copiado.
+      await tocar(tester, find.byKey(const ValueKey('boton-no-coincide')));
+      expect(find.text('ROJO · Alerta de phishing'), findsOneWidget);
+      expect(find.byKey(const ValueKey('correo-reportes')), findsOneWidget);
+      expect(find.text('Aprende a reconocerlo'), findsOneWidget);
+      expect(find.textContaining('en qué rango de edad'), findsOneWidget);
+    },
+  );
 
   testWidgets('verificar sin código muestra un aviso', (tester) async {
     await abrirApp(tester);

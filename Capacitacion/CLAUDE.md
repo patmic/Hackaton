@@ -61,11 +61,18 @@ docs/       # este contexto ampliado, diagramas
 
 ### Tipologías oficiales
 
-| Código | Nombre | Contenido | Nota |
+Fuente vigente: `tipologias-correo/tipologias.json` v1.0 (2026-11-26), que reemplaza a las tres tipologías del documento original (T3 y T4 se separaron; se agregaron T5 y T6). La app la lee de `Capacitacion/assets/data/tipologias.json`, una copia que una prueba compara con el original.
+
+| Código | Nombre | Para qué sirve | Nunca trae |
 | --- | --- | --- | --- |
-| T1 | Informativo | Comunicados, campañas, recordatorios, boletines | Nunca lleva enlaces para claves ni pide transferencias |
-| T2 | Financiero o previsional | Aportes, pensiones, créditos BIESS, liquidaciones, pagos a prestadores | Alto riesgo de suplantación |
-| T3 | Trámites o clínico | Citas médicas, certificados, actualización de expedientes | |
+| T1 | Informativo y eventos | Boletines, horarios, mantenimientos, charlas, encuestas | Pedidos de datos, claves o pagos; adjuntos |
+| T2 | Financiero y previsional | Aportes, planillas, pensiones, prestaciones, devoluciones ya procesadas | Enlaces para «cobrar»; pedido de cuenta o tarjeta; valores no solicitados |
+| T3 | Trámites y certificados | Avance o cierre de solicitudes que la persona inició | Amenazas legales o multas; plazos de horas |
+| T4 | Salud: turnos y citas | Confirmar, recordar o reprogramar citas | Códigos QR; pedido de cédula o pagos |
+| T5 | Seguridad de cuenta | Confirmar cambios que la persona hizo y alertas preventivas | Enlaces para escribir la clave; amenazas de bloqueo |
+| T6 | Interno para colaboradores | Reuniones, memorandos, circulares, informes | Pedido de clave institucional; adjuntos .zip o con macros |
+
+`EXT` agrupa los correos legítimos ajenos al IESS (SRI, Microsoft, Zoom): no llevan Sello IESS y no son una tipología. El bloque 1 (`smtp/app.js`) todavía usa T1-T3.
 
 ## 5. Arquitectura del sellado y la verificación
 
