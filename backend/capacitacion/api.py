@@ -83,6 +83,14 @@ def estado(x_usuario_correo: str | None = Header(default=None)):
     return servicio.estado_de_correo(x_usuario_correo)
 
 
+@router.get("/api/v1/capacitacion/plan")
+def plan(x_usuario_correo: str | None = Header(default=None)):
+    """Devuelve el plan personalizado desde el observador (si está conectado) o
+    un resumen local equivalente."""
+    _requiere_correo(x_usuario_correo)
+    return servicio.plan_de_correo(x_usuario_correo)
+
+
 @router.post("/api/v1/capacitacion/pausar", response_model=EstadoOut)
 def pausar(x_usuario_correo: str | None = Header(default=None)):
     _requiere_correo(x_usuario_correo)

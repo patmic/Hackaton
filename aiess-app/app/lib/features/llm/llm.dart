@@ -33,7 +33,7 @@ class Cerebro {
   String? ruta;
   /// Listo = hay servidor de IA disponible (modo principal) o un modelo local cargado (respaldo).
   bool get listo => ServidorIA.i.disponible || ruta != null;
-  /// true mientras el modelo se carga en memoria (la UI muestra "Despertando al cóndor…").
+  /// true mientras el modelo se carga en memoria (la UI muestra "Despertando al robot…").
   final cargando = ValueNotifier(false);
 
   /// Solo el modelo afinado con el dataset del IESS (archivo "aiess-*.gguf") decide veredictos.

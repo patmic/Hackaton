@@ -1,4 +1,4 @@
-// Ondas sinusoidales que "respiran" con la voz del cóndor (o la tuya mientras escucha).
+// Ondas sinusoidales que "respiran" con la voz del robot (o la tuya mientras escucha).
 import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';

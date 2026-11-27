@@ -15,8 +15,6 @@ El `id_seudonimo` es aleatorio y no se deriva de datos personales: quien lo
 conoce puede ver ese plan, como con un token. FastAPI solo se importa aquí; el
 resto del paquete usa la biblioteca estándar.
 """
-from __future__ import annotations
-
 from typing import Callable
 
 from .observaciones import ObservacionInvalida
@@ -63,8 +61,19 @@ def crear_router(observador: Observador, *, puede_ver_panel: Callable[[object], 
     def siguiente(id_seudonimo: str, request: Request, cuerpo: dict = Body(default={})):
         _limite(request)
         candidatas = cuerpo.get("candidatas") or plantillas
+        tipos_raw = cuerpo.get("tipos")
+        if isinstance(tipos_raw, str):
+            tipos = [t.strip().upper() for t in tipos_raw.split(",") if t.strip()]
+        elif isinstance(tipos_raw, list):
+            tipos = [str(t).strip().upper() for t in tipos_raw if str(t).strip()]
+        else:
+            tipos = None
+        rango = cuerpo.get("rango_etario") or cuerpo.get("rango")
         try:
-            return observador.siguiente_plantilla(id_seudonimo, candidatas, cuerpo.get("ya_enviadas", []))
+            return observador.siguiente_plantilla(
+                id_seudonimo, candidatas, cuerpo.get("ya_enviadas", []),
+                tipos=tipos or None, rango_etario=rango or None,
+            )
         except ObservacionInvalida as e:
             return _invalida(e)
 

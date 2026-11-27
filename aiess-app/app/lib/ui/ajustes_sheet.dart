@@ -93,7 +93,7 @@ class _AjustesState extends State<_Ajustes> {
     return DefaultTextStyle(
       style: const TextStyle(
         color: tinta,
-        fontFamily: 'Atkinson',
+        fontFamily: 'packages/theme_light/ThemeLightAtkinson',
         fontSize: 17,
       ),
       child: SafeArea(
@@ -116,9 +116,9 @@ class _AjustesState extends State<_Ajustes> {
               const SizedBox(height: 16),
               // ---------- Servidor de IA (modo principal)
               const Text(
-                'Inteligencia del cóndor',
+                'Inteligencia del robot',
                 style: TextStyle(
-                  fontFamily: 'Lexend',
+                  fontFamily: 'packages/theme_light/ThemeLightLexend',
                   fontVariations: const [FontVariation('wght', 700)],
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -138,7 +138,7 @@ class _AjustesState extends State<_Ajustes> {
                     child: Text(
                       ServidorIA.i.disponible
                           ? 'Conectado al servidor${ServidorIA.i.afinado ? ' con el modelo entrenado para el IESS' : ''}.'
-                          : 'Sin conexión al servidor: el cóndor revisa con sus reglas de seguridad.',
+                          : 'Sin conexión al servidor: el robot revisa con sus reglas de seguridad.',
                     ),
                   ),
                 ],
@@ -204,7 +204,7 @@ class _AjustesState extends State<_Ajustes> {
                 const Text(
                   'Modelo en este celular (respaldo, más lento)',
                   style: TextStyle(
-                    fontFamily: 'Lexend',
+                    fontFamily: 'packages/theme_light/ThemeLightLexend',
                     fontVariations: const [FontVariation('wght', 700)],
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -346,7 +346,7 @@ class _AjustesState extends State<_Ajustes> {
   }
 }
 
-/// Aviso de privacidad del análisis en el servidor (escrito; el cóndor también lo dice la primera vez).
+/// Aviso de privacidad del análisis en el servidor (escrito; el robot también lo dice la primera vez).
 class _AvisoPrivacidad extends StatelessWidget {
   const _AvisoPrivacidad();
 

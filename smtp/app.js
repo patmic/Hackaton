@@ -10,9 +10,12 @@
   'use strict';
 
   const TIPOLOGIAS = {
-    T1: { nombre: 'Informativo', color: '#2f6e05', bg: '#ecfccb' },
-    T2: { nombre: 'Financiero / Previsional', color: '#1e40af', bg: '#dbeafe' },
-    T3: { nombre: 'Trámites / Clínico', color: '#0f766e', bg: '#ccfbf1' }
+    T1: { nombre: 'Informativo y eventos', color: '#2f6e05', bg: '#ecfccb' },
+    T2: { nombre: 'Financiero y previsional', color: '#1e40af', bg: '#dbeafe' },
+    T3: { nombre: 'Trámites y certificados', color: '#0f766e', bg: '#ccfbf1' },
+    T4: { nombre: 'Salud: turnos y citas', color: '#0369a1', bg: '#e0f2fe' },
+    T5: { nombre: 'Seguridad de cuenta', color: '#9a3412', bg: '#ffedd5' },
+    T6: { nombre: 'Interno para colaboradores', color: '#6b21a8', bg: '#f3e8ff' }
   };
 
   // Estado actual del último sello generado

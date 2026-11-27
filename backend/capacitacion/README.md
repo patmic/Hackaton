@@ -111,6 +111,7 @@ curl -X POST 'localhost:8080/api/v1/demo/avanzar?minutos=11'
 | `POST /api/v1/capacitacion/inscribir` | Consentimiento, (doble opt-in) y 1.er correo de prueba |
 | `POST /api/v1/capacitacion/confirmar` | Doble opt-in: envía el 1.er correo tras confirmar |
 | `GET  /api/v1/capacitacion/estado` | Estado del flujo del usuario |
+| `GET  /api/v1/capacitacion/plan` | Plan personalizado desde el Observatorio (o respaldo local) |
 | `POST /api/v1/capacitacion/pausar` · `/reanudar` · `/salir` | Control del usuario |
 | `POST /api/v1/capacitacion/siguiente` | Interno: aplica la escalera y envía el siguiente |
 | `POST /api/v1/reportes/entrante` | Webhook: reenviar el correo = reportar |
@@ -153,7 +154,8 @@ un nivel (indicios `DEBIL`) y llega el microcurso. Dos reportes seguidos en nive
 | `BUZON_REPORTES` | `reportes@escuela-antiphishing.ec` | Reenviar aquí = reportar |
 | `BASE_URL` | `http://localhost:8080` | Base de las páginas `/p/{token}` |
 | `SECRETO_SEUDONIMO` | *(dev)* | Clave HMAC del `id_seudonimo` (cámbiala) |
-| `NUCLEO_URL` | *(vacío)* | Base del Observatorio; si está, reenvía las observaciones |
+| `NUCLEO_URL` | *(vacío)* | Base del Observatorio; reenvía observaciones, consulta `/personas/{id}/siguiente` y borra al salir |
+| `PROCESAR_VENCIDAS_SEG` | `60` | Intervalo en segundos del scheduler de simulaciones vencidas (`0` para desactivar) |
 | `RESEND_API_KEY` / `BREVO_API_KEY` | — | Claves de envío real |
 | `MAILPIT_HOST` / `MAILPIT_PORT` | `127.0.0.1` / `1025` | Mailpit local |
 

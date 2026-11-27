@@ -6,14 +6,15 @@ import 'dart:math';
 import 'package:material_ui/material_ui.dart';
 
 import 'tema.dart';
+import 'package:theme_light/theme_light.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../features/mascota/pantera.dart';
+import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
 import 'escena.dart';
 
-/// Juego: el cóndor muestra un mensaje de práctica (del dataset) y tú decides. Dos botones grandes, nada más.
+/// Juego: el robot muestra un mensaje de práctica (del dataset) y tú decides. Dos botones grandes, nada más.
 class PracticarPage extends StatefulWidget {
   const PracticarPage({super.key});
 
@@ -84,10 +85,10 @@ class _PracticarPageState extends State<PracticarPage> {
   Widget build(BuildContext context) {
     final a = _actual;
     final estado = _acerto == null
-        ? EstadoPantera.reposo
+        ? EstadoRobot.reposo
         : (a!['respuesta'] == 'PHISHING'
-              ? EstadoPantera.alerta
-              : EstadoPantera.seguro);
+              ? EstadoRobot.alerta
+              : EstadoRobot.seguro);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Practicar'),
@@ -110,7 +111,7 @@ class _PracticarPageState extends State<PracticarPage> {
                 Text(
                   '$_racha',
                   style: const TextStyle(
-                    fontFamily: 'Lexend',
+                    fontFamily: 'packages/theme_light/ThemeLightLexend',
                     fontVariations: const [FontVariation('wght', 700)],
                     color: Paleta.ambar,
                     fontSize: 18,
@@ -150,10 +151,9 @@ class _PracticarPageState extends State<PracticarPage> {
                       children: [
                         Row(
                           children: [
-                            Pantera(
+                            RobotGuardia(
                               estado: estado,
                               tam: 64,
-                              encuadre: Encuadre.cara,
                             ),
                             const SizedBox(width: 4),
                             Expanded(
@@ -162,11 +162,11 @@ class _PracticarPageState extends State<PracticarPage> {
                                     ? '¿Estafa o seguro?'
                                     : (_acerto! ? '¡Correcto!' : 'Casi…'),
                                 style: const TextStyle(
-                                  fontFamily: 'Lexend',
+                                  fontFamily: 'packages/theme_light/ThemeLightLexend',
                                   fontVariations: const [
                                     FontVariation('wght', 700),
                                   ],
-                                  color: Colors.white,
+                                  color: Tono.tinta,
                                   fontSize: 30,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: -0.8,
@@ -241,7 +241,7 @@ class _Opcion extends StatelessWidget {
             Text(
               texto,
               style: TextStyle(
-                fontFamily: 'Lexend',
+                fontFamily: 'packages/theme_light/ThemeLightLexend',
                 fontVariations: const [FontVariation('wght', 700)],
                 color: color,
                 fontSize: 23,
@@ -280,7 +280,7 @@ class _Tarjeta extends StatelessWidget {
         TextSpan(
           text: cuerpo.substring(ini, fin),
           style: const TextStyle(
-            backgroundColor: Color(0xFFFFE08A),
+            backgroundColor: ThemeLightTokens.warnBackground,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -289,12 +289,12 @@ class _Tarjeta extends StatelessWidget {
     }
     trozos.add(TextSpan(text: cuerpo.substring(pos)));
     final enlaces = List<Map<String, dynamic>>.from(e['enlaces'] as List);
-    const tinta = Color(0xFF14213D);
+    const tinta = Tono.tinta;
     final esSms = e['tipo'] == 'sms';
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Tono.superficie,
         borderRadius: BorderRadius.circular(esSms ? 28 : 18),
       ),
       child: DefaultTextStyle(
@@ -302,7 +302,7 @@ class _Tarjeta extends StatelessWidget {
           color: tinta,
           fontSize: 18,
           height: 1.45,
-          fontFamily: 'Atkinson',
+          fontFamily: 'packages/theme_light/ThemeLightAtkinson',
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +321,7 @@ class _Tarjeta extends StatelessWidget {
                         ? 'Mensaje de texto'
                         : e['asunto'] as String,
                     style: const TextStyle(
-                      fontFamily: 'Lexend',
+                      fontFamily: 'packages/theme_light/ThemeLightLexend',
                       fontVariations: const [FontVariation('wght', 700)],
                       fontWeight: FontWeight.w700,
                       fontSize: 19,
@@ -340,14 +340,14 @@ class _Tarjeta extends StatelessWidget {
                     const Icon(
                       Icons.link_off_rounded,
                       size: 20,
-                      color: Colors.black45,
+                      color: Tono.gris,
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         l['url'] as String,
                         style: const TextStyle(
-                          color: Colors.black54,
+                          color: Tono.gris,
                           fontSize: 15,
                         ),
                       ),
@@ -358,7 +358,7 @@ class _Tarjeta extends StatelessWidget {
             const SizedBox(height: 14),
             const Text(
               'Mensaje de práctica. No es real.',
-              style: TextStyle(color: Colors.black45, fontSize: 14),
+              style: TextStyle(color: Tono.gris, fontSize: 14),
             ),
           ],
         ),

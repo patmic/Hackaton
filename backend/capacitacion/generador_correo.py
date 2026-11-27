@@ -477,3 +477,113 @@ def microcursos_de(indicios) -> list[str]:
 
 def nombre_tipo(tipo: str) -> str:
     return NOMBRE_TIPO.get(tipo, tipo)
+
+
+def generar_correo_seguimiento(
+    *,
+    plantilla_id: str,
+    tipo_usuario: str,
+    tipologia: str,
+    indicios: tuple[str, ...],
+    asunto_original: str,
+    para: str,
+    token: str | None = None,
+) -> CorreoGenerado:
+    """Correo de seguimiento formativo cuando vence la ventana sin reacción (IGNORO)."""
+    from .catalogo import INDICIOS
+
+    persona = fr.PERSONA_POR_TIPO.get(tipo_usuario) or _PERSONA_FALLBACK
+    saludo = persona["saludo"]
+    asunto = f"Seguimiento de práctica: {asunto_original}"
+    senales = [f"{cod} · {INDICIOS.get(cod, cod)}" for cod in indicios]
+    micros = microcursos_de(indicios)
+    baja_url = f"{config.base_url}/salir/{token}" if token else config.base_url
+
+    lineas = [
+        f"{saludo}:",
+        "",
+        "Hace poco te enviamos un correo de práctica del programa «Quiero capacitarme» y no registraste respuesta.",
+        "Cuando veas un correo sospechoso, la mejor acción es reportarlo sin abrir enlaces ni adjuntos.",
+        "",
+        "Señales que tenía el correo de práctica:",
+        *(f"- {s}" for s in senales),
+    ]
+    if micros:
+        lineas.extend(["", "Microcursos sugeridos (1 min):", *(f"- {m}" for m in micros)])
+    lineas.extend([
+        "",
+        "Empieza por el módulo «M3 · Reportar en un toque» en la app oficial del IESS.",
+        "Puedes pausar o salir cuando quieras desde la app, en «Quiero capacitarme».",
+        "",
+        "Atentamente,",
+        "Escuela Antiphishing · Escudo Cognitivo IESS",
+    ])
+    texto = "\n".join(lineas)
+
+    items_html = "".join(f"<li><strong>{escape(s)}</strong></li>" for s in senales)
+    micros_html = (
+        "<p><strong>Microcursos sugeridos (1 min):</strong></p><ul>"
+        + "".join(f"<li>{escape(m)}</li>" for m in micros)
+        + "</ul>"
+        if micros
+        else ""
+    )
+    baja_html = (
+        f' · <a href="{escape(baja_url)}" style="color:#145962;">Darse de baja</a>'
+        if token
+        else " · Puedes pausar o salir desde la app en «Quiero capacitarme»"
+    )
+    html = f"""<!doctype html>
+<html lang="es"><body style="margin:0;background:#f8fafc;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+       style="background:#f8fafc;padding:24px 0;">
+  <tr><td align="center">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0"
+           style="background:#ffffff;border-radius:12px;border:1px solid #cbd5e1;
+                  overflow:hidden;font-family:system-ui,Segoe UI,Arial,sans-serif;
+                  font-size:14px;color:#0f172a;max-width:600px;width:100%;">
+      <tr><td style="background:#145962;padding:16px 24px;color:#ffffff;
+                     font-size:17px;font-weight:700;">
+        Escudo Cognitivo IESS · Seguimiento de práctica
+      </td></tr>
+      <tr><td style="padding:24px;line-height:1.55;">
+        <p>{escape(saludo)}:</p>
+        <p>Te enviamos un correo de práctica y no registraste reacción dentro de la ventana.
+        Recuerda que ignorar un correo sospechoso está bien, pero <strong>reportarlo</strong> ayuda a alertar a más personas.</p>
+        <p><strong>Señales que tenía el correo:</strong></p>
+        <ul>{items_html}</ul>
+        {micros_html}
+        <p>Siguiente paso recomendado: módulo <strong>M3 · Reportar en un toque</strong>.</p>
+      </td></tr>
+      <tr><td style="padding:14px 24px;background:#f1f5f9;color:#475569;font-size:12px;">
+        Práctica consentida{baja_html}
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>"""
+
+    cabeceras = {
+        "X-Entrenamiento-IESS": "seguimiento-consentido",
+        "Auto-Submitted": "auto-generated",
+    }
+    if token:
+        cabeceras["X-Simulacro-Seguimiento"] = token
+        cabeceras["List-Unsubscribe"] = f"<{baja_url}>"
+    return CorreoGenerado(
+        plantilla_id=f"{plantilla_id}-seguimiento",
+        tipo_usuario=tipo_usuario,
+        tipologia=tipologia,
+        indicios=tuple(indicios),
+        token=token or "seguimiento",
+        asunto=asunto,
+        remitente_nombre="Escuela Antiphishing IESS",
+        remitente_correo_visible=f"capacitacion@{config.dominio_practica}",
+        remitente_correo_envio=f"capacitacion@{config.dominio_practica}",
+        reply_to=None,
+        para=para,
+        cuerpo_texto=texto,
+        cuerpo_html=html,
+        adjuntos=[],
+        cabeceras=cabeceras,
+    )

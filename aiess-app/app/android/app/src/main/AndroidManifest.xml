@@ -34,13 +34,13 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             <!-- "Compartir con AIESS" desde cualquier app -->
-            <intent-filter android:label="Revisar con la pantera">
+            <intent-filter android:label="Revisar con AIESS">
                 <action android:name="android.intent.action.SEND"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="text/plain"/>
             </intent-filter>
-            <!-- Compartir una captura de pantalla: la pantera la lee con OCR -->
-            <intent-filter android:label="Revisar con la pantera">
+            <!-- Compartir una captura de pantalla para que AIESS la revise con OCR -->
+            <intent-filter android:label="Revisar con AIESS">
                 <action android:name="android.intent.action.SEND"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="image/*"/>

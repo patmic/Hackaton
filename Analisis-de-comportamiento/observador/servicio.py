@@ -53,8 +53,9 @@ class Observador:
         return generar_plan(id_seudonimo, self.almacen.de_persona(id_seudonimo), self.reloj(), self.catalogo,
                             self.poblacion(), tipos=tipos, rango_etario=rango_etario)
 
-    def siguiente_plantilla(self, id_seudonimo: str, candidatas: list[dict], ya_enviadas=()) -> dict:
-        plan = self.plan(id_seudonimo)
+    def siguiente_plantilla(self, id_seudonimo: str, candidatas: list[dict], ya_enviadas=(), *,
+                            tipos=None, rango_etario: str | None = None) -> dict:
+        plan = self.plan(id_seudonimo, tipos=tipos, rango_etario=rango_etario)
         return {"plantilla_id": elegir_plantilla(plan, candidatas, ya_enviadas),
                 "siguiente_correo": plan["siguiente_correo"]}
 

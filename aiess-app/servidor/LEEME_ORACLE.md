@@ -1,7 +1,7 @@
 # Servidor de IA de AIESS en Oracle Cloud (OCI)
 
 Un solo servidor publica **la web** y **la API del modelo** en la misma dirección.
-La app Android se conecta a esa dirección (Ajustes › Inteligencia del cóndor).
+La app Android se conecta a esa dirección (Ajustes › Inteligencia de AIESS).
 
 ## 1. Crear la instancia (gratis)
 - Imagen: **Ubuntu 24.04**. Forma: **VM.Standard.A1.Flex** (Ampere ARM), 4 OCPU y 24 GB (Always Free).

@@ -4,12 +4,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../features/mascota/pantera.dart';
+import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
 import 'inicio_page.dart';
 import 'escena.dart';
 
-/// Configuración guiada: un paso por pantalla, un botón por paso; el cóndor explica cada uno en voz alta.
+/// Configuración guiada: un paso por pantalla, un botón por paso; el robot explica cada uno en voz alta.
 class BienvenidaPage extends StatefulWidget {
   const BienvenidaPage({super.key, this.desdeAjustes = false});
   final bool desdeAjustes;
@@ -35,7 +35,7 @@ class _Paso {
 const _pasos = [
   _Paso(
     'Hola, soy AIess',
-    'Hola, soy AIess, tu cóndor guardián. Te ayudo a descubrir estafas que usan el nombre del IESS. Vamos a prepararme en cuatro pasos.',
+    'Hola, soy AIess, tu robot guardián. Te ayudo a descubrir estafas que usan el nombre del IESS. Vamos a prepararme en cuatro pasos.',
     'Empecemos',
     Icons.pets_rounded,
     null,
@@ -152,12 +152,12 @@ class _BienvenidaPageState extends State<BienvenidaPage>
   @override
   Widget build(BuildContext context) {
     final p = _pasos[_i];
-    return EscenaPantera(
+    return EscenaRobot(
       estado: _i == _pasos.length - 1
-          ? EstadoPantera.seguro
-          : EstadoPantera.reposo,
+          ? EstadoRobot.seguro
+          : EstadoRobot.reposo,
       titular: p.titulo,
-      alTocarPantera: _hablar,
+      alTocarRobot: _hablar,
       izquierda: Container(
         height: 48,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -169,7 +169,7 @@ class _BienvenidaPageState extends State<BienvenidaPage>
         child: Text(
           'Paso ${_i + 1} de ${_pasos.length}',
           style: const TextStyle(
-            fontFamily: 'Lexend',
+            fontFamily: 'packages/theme_light/ThemeLightLexend',
             fontVariations: const [FontVariation('wght', 700)],
             color: Colors.white,
             fontSize: 16,

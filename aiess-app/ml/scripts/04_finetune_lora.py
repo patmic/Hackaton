@@ -76,7 +76,7 @@ def main() -> None:
         warmup_ratio=0.05,
         weight_decay=0.0,
         max_length=args.max_len,
-        completion_only_loss=True,      # la perdida solo se calcula sobre la respuesta de la pantera
+        completion_only_loss=True,      # la pérdida solo se calcula sobre la respuesta del robot
         packing=False,
         gradient_checkpointing=True,
         bf16=bf16, fp16=not bf16,

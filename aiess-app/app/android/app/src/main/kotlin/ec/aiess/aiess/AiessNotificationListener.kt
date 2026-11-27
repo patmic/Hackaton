@@ -18,7 +18,7 @@ import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 
-/** Lee notificaciones de correo, SMS y mensajeria (flujo tipo Truecaller) y abre el pop-up de la pantera. */
+/** Lee notificaciones de correo y abre el pop-up del robot guardián de AIESS. */
 class AiessNotificationListener : NotificationListenerService() {
 
     companion object {
@@ -76,7 +76,7 @@ class AiessNotificationListener : NotificationListenerService() {
             }
         }
 
-        /** Aviso urgente que enciende la pantalla y abre el cóndor encima del bloqueo (full-screen intent). */
+        /** Aviso urgente que enciende la pantalla y abre el robot sobre el bloqueo. */
         private fun avisoPantallaCompleta(ctx: Context, intent: Intent, app: String, titulo: String) {
             val nm = ctx.getSystemService(NotificationManager::class.java)
             val canal = "aiess_urgente"
@@ -110,7 +110,7 @@ class AiessNotificationListener : NotificationListenerService() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             val n = Notification.Builder(ctx, CANAL)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("La pantera revisó un mensaje")
+                .setContentTitle("AIESS revisó un mensaje")
                 .setContentText("Toca para ver si \"$titulo\" es seguro")
                 .setContentIntent(pi).setAutoCancel(true).build()
             nm.notify(titulo.hashCode(), n)

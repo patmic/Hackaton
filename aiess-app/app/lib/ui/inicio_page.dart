@@ -10,7 +10,7 @@ import '../core/canales.dart';
 import '../features/analisis/analizador.dart';
 import '../features/analisis/motor.dart';
 import '../features/chat/persona.dart';
-import '../features/mascota/pantera.dart';
+import '../features/mascota/robot_guardia.dart';
 import '../features/ocr/ocr.dart';
 import '../features/voz/voz.dart';
 import 'ajustes_sheet.dart';
@@ -30,7 +30,7 @@ class InicioPage extends StatefulWidget {
 class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   static const _compartir = MethodChannel('aiess/compartir');
 
-  var _estado = EstadoPantera.reposo;
+  var _estado = EstadoRobot.reposo;
   var _modo = _Modo.hablar;
   var _titular = 'Hola, soy AIess';
   var _subtitulo = '';
@@ -65,7 +65,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         Voz.i.decir(
           _copiado != null
               ? 'Hola, soy AIess. Veo que copiaste un mensaje. Toca Pegar y revisar.'
-              : 'Hola, soy AIess, tu cóndor guardián. Copia un correo sospechoso y toca Pegar y revisar, o tócame el micrófono y háblame.',
+              : 'Hola, soy AIess, tu robot guardián. Copia un correo sospechoso y toca Pegar y revisar, o tócame el micrófono y háblame.',
         );
       }
     });
@@ -162,7 +162,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   }) async {
     HapticFeedback.mediumImpact();
     setState(() {
-      _estado = EstadoPantera.analizando;
+      _estado = EstadoRobot.analizando;
       _titular = 'Revisando…';
       _subtitulo = '';
       _pasos = [...pasosPrevios];
@@ -183,13 +183,13 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       },
       // Reacción inmediata (reglas, en milisegundos) mientras el modelo piensa.
       alSospechar: () => Voz.i.decir('Mmm, veo algo raro. Déjame confirmarlo.'),
-      // El modelo ya escribió veredicto y voz: el cóndor habla sin esperar el resto.
+      // El modelo ya escribió veredicto y voz: el robot habla sin esperar el resto.
       alAdelantar: (phishing, voz) {
         if (!mounted) return;
         adelantado = voz;
         HapticFeedback.heavyImpact();
         setState(() {
-          _estado = phishing ? EstadoPantera.alerta : EstadoPantera.seguro;
+          _estado = phishing ? EstadoRobot.alerta : EstadoRobot.seguro;
           _titular = phishing ? '¡Es una estafa!' : 'Es seguro';
           _pasos = [];
           _subtitulo = voz;
@@ -202,7 +202,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     if (adelantado.isEmpty) HapticFeedback.heavyImpact();
     setState(() {
       _veredicto = v;
-      _estado = v.phishing ? EstadoPantera.alerta : EstadoPantera.seguro;
+      _estado = v.phishing ? EstadoRobot.alerta : EstadoRobot.seguro;
       _titular = v.titular;
       _modo = _Modo.resultado;
       _pasos = [];
@@ -237,7 +237,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   Future<void> _analizarImagen(String ruta) async {
     HapticFeedback.mediumImpact();
     setState(() {
-      _estado = EstadoPantera.analizando;
+      _estado = EstadoRobot.analizando;
       _titular = 'Revisando…';
       _subtitulo = '';
       _pasos = ['Leyendo la imagen'];
@@ -253,7 +253,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     if (!mounted) return;
     if (lectura.vacia) {
       setState(() {
-        _estado = EstadoPantera.reposo;
+        _estado = EstadoRobot.reposo;
         _titular = 'Hola, soy AIess';
         _pasos = [];
       });
@@ -267,7 +267,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     if (motivo != null) {
       HapticFeedback.mediumImpact();
       setState(() {
-        _estado = EstadoPantera.reposo;
+        _estado = EstadoRobot.reposo;
         _titular = 'No es un correo';
         _pasos = [];
       });
@@ -288,14 +288,14 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         await _analizar(Entrada(_copiado!));
       case _Modo.hablar:
         setState(() {
-          _estado = EstadoPantera.escuchando;
+          _estado = EstadoRobot.escuchando;
           _titular = 'Te escucho…';
         });
         final dicho = await Voz.i.escuchar();
         if (!mounted) return;
         if (dicho == null) {
           setState(() {
-            _estado = EstadoPantera.reposo;
+            _estado = EstadoRobot.reposo;
             _titular = 'Hola, soy AIess';
           });
           await _decir(
@@ -305,7 +305,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         }
         final p = plegar(dicho);
         if (RegExp(r'(juguemos|jugar|practic|entrena)').hasMatch(p)) {
-          setState(() => _estado = EstadoPantera.reposo);
+          setState(() => _estado = EstadoRobot.reposo);
           _abrirPractica();
           return;
         }
@@ -314,13 +314,13 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
           return;
         }
         setState(() {
-          _estado = EstadoPantera.analizando;
+          _estado = EstadoRobot.analizando;
           _titular = 'Pensando…';
         });
         final r = await Persona.responder(dicho);
         if (!mounted) return;
         setState(() {
-          _estado = EstadoPantera.reposo;
+          _estado = EstadoRobot.reposo;
           _titular = 'Hola, soy AIess';
         });
         await _decir(r);
@@ -336,7 +336,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     Voz.i.callar();
     setState(() {
       _veredicto = null;
-      _estado = EstadoPantera.reposo;
+      _estado = EstadoRobot.reposo;
       _titular = 'Hola, soy AIess';
       _subtitulo = '';
       _modo = _Modo.hablar;
@@ -362,7 +362,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
       .join('&');
 
-  void _tocarPantera() {
+  void _tocarRobot() {
     final v = _veredicto;
     if (v != null) {
       _decir('${v.explicacion} ${v.queHacer}');
@@ -375,7 +375,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     context,
   ).push(MaterialPageRoute(builder: (_) => const PracticarPage()));
 
-  /// Pegar y revisar: lee el portapapeles en el momento (poka-yoke: si no hay nada, el cóndor explica qué hacer).
+  /// Pegar y revisar: lee el portapapeles en el momento (poka-yoke: si no hay nada, el robot explica qué hacer).
   Future<void> _pegarYRevisar() async {
     ClipboardData? d;
     try {
@@ -415,10 +415,10 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final escuchando = _estado == EstadoPantera.escuchando;
+    final escuchando = _estado == EstadoRobot.escuchando;
     final hoja = _modo == _Modo.resultado
         ? (_veredicto!.phishing ? EstadoHoja.estafa : EstadoHoja.seguro)
-        : (_estado == EstadoPantera.analizando || escuchando
+        : (_estado == EstadoRobot.analizando || escuchando
               ? EstadoHoja.analizando
               : EstadoHoja.listo);
     return AiessHomeScreen(
@@ -435,7 +435,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       onPickImage: _elegirCaptura,
       onOpenSettings: () =>
           mostrarAjustes(context, alPracticar: _abrirPractica),
-      onTapMascota: _tocarPantera,
+      onTapMascota: _tocarRobot,
       onReport: () async {
         await _reportar();
         _reiniciar();

@@ -11,11 +11,11 @@ M = NOMBRE_MASCOTA
 # (variantes de pregunta, variantes de respuesta)
 DIALOGOS: list[tuple[list[str], list[str]]] = [
     (["hola", "buenas", "hola, ¿quién eres?", "buenos días", "qué tal", "hey"],
-     [f"Hola, soy {M}, un cóndor andino guardián contra estafas del IESS. Pégame un mensaje o un enlace sospechoso y lo reviso contigo.",
-      f"Qué gusto saludarte. Soy {M}, tu cóndor protector. Si te llegó un correo, SMS o WhatsApp raro, mándamelo y te digo si es seguro."]),
-    (["¿qué animal eres?", "¿eres un pájaro?", "¿por qué eres un cóndor?"],
-     ["Soy un cóndor andino, el ave nacional del Ecuador. Vuelo alto y veo lejos, así descubro los engaños escondidos en los mensajes.",
-      "Un cóndor guardián. Desde arriba veo todo, justo lo que hace falta para cazar estafas."]),
+     [f"Hola, soy {M}, un robot guardián contra estafas del IESS. Pégame un mensaje o un enlace sospechoso y lo reviso contigo.",
+      f"Qué gusto saludarte. Soy {M}, tu robot protector. Si te llegó un correo, SMS o WhatsApp raro, mándamelo y te digo si es seguro."]),
+    (["¿qué eres?", "¿eres un robot?", "¿por qué eres un robot?"],
+     ["Soy un robot guardián de AIESS. Reviso señales de engaño y te ayudo a cuidar tus datos.",
+      "Soy el robot de AIESS. Estoy aquí para ayudarte a revisar correos, SMS y enlaces sospechosos."]),
     (["¿qué puedes hacer?", "¿para qué sirves?", "¿cómo me ayudas?", "¿qué haces?"],
      ["Reviso mensajes, correos y enlaces para saber si son una estafa. También te enseño a reconocer engaños con ejercicios cortos.",
       "Analizo lo que te llega, te explico las señales de peligro y te digo qué hacer. Todo pasa dentro de tu celular, sin enviar tus datos."]),

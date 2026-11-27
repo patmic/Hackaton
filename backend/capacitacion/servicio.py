@@ -24,7 +24,11 @@ from .almacen import (
 from .catalogo import TIPOS_VALIDOS
 from .config import config
 from .envio import enviar as enviar_correo_fisico
-from .generador_correo import generar_correo, microcursos_de
+from .generador_correo import (
+    generar_correo,
+    generar_correo_seguimiento,
+    microcursos_de,
+)
 from .plantillas import PLANTILLAS, PLANTILLAS_POR_ID, Plantilla
 from .seudonimo import hash_token, id_seudonimo, nuevo_token
 
@@ -171,17 +175,45 @@ def _enviar_primer_correo(insc: Inscripcion) -> None:
     _enviar(insc, plantilla)
 
 
+def _candidatas_observador(insc: Inscripcion) -> list[dict]:
+    return [
+        {
+            "id": p.id,
+            "nivel": p.nivel,
+            "tipologia": p.tipologia,
+            "indicios": list(p.indicios),
+            "tipos": sorted(p.tipos),
+        }
+        for p in PLANTILLAS
+        if p.aplica_a(insc.tipos)
+    ]
+
+
 def enviar_siguiente(correo: str) -> tuple[dict, bool]:
-    """`POST /api/v1/capacitacion/siguiente` (interno): aplica la escalera."""
+    """`POST /api/v1/capacitacion/siguiente` (interno): consulta al observador
+    si está configurado y aplica la escalera como respaldo."""
     id_s = id_seudonimo(correo)
     insc = almacen.inscripcion(id_s)
     if insc is None or insc.fase != EN_CURSO:
         return (estado(insc) if insc else _estado_vacio()), False
     if escalera.proximo_envio(ahora(), insc.ultimo_envio, insc.es_centinela):
         return estado(insc), False
-    plantilla = escalera.elegir_plantilla(
-        PLANTILLAS, insc.tipos, insc.nivel_correo, insc.mapa, insc.enviadas
+    plantilla: Plantilla | None = None
+    pid_obs = observatorio.siguiente_plantilla(
+        id_s,
+        candidatas=_candidatas_observador(insc),
+        ya_enviadas=insc.enviadas,
+        tipos=insc.tipos,
+        rango_etario=insc.rango_etario,
     )
+    if pid_obs and pid_obs in PLANTILLAS_POR_ID:
+        cand = PLANTILLAS_POR_ID[pid_obs]
+        if cand.aplica_a(insc.tipos):
+            plantilla = cand
+    if plantilla is None:
+        plantilla = escalera.elegir_plantilla(
+            PLANTILLAS, insc.tipos, insc.nivel_correo, insc.mapa, insc.enviadas
+        )
     if plantilla is None:
         return estado(insc), False
     _enviar(insc, plantilla)
@@ -277,7 +309,27 @@ def _procesar_reaccion(sim: Simulacion, resultado: str) -> dict | None:
         des = desenlace(sim, resultado)
 
     _observar(sim, insc)
+    if resultado == escalera.IGNORO and insc is not None:
+        _enviar_seguimiento_ignoro(sim, insc)
     return des
+
+
+def _enviar_seguimiento_ignoro(sim: Simulacion, insc: Inscripcion) -> None:
+    """Envía el correo de seguimiento tras vencer sin reacción (best-effort)."""
+    try:
+        plantilla = PLANTILLAS_POR_ID.get(sim.plantilla_id)
+        tipologia = plantilla.tipologia if plantilla else "T1"
+        correo = generar_correo_seguimiento(
+            plantilla_id=sim.plantilla_id,
+            tipo_usuario=sim.tipo_usuario,
+            tipologia=tipologia,
+            indicios=sim.indicios,
+            asunto_original=sim.asunto,
+            para=insc.correo,
+        )
+        enviar_correo_fisico(correo)
+    except Exception:  # fail-open: no impedir marcar IGNORO si falla el envío
+        pass
 
 
 def _observar(
@@ -417,6 +469,30 @@ def _estado_vacio() -> dict:
 def estado_de_correo(correo: str) -> dict:
     insc = almacen.inscripcion(id_seudonimo(correo))
     return estado(insc) if insc else _estado_vacio()
+
+
+def plan_de_correo(correo: str) -> dict:
+    """Consulta el plan del observador si está conectado, o arma un resumen local."""
+    id_s = id_seudonimo(correo)
+    insc = almacen.inscripcion(id_s)
+    tipos = sorted(insc.tipos, key=TIPOS_VALIDOS.index) if insc else ["EX5"]
+    rango = insc.rango_etario if insc else "desconocido"
+    plan_obs = observatorio.obtener_plan(id_s, tipos=tipos, rango_etario=rango)
+    if plan_obs is not None:
+        return plan_obs
+    debiles = sorted(escalera.debiles(insc.mapa)) if insc else []
+    sin_probar = sorted(
+        i for i in escalera.TODOS_INDICIOS if escalera.estado_de(insc.mapa if insc else {}, i) == escalera.SIN_PROBAR
+    )
+    return {
+        "id_seudonimo": id_s,
+        "origen": "local",
+        "tipos": tipos,
+        "nivel_correo": insc.nivel_correo if insc else 2,
+        "es_centinela": insc.es_centinela if insc else False,
+        "falencias_sugeridas": (debiles + sin_probar)[:3],
+        "mapa_indicios": dict(insc.mapa) if insc else {},
+    }
 
 
 def me(correo: str | None, tipos: list[str]) -> dict:

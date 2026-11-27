@@ -50,13 +50,64 @@ def _ahora_iso() -> str:
 
 
 def registrar_eventos(eventos: list[dict]) -> int:
-    """Guarda los eventos de la app (telemetría). No van al endpoint de
-    observaciones, que solo acepta observaciones de simulacro."""
+    """Guarda los eventos de la app (telemetría) y reenvía al observador los
+    que traigan `id_seudonimo` y correspondan a DECISION/VERIFICACION."""
+    observaciones_obs: list[dict] = []
     with _lock:
         for ev in eventos:
             ev.setdefault("recibido_en", _ahora_iso())
             _eventos.append(ev)
+            obs = _observacion_de_evento(ev)
+            if obs is not None:
+                observaciones_obs.append(obs)
+    if observaciones_obs:
+        _reenviar_observaciones(observaciones_obs)
     return len(eventos)
+
+
+def _observacion_de_evento(ev: dict) -> dict | None:
+    """Convierte un evento de la app al esquema del observador si trae
+    `id_seudonimo` y suficientes datos de juicio/verificación."""
+    id_s = ev.get("id_seudonimo")
+    if not id_s:
+        return None
+    tipo_ev = str(ev.get("tipo") or ev.get("evento") or "").upper()
+    datos = ev.get("datos") if isinstance(ev.get("datos"), dict) else {}
+    momento = ev.get("momento") or _ahora_iso()
+
+    base: dict = {"id_seudonimo": id_s, "momento": momento}
+    tipos = ev.get("tipos") or ([ev["tipo_usuario"]] if ev.get("tipo_usuario") else None)
+    if tipos:
+        base["tipos"] = tipos
+    rango = ev.get("rango_etario")
+    if rango and rango != "desconocido":
+        base["rango_etario"] = rango
+
+    if tipo_ev in {"DECISION", "DECISION_TOMADA"}:
+        es_estafa = ev.get("es_estafa", datos.get("es_estafa"))
+        acerto = ev.get("acerto", ev.get("es_correcta", datos.get("es_correcta")))
+        indicios = ev.get("indicios", datos.get("indicios", []))
+        if not isinstance(es_estafa, bool) or not isinstance(acerto, bool):
+            return None
+        if es_estafa and not indicios:
+            return None
+        obs = {**base, "tipo": "DECISION", "es_estafa": es_estafa, "acerto": acerto, "indicios": indicios}
+        for k in ("actividad_id", "item_id", "tipologia"):
+            val = ev.get(k, datos.get(k))
+            if val is not None:
+                obs[k] = val
+        return obs
+
+    if tipo_ev == "VERIFICACION":
+        semaforo = ev.get("semaforo", datos.get("semaforo"))
+        if not semaforo:
+            return None
+        obs = {**base, "tipo": "VERIFICACION", "semaforo": semaforo}
+        if ev.get("tipologia") or datos.get("tipologia"):
+            obs["tipologia"] = ev.get("tipologia") or datos.get("tipologia")
+        return obs
+
+    return None
 
 
 def observacion_de_simulacro(
@@ -134,6 +185,75 @@ def eliminar_persona(id_seudonimo: str) -> None:
         httpx.delete(url, timeout=5)
     except Exception as exc:  # fail-open
         log.warning("No se pudo eliminar la persona en el observador: %s", exc)
+
+
+def siguiente_plantilla(
+    id_seudonimo: str,
+    *,
+    candidatas: list[dict],
+    ya_enviadas: set[str] | list[str] = (),
+    tipos: set[str] | list[str] = (),
+    rango_etario: str = "desconocido",
+) -> str | None:
+    """Consulta al observador qué plantilla conviene enviar a continuación.
+
+    Devuelve el `plantilla_id` recomendado o `None` si no hay `NUCLEO_URL` o si
+    falla (fail-open hacia la escalera local).
+    """
+    if not config.nucleo_url or not candidatas:
+        return None
+    httpx = _httpx()
+    if httpx is None:
+        return None
+    url = f"{config.nucleo_url}{PERSONAS_PATH}/{id_seudonimo}/siguiente"
+    cuerpo: dict = {
+        "ya_enviadas": sorted(ya_enviadas),
+        "candidatas": candidatas,
+        "tipos": sorted(tipos),
+    }
+    if rango_etario and rango_etario != "desconocido":
+        cuerpo["rango_etario"] = rango_etario
+    try:
+        resp = httpx.post(url, json=cuerpo, timeout=5)
+        if resp.status_code < 300:
+            pid = resp.json().get("plantilla_id")
+            return str(pid) if pid else None
+        log.warning(
+            "El observador devolvió %s al pedir siguiente plantilla: %s",
+            resp.status_code,
+            resp.text[:300],
+        )
+    except Exception as exc:  # fail-open
+        log.warning("No se pudo consultar siguiente plantilla al observador: %s", exc)
+    return None
+
+
+def obtener_plan(
+    id_seudonimo: str,
+    *,
+    tipos: set[str] | list[str] = (),
+    rango_etario: str = "desconocido",
+) -> dict | None:
+    """Obtiene el plan personalizado del observador (best-effort / fail-open)."""
+    if not config.nucleo_url:
+        return None
+    httpx = _httpx()
+    if httpx is None:
+        return None
+    url = f"{config.nucleo_url}{PERSONAS_PATH}/{id_seudonimo}/plan"
+    params: dict[str, str] = {}
+    if tipos:
+        params["tipos"] = ",".join(sorted(tipos))
+    if rango_etario and rango_etario != "desconocido":
+        params["rango"] = rango_etario
+    try:
+        resp = httpx.get(url, params=params, timeout=5)
+        if resp.status_code < 300:
+            return resp.json()
+        log.warning("El observador devolvió %s al pedir plan: %s", resp.status_code, resp.text[:300])
+    except Exception as exc:  # fail-open
+        log.warning("No se pudo consultar el plan al observador: %s", exc)
+    return None
 
 
 def metricas(

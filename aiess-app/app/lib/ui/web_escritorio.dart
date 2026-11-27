@@ -1,7 +1,8 @@
-// Versión web para computadora: dos columnas. Izquierda, el cóndor y cómo funciona; derecha, el espacio de
+// Versión web para computadora: dos columnas. Izquierda, el robot y cómo funciona; derecha, el espacio de
 // trabajo para pegar el correo y ver el veredicto (escrito y hablado). La IA corre en el servidor de AIESS.
 import 'dart:ui' show FontVariation;
 import 'package:material_ui/material_ui.dart';
+import 'package:theme_light/theme_light.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -9,7 +10,7 @@ import '../core/canales.dart';
 import '../features/analisis/analizador.dart';
 import '../features/analisis/motor.dart';
 import '../features/llm/remoto.dart';
-import '../features/mascota/pantera.dart';
+import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
 import 'aula_virtual.dart';
 import 'practicar_page.dart';
@@ -17,14 +18,14 @@ import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
 import 'tema.dart';
 import 'texto_vivo.dart';
 
-/// Colores de la web = tokens de ThemeGreen (ver tema.dart).
+/// Colores de escritorio mapeados a los tokens compartidos de ThemeLight.
 class _W {
-  static const azul = Tono.lima; // acción principal
-  static const sobreAzul = Tono.sobreLima;
-  static const panel = Tono.fondo2; // columna izquierda
-  static const azulOscuro = Tono.superficie;
-  static const amarillo = Tono.lima;
-  static const papel = Tono.fondo;
+  static const azul = ThemeLightTokens.theme;
+  static const sobreAzul = ThemeLightTokens.background;
+  static const panel = ThemeLightTokens.nav;
+  static const azulOscuro = ThemeLightTokens.primaryContainer;
+  static const amarillo = ThemeLightTokens.theme;
+  static const papel = ThemeLightTokens.page;
   static const tinta = Tono.tinta;
   static const gris = Tono.gris;
   static const rojo = Tono.rojo;
@@ -45,14 +46,14 @@ class WebEscritorio extends StatefulWidget {
 
 class _WebEscritorioState extends State<WebEscritorio> {
   final _texto = TextEditingController();
-  var _estado = EstadoPantera.reposo;
+  var _estado = EstadoRobot.reposo;
   Veredicto? _v;
   String? _aviso;
   List<String> _pasos = [];
   double? _progreso;
   bool _escuchando = false;
 
-  bool get _ocupado => _estado == EstadoPantera.analizando || _escuchando;
+  bool get _ocupado => _estado == EstadoRobot.analizando || _escuchando;
 
   Future<void> _revisar() async {
     final t = _texto.text.trim();
@@ -75,7 +76,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
     }
     HapticFeedback.mediumImpact();
     setState(() {
-      _estado = EstadoPantera.analizando;
+      _estado = EstadoRobot.analizando;
       _aviso = null;
       _v = null;
       _pasos = [];
@@ -94,13 +95,13 @@ class _WebEscritorioState extends State<WebEscritorio> {
     if (!mounted) return;
     setState(() {
       _v = v;
-      _estado = v.phishing ? EstadoPantera.alerta : EstadoPantera.seguro;
+      _estado = v.phishing ? EstadoRobot.alerta : EstadoRobot.seguro;
       _pasos = [];
     });
     Voz.i.decir(v.voz);
   }
 
-  void _hablarCondor() => _v == null
+  void _hablarRobot() => _v == null
       ? Voz.i.decir('Pega un correo y te digo si es una estafa.')
       : Voz.i.decir('${_v!.explicacion} ${_v!.queHacer}');
 
@@ -131,7 +132,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
       _texto.clear();
       _v = null;
       _aviso = null;
-      _estado = EstadoPantera.reposo;
+      _estado = EstadoRobot.reposo;
     });
   }
 
@@ -142,17 +143,17 @@ class _WebEscritorioState extends State<WebEscritorio> {
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ---------------- Izquierda: el cóndor y cómo funciona
+          // ---------------- Izquierda: el robot y cómo funciona
           Expanded(
             flex: 5,
             child: ColoredBox(
-              color: _W.panel, // --bg-2 de ThemeGreen
+              color: _W.panel,
               child: LayoutBuilder(
                 builder: (context, caja) => SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(48, 36, 48, 32),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: caja.maxHeight - 68),
-                    // Tres bloques repartidos: marca arriba, cóndor y mensaje al centro, privacidad abajo.
+                    // Tres bloques repartidos: marca arriba, robot y mensaje al centro, privacidad abajo.
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -198,24 +199,23 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                 child: Semantics(
                                   button: true,
                                   label:
-                                      'AIess, el cóndor. Toca para escucharlo',
+                                      'AIess, el robot. Toca para escucharlo',
                                   excludeSemantics: true,
-                                  onTap: _hablarCondor,
-                                  child: Pantera(
+                                  onTap: _hablarRobot,
+                                  child: RobotGuardia(
                                     estado: _estado,
                                     tam: (caja.maxHeight * 0.3).clamp(
                                       140.0,
                                       260.0,
                                     ),
-                                    encuadre: Encuadre.medallon,
-                                    alTocar: _hablarCondor,
+                                    alTocar: _hablarRobot,
                                   ),
                                 ),
                               ),
                               const SizedBox(height: 24),
 
                               Text(
-                                'Tu cóndor guardián contra estafas',
+                                'Tu robot guardián contra estafas',
                                 style: Letra.lexend(
                                   40,
                                   peso: FontWeight.w700,
@@ -289,7 +289,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                       const Text(
                         'Pega aquí el correo sospechoso',
                         style: TextStyle(
-                          fontFamily: 'Lexend',
+                          fontFamily: 'packages/theme_light/ThemeLightLexend',
                           fontVariations: const [FontVariation('wght', 700)],
                           color: _W.tinta,
                           fontSize: 32,
@@ -379,7 +379,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                   foregroundColor: _W.sobreAzul,
                                   shape: const StadiumBorder(),
                                   textStyle: const TextStyle(
-                                    fontFamily: 'Lexend',
+                                    fontFamily: 'packages/theme_light/ThemeLightLexend',
                                     fontVariations: [
                                       FontVariation('wght', 600),
                                     ],
@@ -388,7 +388,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                   ),
                                 ),
                                 onPressed: _ocupado ? null : _revisar,
-                                icon: _estado == EstadoPantera.analizando
+                                icon: _estado == EstadoRobot.analizando
                                     ? const SizedBox(
                                         width: 20,
                                         height: 20,
@@ -402,7 +402,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                         size: 26,
                                       ),
                                 label: Text(
-                                  _estado == EstadoPantera.analizando
+                                  _estado == EstadoRobot.analizando
                                       ? 'Revisando…'
                                       : 'Revisar con AIess',
                                 ),
@@ -475,7 +475,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
         child: PasosCarga(
           pasos: _pasos,
           progreso: _progreso,
-          color: Tono.superficie,
+          color: Tono.tinta,
           acento: _W.amarillo,
         ),
       );
@@ -485,18 +485,21 @@ class _WebEscritorioState extends State<WebEscritorio> {
         key: ValueKey(_aviso),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFF2A2110),
+          color: ThemeLightTokens.warnBackground,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
-            const Icon(Icons.info_outline_rounded, color: Tono.ambar),
+            const Icon(
+              Icons.info_outline_rounded,
+              color: ThemeLightTokens.warnForeground,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 _aviso!,
                 style: const TextStyle(
-                  color: Tono.tinta,
+                  color: ThemeLightTokens.warnForeground,
                   fontSize: 17,
                   height: 1.4,
                 ),
@@ -539,7 +542,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                     child: Text(
                       v.phishing ? 'Posible estafa' : 'Parece seguro',
                       style: const TextStyle(
-                        fontFamily: 'Lexend',
+                        fontFamily: 'packages/theme_light/ThemeLightLexend',
                         fontVariations: const [FontVariation('wght', 700)],
                         color: _W.sobreAzul,
                         fontSize: 28,
@@ -559,7 +562,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                   TextoVivo(
                     v.voz,
                     estilo: const TextStyle(
-                      fontFamily: 'Lexend',
+                      fontFamily: 'packages/theme_light/ThemeLightLexend',
                       fontVariations: const [FontVariation('wght', 600)],
                       color: _W.tinta,
                       fontSize: 20,
@@ -572,7 +575,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                     const Text(
                       'Señales que encontré',
                       style: TextStyle(
-                        fontFamily: 'Lexend',
+                        fontFamily: 'packages/theme_light/ThemeLightLexend',
                         fontVariations: const [FontVariation('wght', 700)],
                         color: _W.gris,
                         fontSize: 15,
@@ -633,7 +636,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                           label: const Text(
                             'Avisar al IESS',
                             style: TextStyle(
-                              fontFamily: 'Lexend',
+                              fontFamily: 'packages/theme_light/ThemeLightLexend',
                               fontVariations: const [
                                 FontVariation('wght', 700),
                               ],
@@ -706,7 +709,7 @@ class _BotonTexto extends StatelessWidget {
             ),
             textStyle: const WidgetStatePropertyAll(
               TextStyle(
-                fontFamily: 'Lexend',
+                fontFamily: 'packages/theme_light/ThemeLightLexend',
                 fontVariations: [FontVariation('wght', 600)],
                 fontSize: 18,
                 fontWeight: FontWeight.w600,

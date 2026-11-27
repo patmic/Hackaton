@@ -66,6 +66,9 @@ class Config:
     # --- Núcleo central (Bloque 3). Si está vacío, los eventos solo se guardan. ---
     nucleo_url: str | None = (os.environ.get("NUCLEO_URL") or "").rstrip("/") or None
 
+    # --- Scheduler de simulaciones vencidas (segundos; 0 = desactivado) ---
+    procesar_vencidas_seg: int = int(os.environ.get("PROCESAR_VENCIDAS_SEG", "60"))
+
     # --- Origen de datos ---
     tipologias_json: Path = field(
         default_factory=lambda: Path(
