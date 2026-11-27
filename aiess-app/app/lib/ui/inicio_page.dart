@@ -254,7 +254,10 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     } else if (txt != null && txt.startsWith(marcaAvisoIess)) {
       _guiarVerificacion(txt.substring(marcaAvisoIess.length).trim());
     } else if (txt != null && txt.trim().isNotEmpty) {
-      _revisarTexto(txt, canal: 'mensaje compartido');
+      _revisarTexto(
+        conEnlacesDelHtml(txt, m['html'] as String?),
+        canal: 'mensaje compartido',
+      );
     }
   }
 
@@ -664,38 +667,21 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         ).invokeMethod<String>('portapapelesHtml');
       } catch (_) {}
     }
-    if (html == null || html.isEmpty) return t;
-    final enlaces = <String>[];
-    for (final m in RegExp(
-      r'''<a\s[^>]*href\s*=\s*["']([^"']+)["'][^>]*>(.*?)</a>''',
-      caseSensitive: false,
-      dotAll: true,
-    ).allMatches(html)) {
-      final destino = m.group(1)!.replaceAll('&amp;', '&').trim();
-      if (!destino.startsWith('http') || t.contains(destino)) continue;
-      final visible = m
-          .group(2)!
-          .replaceAll(RegExp(r'<[^>]+>'), ' ')
-          .replaceAll(RegExp(r'\s+'), ' ')
-          .trim();
-      enlaces.add('${visible.isEmpty ? 'imagen' : visible} [$destino]');
-    }
-    if (t.isEmpty) {
-      t = html
-          .replaceAll(
-            RegExp(r'<(br|/p|/div)[^>]*>', caseSensitive: false),
-            '\n',
-          )
-          .replaceAll(RegExp(r'<[^>]+>'), ' ')
-          .replaceAll('&nbsp;', ' ')
-          .trim();
-    }
-    return enlaces.isEmpty ? t : '$t\n\n${enlaces.join('\n')}';
+    return conEnlacesDelHtml(t, html);
   }
 
   /// Pegar y revisar: lee el portapapeles en el momento (poka-yoke: si no hay nada, el robot explica qué hacer).
   Future<void> _pegarYRevisar() async {
     final t = await _leerPortapapeles();
+    if (Sello.codigoEn(t) == null && t.contains('ANTI-PHISHING')) {
+      HapticFeedback.mediumImpact();
+      setState(() => _titular = 'Falta el enlace del sello');
+      await _decir(
+        'Este correo trae la imagen del sello del IESS, pero al copiarlo se perdió su enlace. '
+        'Mantén presionada la imagen del sello, toca Copiar enlace y vuelve a tocar Pegar y revisar.',
+      );
+      return;
+    }
     // Un enlace de sello se verifica directo (no hace falta leer el correo).
     if (Sello.codigoEn(t) != null) {
       await _revisarTexto(t);
@@ -789,4 +775,34 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       resumen: _modo == _Modo.resultado ? _veredicto?.resumen : null,
     );
   }
+}
+
+/// Texto + los ENLACES REALES de su versión HTML («texto [enlace]»). Al copiar o compartir un correo, el texto
+/// plano pierde el enlace de la imagen del sello y de los botones; el HTML los conserva.
+String conEnlacesDelHtml(String texto, String? html) {
+  var t = texto;
+  if (html == null || html.isEmpty) return t;
+  final enlaces = <String>[];
+  for (final m in RegExp(
+    r'''<a\s[^>]*href\s*=\s*["']([^"']+)["'][^>]*>(.*?)</a>''',
+    caseSensitive: false,
+    dotAll: true,
+  ).allMatches(html)) {
+    final destino = m.group(1)!.replaceAll('&amp;', '&').trim();
+    if (!destino.startsWith('http') || t.contains(destino)) continue;
+    final visible = m
+        .group(2)!
+        .replaceAll(RegExp(r'<[^>]+>'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    enlaces.add('${visible.isEmpty ? 'imagen' : visible} [$destino]');
+  }
+  if (t.isEmpty) {
+    t = html
+        .replaceAll(RegExp(r'<(br|/p|/div)[^>]*>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'<[^>]+>'), ' ')
+        .replaceAll('&nbsp;', ' ')
+        .trim();
+  }
+  return enlaces.isEmpty ? t : '$t\n\n${enlaces.join('\n')}';
 }
