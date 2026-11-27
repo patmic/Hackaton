@@ -8,7 +8,9 @@ La prioridad de cada indicio combina tres cosas, y el plan dice siempre por qué
   si tiene poca, se apoya en lo que el observador aprendió de su segmento
   (`poblacion.py`) y, sin eso, en un punto neutro.
 - **relevancia**: qué tanto se usa ese indicio para suplantar las tipologías que
-  la persona recibe (`suplantacion_frecuente` de `tipologias.json`).
+  la persona recibe (`suplantacion_frecuente` de `tipologias.json`). Si ya le
+  engañó alguna vez, es máxima: su propia evidencia manda sobre lo que se
+  espera de su tipo de cuenta.
 - **exploración**: un indicio sin probar suma un poco, para medirlo pronto (la
   escalera exige al menos un indicio DEBIL o SIN_PROBAR en cada correo, §11).
 - **repaso**: un indicio que dominaba hace más de dos meses vuelve al plan.
@@ -98,7 +100,9 @@ def generar_plan(id_seudonimo: str, observaciones: list[Observacion], ahora: dat
             usa_segmento = usa_segmento or ev.total < 1.0
         else:
             dominio = ev.media(0.5, 2 * PRIOR_PERSONAL)
-        relevancia = 0.5 + 0.5 * exposicion[i]
+        # Lo que ya le engañó es relevante para ella, se use mucho o poco
+        # contra su tipo de cuenta: su propia evidencia manda.
+        relevancia = 1.0 if ev.fallo > 0 else 0.5 + 0.5 * exposicion[i]
         prioridad = (1 - dominio) * relevancia
         prioridad += BONO_EXPLORACION if e.estado == "SIN_PROBAR" else 0.0
         prioridad += BONO_REPASO if e.repasar else 0.0

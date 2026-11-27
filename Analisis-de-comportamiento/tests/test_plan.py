@@ -122,3 +122,48 @@ def test_elegir_plantilla_respeta_el_tipo(catalogo):
     p = plan([], catalogo, tipos=["IN1"])
     elegida = elegir_plantilla(p, plantillas)
     assert "IN1" in next(x for x in plantillas if x["id"] == elegida)["tipos"]
+
+
+def test_lo_que_ya_le_engano_entra_aunque_su_tipo_casi_no_lo_reciba(catalogo):
+    """A un afiliado casi no se le suplanta con «pide pago» (I10): su relevancia
+    por tipología es 0. Si igual cayó en un correo así, su propia evidencia
+    manda y el plan lo pone primero, por delante de lo que nunca probó."""
+    assert catalogo.exposicion_por_indicio(["EX1"])["I10"] == 0
+    p = plan([simulacro("CLIC", ["I10"], nivel=3, plantilla="N3-EX-pago")], catalogo)
+    assert p["falencias"][0]["indicio"] == "I10"
+    assert p["falencias"][0]["estado"] == "DEBIL"
+
+
+def test_aprende_la_debilidad_de_cada_persona(catalogo):
+    """Cada persona sintética tiene una vulnerabilidad oculta. Entre las que ya
+    cayeron alguna vez en ella, su plan (solo con sus acciones, sin datos del
+    segmento) debe mostrarla entre sus 3 falencias. Antes de dar relevancia
+    máxima a lo que ya le engañó, ocurría en menos del 10 %."""
+    from collections import defaultdict
+
+    from observador.sintetico import EXTRA_65, VULNERABILIDAD, generar
+
+    por_persona = defaultdict(list)
+    for o in generar(catalogo, personas=400, semilla=7, ahora=AHORA):
+        por_persona[o.id_seudonimo].append(o)
+    casos = aciertos = 0
+    for ident, obs in por_persona.items():
+        tipos, rango = obs[-1].tipos, obs[-1].rango_etario
+        vuln = {}
+        for t in tipos:
+            for i, v in VULNERABILIDAD.get(t, {}).items():
+                vuln[i] = max(vuln.get(i, 0.0), v)
+        if rango == "65+":
+            for i, v in EXTRA_65.items():
+                vuln[i] = vuln.get(i, 0.0) + v
+        peor = max(vuln, key=vuln.get)
+        le_engano = any(
+            (o.tipo == "SIMULACRO" and o.resultado == "CLIC" and peor in o.indicios)
+            or (o.tipo == "DECISION" and o.es_estafa and not o.acerto and peor in o.indicios)
+            for o in obs)
+        if le_engano:
+            casos += 1
+            falencias = generar_plan(ident, obs, AHORA, catalogo)["falencias"]
+            aciertos += peor in {f["indicio"] for f in falencias}
+    assert casos > 200
+    assert aciertos / casos >= 0.45
