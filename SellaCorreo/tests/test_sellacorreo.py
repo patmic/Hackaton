@@ -526,5 +526,9 @@ def test_api_verificar_para_el_robot(staff, anon):
     d = anon.get("/api/v1/asunto", params={"asunto": "RE:  boletín INFORMATIVO de diciembre "}).json()
     assert d["sellado"] is True and d["buzon"] and "palabra" not in str(d).lower()
     assert d["enlace"].endswith(token_h)
+    # La app envía solo la huella (SHA-256 del asunto normalizado), no el texto.
+    import hashlib
+    h = hashlib.sha256("boletín informativo de diciembre".encode()).hexdigest()
+    assert anon.get("/api/v1/asunto", params={"huella": h}).json()["sellado"] is True
     d = anon.get("/api/v1/asunto", params={"asunto": "IESS: su pensión será suspendida"}).json()
     assert d["sellado"] is False and d["motivo"] == "sin_sello"

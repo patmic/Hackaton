@@ -87,13 +87,13 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
     );
     final r = await Sello.porAsunto('${p['texto'] ?? ''}');
     if (!mounted) return;
-    final v = Sello.veredictoPorAsunto(r);
+    final v = Sello.veredictoPorAsunto(r, '${p['texto'] ?? ''}');
     setState(() {
       _v = v;
       _verificando = false;
     });
     HapticFeedback.heavyImpact();
-    await Voz.i.decir('${v.voz} ${v.phishing ? v.queHacer : ''}');
+    await Voz.i.decir(v.locucion);
   }
 
   Future<void> _cerrar() async {
@@ -131,10 +131,16 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
     // Tarjeta de UN color, como el identificador de llamadas: rojo estafa, verde seguro, azul IESS analizando.
     final color = v == null
         ? Tono.azulSuave
-        : (v.phishing ? Tono.rojoSuave : Tono.verdeSuave);
+        : (v.phishing
+              ? Tono.rojoSuave
+              : (v.sinConfirmar ? Tono.azulSuave : Tono.verdeSuave));
     final veredicto = v == null
         ? '¿Es del IESS de verdad?'
-        : (v.phishing ? 'Es una estafa' : 'Sellado por el IESS');
+        : (v.phishing
+              ? 'Es una estafa'
+              : (v.sinConfirmar
+                    ? 'Sin sello: cuidado'
+                    : 'Sellado por el IESS'));
     final asunto = (_p['texto'] as String?)?.trim() ?? '';
     final origen = (_p['app'] as String?) ?? '';
     const blanco = Tono.tinta;
@@ -325,8 +331,11 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: Text(
-                          v.voz,
-                          maxLines: 3,
+                          // Solo se vio el asunto: sin sello y sin indicios no se dice «seguro», se avisa.
+                          v.sinConfirmar
+                              ? '${v.avisoSello} Ábrelo en AIESS para revisarlo completo.'
+                              : v.voz,
+                          maxLines: 4,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 17, height: 1.38),
                         ),

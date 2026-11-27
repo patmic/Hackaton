@@ -7,6 +7,8 @@
 import 'dart:convert';
 
 import '../analisis/motor.dart';
+import '../osint/url_analyzer.dart';
+import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 
 import '../../core/canales.dart' show plegar;
@@ -98,7 +100,7 @@ class Sello {
 
   /// El guardián del celular solo ve el ASUNTO de la notificación (no el correo ni sus enlaces). Le pregunta a
   /// SellaCorreo si el IESS selló un correo con ese asunto; el servidor busca ese sello y verifica su firma.
-  /// Se envía SOLO el asunto. `valido` = hay un sello válido; si no, el correo se descarta como estafa.
+  /// Se envía SOLO la huella del asunto. `valido` = hay un sello válido.
   static Future<ResultadoSello> porAsunto(
     String asunto, {
     http.Client? cliente,
@@ -114,9 +116,11 @@ class Sello {
     }
     try {
       final c = cliente ?? http.Client();
+      // Privacidad: se envía la HUELLA (SHA-256) del asunto, no su texto. El servidor la compara con la
+      // huella de los asuntos que el IESS selló.
       final uri = Uri.parse(
         '$servidor/api/v1/asunto',
-      ).replace(queryParameters: {'asunto': asunto.trim()});
+      ).replace(queryParameters: {'huella': huellaAsunto(asunto)});
       final r = await c.get(uri).timeout(const Duration(seconds: 8));
       if (r.statusCode != 200) throw Exception('http ${r.statusCode}');
       final d = jsonDecode(utf8.decode(r.bodyBytes)) as Map<String, dynamic>;
@@ -136,8 +140,27 @@ class Sello {
     }
   }
 
+  /// Asunto normalizado: sin «RE:», «RV:», «Fwd:», espacios de más ni mayúsculas (igual que el servidor).
+  static String normalizarAsunto(String asunto) => asunto
+      .replaceFirst(
+        RegExp(
+          r'^\s*((re|rv|fw|fwd|reenviado|respuesta)\s*:\s*)+',
+          caseSensitive: false,
+        ),
+        '',
+      )
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim()
+      .toLowerCase();
+
+  /// SHA-256 del asunto normalizado: lo único que sale del equipo en la consulta por asunto.
+  static String huellaAsunto(String asunto) =>
+      sha256.convert(utf8.encode(normalizarAsunto(asunto))).toString();
+
   /// Veredicto a partir de la consulta por asunto (mismo formato en el aviso y en la app).
-  static Veredicto veredictoPorAsunto(ResultadoSello r) {
+  /// Sellado: es del IESS. Sin sello: el Sí/No lo deciden los indicios que se ven en el ASUNTO (catálogo),
+  /// y el sello va como aviso aparte; para contar todos los indicios hay que revisar el correo completo.
+  static Veredicto veredictoPorAsunto(ResultadoSello r, String asunto) {
     if (r.valido) {
       return Veredicto(
         phishing: false,
@@ -147,11 +170,25 @@ class Sello {
         explicacion: r.mensaje,
         queHacer: 'Igual, nunca entregues tu clave.',
         fuente: 'sello',
+        selloEstado: 'valido',
       );
     }
-    return descartarPorSello(
-      motivo: r.sinRespuesta ? 'sin_verificar' : 'sin_sello',
+    final reglas = analizarConReglas(
+      Entrada(asunto, canal: 'asunto del aviso'),
+      analizarMensaje(asunto),
     );
+    final v = aplicarSello(
+      reglas,
+      estado: r.sinRespuesta ? 'sin_verificar' : 'sin_sello',
+    );
+    // Solo se vio el asunto: sin indicios no se dice «tranquilo», se pide revisar el correo completo.
+    return v.phishing
+        ? v
+        : v.copiar(
+            voz:
+                'En el asunto no veo señales de estafa, pero no pude confirmar que sea del IESS. '
+                'Copia el correo y lo reviso completo.',
+          );
   }
 }
 

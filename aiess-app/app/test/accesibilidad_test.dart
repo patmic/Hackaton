@@ -21,6 +21,7 @@ Widget _app(EstadoHoja estado, {double letra = 1, bool escuchando = false}) =>
           estadoMascota: switch (estado) {
             EstadoHoja.estafa => EstadoRobot.alerta,
             EstadoHoja.seguro => EstadoRobot.seguro,
+            EstadoHoja.duda => EstadoRobot.reposo,
             EstadoHoja.analizando => EstadoRobot.analizando,
             EstadoHoja.listo => EstadoRobot.reposo,
           },

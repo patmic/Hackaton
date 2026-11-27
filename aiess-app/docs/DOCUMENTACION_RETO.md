@@ -18,6 +18,26 @@ con voz y con subtítulos si es phishing (Sí o No y cuántos indicios), por qu�
 | **Fuentes OSINT y CTI** (declaradas; solo dominio o URL) | 1) **Reglas locales** (dominios parecidos al IESS, acortadores, enlace que dice una cosa y lleva a otra, remitente gratuito, TLD de riesgo). 2) **RDAP** (rdap.org): edad del dominio; se envía **solo el dominio**. 3) **OpenPhish** (lista pública): se descarga y se compara **en el equipo**; no se envía nada. Declaradas en Ajustes y en la web. | `lib/features/osint/url_analyzer.dart`, `lib/features/osint/cti.dart` |
 | **Documentación** | Este archivo, `ARQUITECTURA.md` y las guías de `servidor/`. | `docs/` |
 
+## Rúbrica del jurado (100 pts): dónde se cumple
+
+Orden de la demo, igual que la rúbrica: problema → funcionalidad → seguridad → innovación → viabilidad →
+experiencia → evidencia.
+
+| Criterio | Cómo lo cumple AIESS | Dónde |
+|---|---|---|
+| **Problema (25)** · detecta los indicios y el avatar los explica, incluido el deepfake | Ante un phishing el robot dice, con voz y subtítulos: **«Encontré N indicios»** y explica **cada uno** (I1–I11 del catálogo), **qué te podría pasar** si caes, el aviso de **deepfake** («con tus fotos o videos de redes sociales pueden crear un video falso tuyo para pedirles dinero a tus amigos y familiares») y **qué hacer y dónde reportar** (seguridad.informacion@iess.gob.ec, denuncias.iess.gob.ec, app.iess.gob.ec, 593 2 3945666). | `guionEstafa`, `riesgoIndicio`, `queHacerEstafa` en `lib/features/analisis/motor.dart` |
+| **Funcionalidad (20)** · completa el flujo; la cantidad coincide con la lista | Sí/No según el catálogo (Sí con al menos un indicio). El resumen («Phishing: SÍ · 3 indicios»), lo que dice el avatar y la **lista completa** de indicios en pantalla salen de la misma lista. Al instante con reglas locales; el botón «Revisar con la IA local» da la lista del modelo afinado con el dataset. | `Veredicto.resumen`, `indiciosValidos`; tarjetas en `lib/ui/web_escritorio.dart` y `lib/ui/aiess_home_screen.dart` |
+| **Seguridad y datos (20)** · modelo local; solo dominio o URL sale; no abre enlaces ni adjuntos | Modelo LFM2 en la PC (`localhost`) o en el celular. A internet sale solo: el **dominio** (RDAP), la **huella SHA-256 del asunto** (consulta del sello, no el texto) y, al Observatorio, un **semáforo y códigos I1–I11** con un seudónimo al azar (se puede apagar). El panel **«Partes del correo»** muestra remitente, asunto, a dónde llevan de verdad los enlaces y los adjuntos **sin abrir nada**. | `lib/features/osint/cti.dart`, `Sello.huellaAsunto`, `lib/features/observatorio/observatorio.dart`, `lib/ui/partes_correo.dart` |
+| **Innovación (15)** · IA y fuentes útiles | Modelo pequeño afinado con el dataset del reto, corriendo en el equipo; **sello SellaCorreo** (firma Ed25519) que el robot verifica solo desde el aviso del celular; OSINT/CTI con RDAP y OpenPhish; Observatorio de comportamiento. | `ml/`, `SellaCorreo/`, `Analisis-de-comportamiento/` |
+| **Viabilidad (10)** · llega a un piloto | Funciona hoy en Android, web y PC; servidor en Docker detrás de Cloudflare (sin IP expuesta); el sello se integra al correo institucional sin cambiar el servidor de correo. | `servidor/LEEME_ORACLE.md`, `SellaCorreo/docker-compose.yml` |
+| **Experiencia (5)** · fácil para no técnicos | Un botón grande, voz y subtítulos, letra grande y «Lectura fácil» (dislexia), lector de pantalla, navegación con Tab, dictado con «Parar», sin tecnicismos. | `lib/ui/lectura.dart`, `lib/ui/animaciones_web.dart` |
+| **Evidencia (5)** · pruebas, fuentes y licencias | Pruebas automáticas de la rúbrica (`test/rubrica_test.dart`) y del sello; fuentes declaradas abajo; licencias en «IA declarada» y «Componentes». Métrica de las reglas frente al dataset en `ml/reports/eval_reglas.json`. | `test/`, `ml/reports/` |
+
+**Sello y veredicto.** El sello no reemplaza a los indicios: con **sello válido** el correo es del IESS
+(«Phishing: NO · firma válida»); con **sello falso** es phishing y se suma el indicio que corresponde (I2 o I4);
+**sin sello**, el Sí/No lo deciden los indicios del catálogo y se muestra aparte el aviso «no trae el sello del IESS».
+Si la firma es válida pero la IA ve señales de estafa, avisa que pudieron cambiar el texto de un correo firmado.
+
 ## IA declarada
 
 | Pieza | Qué es | Origen |
@@ -46,8 +66,11 @@ La IA nunca decide sola: su respuesta se combina con las reglas y las fuentes OS
 ## Privacidad (por diseño)
 
 - **El guardián del celular solo lee el ASUNTO** de los correos y solo avisa si habla del IESS; el resto se ignora sin registrar nada.
-- **Primero el sello:** si el correo trae el sello SellaCorreo, se verifica la firma sin leer el correo.
-- **La IA solo lee con un «Sí» explícito**, y se le dice a la persona dónde corre.
+- **Primero el sello:** si el correo trae el sello SellaCorreo, se verifica la firma sin leer el correo. Desde el
+  aviso del celular se consulta con la **huella SHA-256 del asunto**, nunca con su texto.
+- **La IA solo lee el correo si la persona toca «Revisar con la IA local»**; el botón dice dónde corre y que
+  nunca se guarda y la conversación se borra.
+- **Observatorio:** solo semáforo y códigos I1–I11 con un seudónimo al azar; se apaga en Ajustes.
 - **Anonimización** antes de cualquier envío (nombre, cédula, RUC, teléfono, tarjeta, cuenta, correo).
 - **Fuentes externas:** solo el dominio (RDAP); OpenPhish se compara en el equipo.
 - **Borrado:** al terminar, el texto se borra de la app y se reemplaza en la memoria del modelo.

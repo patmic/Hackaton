@@ -898,8 +898,14 @@ def _normalizar_asunto(asunto: str) -> str:
     return re.sub(r"\s+", " ", _PREFIJO_RESPUESTA.sub("", asunto or "")).strip().casefold()
 
 
+def _huella_asunto(asunto: str) -> str:
+    """SHA-256 del asunto normalizado (minúsculas con lower(), igual que toLowerCase() en la app)."""
+    norm = re.sub(r"\s+", " ", _PREFIJO_RESPUESTA.sub("", asunto or "")).strip().lower()
+    return hashlib.sha256(norm.encode("utf-8")).hexdigest()
+
+
 @app.get("/api/v1/asunto")
-def api_asunto(asunto: str, request: Request):
+def api_asunto(request: Request, asunto: str = "", huella: str = ""):
     """Para el guardián de AIESS en el celular: solo ve el ASUNTO de la notificación (no el correo). Pregunta si el
     IESS selló un correo con ese asunto. Cada coincidencia pasa la MISMA verificación que CheckIn (hash, firma
     Ed25519, emisor, caducidad). Devuelve el buzón oficial para comparar con el remitente; nunca la palabra segura."""
@@ -907,11 +913,14 @@ def api_asunto(asunto: str, request: Request):
     if not checkin_limiter.allow(ip_of(request)):
         return JSONResponse({"sellado": False, "motivo": "limite", "mensaje": "Demasiadas consultas. Intente en un minuto."},
                             status_code=429, headers=cors)
-    buscado = _normalizar_asunto(asunto)[:300]
-    if len(buscado) < 3:
-        return JSONResponse({"sellado": False, "motivo": "asunto_vacio", "mensaje": "Falta el asunto."}, headers=cors)
+    # Privacidad: la app envía solo la HUELLA (SHA-256) del asunto, no el texto; `asunto` queda por compatibilidad.
+    huella = huella.strip().lower()
+    if not re.fullmatch(r"[0-9a-f]{64}", huella):
+        if len(_normalizar_asunto(asunto)) < 3:
+            return JSONResponse({"sellado": False, "motivo": "asunto_vacio", "mensaje": "Falta el asunto."}, headers=cors)
+        huella = _huella_asunto(asunto)
     for cand in store.seals_with_subject():
-        if _normalizar_asunto(cand["asunto"]) != buscado:
+        if not hmac.compare_digest(_huella_asunto(cand["asunto"]), huella):
             continue
         ok, motivo, seal = check_link(f"{cand['token']}.{cand['h'][:16]}")
         if ok:

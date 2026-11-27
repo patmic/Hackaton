@@ -1,9 +1,12 @@
 import 'dart:convert';
 
+import 'package:aiess/core/canales.dart';
 import 'package:aiess/features/sello/sello.dart';
 import 'package:aiess/ui/tema.dart';
 import 'package:aiess/ui/web_escritorio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:material_ui/material_ui.dart';
@@ -11,6 +14,8 @@ import 'package:material_ui/material_ui.dart';
 const _codigo = 'AbCdEfGhIjKlMnOp_q-1.0123456789abcdef';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(Canales.cargar);
   group('Aviso: el robot verifica el sello solo con el asunto', () {
     const oficial = 'https://sella.ejemplo.ec';
     test('asunto sellado: del IESS, con el buzón para comparar', () async {
@@ -34,29 +39,54 @@ void main() {
         cliente: c,
         servidorOficial: oficial,
       );
-      expect(pedido, startsWith('$oficial/api/v1/asunto?asunto='));
-      final v = Sello.veredictoPorAsunto(r);
+      // Privacidad: sale solo la huella del asunto, nunca su texto.
+      expect(
+        pedido,
+        '$oficial/api/v1/asunto?huella=${Sello.huellaAsunto('IESS: Actualización de datos')}',
+      );
+      expect(pedido, isNot(contains('Actualizaci')));
+      final v = Sello.veredictoPorAsunto(r, 'IESS: Actualización de datos');
       expect(v.phishing, isFalse);
       expect(v.resumen, 'Phishing: NO · firma válida del IESS');
       expect(v.voz, contains('selló'));
     });
-    test('asunto sin sello: estafa al instante', () async {
-      final c = MockClient(
-        (_) async => http.Response(
-          jsonEncode({'sellado': false, 'motivo': 'sin_sello', 'mensaje': '-'}),
-          200,
-        ),
-      );
-      final v = Sello.veredictoPorAsunto(
-        await Sello.porAsunto(
-          'IESS: pensión suspendida',
-          cliente: c,
-          servidorOficial: oficial,
-        ),
-      );
-      expect(v.phishing, isTrue);
-      expect(v.resumen, 'Phishing: SÍ · sin sello del IESS');
-    });
+    test(
+      'asunto sin sello: lo deciden los indicios del asunto, y avisa del sello',
+      () async {
+        final c = MockClient(
+          (_) async => http.Response(
+            jsonEncode({
+              'sellado': false,
+              'motivo': 'sin_sello',
+              'mensaje': '-',
+            }),
+            200,
+          ),
+        );
+        const asunto =
+            'IESS: actualice su clave hoy o su pensión será suspendida';
+        final v = Sello.veredictoPorAsunto(
+          await Sello.porAsunto(asunto, cliente: c, servidorOficial: oficial),
+          asunto,
+        );
+        expect(v.phishing, isTrue);
+        expect(v.resumen, 'Phishing: SÍ · ${v.indicios.length} indicios');
+        expect(v.indicios, containsAll(['I3', 'I8']));
+        expect(v.avisoSello, contains('no trae el sello'));
+        // Asunto sin señales: no se dice «seguro», se pide revisar el correo completo.
+        final neutro = Sello.veredictoPorAsunto(
+          await Sello.porAsunto(
+            'IESS: Boletín de diciembre',
+            cliente: c,
+            servidorOficial: oficial,
+          ),
+          'IESS: Boletín de diciembre',
+        );
+        expect(neutro.phishing, isFalse);
+        expect(neutro.sinConfirmar, isTrue);
+        expect(neutro.voz, isNot(contains('Tranquilo')));
+      },
+    );
     test('sin conexión: no se confía (sello sin comprobar)', () async {
       final c = MockClient((_) async => throw Exception('sin red'));
       final v = Sello.veredictoPorAsunto(
@@ -65,9 +95,10 @@ void main() {
           cliente: c,
           servidorOficial: oficial,
         ),
+        'IESS: aviso',
       );
-      expect(v.phishing, isTrue);
-      expect(v.resumen, 'Phishing: SÍ · sello sin comprobar');
+      expect(v.selloEstado, 'sin_verificar');
+      expect(v.avisoSello, contains('No pude comprobar'));
     });
   });
 
@@ -190,6 +221,14 @@ void main() {
   testWidgets('web: sin sello es estafa al instante; la IA solo con su botón', (
     t,
   ) async {
+    SharedPreferences.setMockInitialValues({'observatorio': false});
+    // Sin plugins de voz en la prueba: el robot «habla» en silencio.
+    for (final canal in ['flutter_tts', 'plugin.csdcorp.com/speech_to_text']) {
+      t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        MethodChannel(canal),
+        (_) async => null,
+      );
+    }
     t.view.physicalSize = const Size(1366, 768);
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.reset);
@@ -208,7 +247,11 @@ void main() {
       'Estimado afiliado: su pensión será suspendida HOY. Actualice su clave en http://iess-pagos.net/login',
     );
     await t.tap(find.text('Revisar con AIess'));
-    await t.pump(const Duration(milliseconds: 300));
+    // El análisis por indicios consulta fuentes públicas (en la prueba no hay red): se espera a que termine.
+    await t.runAsync(() => Future.delayed(const Duration(milliseconds: 800)));
+    for (var i = 0; i < 10; i++) {
+      await t.pump(const Duration(milliseconds: 100));
+    }
     // Sin diálogos: el veredicto sale al instante y la IA queda en un botón que la persona decide tocar.
     expect(find.text('¿Revisar con la IA?'), findsNothing);
     expect(
@@ -216,7 +259,8 @@ void main() {
       findsOneWidget,
     );
     // Regla del sello: sin sello válido se descarta de inmediato, aunque la IA no lo haya leído.
-    expect(find.textContaining('sin sello del IESS'), findsOneWidget);
-    expect(find.textContaining('indicio'), findsNothing);
+    // Sin sello: Sí/No y cantidad por los indicios del catálogo (al instante, sin la IA) + aviso del sello.
+    expect(find.textContaining('Phishing: SÍ ·'), findsOneWidget);
+    expect(find.textContaining('no trae el sello del IESS'), findsWidgets);
   });
 }

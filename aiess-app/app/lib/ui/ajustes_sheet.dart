@@ -11,6 +11,7 @@ import '../features/llm/cerebro.dart';
 import '../features/llm/remoto.dart';
 import '../features/osint/cti.dart';
 import '../features/sello/sello.dart';
+import '../features/observatorio/observatorio.dart';
 import 'aula_virtual.dart';
 import 'bienvenida_page.dart';
 import 'tema.dart';
@@ -55,7 +56,10 @@ class _AjustesState extends State<_Ajustes> {
     SharedPreferences.getInstance().then(
       (p) => setState(() => _red = p.getBool('red') ?? false),
     );
+    Observatorio.activo().then((v) => setState(() => _observatorio = v));
   }
+
+  bool _observatorio = true;
 
   Future<void> _descargar(ModeloDescargable m) async {
     setState(() {
@@ -336,6 +340,26 @@ class _AjustesState extends State<_Ajustes> {
                   Text(_error!, style: const TextStyle(color: Tono.rojo)),
               ],
               const Divider(height: 32),
+              // Observatorio del IESS: resultado anónimo de cada revisión (rúbrica: solo datos mínimos).
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _observatorio,
+                activeThumbColor: Tono.sobreLima,
+                activeTrackColor: Tono.lima,
+                title: const Text(
+                  'Ayudar al Observatorio del IESS',
+                  style: TextStyle(color: tinta, fontSize: 17),
+                ),
+                subtitle: const Text(
+                  'Envía solo el resultado (rojo, amarillo o verde) y los códigos de los indicios (I1 a I11), '
+                  'con un código al azar. Nunca el correo, el asunto ni tus datos.',
+                  style: TextStyle(color: Tono.gris),
+                ),
+                onChanged: (v) async {
+                  await Observatorio.activar(v);
+                  setState(() => _observatorio = v);
+                },
+              ),
               if (!kIsWeb)
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,

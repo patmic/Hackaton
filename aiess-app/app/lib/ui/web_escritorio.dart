@@ -1,3 +1,4 @@
+import 'dart:async';
 // Versión web para computadora: dos columnas. Izquierda, el robot y cómo funciona; derecha, el espacio de
 // trabajo para pegar el correo y ver el veredicto (escrito y hablado). La IA corre en el servidor de AIESS.
 import 'dart:ui' show FontVariation;
@@ -19,10 +20,12 @@ import '../features/correo/eml.dart';
 import '../features/ocr/documento.dart';
 import 'package:file_picker/file_picker.dart';
 import '../features/sello/sello.dart';
+import '../features/observatorio/observatorio.dart';
 import 'practicar_page.dart';
 import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
 import 'tema.dart';
 import 'texto_vivo.dart';
+import 'partes_correo.dart';
 import 'animaciones_web.dart';
 import 'lectura.dart';
 
@@ -93,7 +96,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
   Future<void> _revisar() async {
     final t = _texto.text.trim();
     if (_v != null && t == _ultimoRevisado) {
-      Voz.i.decir('Ya revisé este correo. ${_v!.voz}');
+      Voz.i.decir('Ya revisé este correo. ${_v!.locucion}');
       _enfocarResultado();
       return;
     }
@@ -108,9 +111,15 @@ class _WebEscritorioState extends State<WebEscritorio> {
       });
       final r = await Sello.verificar(t);
       if (!mounted) return;
-      if (r.sinRespuesta) {
-        // No se pudo consultar a SellaCorreo: por seguridad, se trata como estafa.
-        await _descartarPorSello(t, 'sin_verificar');
+      if (!r.valido) {
+        // Sello falso o sin conexión: Sí/No por los indicios del catálogo, con el resultado del sello.
+        await _analizarConIA(
+          t,
+          estadoSello: r.sinRespuesta ? 'sin_verificar' : 'falso',
+          mensajeSello: r.sinRespuesta ? null : r.mensaje,
+          verificadorAjeno: r.motivo == 'dominio_ajeno',
+          usarModelo: false,
+        );
         return;
       }
       final d = r.datos;
@@ -129,12 +138,14 @@ class _WebEscritorioState extends State<WebEscritorio> {
               ? 'La firma prueba que lo envió el IESS. Si quieres, la IA también revisa el texto (solo con tu permiso).'
               : 'No abras sus enlaces ni entregues datos. Puedes avisar al IESS.',
           fuente: 'sello',
+          selloEstado: 'valido',
         );
         _estado = r.valido ? EstadoRobot.seguro : EstadoRobot.alerta;
         _pasos = [];
         _ultimoRevisado = t;
       });
       _enfocarResultado();
+      unawaited(Observatorio.registrar(_v!));
       Voz.i.decir(texto);
       // Firma válida: el correo es del IESS. Revisar el texto con la IA es opcional y SOLO con un «Sí».
       return;
@@ -156,23 +167,9 @@ class _WebEscritorioState extends State<WebEscritorio> {
       Voz.i.decir(_aviso!);
       return;
     }
-    // 2) Sin sello: se descarta de inmediato como estafa (sin leerlo). La IA solo lo revisa si la persona
-    // quiere, para explicar qué otras señales tiene.
-    await _descartarPorSello(t, 'sin_sello');
-  }
-
-  Future<void> _descartarPorSello(String t, String motivo) async {
-    final v = descartarPorSello(motivo: motivo);
-    HapticFeedback.heavyImpact();
-    setState(() {
-      _v = v;
-      _aviso = null;
-      _estado = EstadoRobot.alerta;
-      _pasos = [];
-      _ultimoRevisado = t;
-    });
-    _enfocarResultado();
-    Voz.i.decir('${v.voz} ${v.queHacer}');
+    // 2) Sin sello: al instante y SIN la IA, los indicios del catálogo (reglas locales + fuentes públicas,
+    // solo el dominio sale). El sello va como aviso aparte. La IA solo con su botón.
+    await _analizarConIA(t, estadoSello: 'sin_sello', usarModelo: false);
   }
 
   /// Botón «Revisar con la IA» del resultado (tocarlo ES el permiso). Sirve también para descubrir un sello
@@ -188,32 +185,21 @@ class _WebEscritorioState extends State<WebEscritorio> {
       return;
     }
     final previo = _v;
-    final firmaValida =
-        previo != null && previo.fuente == 'sello' && !previo.phishing;
-    final motivo =
-        (previo != null &&
-            previo.phishing &&
-            const [
-              'sin_sello',
-              'sin_verificar',
-              'sello',
-            ].contains(previo.fuente))
-        ? previo.fuente
-        : null;
     await _analizarConIA(
       t,
-      motivoSello: motivo,
-      mensajeSello: motivo == 'sello' ? previo!.voz : null,
-      firmaValida: firmaValida,
+      estadoSello: previo?.selloEstado,
+      verificadorAjeno: previo?.indicios.contains('I2') ?? false,
     );
   }
 
-  /// La IA revisa el texto (ya con el permiso de la persona).
+  /// Analiza el texto: con [usarModelo] la IA (ya con el permiso de la persona); sin él, solo reglas locales
+  /// y fuentes públicas (al instante). [estadoSello] combina el resultado del sello con los indicios.
   Future<void> _analizarConIA(
     String t, {
-    String? motivoSello,
+    String? estadoSello,
     String? mensajeSello,
-    bool firmaValida = false,
+    bool verificadorAjeno = false,
+    bool usarModelo = true,
   }) async {
     if (!mounted) return;
     HapticFeedback.mediumImpact();
@@ -226,6 +212,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
     });
     final vIA = await Analizador.analizar(
       Entrada(t, canal: 'correo pegado en la web'),
+      usarModelo: usarModelo,
       alAvanzar: (paso, p) {
         if (!mounted) return;
         setState(() {
@@ -234,22 +221,26 @@ class _WebEscritorioState extends State<WebEscritorio> {
         });
       },
     );
-    final v = motivoSello == null
-        ? (firmaValida ? conFirmaValida(vIA) : vIA)
-        : descartarPorSello(
-            motivo: motivoSello,
-            mensajeSello: mensajeSello,
-            ia: vIA,
+    final v = estadoSello == null
+        ? vIA
+        : aplicarSello(
+            vIA,
+            estado: estadoSello,
+            mensaje: mensajeSello,
+            verificadorAjeno: verificadorAjeno,
           );
     if (!mounted) return;
     setState(() {
       _v = v;
-      _estado = v.phishing ? EstadoRobot.alerta : EstadoRobot.seguro;
+      _estado = v.phishing
+          ? EstadoRobot.alerta
+          : (v.sinConfirmar ? EstadoRobot.reposo : EstadoRobot.seguro);
       _pasos = [];
       _ultimoRevisado = t;
     });
     _enfocarResultado();
-    Voz.i.decir(v.voz);
+    unawaited(Observatorio.registrar(v));
+    Voz.i.decir(v.locucion);
   }
 
   void _hablarRobot() => _v == null
@@ -882,7 +873,9 @@ class _WebEscritorioState extends State<WebEscritorio> {
     }
     final v = _v;
     if (v == null) return const SizedBox(key: ValueKey('vacio'));
-    final color = v.phishing ? _W.rojo : _W.verde;
+    final color = v.phishing
+        ? _W.rojo
+        : (v.sinConfirmar ? ThemeLightTokens.warnForeground : _W.verde);
     final tarjeta = Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
@@ -909,7 +902,9 @@ class _WebEscritorioState extends State<WebEscritorio> {
                         child: Icon(
                           v.phishing
                               ? Icons.gpp_bad_rounded
-                              : Icons.verified_user_rounded,
+                              : (v.sinConfirmar
+                                    ? Icons.gpp_maybe_rounded
+                                    : Icons.verified_user_rounded),
                           color: _W.sobreAzul,
                           size: 32,
                         ),
@@ -956,36 +951,63 @@ class _WebEscritorioState extends State<WebEscritorio> {
                 ),
                 if (v.phishing && v.indicios.isNotEmpty) ...[
                   const SizedBox(height: 18),
-                  const Text(
-                    'Señales que encontré',
-                    style: TextStyle(
-                      fontFamily: 'packages/theme_light/ThemeLightLexend',
-                      fontVariations: const [FontVariation('wght', 700)],
-                      color: _W.gris,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
+                  // La lista completa (la misma cantidad que dice el resumen y el avatar).
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      'Indicios encontrados (${v.indicios.length})',
+                      style: const TextStyle(
+                        fontFamily: 'packages/theme_light/ThemeLightLexend',
+                        fontVariations: [FontVariation('wght', 700)],
+                        color: _W.gris,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  for (final (i, k) in v.indicios.take(3).indexed)
+                  for (final (i, k) in v.indicios.indexed)
                     if (motivoVoz[k] != null)
                       Aparecer(
-                        orden: 3 + i * 2,
+                        orden: 3 + i,
                         desplazamiento: 14,
                         child: Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.only(bottom: 8),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                Icons.error_outline_rounded,
-                                color: color,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                                 child: Text(
-                                  motivoVoz[k]!,
+                                  k,
+                                  style: TextStyle(
+                                    color: color,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: '${nombreIndicio[k]}. ',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      TextSpan(text: motivoVoz[k]),
+                                    ],
+                                  ),
                                   style: const TextStyle(
                                     color: _W.tinta,
                                     fontSize: 17,
@@ -998,6 +1020,38 @@ class _WebEscritorioState extends State<WebEscritorio> {
                         ),
                       ),
                 ],
+                if (v.avisoSello != null) ...[
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: ThemeLightTokens.warnBackground,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.mark_email_unread_outlined,
+                          color: ThemeLightTokens.warnForeground,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            v.avisoSello!,
+                            style: const TextStyle(
+                              color: ThemeLightTokens.warnForeground,
+                              fontSize: 16,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                PanelPartesCorreo(texto: _texto.text),
                 const SizedBox(height: 14),
                 Aparecer(
                   orden: 8,
