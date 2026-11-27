@@ -139,11 +139,26 @@
   ],
   "falencias": [
     {
+      "indicio": "I1",
+      "nombre": "Urgencia artificial",
+      "estado": "DEBIL",
+      "etiqueta": "Para practicar",
+      "prioridad": 0.75,
+      "riesgo": 0.75,
+      "motivos": [
+        "Hiciste clic una vez en correos de práctica que lo tenían."
+      ],
+      "microcurso": {
+        "titulo": "La prisa es la trampa",
+        "modulo": "M1"
+      }
+    },
+    {
       "indicio": "I7",
       "nombre": "Remitente no oficial",
       "estado": "DEBIL",
       "etiqueta": "Para practicar",
-      "prioridad": 0.73,
+      "prioridad": 0.75,
       "riesgo": 0.75,
       "motivos": [
         "Hiciste clic una vez en correos de práctica que lo tenían.",
@@ -168,21 +183,6 @@
         "titulo": "Tus canales oficiales",
         "modulo": "M2"
       }
-    },
-    {
-      "indicio": "I1",
-      "nombre": "Urgencia artificial",
-      "estado": "DEBIL",
-      "etiqueta": "Para practicar",
-      "prioridad": 0.595,
-      "riesgo": 0.75,
-      "motivos": [
-        "Hiciste clic una vez en correos de práctica que lo tenían."
-      ],
-      "microcurso": {
-        "titulo": "La prisa es la trampa",
-        "modulo": "M1"
-      }
     }
   ],
   "foco_tipologia": {
@@ -194,9 +194,9 @@
   "siguiente_correo": {
     "nivel": 1,
     "indicios_objetivo": [
+      "I1",
       "I7",
-      "I2",
-      "I1"
+      "I2"
     ],
     "tipologia": "T2",
     "motivo": "El siguiente correo será más fácil de reconocer, para practicar con calma."

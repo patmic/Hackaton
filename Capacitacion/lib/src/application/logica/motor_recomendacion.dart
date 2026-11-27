@@ -19,11 +19,14 @@ class Recomendacion {
 }
 
 /// Ordena las actividades que le corresponden al usuario según su ruta
-/// (CLAUDE.md §10.4), las alertas activas del Observatorio y su progreso.
+/// (CLAUDE.md §10.4), las alertas activas del Observatorio, lo que el
+/// observador aprendió de la persona ([PlanPersonalizado]) y su progreso.
 ///
-/// Orden de prioridad: alerta activa de la tipología > siguiente paso de la
-/// ruta de arranque > ciclo de refuerzo > pendientes. Las completadas bajan,
-/// salvo que convenga repasarlas.
+/// Orden de prioridad: alerta activa de la tipología > señal que ya le costó
+/// (falencia DEBIL) > siguiente paso de la ruta de arranque > ciclo de
+/// refuerzo > pendientes. Las completadas bajan, salvo que convenga
+/// repasarlas. Una señal sin probar suma poco: el plan solo manda cuando hay
+/// evidencia de la propia persona.
 class MotorRecomendacion {
   const MotorRecomendacion();
 
@@ -41,18 +44,32 @@ class MotorRecomendacion {
   static const penalizacionCompletada = 50;
   static const umbralRepaso = 0.5;
 
+  /// La falencia más importante del plan; cada una de las siguientes vale
+  /// [pasoFalencia] menos. Incluso la tercera llega al primer paso de
+  /// arranque con una señal sin probar: lo que ya le costó gana a la ruta
+  /// genérica. No pasa de [pesoAlerta]: una campaña activa va primero.
+  static const pesoFalencia = pesoAlerta;
+  static const pasoFalencia = 5;
+
+  /// Señal que todavía no se practicó: un empujón para medirla pronto.
+  static const pesoSinProbar = 10;
+
+  /// Lección que imita la tipología que más le cuesta.
+  static const pesoFoco = 20;
+
   List<Recomendacion> recomendar({
     required List<Actividad> actividades,
     required Perfil perfil,
     required Progreso progreso,
     List<AlertaObservatorio> alertas = const [],
+    PlanPersonalizado? plan,
     int limite = 3,
   }) {
     final alertasDelUsuario =
         alertas.where((a) => a.afectaA(perfil.rangoEtario)).toList()..sort(
           (a, b) => b.incrementoPorcentaje.compareTo(a.incrementoPorcentaje),
         );
-    final plan = PlanCapacitacion.para(
+    final ruta = PlanCapacitacion.para(
       perfil,
       tipologiaAtacada: alertasDelUsuario.isEmpty
           ? null
@@ -79,12 +96,16 @@ class MotorRecomendacion {
         motivos.add('Alerta activa: ${alerta.mensaje}');
       }
 
-      final paso = plan.arranque.indexOf(a.modulo);
+      if (plan != null) {
+        puntaje += _aportePlan(a, plan, motivos);
+      }
+
+      final paso = ruta.arranque.indexOf(a.modulo);
       if (paso >= 0) {
         final bono = pesoArranque - paso * pasoArranque;
         puntaje += bono < minimoArranque ? minimoArranque : bono;
         motivos.add('Paso ${paso + 1} de tu ruta de inicio');
-      } else if (plan.refuerzo.contains(a.modulo)) {
+      } else if (ruta.refuerzo.contains(a.modulo)) {
         puntaje += pesoRefuerzo;
         motivos.add('Refuerzo para tu perfil');
       }
@@ -122,5 +143,39 @@ class MotorRecomendacion {
       return a.actividad.id.compareTo(b.actividad.id);
     });
     return resultado.where((r) => r.puntaje > 0).take(limite).toList();
+  }
+
+  /// Cuánto suma la actividad por trabajar lo que el plan dice que conviene
+  /// practicar. Cuenta la falencia más importante que trabaja (no todas, para
+  /// no premiar a la que solo junta muchas señales).
+  static int _aportePlan(
+    Actividad a,
+    PlanPersonalizado plan,
+    List<String> motivos,
+  ) {
+    final senales = {...a.indicios, ...a.contenido.indiciosUsados};
+    var puntaje = 0;
+    String? motivo;
+    for (final (orden, f) in plan.falencias.indexed) {
+      if (!senales.contains(f.indicio)) continue;
+      // DEBIL, o DOMINADO que toca repasar, pesan según su orden en el plan.
+      final valor = f.estado == EstadoIndicio.sinProbar
+          ? pesoSinProbar
+          : pesoFalencia - orden * pasoFalencia;
+      if (valor <= puntaje) continue;
+      puntaje = valor;
+      motivo = switch (f.estado) {
+        EstadoIndicio.sinProbar =>
+          'Practica una señal nueva para ti: ${f.indicio.nombre}',
+        EstadoIndicio.debil => 'Te conviene practicar: ${f.indicio.nombre}',
+        EstadoIndicio.dominado => 'Repasa: ${f.indicio.nombre}',
+      };
+    }
+    if (motivo != null) motivos.add(motivo);
+    if (plan.foco != null && a.tipologia == plan.foco) {
+      puntaje += pesoFoco;
+      motivos.add('Imita los correos que más te cuestan: ${plan.foco!.nombre}');
+    }
+    return puntaje;
   }
 }

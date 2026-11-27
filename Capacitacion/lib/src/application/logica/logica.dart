@@ -3,6 +3,7 @@ export 'evaluador_real_o_estafa.dart';
 export 'filtro_actividades.dart';
 export 'insignias.dart';
 export 'motor_recomendacion.dart';
+export 'observador_local.dart';
 export 'plan_capacitacion.dart';
 export 'registro_eventos.dart';
 export 'role_guard.dart';

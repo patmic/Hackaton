@@ -131,12 +131,16 @@ def observacion_de_simulacro(
         "tipos": tipos or [sim.tipo_usuario],
         "plantilla_id": sim.plantilla_id,
         "nivel": sim.nivel,
-        "tipologia": _tipologia_de(sim.plantilla_id),
         "indicios": list(sim.indicios),
         "indicios_implicitos": list(indicios_implicitos),
         "resultado": resultado or sim.resultado,
         "reporto_despues_de_clic": reporto_despues_de_clic,
     }
+    # Sin tipología conocida se omite: «?» daría 422 y el observador
+    # rechazaría el lote entero (es todo o nada).
+    tipologia = _tipologia_de(sim.plantilla_id)
+    if tipologia:
+        obs["tipologia"] = tipologia
     # "desconocido" da 422 en el observador: se omite el campo.
     if rango_etario and rango_etario != "desconocido":
         obs["rango_etario"] = rango_etario
@@ -166,7 +170,7 @@ def registrar_resultado_simulacro(
     )
     with _lock:
         _eventos.append({"tipo": "SIMULACRO_RESULTADO", **obs})
-        celda = (sim.tipo_usuario, rango_etario, obs["tipologia"])
+        celda = (sim.tipo_usuario, rango_etario, obs.get("tipologia", "?"))
         _conteo[celda][obs["resultado"]] += 1
         _personas_por_celda[celda].add(sim.id_seudonimo)
     _reenviar_observaciones([obs])
@@ -286,11 +290,11 @@ def metricas(
     return salida
 
 
-def _tipologia_de(plantilla_id: str) -> str:
+def _tipologia_de(plantilla_id: str) -> str | None:
     from .plantillas import PLANTILLAS_POR_ID
 
     p = PLANTILLAS_POR_ID.get(plantilla_id)
-    return p.tipologia if p else "?"
+    return p.tipologia if p else None
 
 
 def _httpx():

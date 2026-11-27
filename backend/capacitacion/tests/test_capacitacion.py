@@ -240,3 +240,23 @@ def test_integracion_completa_con_observador(monkeypatch):
     # Derecho de eliminación (LOPDP): salir borra también en el observador
     client.post("/api/v1/capacitacion/salir", headers={"X-Usuario-Correo": correo})
     assert obs.almacen.de_persona(id_s) == []
+
+
+def test_observacion_sin_tipologia_conocida_no_rompe_el_lote():
+    """Una plantilla desconocida no manda «tipologia: ?»: el observador
+    rechazaría con 422 el lote entero (es todo o nada)."""
+    from datetime import datetime, timezone
+
+    from observador import Observacion
+
+    from backend.capacitacion.almacen import Simulacion
+
+    ahora = datetime.now(timezone.utc)
+    sim = Simulacion(
+        simulacro_id="sim-x", id_seudonimo="a" * 20, tipo_usuario="EX1", nivel=2,
+        indicios=("I1",), plantilla_id="plantilla-retirada", token_hash="h",
+        enviado_en=ahora, vence_en=ahora, resultado="CLIC", resultado_en=ahora,
+    )
+    obs = observatorio.observacion_de_simulacro(sim, tipos=["EX1"], indicios_implicitos=["I7"])
+    assert "tipologia" not in obs
+    assert Observacion.desde_json(obs).tipologia is None  # el observador la acepta

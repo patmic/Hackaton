@@ -170,4 +170,114 @@ void main() {
     );
     expect(r, hasLength(2));
   });
+
+  group('con el plan del observador (Radar Phishing)', () {
+    final conSenales = [
+      actividad('m1', indicios: const [Indicio.i1, Indicio.i7]),
+      actividad('m2', modulo: 'M2', mecanica: Mecanica.a6, tipologia: null),
+      actividad('m3', modulo: 'M3', mecanica: Mecanica.a3, tipologia: null),
+      actividad(
+        'm4-i6',
+        modulo: 'M4',
+        mecanica: Mecanica.a2,
+        tipologia: Tipologia.t2,
+        indicios: const [Indicio.i6, Indicio.i10],
+      ),
+      actividad(
+        'm6-i11',
+        modulo: 'M6',
+        tipologia: Tipologia.t1,
+        indicios: const [Indicio.i11],
+      ),
+    ];
+
+    PlanPersonalizado plan(
+      List<(Indicio, EstadoIndicio)> falencias, {
+      Tipologia? foco,
+    }) => PlanPersonalizado(
+      idSeudonimo: 'id',
+      origen: OrigenPlan.dispositivo,
+      observaciones: 4,
+      foco: foco,
+      falencias: [
+        for (final (i, e) in falencias)
+          FalenciaPlan(indicio: i, estado: e, prioridad: 0.5),
+      ],
+    );
+
+    test('la señal que le costó va antes que la ruta de su tipo', () {
+      final r = motor.recomendar(
+        actividades: conSenales,
+        perfil: ex1,
+        progreso: const Progreso(),
+        plan: plan([(Indicio.i6, EstadoIndicio.debil)]),
+      );
+      expect(ids(r).first, 'm4-i6');
+      expect(
+        r.first.motivos.first,
+        'Te conviene practicar: ${Indicio.i6.nombre}',
+      );
+    });
+
+    test('una señal sin probar solo da un empujón: manda la ruta', () {
+      final r = motor.recomendar(
+        actividades: conSenales,
+        perfil: ex1,
+        progreso: const Progreso(),
+        plan: plan([(Indicio.i11, EstadoIndicio.sinProbar)]),
+        limite: 10,
+      );
+      expect(ids(r).take(3), ['m1', 'm2', 'm3']);
+      final m6 = r.firstWhere((e) => e.actividad.id == 'm6-i11');
+      expect(m6.motivos, contains(startsWith('Practica una señal nueva')));
+    });
+
+    test('cuenta la falencia más importante que trabaja la lección', () {
+      final r = motor.recomendar(
+        actividades: conSenales,
+        perfil: ex1,
+        progreso: const Progreso(),
+        plan: plan([
+          (Indicio.i3, EstadoIndicio.debil),
+          (Indicio.i7, EstadoIndicio.sinProbar),
+          (Indicio.i1, EstadoIndicio.debil),
+        ]),
+        limite: 10,
+      );
+      final m1 = r.firstWhere((e) => e.actividad.id == 'm1');
+      expect(m1.motivos.first, 'Te conviene practicar: ${Indicio.i1.nombre}');
+      expect(
+        m1.puntaje,
+        MotorRecomendacion.pesoFalencia -
+            2 * MotorRecomendacion.pasoFalencia +
+            MotorRecomendacion.pesoArranque +
+            MotorRecomendacion.pesoPendiente,
+      );
+    });
+
+    test('la tipología que más le cuesta suma', () {
+      final r = motor.recomendar(
+        actividades: conSenales,
+        perfil: ex1,
+        progreso: const Progreso(),
+        plan: plan(const [], foco: Tipologia.t2),
+        limite: 10,
+      );
+      final m4 = r.firstWhere((e) => e.actividad.id == 'm4-i6');
+      expect(
+        m4.motivos.first,
+        startsWith('Imita los correos que más te cuestan'),
+      );
+    });
+
+    test('una lección hecha que trabaja su señal débil vuelve como repaso', () {
+      final r = motor.recomendar(
+        actividades: conSenales,
+        perfil: ex1,
+        progreso: const Progreso().marcarCompletada('m4-i6'),
+        plan: plan([(Indicio.i6, EstadoIndicio.debil)]),
+      );
+      expect(ids(r), contains('m4-i6'));
+    });
+  });
 }

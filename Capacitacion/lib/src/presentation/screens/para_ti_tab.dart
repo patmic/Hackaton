@@ -6,6 +6,7 @@ import '../../application/providers.dart';
 import '../../domain/domain.dart';
 import '../widgets/actividad_tile.dart';
 import '../widgets/animaciones.dart';
+import '../widgets/plan_personal_card.dart';
 import '../widgets/responsivo.dart';
 import '../widgets/selector_rango.dart';
 import '../widgets/vista_async.dart';
@@ -137,6 +138,9 @@ class ParaTiTab extends ConsumerWidget {
                     ],
                   ),
           ),
+          // Por qué esas lecciones: lo que el observador aprendió de ti.
+          const SizedBox(height: 16),
+          const PlanPersonalCard(),
 
           // 4. Opcional: edad (sin cuenta) y perfil, al final para no distraer.
           if (!sesion.tieneCuenta) ...[
