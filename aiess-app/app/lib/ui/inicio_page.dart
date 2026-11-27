@@ -11,6 +11,7 @@ import '../features/analisis/analizador.dart';
 import '../features/analisis/motor.dart';
 import '../features/chat/persona.dart';
 import '../features/mascota/robot_guardia.dart';
+import '../features/correo/eml.dart';
 import '../features/ocr/documento.dart';
 import '../features/ocr/ocr.dart';
 import '../features/voz/voz.dart';
@@ -330,7 +331,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       // Web: PDF o imagen, leídos con OCR en el propio navegador (el archivo no sale del equipo).
       final r = await FilePicker.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'bmp'],
+        allowedExtensions: ['eml', 'pdf', 'png', 'jpg', 'jpeg', 'webp', 'bmp'],
       );
       if (r.isEmpty) return;
       final f = r.single;
@@ -344,7 +345,10 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       unawaited(Voz.i.decir('Déjame leer el archivo.'));
       var texto = '';
       try {
-        texto = await LectorDocumento.leer(await f.readAsBytes(), f.name);
+        final bytes = await f.readAsBytes();
+        texto = f.name.toLowerCase().endsWith('.eml')
+            ? leerEml(bytes).paraAnalizar
+            : await LectorDocumento.leer(bytes, f.name);
       } catch (_) {}
       if (!mounted) return;
       if (texto.trim().length < 8) {
@@ -365,8 +369,19 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       );
       return;
     }
-    final r = await FilePicker.pickFiles(type: FileType.image);
-    final ruta = r.isEmpty ? null : r.single.path;
+    // Celular: una captura (OCR con ML Kit) o un correo guardado (.eml).
+    final r = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['eml', 'png', 'jpg', 'jpeg', 'webp'],
+    );
+    if (r.isEmpty) return;
+    final f = r.single;
+    if (f.name.toLowerCase().endsWith('.eml')) {
+      final correo = leerEml(await f.readAsBytes());
+      await _revisarTexto(correo.paraAnalizar, canal: 'correo .eml');
+      return;
+    }
+    final ruta = f.path;
     if (ruta != null) await _analizarImagen(ruta);
   }
 
@@ -428,8 +443,18 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         setState(() {
           _estado = EstadoRobot.escuchando;
           _titular = 'Te escucho…';
+          _subtitulo = '';
         });
+        // Subtítulos en vivo: lo que va entendiendo aparece mientras la persona habla.
+        void verParcial() {
+          if (mounted && Voz.i.parcial.value.isNotEmpty) {
+            setState(() => _subtitulo = '«${Voz.i.parcial.value}»');
+          }
+        }
+
+        Voz.i.parcial.addListener(verParcial);
         final dicho = await Voz.i.escuchar();
+        Voz.i.parcial.removeListener(verParcial);
         if (!mounted) return;
         if (dicho == null) {
           setState(() {
@@ -589,6 +614,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       onReanalizar: _entrada == null ? null : () => _analizar(_entrada!),
       onAula: () => abrirAulaVirtual(context),
       onPracticar: _abrirPractica,
+      resumen: _modo == _Modo.resultado ? _veredicto?.resumen : null,
     );
   }
 }

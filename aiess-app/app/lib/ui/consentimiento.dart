@@ -4,12 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../features/voz/voz.dart';
+import '../features/llm/cerebro.dart';
 import 'tema.dart';
 
-const textoConsentimiento =
-    'Para revisar este correo, la inteligencia artificial de AIESS va a leerlo. '
-    'Antes quitamos tu nombre, cédula, teléfono y cuentas. '
-    'Al terminar, la conversación se borra: no se guarda ni se usa para entrenar.';
+String get textoConsentimiento => Cerebro.i.enEsteEquipo
+    ? 'Para revisar este correo, la inteligencia artificial de AIESS va a leerlo AQUÍ, en tu equipo: '
+          'el correo no sale de él. Al terminar, la conversación se borra.'
+    : 'Para revisar este correo, la inteligencia artificial de AIESS va a leerlo en el servidor de AIESS. '
+          'Antes quitamos tu nombre, cédula, teléfono y cuentas. Al terminar, la conversación se borra: '
+          'no se guarda ni se usa para entrenar.';
 
 /// Devuelve true solo si la persona toca «Sí, revisar con la IA».
 Future<bool> pedirConsentimientoIA(

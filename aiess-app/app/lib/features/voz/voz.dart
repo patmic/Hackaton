@@ -79,11 +79,20 @@ class Voz {
   /// Cierra la escucha en curso (los avisos del micrófono se registran una sola vez y llaman aquí).
   void Function(String?) _terminarActual = (_) {};
 
+  /// Lo último que se entendió. Muchos celulares nunca mandan el resultado "final":
+  /// al terminar la escucha se usa esto en vez de perder lo que la persona dijo.
+  String? _ultimoParcial;
+
+  /// Lo que va entendiendo mientras la persona habla (subtítulos en vivo).
+  final parcial = ValueNotifier('');
+
   /// Escucha una frase y la devuelve escrita. Nunca se queda colgada: termina con el resultado,
-  /// con silencio, con un error del micrófono o a los 25 segundos.
+  /// con silencio, con un error del micrófono o a los 45 segundos.
   Future<String?> escuchar() async {
     await callar();
     problemaEscucha = null;
+    _ultimoParcial = null;
+    parcial.value = '';
     final c = Completer<String?>();
     void terminar(String? texto) {
       if (!c.isCompleted) c.complete(texto);
@@ -104,14 +113,14 @@ class Voz {
                       e.errorMsg.contains('speech_timeout'))
                 ? 'No te escuché. Habla un poco más fuerte, cerca del micrófono.'
                 : 'El micrófono tuvo un problema. Vuelve a intentarlo.';
-            _terminarActual(null);
+            _terminarActual(_ultimoParcial);
           },
           onStatus: (s) {
             if (s == 'done' || s == 'notListening') {
               final cerrar = _terminarActual;
               Future.delayed(
-                const Duration(milliseconds: 600),
-                () => cerrar(null),
+                const Duration(milliseconds: 700),
+                () => cerrar(_ultimoParcial),
               );
             }
           },
@@ -135,23 +144,32 @@ class Voz {
       );
       escuchando.value = true;
       await _stt.listen(
+        // Dictado largo y con pausas generosas (las personas mayores hablan con calma).
         listenOptions: SpeechListenOptions(
-          partialResults: false,
+          partialResults: true,
+          listenMode: ListenMode.dictation,
+          cancelOnError: true,
           localeId: _localeStt,
-          listenFor: const Duration(seconds: 20),
-          pauseFor: const Duration(seconds: 3),
+          listenFor: const Duration(seconds: 40),
+          pauseFor: const Duration(seconds: 5),
         ),
         onResult: (r) {
+          if (r.recognizedWords.trim().isNotEmpty) {
+            _ultimoParcial = r.recognizedWords;
+            parcial.value = r.recognizedWords;
+          }
           if (r.finalResult) terminar(r.recognizedWords);
         },
       );
       final r = await c.future.timeout(
-        const Duration(seconds: 25),
+        const Duration(seconds: 45),
         onTimeout: () {
           _stt.stop();
-          return null;
+          return _ultimoParcial;
         },
       );
+      // Si hubo un error pero alcanzó a entender algo, se usa eso.
+      if (r != null && r.trim().isNotEmpty) problemaEscucha = null;
       if ((r == null || r.trim().isEmpty) && problemaEscucha == null) {
         problemaEscucha =
             'No te escuché bien. Toca el botón y vuelve a intentarlo.';

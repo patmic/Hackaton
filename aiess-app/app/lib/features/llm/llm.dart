@@ -41,7 +41,13 @@ class Cerebro {
   String? ruta;
 
   /// Listo = hay servidor de IA disponible (modo principal) o un modelo local cargado (respaldo).
-  bool get listo => ServidorIA.i.disponible || ruta != null;
+  bool get listo => ruta != null || _servidorUsable;
+
+  bool get _servidorUsable => ServidorIA.i.disponible && ServidorIA.i.permitido;
+
+  /// Dónde piensa la IA ahora (para decírselo a la persona antes de pedir su permiso).
+  bool get enEsteEquipo =>
+      ruta != null || (_servidorUsable && ServidorIA.i.esLocal);
 
   /// true mientras el modelo se carga en memoria (la UI muestra "Despertando al robot…").
   final cargando = ValueNotifier(false);
@@ -49,7 +55,7 @@ class Cerebro {
   /// Solo el modelo afinado con el dataset del IESS (archivo "aiess-*.gguf") decide veredictos.
   /// Un LFM2 base se usa para conversar; el veredicto lo dan las reglas OSINT.
   bool get afinado =>
-      ServidorIA.i.afinado ||
+      (ServidorIA.i.afinado && ServidorIA.i.permitido) ||
       (ruta != null &&
           ruta!
               .split(Platform.pathSeparator)
@@ -98,15 +104,13 @@ class Cerebro {
 
   /// Carga el último modelo usado (o el primero disponible). No falla si no hay ninguno.
   Future<bool> iniciar() async {
-    // Modo principal: IA en el servidor de AIESS (el celular no carga el modelo de 730 MB).
+    // IA LOCAL primero: el modelo LFM2 entrenado corre en el celular y el correo no sale del equipo.
+    // El servidor de AIESS es opcional (Ajustes) y solo se consulta si la persona lo activó.
     await ServidorIA.i.cargarAjustes();
-    cargando.value = true;
-    final remoto = await ServidorIA.i.comprobar();
-    cargando.value = false;
-    if (remoto) return true;
+    if (ServidorIA.i.permitido) unawaited(ServidorIA.i.comprobar());
     final prefs = await SharedPreferences.getInstance();
     final lista = await disponibles();
-    if (lista.isEmpty) return false;
+    if (lista.isEmpty) return _servidorUsable;
     final guardado = prefs.getString('modelo');
     final aiess = lista.where(
       (f) => f.path.split('/').last.startsWith('aiess'),
@@ -149,7 +153,7 @@ class Cerebro {
     List<String> stop = const [],
     void Function(String)? alToken,
   }) async {
-    if (ServidorIA.i.disponible) {
+    if (ruta == null && _servidorUsable) {
       try {
         return await ServidorIA.i.completar(
           prompt,

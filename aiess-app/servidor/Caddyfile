@@ -3,7 +3,7 @@
 	log {
 		output discard
 	}
-	encode gzip
+	encode zstd gzip
 
 	# API del modelo (protegida con la clave AIESS_CLAVE en llama-server).
 	@api path /completion /health /v1/*
@@ -20,11 +20,13 @@
 		# Cada versión de la web se publica bajo /v<versión>/ (flutter build web --base-href /v<versión>/):
 		# son URLs nuevas, así que ningún caché (Cloudflare, navegador) sirve una versión vieja.
 		@version path_regexp version ^/v[0-9a-z]+(/.*)$
+		@pagina not path_regexp ^/v[0-9a-z]+/
+		# Archivos de una versión: nunca cambian, se guardan un año (las visitas siguientes cargan al instante).
+		header @version Cache-Control "public, max-age=31536000, immutable"
+		# La página principal siempre se revisa: así apunta a la versión nueva apenas se publica.
+		header @pagina Cache-Control "no-cache"
 		rewrite @version {re.version.1}
 		try_files {path} /index.html
-		# Los archivos de Flutter no cambian de nombre entre versiones: que Cloudflare (o el navegador)
-		# siempre pregunte si hay una nueva antes de usar su copia.
-		header Cache-Control "no-cache"
 		file_server
 	}
 }

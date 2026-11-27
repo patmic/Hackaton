@@ -31,8 +31,29 @@ class ServidorIA {
 
   bool get afinado => disponible && modelo.toLowerCase().contains('aiess');
 
+  /// IA local primero (requisito del reto: el correo no sale del equipo). En el celular el servidor
+  /// solo se usa si la persona lo activa en Ajustes. En la web no hay modelo en el navegador: se usa
+  /// el servidor desde el que se abrió la página (en una PC con Docker es la propia computadora).
+  bool permitido = kIsWeb;
+
+  /// La página se abrió desde esta misma computadora o la red local: el modelo corre "en el equipo".
+  bool get esLocal {
+    final h = Uri.tryParse(url)?.host ?? '';
+    return h == 'localhost' ||
+        h == '127.0.0.1' ||
+        h.startsWith('192.168.') ||
+        h.startsWith('10.') ||
+        h.endsWith('.local');
+  }
+
+  Future<void> permitir(bool si) async {
+    permitido = si;
+    (await SharedPreferences.getInstance()).setBool('usar_servidor', si);
+  }
+
   Future<void> cargarAjustes() async {
     final p = await SharedPreferences.getInstance();
+    permitido = kIsWeb || (p.getBool('usar_servidor') ?? false);
     url = (p.getString('servidor_url') ?? '').trim().isEmpty
         ? porDefecto
         : p.getString('servidor_url')!.trim();
@@ -85,7 +106,7 @@ class ServidorIA {
   /// Borra la conversación del servidor: reemplaza su memoria de trabajo (caché del contexto) por el prompt
   /// de sistema solo, así el correo analizado deja de estar en la memoria del modelo. No genera nada.
   Future<void> olvidar(String soloSistema) async {
-    if (!disponible) return;
+    if (!disponible || !permitido) return;
     try {
       await http
           .post(

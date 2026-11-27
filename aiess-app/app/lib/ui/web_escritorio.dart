@@ -14,6 +14,7 @@ import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
 import 'aula_virtual.dart';
 import 'consentimiento.dart';
+import '../features/correo/eml.dart';
 import '../features/ocr/documento.dart';
 import 'package:file_picker/file_picker.dart';
 import '../features/sello/sello.dart';
@@ -163,7 +164,15 @@ class _WebEscritorioState extends State<WebEscritorio> {
 
   Future<void> _hablar() async {
     setState(() => _escuchando = true);
+    // Lo dictado se va escribiendo en el campo mientras la persona habla.
+    void verParcial() {
+      if (mounted && Voz.i.parcial.value.isNotEmpty)
+        _texto.text = Voz.i.parcial.value;
+    }
+
+    Voz.i.parcial.addListener(verParcial);
     final dicho = await Voz.i.escuchar();
+    Voz.i.parcial.removeListener(verParcial);
     if (!mounted) return;
     setState(() => _escuchando = false);
     if (dicho != null) {
@@ -183,7 +192,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
   Future<void> _subir() async {
     final r = await FilePicker.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'bmp'],
+      allowedExtensions: ['eml', 'pdf', 'png', 'jpg', 'jpeg', 'webp', 'bmp'],
     );
     if (r.isEmpty) return;
     final f = r.single;
@@ -197,7 +206,10 @@ class _WebEscritorioState extends State<WebEscritorio> {
     Voz.i.decir('Déjame leer el archivo.');
     var texto = '';
     try {
-      texto = await LectorDocumento.leer(await f.readAsBytes(), f.name);
+      final bytes = await f.readAsBytes();
+      texto = f.name.toLowerCase().endsWith('.eml')
+          ? leerEml(bytes).paraAnalizar
+          : await LectorDocumento.leer(bytes, f.name);
     } catch (_) {}
     if (!mounted) return;
     setState(() {
@@ -355,7 +367,8 @@ class _WebEscritorioState extends State<WebEscritorio> {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
-                                  'Antes de revisarlo quitamos tu nombre, cédula, teléfono y cuentas. Luego se borra todo. Nunca te pediremos claves.',
+                                  'Antes de revisarlo quitamos tu nombre, cédula, teléfono y cuentas. Luego se borra todo. Nunca te pediremos claves. '
+                                  'Fuentes OSINT y CTI: reglas locales, RDAP (edad del dominio) y OpenPhish; solo se consulta el dominio o el enlace.',
                                   style: Letra.lectura(
                                     16,
                                     color: Colors.white.withValues(alpha: 0.88),
@@ -526,7 +539,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                           ),
                           _BotonTexto(
                             icono: Icons.upload_file_rounded,
-                            texto: 'Subir PDF o imagen',
+                            texto: 'Subir correo (.eml, PDF o imagen)',
                             onTap: _ocupado ? null : _subir,
                           ),
                         ],
@@ -645,7 +658,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                   const SizedBox(width: 14),
                   Flexible(
                     child: Text(
-                      v.phishing ? 'Posible estafa' : 'Parece seguro',
+                      v.resumen,
                       style: const TextStyle(
                         fontFamily: 'packages/theme_light/ThemeLightLexend',
                         fontVariations: const [FontVariation('wght', 700)],

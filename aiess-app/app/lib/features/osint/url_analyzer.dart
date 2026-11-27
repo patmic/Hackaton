@@ -38,10 +38,15 @@ class AnalisisOsint {
   final ({bool sospechoso, String detalle})? remitente;
   final List<String> red = [];
 
+  /// Hallazgos de fuentes externas (RDAP, OpenPhish) y su peso.
+  final List<String> cti = [];
+  int ctiPuntaje = 0;
+
   int get puntaje => [
     ...urls.map((u) => u.puntaje),
     if (enganosos.isNotEmpty) 60,
     if (remitente?.sospechoso ?? false) 40,
+    ctiPuntaje,
     0,
   ].reduce((a, b) => a > b ? a : b);
 
@@ -49,6 +54,7 @@ class AnalisisOsint {
     for (final u in urls) ...u.indicios,
     if (enganosos.isNotEmpty) 'I4',
     if (remitente?.sospechoso ?? false) 'I7',
+    if (ctiPuntaje >= 55) 'I2',
   };
 
   /// Bloque [OSINT] para el prompt del modelo (mismo formato que resumen_osint() en Python).
@@ -78,6 +84,10 @@ class AnalisisOsint {
           ? ['- Verificacion en red: no realizada']
           : red.map((r) => '- $r'),
     );
+    if (cti.isNotEmpty) {
+      l.add('[CTI]');
+      l.addAll(cti.map((c) => '- $c'));
+    }
     return l.join('\n');
   }
 }

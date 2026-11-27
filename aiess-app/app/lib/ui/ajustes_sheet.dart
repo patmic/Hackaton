@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../features/llm/cerebro.dart';
 import '../features/llm/remoto.dart';
+import '../features/osint/cti.dart';
 import 'aula_virtual.dart';
 import 'bienvenida_page.dart';
 import 'tema.dart';
@@ -125,6 +126,43 @@ class _AjustesState extends State<_Ajustes> {
                 ),
               ),
               const SizedBox(height: 8),
+              // IA local (requisito: el modelo corre en el equipo y el correo no sale).
+              Row(
+                children: [
+                  Icon(
+                    Cerebro.i.ruta != null
+                        ? Icons.phone_android_rounded
+                        : Icons.info_outline_rounded,
+                    color: Cerebro.i.ruta != null ? Tono.verde : Tono.ambar,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      Cerebro.i.ruta != null
+                          ? 'IA local activa: el modelo entrenado corre en este celular y tu correo no sale de él.'
+                          : kIsWeb
+                          ? 'En la web la IA corre en el servidor desde el que abriste la página.'
+                          : 'Aún no hay modelo en este celular: el robot revisa con sus reglas, o con el servidor si lo activas.',
+                    ),
+                  ),
+                ],
+              ),
+              if (!kIsWeb)
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Usar también el servidor de AIESS'),
+                  subtitle: const Text(
+                    'Más rápido, pero el texto del correo (sin tus datos personales) sale del celular. '
+                    'Apagado, todo se revisa aquí.',
+                  ),
+                  value: ServidorIA.i.permitido,
+                  onChanged: (v) async {
+                    await ServidorIA.i.permitir(v);
+                    if (v) await ServidorIA.i.comprobar();
+                    if (mounted) setState(() {});
+                  },
+                ),
+              const SizedBox(height: 4),
               Row(
                 children: [
                   Icon(
@@ -145,6 +183,22 @@ class _AjustesState extends State<_Ajustes> {
               ),
               const SizedBox(height: 10),
               const _AvisoPrivacidad(),
+              // Fuentes OSINT y CTI declaradas (requisito del reto): solo dominio o URL.
+              const SizedBox(height: 10),
+              ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                leading: const Icon(Icons.travel_explore_rounded),
+                title: const Text('Fuentes que consulto (OSINT y CTI)'),
+                subtitle: const Text('Solo el dominio o el enlace, nunca tu correo'),
+                children: [
+                  for (final f in FuentesCti.declaracion)
+                    ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.check_circle_outline_rounded),
+                      title: Text(f),
+                    ),
+                ],
+              ),
               if (!kIsWeb) ...[
                 const SizedBox(height: 12),
                 TextField(

@@ -19,6 +19,9 @@ class Cerebro {
   String? ruta;
   bool get listo => ServidorIA.i.disponible;
   bool get afinado => ServidorIA.i.afinado;
+
+  /// En la web el modelo está en el servidor que publica la página: es "el equipo" solo si es esta PC o la red local.
+  bool get enEsteEquipo => ServidorIA.i.disponible && ServidorIA.i.esLocal;
   final cargando = ValueNotifier(false);
 
   /// En web la IA siempre es la del servidor (por defecto, el mismo que publica esta página).

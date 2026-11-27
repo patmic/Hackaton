@@ -57,6 +57,17 @@ class Veredicto {
   final List<String> indicios;
 
   /// 2-3 palabras para la pantalla (poka-yoke: el detalle lo dice la voz).
+  /// Veredicto claro (requisito del reto): Sí o No, y cuántos indicios.
+  String get resumen {
+    if (fuente == 'sello')
+      return phishing
+          ? 'Phishing: SÍ · sello falso'
+          : 'Phishing: NO · firma válida del IESS';
+    final n = indicios.length;
+    final cuantos = '$n ${n == 1 ? 'indicio' : 'indicios'}';
+    return phishing ? 'Phishing: SÍ · $cuantos' : 'Phishing: NO · $cuantos';
+  }
+
   String get titular => phishing
       ? (puntaje >= 60 ? '¡Es una estafa!' : 'Mejor no confíes')
       : 'Es seguro';
@@ -152,7 +163,12 @@ Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
       voz:
           'Cuidado, este mensaje parece una estafa. $motivos No abras el enlace ni respondas.',
       indicios: orden,
-      explicacion: orden.map((k) => motivoVoz[k]!).join(' '),
+      explicacion: [
+        ...orden.map((k) => motivoVoz[k]!),
+        ...osint.cti.where(
+          (c) => c.startsWith('OpenPhish') || c.contains('se creó hace'),
+        ),
+      ].join(' '),
       queHacer:
           'No abras enlaces ni adjuntos. Avísale al IESS a ${c['seguridad_informacion']}. '
           'Si ya diste tu clave, cámbiala en ${c['aplicaciones']} o llama al ${c['atencion_telefono']}.',

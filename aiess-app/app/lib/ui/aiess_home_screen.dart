@@ -41,6 +41,7 @@ class AiessHomeScreen extends StatelessWidget {
     this.onReanalizar,
     this.onAula,
     this.onPracticar,
+    this.resumen,
   });
 
   final VoidCallback onPasteAndCheck, onVoiceInput, onPickImage, onOpenSettings;
@@ -54,6 +55,9 @@ class AiessHomeScreen extends StatelessWidget {
   final List<String> pasos;
   final double? progreso;
   final bool escuchando;
+
+  /// «Phishing: SÍ · 3 indicios» (veredicto claro).
+  final String? resumen;
   final VoidCallback? onTapMascota,
       onReport,
       onDone,
@@ -174,6 +178,7 @@ class AiessHomeScreen extends StatelessWidget {
                     pasos: pasos,
                     progreso: progreso,
                     dur: dur,
+                    resumen: resumen,
                   ),
                   const Spacer(),
                   const SizedBox(height: 16),
@@ -261,8 +266,8 @@ class AiessHomeScreen extends StatelessWidget {
                   Expanded(
                     child: _BotonTarjeta(
                       // En la web se sube un PDF o una foto (OCR en el navegador).
-                      texto: kIsWeb ? 'Subir PDF o foto' : 'Escanear foto',
-                      ayuda: kIsWeb ? 'Se lee en tu equipo' : 'De una captura',
+                      texto: kIsWeb ? 'Subir correo' : 'Escanear o subir',
+                      ayuda: kIsWeb ? '.eml, PDF o foto' : 'Foto o correo .eml',
                       icono: kIsWeb
                           ? Icons.upload_file_rounded
                           : Icons.document_scanner_rounded,
@@ -302,7 +307,9 @@ class _Globo extends StatelessWidget {
     required this.pasos,
     required this.progreso,
     required this.dur,
+    this.resumen,
   });
+  final String? resumen;
   final EstadoHoja estado;
   final String titulo, indicacion;
   final String? texto;
@@ -318,13 +325,13 @@ class _Globo extends StatelessWidget {
         Tono.rojoSuave,
         Tono.rojo,
         Icons.gpp_bad_rounded,
-        'Posible estafa',
+        resumen ?? 'Posible estafa',
       ),
       EstadoHoja.seguro => (
         Tono.verdeSuave,
         Tono.verde,
         Icons.verified_user_rounded,
-        'Parece seguro',
+        resumen ?? 'Parece seguro',
       ),
       _ => (Tono.superficie, Tono.linea, null, null),
     };

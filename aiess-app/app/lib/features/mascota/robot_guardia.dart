@@ -35,10 +35,11 @@ class _RobotGuardiaState extends State<RobotGuardia>
     vsync: this,
     duration: const Duration(milliseconds: 3200),
   )..repeat(reverse: true);
+  // Solo corre mientras analiza o habla (antes giraba siempre y redibujaba 60 veces por segundo).
   late final _gira = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1400),
-  )..repeat();
+  );
   late final _parpado = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 130),
@@ -55,6 +56,24 @@ class _RobotGuardiaState extends State<RobotGuardia>
   void initState() {
     super.initState();
     _programarParpadeo();
+    Voz.i.hablando.addListener(_sincronizarGiro);
+    _sincronizarGiro();
+  }
+
+  @override
+  void didUpdateWidget(RobotGuardia old) {
+    super.didUpdateWidget(old);
+    _sincronizarGiro();
+  }
+
+  void _sincronizarGiro() {
+    final hace =
+        widget.estado == EstadoRobot.analizando || Voz.i.hablando.value;
+    if (hace && !_gira.isAnimating) {
+      _gira.repeat();
+    } else if (!hace && _gira.isAnimating) {
+      _gira.stop();
+    }
   }
 
   void _programarParpadeo() {
@@ -73,6 +92,7 @@ class _RobotGuardiaState extends State<RobotGuardia>
   @override
   void dispose() {
     _timer?.cancel();
+    Voz.i.hablando.removeListener(_sincronizarGiro);
     _respira.dispose();
     _gira.dispose();
     _parpado.dispose();
@@ -112,103 +132,106 @@ class _RobotGuardiaState extends State<RobotGuardia>
   @override
   Widget build(BuildContext context) {
     final reducido = MediaQuery.of(context).disableAnimations;
-    return Semantics(
-      label: 'AIess, robot guardián. Toca para escucharle',
-      button: widget.alTocar != null,
-      child: GestureDetector(
-        onTap: () {
-          _rebote.forward(from: 0);
-          widget.alTocar?.call();
-        },
-        child: AnimatedBuilder(
-          animation: Listenable.merge([
-            _respira,
-            _gira,
-            _parpado,
-            _rebote,
-            Voz.i.silaba,
-            Voz.i.hablando,
-          ]),
-          builder: (context, _) {
-            final hablando = Voz.i.hablando.value;
-            final silaba = Voz.i.silaba.value;
-            final boca = _calcularBoca(hablando, silaba, reducido);
-            final respira = reducido
-                ? 0.0
-                : Curves.easeInOut.transform(_respira.value);
-            final rebote = sin(_rebote.value * pi) * 0.035;
-            final escala = 1 + respira * 0.012 + rebote;
-            final robot = CustomPaint(
-              painter: _RobotPintor(
-                estado: widget.estado,
-                ojos: _colorOjos,
-                parpado: _parpado.value,
-                boca: boca,
-                escaner: widget.estado == EstadoRobot.analizando
-                    ? _gira.value
-                    : null,
-              ),
-            );
-
-            if (widget.forma == Forma.plena) {
-              return LayoutBuilder(
-                builder: (context, constraints) {
-                  final lado = min(
-                    min(
-                      constraints.maxWidth * 0.8,
-                      constraints.maxHeight * 0.9,
-                    ),
-                    460.0,
-                  );
-                  return DecoratedBox(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          ThemeLightTokens.background,
-                          ThemeLightTokens.page,
-                        ],
-                      ),
-                    ),
-                    child: Center(
-                      child: Transform.scale(
-                        scale: escala,
-                        child: SizedBox.square(dimension: lado, child: robot),
-                      ),
-                    ),
-                  );
-                },
-              );
-            }
-
-            final arco = widget.forma == Forma.arco;
-            final alto = arco ? widget.tam * 1.22 : widget.tam;
-            return SizedBox(
-              width: widget.tam + 40,
-              height: alto + 40,
-              child: CustomPaint(
-                painter: _AuraRobot(
-                  color: _colorAura,
+    // Capa de dibujo propia: la respiración del robot no obliga a redibujar el resto de la página.
+    return RepaintBoundary(
+      child: Semantics(
+        label: 'AIess, robot guardián. Toca para escucharle',
+        button: widget.alTocar != null,
+        child: GestureDetector(
+          onTap: () {
+            _rebote.forward(from: 0);
+            widget.alTocar?.call();
+          },
+          child: AnimatedBuilder(
+            animation: Listenable.merge([
+              _respira,
+              _gira,
+              _parpado,
+              _rebote,
+              Voz.i.silaba,
+              Voz.i.hablando,
+            ]),
+            builder: (context, _) {
+              final hablando = Voz.i.hablando.value;
+              final silaba = Voz.i.silaba.value;
+              final boca = _calcularBoca(hablando, silaba, reducido);
+              final respira = reducido
+                  ? 0.0
+                  : Curves.easeInOut.transform(_respira.value);
+              final rebote = sin(_rebote.value * pi) * 0.035;
+              final escala = 1 + respira * 0.012 + rebote;
+              final robot = CustomPaint(
+                painter: _RobotPintor(
                   estado: widget.estado,
-                  giro: _gira.value,
-                  silaba: hablando ? max(silaba, 0.25) : 0,
-                  respira: respira,
-                  arco: arco,
+                  ojos: _colorOjos,
+                  parpado: _parpado.value,
+                  boca: boca,
+                  escaner: widget.estado == EstadoRobot.analizando
+                      ? _gira.value
+                      : null,
                 ),
-                child: Center(
-                  child: Transform.scale(
-                    scale: escala,
-                    child: SizedBox(
-                      width: widget.tam,
-                      height: alto,
-                      child: robot,
+              );
+
+              if (widget.forma == Forma.plena) {
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final lado = min(
+                      min(
+                        constraints.maxWidth * 0.8,
+                        constraints.maxHeight * 0.9,
+                      ),
+                      460.0,
+                    );
+                    return DecoratedBox(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            ThemeLightTokens.background,
+                            ThemeLightTokens.page,
+                          ],
+                        ),
+                      ),
+                      child: Center(
+                        child: Transform.scale(
+                          scale: escala,
+                          child: SizedBox.square(dimension: lado, child: robot),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+
+              final arco = widget.forma == Forma.arco;
+              final alto = arco ? widget.tam * 1.22 : widget.tam;
+              return SizedBox(
+                width: widget.tam + 40,
+                height: alto + 40,
+                child: CustomPaint(
+                  painter: _AuraRobot(
+                    color: _colorAura,
+                    estado: widget.estado,
+                    giro: _gira.value,
+                    silaba: hablando ? max(silaba, 0.25) : 0,
+                    respira: respira,
+                    arco: arco,
+                  ),
+                  child: Center(
+                    child: Transform.scale(
+                      scale: escala,
+                      child: SizedBox(
+                        width: widget.tam,
+                        height: alto,
+                        child: robot,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

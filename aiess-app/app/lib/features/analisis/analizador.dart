@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../llm/cerebro.dart';
 import '../llm/remoto.dart';
+import '../osint/cti.dart';
 import '../osint/url_analyzer.dart';
 import 'anonimizar.dart';
 import 'motor.dart';
@@ -24,6 +25,14 @@ class Analizador {
   }) async {
     alAvanzar?.call('Mirando el enlace', null);
     final osint = analizarMensaje(e.texto, remitente: e.remitente);
+    // Fuentes OSINT/CTI externas: solo el dominio o la URL (nunca el texto del correo).
+    if (osint.urls.any((u) => !u.confiable)) {
+      alAvanzar?.call(
+        'Consultando fuentes de amenazas (solo el dominio)',
+        null,
+      );
+      await consultarCti(osint);
+    }
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool('red') ?? false) {
       alAvanzar?.call('Revisando el sitio en internet', null);
