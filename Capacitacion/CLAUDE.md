@@ -234,11 +234,11 @@ Hay 1.296 combinaciones posibles; solo se activan las de 10 personas o más. La 
 
 ### 10.1 Modelo 4R
 
-Cada módulo recorre: **Reconocer** (señales) → **Reaccionar** (pausar y verificar en el canal oficial) → **Reportar** (un toque) → **Replicar** (enseñar a otro). Principios: practicar antes que leer, corregir en el momento, poco y seguido (1 a 5 min), aprender ayudando, sin culpa.
+Cada módulo recorre: **Reconocer** (señales) → **Reaccionar** (pausar y verificar en el canal oficial) → **Reportar** (un toque) → **Replicar** (enseñar a otro). Principios: practicar antes que leer, corregir en el momento, poco y seguido (cada lección dura **de 1 a 3 min** [DECIDIDO 2026-11-27]), aprender ayudando, sin culpa.
 
 Evidencia que lo respalda: la capacitación anual muestra eficacia casi nula en evaluaciones aleatorizadas; la retroalimentación inmediata tras caer reduce la susceptibilidad; la eficacia de la capacitación embebida viene más del recordatorio periódico que del contenido; lo aprendido se olvida en 1 a 6 meses.
 
-### 10.2 Módulos (14)
+### 10.2 Módulos (15)
 
 | Módulo | Nivel | Tipos | Min | Objetivo | Actividades |
 | --- | --- | --- | --- | --- | --- |
@@ -256,6 +256,7 @@ Evidencia que lo respalda: la capacitación anual muestra eficacia casi nula en 
 | M12 Emisión segura | 3 | IN2 | 5 | Emitir solo su tipología | A3, A8 |
 | M13 Respuesta a campañas | 3 | IN3, IN4 | 30 | Detectar, segmentar y alertar (ejercicio de mesa) | A9 |
 | M14 Centinela: ataques avanzados | 4 | Centinelas | 5 | Suplantación con IA y por WhatsApp | A4, A5 |
+| M15 Deepfakes: voces y videos falsos [DECIDIDO 2026-11-27] | 2 | Todos | 3 | Reconocer voces, videos y fotos falsos hechos con IA (voz clonada de un familiar, video falso de una autoridad, videollamada del falso jefe, selfie con la cédula) y verificar por otro canal | A1, A2 |
 
 ### 10.3 Mecánicas interactivas (9 componentes Flutter reutilizables)
 

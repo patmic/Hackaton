@@ -600,5 +600,234 @@
       }
     ],
     "mensaje_clave": "Ningún compañero o área del IESS le pide su clave institucional por correo."
+  },
+  {
+    "id": "M15-A2-01",
+    "modulo": "M15",
+    "mecanica": "A2_REAL_O_ESTAFA",
+    "titulo": "¿Qué es un deepfake?",
+    "resumen": "Un deepfake es un audio, un video o una foto hechos con inteligencia artificial para que alguien parezca decir o hacer algo que nunca hizo. Los estafadores los usan para hacerse pasar por tu familia, tu jefe o un funcionario del IESS y pedirte dinero o datos. Practica con cinco mensajes: ¿cuáles son reales?",
+    "paso_4r": ["RECONOCER", "REACCIONAR"],
+    "indicios": ["I1", "I2", "I6", "I7", "I9", "I10"],
+    "duracion_seg": 150,
+    "tarjetas": [
+      {
+        "id": "M15-A2-01-t1",
+        "mensaje": {
+          "remitente": "+593 9• ••• 8812 (WhatsApp, número nuevo)",
+          "asunto": "Nota de voz: «Abuelita, soy yo, Diego»",
+          "cuerpo": "«Abuelita, choqué el carro y estoy detenido. No le digas a mi mamá.»\n«Necesito que me transfieras $800 ahora mismo a esta cuenta.»"
+        },
+        "es_estafa": true,
+        "explicacion": "La voz se puede clonar con inteligencia artificial a partir de audios o videos que publicamos en redes. Número nuevo, prisa, secreto y pedido de dinero: cuelga y llama tú al número de siempre de tu familiar.",
+        "indicios": ["I7", "I1", "I10"]
+      },
+      {
+        "id": "M15-A2-01-t2",
+        "mensaje": {
+          "remitente": "notificaciones@iess.gob.ec",
+          "asunto": "Recordatorio de tu cita médica del jueves",
+          "cuerpo": "Te recordamos tu cita de control del jueves a las 09:00.\nSi necesitas reprogramarla, entra por tu cuenta a la app oficial del IESS."
+        },
+        "es_estafa": false,
+        "explicacion": "Viene del dominio oficial, solo te recuerda algo y no te pide datos, pagos, llamadas ni videollamadas.",
+        "indicios": []
+      },
+      {
+        "id": "M15-A2-01-t3",
+        "mensaje": {
+          "remitente": "Página «IESS Beneficios Ecuador» (anuncio en redes)",
+          "asunto": "Video: «El IESS entrega un bono de $450 solo hoy»",
+          "cuerpo": "En el video, un funcionario del IESS anuncia un bono para jubilados que se cobra hoy.\nPara recibirlo hay que registrar la cédula y pagar $5 de trámite en el enlace.",
+          "boton": "Cobrar mi bono"
+        },
+        "es_estafa": true,
+        "explicacion": "La cara y la voz de una autoridad se pueden falsificar con inteligencia artificial. El IESS no regala bonos por redes ni cobra trámites por adelantado: los beneficios reales se consultan entrando tú mismo a www.iess.gob.ec.",
+        "indicios": ["I7", "I6", "I1", "I9", "I10", "I2"]
+      },
+      {
+        "id": "M15-A2-01-t4",
+        "mensaje": {
+          "remitente": "Videollamada de «Ing. Ramírez, tu jefe» (cuenta nueva)",
+          "asunto": "Pago urgente a un proveedor",
+          "cuerpo": "Tu jefe aparece en la videollamada con su cara y su voz, pero la imagen se congela seguido.\nTe pide transferir hoy $12.000 a un proveedor nuevo y no comentarlo con nadie."
+        },
+        "es_estafa": true,
+        "explicacion": "En una videollamada también se puede falsificar a una persona en vivo. Un pedido de dinero urgente y secreto se confirma siempre por otro canal: llama tú al número que ya conoces.",
+        "indicios": ["I7", "I1", "I10"]
+      },
+      {
+        "id": "M15-A2-01-t5",
+        "mensaje": {
+          "remitente": "atencionalusuario@iess.gob.ec",
+          "asunto": "Tu certificado de afiliación está listo",
+          "cuerpo": "Atendimos la solicitud de certificado que hiciste ayer.\nPuedes descargarlo entrando tú mismo al portal www.iess.gob.ec."
+        },
+        "es_estafa": false,
+        "explicacion": "Responde a un trámite que tú iniciaste, viene del dominio oficial y te pide entrar por tu cuenta al portal. No pide datos, pagos ni videollamadas.",
+        "indicios": []
+      }
+    ],
+    "mensaje_clave": "Si una voz, un video o una foto te piden dinero, datos o secreto con prisa, para: cuelga y verifica tú por el canal oficial."
+  },
+  {
+    "id": "M15-A1-01",
+    "modulo": "M15",
+    "mecanica": "A1_CAZA_SENAL",
+    "titulo": "La voz clonada de tu familiar",
+    "resumen": "Con audios o videos que publicas en redes, la inteligencia artificial puede imitar la voz de un familiar. Te llaman o te mandan una nota de voz con una emergencia y te piden dinero o un código. Busca las señales en este mensaje.",
+    "paso_4r": ["RECONOCER", "REACCIONAR", "REPLICAR"],
+    "indicios": ["I7", "I1", "I10", "I3"],
+    "duracion_seg": 90,
+    "mensaje": {
+      "remitente": "+593 9• ••• 4521 (WhatsApp, número nuevo)",
+      "asunto": "Nota de voz (0:42)",
+      "cuerpo": "«Mamá, soy yo. Tuve un accidente y estoy en problemas, necesito ayuda ahora mismo.»\n«Transfiere $600 a la cuenta de un amigo y no le cuentes a nadie, por favor.»\n«Y pásame el código de seis números que te va a llegar por mensaje.»"
+    },
+    "senales": [
+      {
+        "id": "I7",
+        "zona": "remitente",
+        "feedback": "Dice ser tu familiar, pero escribe desde un número que no conoces. La voz puede ser falsa: cuelga y llámalo tú al número de siempre."
+      },
+      {
+        "id": "I1",
+        "zona": "cuerpo:1",
+        "feedback": "Una emergencia con prisa busca que actúes sin pensar ni preguntar a nadie."
+      },
+      {
+        "id": "I10",
+        "zona": "cuerpo:2",
+        "feedback": "Pide dinero a la cuenta de otra persona y que guardes el secreto. Antes de pagar, confirma por otro medio."
+      },
+      {
+        "id": "I3",
+        "zona": "cuerpo:3",
+        "feedback": "Nadie de tu familia necesita el código que te llega por mensaje: con él se roban tu WhatsApp o tu cuenta del banco."
+      }
+    ],
+    "mensaje_clave": "Si un familiar te pide dinero o códigos con prisa, cuelga y llámalo tú al número de siempre. Acuerden una palabra clave familiar."
+  },
+  {
+    "id": "M15-A1-02",
+    "modulo": "M15",
+    "mecanica": "A1_CAZA_SENAL",
+    "titulo": "El video falso que regala un bono",
+    "resumen": "La inteligencia artificial puede poner la cara y la voz de una autoridad o de un famoso en un video que nunca grabó. Lo usan en redes para ofrecer bonos o inversiones y quedarse con tus datos o tu dinero. Encuentra las señales.",
+    "paso_4r": ["RECONOCER", "REACCIONAR"],
+    "tipos": ["EX1", "EX2", "EX3", "EX4", "EX5"],
+    "tipologia": "T2",
+    "indicios": ["I7", "I6", "I9", "I2"],
+    "duracion_seg": 60,
+    "mensaje": {
+      "remitente": "Página «IESS Ayudas Ecuador» (anuncio en redes)",
+      "asunto": "Video: anuncio para afiliados y jubilados",
+      "cuerpo": "Un funcionario del IESS, con su cara y su voz, anuncia un bono de $450 que se cobra solo hoy.\n«Para recibirlo, regístrate con tu número de cédula y una foto de tu documento.»",
+      "boton": "Cobrar mi bono"
+    },
+    "senales": [
+      {
+        "id": "I7",
+        "zona": "remitente",
+        "feedback": "Cualquiera puede crear una página con el nombre y el logo del IESS y pagar anuncios. Que aparezca alguien conocido no prueba nada."
+      },
+      {
+        "id": "I6",
+        "zona": "cuerpo:1",
+        "feedback": "La cara y la voz se pueden falsificar con inteligencia artificial. Un bono que nadie pidió, «solo por hoy», es la carnada."
+      },
+      {
+        "id": "I9",
+        "zona": "cuerpo:2",
+        "feedback": "Con tu cédula y la foto de tu documento pueden abrir cuentas a tu nombre o crear un deepfake tuyo."
+      },
+      {
+        "id": "I2",
+        "zona": "boton",
+        "feedback": "El botón lleva a iess-ayudas.click, que no es del IESS. Los beneficios reales se consultan entrando tú mismo a www.iess.gob.ec."
+      }
+    ],
+    "mensaje_clave": "Un video de una autoridad puede ser falso. Si ofrece dinero o pide datos, no hagas nada desde ahí: entra tú a www.iess.gob.ec."
+  },
+  {
+    "id": "M15-A1-03",
+    "modulo": "M15",
+    "mecanica": "A1_CAZA_SENAL",
+    "titulo": "La videollamada del falso jefe",
+    "resumen": "También se puede falsificar a una persona en vivo, en una videollamada. Así se hacen pasar por jefes o gerentes para pedir pagos urgentes o claves. Encuentra las señales de esta llamada.",
+    "paso_4r": ["RECONOCER", "REACCIONAR", "REPORTAR"],
+    "tipos": ["EX3", "IN1", "IN2", "IN3", "IN4"],
+    "tipologia": "T6",
+    "indicios": ["I7", "I10", "I1", "I3"],
+    "duracion_seg": 90,
+    "mensaje": {
+      "remitente": "Videollamada de «Gerencia General» (cuenta nueva)",
+      "asunto": "Videollamada en curso (3 min)",
+      "cuerpo": "«Estoy cerrando un negocio y necesito que transfieras hoy $15.000 a un proveedor nuevo.»\n«Tiene que ser en la próxima hora, y no lo comentes con nadie del área.»\n«Para aprobarlo yo mismo, pásame tu usuario y tu clave del sistema.»"
+    },
+    "senales": [
+      {
+        "id": "I7",
+        "zona": "remitente",
+        "feedback": "Llama desde una cuenta nueva. Fíjate si la imagen se congela o los labios no van con la voz, pero no te confíes: confirma siempre por otro canal."
+      },
+      {
+        "id": "I10",
+        "zona": "cuerpo:1",
+        "feedback": "Un pago urgente a un proveedor nuevo es el fraude del «falso jefe». Sigue el proceso de aprobación de siempre."
+      },
+      {
+        "id": "I1",
+        "zona": "cuerpo:2",
+        "feedback": "La prisa y el secreto buscan que no consultes. Llama tú al número de tu jefe o de su asistente."
+      },
+      {
+        "id": "I3",
+        "zona": "cuerpo:3",
+        "feedback": "Nadie, ni tu jefe, necesita tu clave. Corta la llamada y repórtala a Seguridad de la Información."
+      }
+    ],
+    "mensaje_clave": "Si tu jefe te pide por videollamada un pago urgente o tu clave, corta y confirma por otro canal que ya conoces."
+  },
+  {
+    "id": "M15-A1-04",
+    "modulo": "M15",
+    "mecanica": "A1_CAZA_SENAL",
+    "titulo": "La selfie con tu cédula que te piden",
+    "resumen": "Con un video o una foto de tu cara y tu cédula, un estafador puede crear un deepfake tuyo para engañar a un banco o a tu familia. Por eso te los piden con la excusa de «verificar tu identidad». Encuentra las señales.",
+    "paso_4r": ["RECONOCER", "REACCIONAR"],
+    "tipos": ["EX1", "EX2", "EX3", "EX4", "EX5"],
+    "tipologia": "T5",
+    "indicios": ["I7", "I8", "I9", "I2"],
+    "duracion_seg": 60,
+    "mensaje": {
+      "remitente": "IESS Seguridad <seguridad@iess-verificacion.online>",
+      "asunto": "Verifica tu identidad para mantener tu cuenta activa",
+      "cuerpo": "Detectamos un acceso inusual. Si no verificas tu identidad hoy, bloquearemos tu cuenta.\nGraba un video corto mirando a la cámara, di tu nombre completo y muestra tu cédula por los dos lados.",
+      "boton": "Grabar mi video"
+    },
+    "senales": [
+      {
+        "id": "I7",
+        "zona": "remitente",
+        "feedback": "El nombre dice «IESS Seguridad», pero el dominio no es iess.gob.ec."
+      },
+      {
+        "id": "I8",
+        "zona": "cuerpo:1",
+        "feedback": "El IESS no bloquea cuentas por correo. La amenaza busca que actúes sin pensar."
+      },
+      {
+        "id": "I9",
+        "zona": "cuerpo:2",
+        "feedback": "Con un video de tu cara, tu voz y tu cédula pueden crear un deepfake tuyo y engañar a bancos o a tu familia."
+      },
+      {
+        "id": "I2",
+        "zona": "boton",
+        "feedback": "El botón lleva a un sitio que no es del IESS. Si dudas de tu cuenta, entra tú mismo a la app oficial."
+      }
+    ],
+    "mensaje_clave": "Nunca envíes un video o una foto de tu cara con tu cédula a quien te lo pida por correo o mensaje."
   }
 ]

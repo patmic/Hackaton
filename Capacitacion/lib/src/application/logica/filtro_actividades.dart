@@ -11,7 +11,7 @@ class FiltroActividades {
 
   final Tipologia? tipologia;
 
-  /// Código del módulo (M1…M14).
+  /// Código del módulo (M1…M15).
   final String? modulo;
   final Mecanica? mecanica;
   final bool soloPendientes;

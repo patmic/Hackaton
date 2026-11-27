@@ -3,6 +3,7 @@
 // Así cada lección se reconoce de un vistazo, sin leer el código del módulo.
 import 'package:material_ui/material_ui.dart';
 
+import '../../application/logica/insignias.dart';
 import 'animaciones.dart';
 
 class EstiloModulo {
@@ -99,6 +100,12 @@ const _estilos = <String, EstiloModulo>{
     Icons.visibility_rounded,
     'Estafas con IA y WhatsApp',
   ),
+  'M15': EstiloModulo(
+    Color(0xFF5B3A29),
+    Icons.theater_comedy_rounded,
+    Icons.record_voice_over_rounded,
+    'Una voz o un video pueden ser falsos',
+  ),
 };
 
 EstiloModulo estiloModulo(String codigo) =>
@@ -117,6 +124,8 @@ class IlustracionModulo extends StatelessWidget {
     required this.codigo,
     this.tam = 64,
     this.animada = false,
+    this.estilo,
+    this.apagada = false,
   });
   final String codigo;
   final double tam;
@@ -124,9 +133,15 @@ class IlustracionModulo extends StatelessWidget {
   /// Entra con un pequeño salto (portadas).
   final bool animada;
 
+  /// Otro color y símbolos (insignias de logro). Null: los del módulo.
+  final EstiloModulo? estilo;
+
+  /// En gris y tenue: insignia que todavía no se gana.
+  final bool apagada;
+
   @override
   Widget build(BuildContext context) {
-    final e = estiloModulo(codigo);
+    final e = estilo ?? estiloModulo(codigo);
     final insignia = ExcludeSemantics(
       child: SizedBox(
         width: tam,
@@ -172,8 +187,93 @@ class IlustracionModulo extends StatelessWidget {
         ),
       ),
     );
-    return animada ? Saltar(child: insignia) : insignia;
+    final vista = apagada
+        ? Opacity(
+            opacity: 0.45,
+            child: ColorFiltered(colorFilter: _grises, child: insignia),
+          )
+        : insignia;
+    return animada ? Saltar(child: vista) : vista;
   }
+}
+
+const _grises = ColorFilter.matrix(<double>[
+  0.2126, 0.7152, 0.0722, 0, 0, //
+  0.2126, 0.7152, 0.0722, 0, 0, //
+  0.2126, 0.7152, 0.0722, 0, 0, //
+  0, 0, 0, 1, 0, //
+]);
+
+/// Color y símbolos de las insignias de logro (las de módulo usan [estiloModulo]).
+const _estilosLogro = <String, EstiloModulo>{
+  Insignias.primerPaso: EstiloModulo(
+    Color(0xFF1E6B3A),
+    Icons.flag_rounded,
+    Icons.star_rounded,
+    'Empezaste a protegerte',
+  ),
+  Insignias.meCapacito: EstiloModulo(
+    Color(0xFF1F4E8C),
+    Icons.school_rounded,
+    Icons.mark_email_read_rounded,
+    'Practicas con correos de prueba',
+  ),
+  Insignias.detective: EstiloModulo(
+    Color(0xFFA34B12),
+    Icons.policy_rounded,
+    Icons.campaign_rounded,
+    'Viste la trampa y avisaste',
+  ),
+  Insignias.constancia: EstiloModulo(
+    Color(0xFF7A5300),
+    Icons.trending_up_rounded,
+    Icons.bolt_rounded,
+    'Poco y seguido se aprende más',
+  ),
+  Insignias.ojoDeLince: EstiloModulo(
+    Color(0xFF5B2A86),
+    Icons.visibility_rounded,
+    Icons.check_rounded,
+    'No se te escapó ninguna',
+  ),
+  Insignias.centinela: EstiloModulo(
+    Color(0xFF3730A3),
+    Icons.shield_rounded,
+    Icons.notifications_active_rounded,
+    'Tus reportes cuidan a otras personas',
+  ),
+  Insignias.rutaCompleta: EstiloModulo(
+    Color(0xFF8A5A00),
+    Icons.emoji_events_rounded,
+    Icons.workspace_premium_rounded,
+    'Terminaste toda tu ruta',
+  ),
+};
+
+EstiloModulo estiloInsignia(Insignia insignia) => insignia.esDeModulo
+    ? estiloModulo(insignia.modulo!)
+    : _estilosLogro[insignia.id] ?? estiloModulo('');
+
+/// Medalla de una insignia: a color si se ganó, en gris si falta ganarla.
+class InsigniaVista extends StatelessWidget {
+  const InsigniaVista({
+    super.key,
+    required this.insignia,
+    this.tam = 64,
+    this.animada = false,
+  });
+  final Insignia insignia;
+  final double tam;
+  final bool animada;
+
+  @override
+  Widget build(BuildContext context) => IlustracionModulo(
+    codigo: insignia.modulo ?? '',
+    estilo: estiloInsignia(insignia),
+    tam: tam,
+    animada: animada,
+    apagada: !insignia.ganada,
+  );
 }
 
 /// Portada de una lección: franja con el color del módulo, la insignia grande y su lema.

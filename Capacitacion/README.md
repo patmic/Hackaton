@@ -29,7 +29,7 @@ Fuente de las reglas: `CLAUDE.md` de esta carpeta (lo marcado [DECIDIDO] manda) 
 | Microcurso por indicio | `domain/microcurso.dart` | Tabla de §11. I5 e I8 cambian de módulo según el tipo |
 | Tipos de usuario | `domain/tipo_usuario.dart` | EX1-EX5 e IN1-IN4 (§7), de fuente oficial. Sin sesión: EX5 |
 | Perfil de conducta | `domain/perfil_conducta.dart` | Lo calcula el Núcleo. «Expuesto» se muestra como «En aprendizaje» (regla 7) |
-| Módulos y mecánicas | `domain/modulo.dart`, `domain/mecanica.dart` | M1-M14 (§10.2), A1-A9 (§10.3) y modelo 4R |
+| Módulos y mecánicas | `domain/modulo.dart`, `domain/mecanica.dart` | M1-M15 (§10.2), A1-A9 (§10.3) y modelo 4R |
 | Rutas | `domain/ruta.dart`, `application/logica/plan_capacitacion.dart` | Arranque y refuerzo por tipo (§10.4); varios tipos se combinan sin repetir |
 | Actividades | `domain/actividad.dart`, `domain/contenido_actividad.dart` | JSON de §12 + contenido por mecánica. Un EX2 ve la `variante_ex2` en audio |
 | Recomendación | `application/logica/motor_recomendacion.dart` | Alerta activa > paso de la ruta de arranque > refuerzo según el ataque activo > pendientes; repaso si el puntaje fue < 50 % |

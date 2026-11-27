@@ -259,6 +259,10 @@ class ProgresoNotifier extends AsyncNotifier<Progreso> {
     (p) => p.registrarPuntaje(resultado.actividadId, resultado.puntaje),
   );
 
+  /// Guarda insignias recién ganadas para no perderlas después.
+  Future<void> otorgarInsignias(Set<String> ids) =>
+      _actualizar((p) => p.otorgarInsignias(ids));
+
   Future<void> _actualizar(Progreso Function(Progreso) cambio) async {
     final actual = await future;
     final nuevo = cambio(actual);
@@ -270,6 +274,23 @@ class ProgresoNotifier extends AsyncNotifier<Progreso> {
 final progresoProvider = AsyncNotifierProvider<ProgresoNotifier, Progreso>(
   ProgresoNotifier.new,
 );
+
+// ---------- Insignias (gamificación) ----------
+
+/// Insignias del usuario: logros y módulos terminados de su ruta. Si el
+/// estado de «Quiero capacitarme» todavía no carga, se calculan sin él.
+final insigniasProvider = FutureProvider<ResumenInsignias>((ref) async {
+  final perfil = ref.watch(perfilProvider);
+  final capacitacion = ref.watch(capacitacionProvider).value;
+  final actividades = await ref.watch(actividadesDelPerfilProvider.future);
+  final progreso = await ref.watch(progresoProvider.future);
+  return Insignias.calcular(
+    actividades: actividades,
+    progreso: progreso,
+    capacitacion: capacitacion,
+    perfil: perfil,
+  );
+});
 
 // ---------- Recomendaciones ----------
 

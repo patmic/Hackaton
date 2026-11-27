@@ -2,8 +2,6 @@ import 'ui/lectura.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:capacitacion/src/application/providers.dart' as cap;
-import 'package:capacitacion/src/data/actividad_repository.dart';
 import 'package:capacitacion/src/presentation/rutas.dart' as cap_rutas;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/canales.dart';
 import 'features/llm/cerebro.dart';
 import 'ui/alerta_app.dart';
+import 'ui/aula_virtual.dart';
 import 'ui/bienvenida_page.dart';
 import 'ui/inicio_page.dart';
 import 'ui/tema.dart';
@@ -49,13 +48,7 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       // El aula virtual lee su catálogo desde el paquete del módulo de capacitación.
-      overrides: [
-        cap.actividadRepositoryProvider.overrideWithValue(
-          AssetActividadRepository(
-            ruta: 'packages/capacitacion/assets/data/actividades.json',
-          ),
-        ),
-      ],
+      overrides: overridesAula,
       // Tamaño de letra y lectura fácil (accesibilidad): al cambiarlos se reconstruye toda la app.
       child: ListenableBuilder(
         listenable: Lectura.i,
