@@ -38,7 +38,7 @@ void main() {
       final v = Sello.veredictoPorAsunto(r);
       expect(v.phishing, isFalse);
       expect(v.resumen, 'Phishing: NO · firma válida del IESS');
-      expect(v.queHacer, contains('comunicacion@iess.gob.ec'));
+      expect(v.voz, contains('selló'));
     });
     test('asunto sin sello: estafa al instante', () async {
       final c = MockClient(

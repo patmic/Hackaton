@@ -139,15 +139,13 @@ class Sello {
   /// Veredicto a partir de la consulta por asunto (mismo formato en el aviso y en la app).
   static Veredicto veredictoPorAsunto(ResultadoSello r) {
     if (r.valido) {
-      final buzon = r.datos['buzon'] ?? 'el buzón oficial del IESS';
       return Veredicto(
         phishing: false,
         puntaje: 0,
         voz: r.mensaje,
         indicios: const [],
         explicacion: r.mensaje,
-        queHacer:
-            'Revisa que el remitente sea $buzon. Si es otro, es una estafa. Igual, nunca entregues tu clave.',
+        queHacer: 'Igual, nunca entregues tu clave.',
         fuente: 'sello',
       );
     }
