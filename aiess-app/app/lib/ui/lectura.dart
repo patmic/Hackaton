@@ -108,6 +108,8 @@ class ControlesLectura extends StatelessWidget {
       final borde = claro ? Colors.white54 : const Color(0xFF9DB4B9);
       final estilo = OutlinedButton.styleFrom(
         foregroundColor: color,
+        // Desactivado (ya en el tamaño mínimo o máximo): se ve atenuado, no invisible.
+        disabledForegroundColor: color.withValues(alpha: 0.4),
         side: BorderSide(color: borde, width: 1.5),
         minimumSize: const Size(48, 48),
         padding: const EdgeInsets.symmetric(horizontal: 14),

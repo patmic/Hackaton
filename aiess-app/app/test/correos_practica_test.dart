@@ -25,8 +25,9 @@ void main() {
     test('$id: phishing=$phishing, indicios=$indicios', () {
       final c = leerEml(File('test/fixtures/$id.eml').readAsBytesSync());
       final v = analizarConReglas(
-        Entrada(c.paraAnalizar, asunto: c.asunto, remitente: c.remitente),
-        analizarMensaje(c.paraAnalizar, remitente: c.remitente),
+        // Mismo camino que la app: el texto pegado o leído, y el remitente sacado de su «De:».
+        Entrada(c.paraAnalizar),
+        analizarMensaje(c.paraAnalizar, remitente: remitenteEn(c.paraAnalizar)),
       );
       // ignore: avoid_print
       print('$id → ${v.resumen} ${v.indicios}');

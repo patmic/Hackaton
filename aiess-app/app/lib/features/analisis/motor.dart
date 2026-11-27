@@ -273,6 +273,18 @@ class Entrada {
   final String? remitente;
 }
 
+/// Remitente escrito en el texto («De: Nombre <correo>» o «From: …»), para revisar el indicio I7.
+String? remitenteEn(String texto) {
+  final l = RegExp(
+    r'^\s*(?:de|from|remitente)\s*:\s*(.+)$',
+    caseSensitive: false,
+    multiLine: true,
+  ).firstMatch(texto)?.group(1);
+  return l == null
+      ? null
+      : RegExp(r'[\w.+-]+@[\w-]+(\.[\w-]+)+').firstMatch(l)?.group(0);
+}
+
 /// Regla determinista: ¿el texto (p. ej. leído de una imagen) es un correo o mensaje real?
 /// 1) Si tiene 3+ términos técnicos (API, SMTP, hash, servidor…) es un documento o diagrama, no un mensaje.
 /// 2) Exige ESTRUCTURA de mensaje: encabezados de correo, o remitente + saludo, o saludo + despedida/enlace,

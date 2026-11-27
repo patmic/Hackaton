@@ -21,7 +21,11 @@ class Analizador {
     bool usarModelo = true,
   }) async {
     alAvanzar?.call('Mirando el enlace', null);
-    final osint = analizarMensaje(e.texto, remitente: e.remitente);
+    // Si el texto trae «De: …» (pegado, .eml, PDF o captura), el remitente también se revisa (indicio I7).
+    final osint = analizarMensaje(
+      e.texto,
+      remitente: e.remitente ?? remitenteEn(e.texto),
+    );
     // Fuentes OSINT/CTI externas: solo el dominio o la URL (nunca el texto del correo).
     if (osint.urls.any((u) => !u.confiable)) {
       alAvanzar?.call(
