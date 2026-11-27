@@ -152,24 +152,54 @@ class ParaTiTab extends ConsumerWidget {
           ],
           const SizedBox(height: 12),
           Card(
-            child: ListTile(
+            // Sin ListTile: con letra grande el botón baja a otra línea en vez de romper la tarjeta.
+            child: Padding(
               key: const ValueKey('tarjeta-sesion'),
-              minVerticalPadding: 12,
-              leading: const Icon(Icons.person_outline, size: 28),
-              title: Text(
-                sesion.tieneCuenta ? sesion.nombreTipo : 'Sin cuenta',
-              ),
-              subtitle: Text(
-                'Perfil: ${perfil.perfilConducta.etiquetaVisible}',
-              ),
-              trailing: TextButton(
-                key: const ValueKey('boton-cambiar-sesion'),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const SesionDemoScreen(),
+              padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: Icon(Icons.person_outline, size: 28),
                   ),
-                ),
-                child: const Text('Cambiar'),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      runSpacing: 4,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              sesion.tieneCuenta
+                                  ? sesion.nombreTipo
+                                  : 'Sin cuenta',
+                              style: textos.titleMedium,
+                            ),
+                            Text(
+                              'Perfil: ${perfil.perfilConducta.etiquetaVisible}',
+                              style: textos.bodyMedium?.copyWith(
+                                color: esquema.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                        TextButton(
+                          key: const ValueKey('boton-cambiar-sesion'),
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const SesionDemoScreen(),
+                            ),
+                          ),
+                          child: const Text('Cambiar'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

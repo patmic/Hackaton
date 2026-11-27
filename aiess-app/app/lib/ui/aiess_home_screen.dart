@@ -12,6 +12,8 @@ import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../features/mascota/pantera.dart';
+import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
+
 import 'tema.dart';
 import 'texto_vivo.dart';
 
@@ -46,18 +48,24 @@ class AiessHomeScreen extends StatelessWidget {
   final EstadoHoja estado;
   final EstadoPantera estadoMascota;
   final String titulo;
+
   /// Lo que dice el cóndor (se escribe en vivo). Null = indicación de inicio.
   final String? texto;
   final List<String> pasos;
   final double? progreso;
   final bool escuchando;
-  final VoidCallback? onTapMascota, onReport, onDone, onReanalizar, onAula, onPracticar;
+  final VoidCallback? onTapMascota,
+      onReport,
+      onDone,
+      onReanalizar,
+      onAula,
+      onPracticar;
 
   String get _indicacion => escuchando
       ? 'Te escucho. Lee el correo en voz alta o dime el enlace.'
       : hasClipboardContent
-          ? 'Ya copiaste algo. Toca el botón azul y te digo si es seguro.'
-          : 'Copia el correo que te parezca raro y toca el botón azul.';
+      ? 'Ya copiaste algo. Toca el botón azul y te digo si es seguro.'
+      : 'Copia el correo que te parezca raro y toca el botón azul.';
 
   @override
   Widget build(BuildContext context) {
@@ -68,23 +76,46 @@ class AiessHomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Row(children: [
-          Icon(Icons.shield_rounded, color: Tono.amarillo),
-          SizedBox(width: 8),
-          Text('AIESS'),
-        ]),
+        // Marca compartida: logo oficial del IESS + AIESS. La barra limita la letra a 1.3x para no partirse.
+        title: MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 1.3,
+          // Si no cabe (pantalla angosta o letra grande), se achica en vez de cortarse.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const LogoIess(alto: 26),
+                Container(
+                  width: 1.5,
+                  height: 24,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  color: Colors.white54,
+                ),
+                const Text('AIESS'),
+              ],
+            ),
+          ),
+        ),
         actions: [
           // Ajustes con texto: los mayores no reconocen el engranaje solo.
           Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: TextButton.icon(
-              style: TextButton.styleFrom(foregroundColor: Colors.white, minimumSize: const Size(48, 48)),
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                onOpenSettings();
-              },
-              icon: const Icon(Icons.settings_rounded),
-              label: const Text('Ajustes'),
+            child: MediaQuery.withClampedTextScaling(
+              maxScaleFactor: 1.3,
+              child: TextButton.icon(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(48, 48),
+                ),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  onOpenSettings();
+                },
+                icon: const Icon(Icons.settings_rounded),
+                label: const Text('Ajustes'),
+              ),
             ),
           ),
         ],
@@ -97,9 +128,19 @@ class AiessHomeScreen extends StatelessWidget {
           if (i == 2) onPracticar?.call();
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.shield_outlined), selectedIcon: Icon(Icons.shield_rounded), label: 'Revisar'),
-          NavigationDestination(icon: Icon(Icons.school_outlined), label: 'Aprender'),
-          NavigationDestination(icon: Icon(Icons.sports_esports_outlined), label: 'Practicar'),
+          NavigationDestination(
+            icon: Icon(Icons.shield_outlined),
+            selectedIcon: Icon(Icons.shield_rounded),
+            label: 'Revisar',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.school_outlined),
+            label: 'Aprender',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.sports_esports_outlined),
+            label: 'Practicar',
+          ),
         ],
       ),
       body: LayoutBuilder(
@@ -115,14 +156,33 @@ class AiessHomeScreen extends StatelessWidget {
                     child: Semantics(
                       button: true,
                       label: 'AIess, el cóndor. Toca para escucharlo otra vez',
-                      child: Pantera(estado: estadoMascota, tam: medallon, encuadre: Encuadre.medallon, alTocar: onTapMascota),
+                      child: Pantera(
+                        estado: estadoMascota,
+                        tam: medallon,
+                        encuadre: Encuadre.medallon,
+                        alTocar: onTapMascota,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _Globo(estado: estado, titulo: titulo, texto: texto, indicacion: _indicacion, pasos: pasos, progreso: progreso, dur: dur),
+                  _Globo(
+                    estado: estado,
+                    titulo: titulo,
+                    texto: texto,
+                    indicacion: _indicacion,
+                    pasos: pasos,
+                    progreso: progreso,
+                    dur: dur,
+                  ),
                   const Spacer(),
                   const SizedBox(height: 16),
-                  AnimatedSwitcher(duration: dur, child: KeyedSubtree(key: ValueKey(estado), child: _acciones())),
+                  AnimatedSwitcher(
+                    duration: dur,
+                    child: KeyedSubtree(
+                      key: ValueKey(estado),
+                      child: _acciones(),
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   const _Privacidad(),
                 ],
@@ -138,53 +198,92 @@ class AiessHomeScreen extends StatelessWidget {
     switch (estado) {
       case EstadoHoja.analizando:
         // Mientras revisa no hay nada más que tocar: un solo botón que explica qué pasa.
-        return _BotonPrincipal(texto: 'Revisando…', icono: Icons.hourglass_top_rounded, onTap: null, cargando: true);
+        return _BotonPrincipal(
+          texto: 'Revisando…',
+          icono: Icons.hourglass_top_rounded,
+          onTap: null,
+          cargando: true,
+        );
       case EstadoHoja.estafa:
       case EstadoHoja.seguro:
         final estafa = estado == EstadoHoja.estafa;
-        return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          _BotonPrincipal(
-            texto: estafa ? 'Avisar al IESS' : 'Listo, entendido',
-            icono: estafa ? Icons.campaign_rounded : Icons.check_rounded,
-            fondo: estafa ? Tono.rojo : Tono.verde,
-            onTap: estafa ? (onReport ?? () {}) : (onDone ?? () {}),
-          ),
-          const SizedBox(height: 12),
-          IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Expanded(child: _BotonTarjeta(texto: 'Escuchar otra vez', icono: Icons.volume_up_rounded, onTap: onTapMascota)),
-            const SizedBox(width: 12),
-            // Vuelve al inicio para revisar un correo NUEVO, sin cerrar la app (control y libertad).
-            Expanded(child: _BotonTarjeta(texto: 'Revisar otro correo', icono: Icons.forward_to_inbox_rounded, onTap: onDone)),
-          ])),
-        ]);
-      case EstadoHoja.listo:
-        return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          _BotonPrincipal(texto: 'Pegar y revisar', icono: Icons.content_paste_search_rounded, onTap: onPasteAndCheck),
-          const SizedBox(height: 12),
-          IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            // En la web no hay lector de imágenes: no se muestra un botón que no funciona.
-            if (!kIsWeb) ...[
-              Expanded(
-                child: _BotonTarjeta(
-                  texto: 'Escanear foto',
-                  ayuda: 'De una captura',
-                  icono: Icons.document_scanner_rounded,
-                  onTap: onPickImage,
-                ),
-              ),
-              const SizedBox(width: 12),
-            ],
-            Expanded(
-              child: _BotonTarjeta(
-                texto: escuchando ? 'Te escucho…' : 'Hablar',
-                ayuda: escuchando ? 'Habla ahora' : 'Dicta el correo',
-                icono: escuchando ? Icons.graphic_eq_rounded : Icons.mic_rounded,
-                activo: escuchando,
-                onTap: onVoiceInput,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _BotonPrincipal(
+              texto: estafa ? 'Avisar al IESS' : 'Listo, entendido',
+              icono: estafa ? Icons.campaign_rounded : Icons.check_rounded,
+              fondo: estafa ? Tono.rojo : Tono.verde,
+              onTap: estafa ? (onReport ?? () {}) : (onDone ?? () {}),
+            ),
+            const SizedBox(height: 12),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: _BotonTarjeta(
+                      texto: 'Escuchar otra vez',
+                      icono: Icons.volume_up_rounded,
+                      onTap: onTapMascota,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Vuelve al inicio para revisar un correo NUEVO, sin cerrar la app (control y libertad).
+                  Expanded(
+                    child: _BotonTarjeta(
+                      texto: 'Revisar otro correo',
+                      icono: Icons.forward_to_inbox_rounded,
+                      onTap: onDone,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ])),
-        ]);
+          ],
+        );
+      case EstadoHoja.listo:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _BotonPrincipal(
+              texto: 'Pegar y revisar',
+              icono: Icons.content_paste_search_rounded,
+              onTap: onPasteAndCheck,
+            ),
+            const SizedBox(height: 12),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // En la web no hay lector de imágenes: no se muestra un botón que no funciona.
+                  if (!kIsWeb) ...[
+                    Expanded(
+                      child: _BotonTarjeta(
+                        texto: 'Escanear foto',
+                        ayuda: 'De una captura',
+                        icono: Icons.document_scanner_rounded,
+                        onTap: onPickImage,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: _BotonTarjeta(
+                      texto: escuchando ? 'Te escucho…' : 'Hablar',
+                      ayuda: escuchando ? 'Habla ahora' : 'Dicta el correo',
+                      icono: escuchando
+                          ? Icons.graphic_eq_rounded
+                          : Icons.mic_rounded,
+                      activo: escuchando,
+                      onTap: onVoiceInput,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
     }
   }
 }
@@ -213,8 +312,18 @@ class _Globo extends StatelessWidget {
   Widget build(BuildContext context) {
     // El color nunca va solo: siempre lo acompañan un ícono y una palabra.
     final (fondo, borde, icono, etiqueta) = switch (estado) {
-      EstadoHoja.estafa => (Tono.rojoSuave, Tono.rojo, Icons.gpp_bad_rounded, 'Posible estafa'),
-      EstadoHoja.seguro => (Tono.verdeSuave, Tono.verde, Icons.verified_user_rounded, 'Parece seguro'),
+      EstadoHoja.estafa => (
+        Tono.rojoSuave,
+        Tono.rojo,
+        Icons.gpp_bad_rounded,
+        'Posible estafa',
+      ),
+      EstadoHoja.seguro => (
+        Tono.verdeSuave,
+        Tono.verde,
+        Icons.verified_user_rounded,
+        'Parece seguro',
+      ),
       _ => (Colors.white, const Color(0xFFDCE3EE), null, null),
     };
     final alto = MediaQuery.sizeOf(context).height;
@@ -227,41 +336,82 @@ class _Globo extends StatelessWidget {
         decoration: BoxDecoration(
           color: fondo,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borde, width: estado == EstadoHoja.listo || estado == EstadoHoja.analizando ? 1 : 2),
+          border: Border.all(
+            color: borde,
+            width: estado == EstadoHoja.listo || estado == EstadoHoja.analizando
+                ? 1
+                : 2,
+          ),
         ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (etiqueta != null) ...[
-            Row(children: [
-              Icon(icono, color: borde, size: 26),
-              const SizedBox(width: 8),
-              Text(etiqueta, style: Letra.lexend(18, peso: FontWeight.w700, color: borde, espacio: 0)),
-            ]),
-            const SizedBox(height: 6),
-          ],
-          AnimatedSwitcher(
-            duration: dur,
-            layoutBuilder: (a, p) => Stack(alignment: Alignment.topLeft, children: [...p, ?a]),
-            child: Text(titulo,
-                key: ValueKey(titulo),
-                style: Letra.lexend(26, peso: FontWeight.w700, color: Tono.tinta, alto: 1.15, espacio: -0.4)),
-          ),
-          const SizedBox(height: 8),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: alto * 0.26),
-            child: AnimatedSwitcher(
-              duration: dur,
-              layoutBuilder: (a, p) => Stack(alignment: Alignment.topLeft, children: [...p, ?a]),
-              child: pasos.isNotEmpty
-                  ? Align(key: const ValueKey('pasos'), alignment: Alignment.topLeft, child: PasosCarga(pasos: pasos, progreso: progreso))
-                  : SingleChildScrollView(
-                      key: ValueKey(texto ?? indicacion),
-                      child: texto == null
-                          ? Text(indicacion, style: Letra.lectura(19, color: Tono.gris))
-                          : TextoVivo(texto!, estilo: Letra.lectura(19, color: Tono.tinta)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (etiqueta != null) ...[
+              Row(
+                children: [
+                  Icon(icono, color: borde, size: 26),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      etiqueta,
+                      style: Letra.lexend(
+                        18,
+                        peso: FontWeight.w700,
+                        color: borde,
+                        espacio: 0,
+                      ),
                     ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+            ],
+            AnimatedSwitcher(
+              duration: dur,
+              layoutBuilder: (a, p) =>
+                  Stack(alignment: Alignment.topLeft, children: [...p, ?a]),
+              child: Text(
+                titulo,
+                key: ValueKey(titulo),
+                style: Letra.lexend(
+                  26,
+                  peso: FontWeight.w700,
+                  color: Tono.tinta,
+                  alto: 1.15,
+                  espacio: -0.4,
+                ),
+              ),
             ),
-          ),
-        ]),
+            const SizedBox(height: 8),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: alto * 0.26),
+              child: AnimatedSwitcher(
+                duration: dur,
+                layoutBuilder: (a, p) =>
+                    Stack(alignment: Alignment.topLeft, children: [...p, ?a]),
+                child: pasos.isNotEmpty
+                    ? SingleChildScrollView(
+                        key: const ValueKey('pasos'),
+                        reverse:
+                            true, // con letra grande se ve siempre el paso actual
+                        child: PasosCarga(pasos: pasos, progreso: progreso),
+                      )
+                    : SingleChildScrollView(
+                        key: ValueKey(texto ?? indicacion),
+                        child: texto == null
+                            ? Text(
+                                indicacion,
+                                style: Letra.lectura(19, color: Tono.gris),
+                              )
+                            : TextoVivo(
+                                texto!,
+                                estilo: Letra.lectura(19, color: Tono.tinta),
+                              ),
+                      ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -271,19 +421,31 @@ class _Privacidad extends StatelessWidget {
   const _Privacidad();
 
   @override
-  Widget build(BuildContext context) => const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Icon(Icons.lock_outline_rounded, size: 18, color: Tono.gris),
-        SizedBox(width: 6),
-        Flexible(
-          child: Text('Quitamos tus datos personales y luego se borra todo. Nunca te pediremos claves.',
-              textAlign: TextAlign.center, style: TextStyle(color: Tono.gris, fontSize: 15, height: 1.35)),
+  Widget build(BuildContext context) => const Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Icon(Icons.lock_outline_rounded, size: 18, color: Tono.gris),
+      SizedBox(width: 6),
+      Flexible(
+        child: Text(
+          'Quitamos tus datos personales y luego se borra todo. Nunca te pediremos claves.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Tono.gris, fontSize: 15, height: 1.35),
         ),
-      ]);
+      ),
+    ],
+  );
 }
 
 /// Botón principal: ancho completo, mínimo 72 dp, ícono + texto. Vibra y se hunde al tocarlo.
 class _BotonPrincipal extends StatelessWidget {
-  const _BotonPrincipal({required this.texto, required this.icono, required this.onTap, this.fondo = Tono.azul, this.cargando = false});
+  const _BotonPrincipal({
+    required this.texto,
+    required this.icono,
+    required this.onTap,
+    this.fondo = Tono.azul,
+    this.cargando = false,
+  });
   final String texto;
   final IconData icono;
   final VoidCallback? onTap;
@@ -313,18 +475,35 @@ class _BotonPrincipal extends StatelessWidget {
             color: activo || cargando ? fondo : fondo.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(18),
           ),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            if (cargando)
-              const SizedBox(width: 26, height: 26, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white))
-            else
-              Icon(icono, size: 30, color: Colors.white),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Text(texto,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (cargando)
+                const SizedBox(
+                  width: 26,
+                  height: 26,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: Colors.white,
+                  ),
+                )
+              else
+                Icon(icono, size: 30, color: Colors.white),
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  texto,
                   textAlign: TextAlign.center,
-                  style: Letra.lexend(21, color: Colors.white, alto: 1.15, espacio: 0)),
-            ),
-          ]),
+                  style: Letra.lexend(
+                    21,
+                    color: Colors.white,
+                    alto: 1.15,
+                    espacio: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -334,7 +513,13 @@ class _BotonPrincipal extends StatelessWidget {
 /// Botón secundario tipo tarjeta: ícono grande arriba, nombre y una ayuda corta debajo.
 /// Pensado para baja visión (ícono 36 + texto) y temblor (≥ 104 dp de alto).
 class _BotonTarjeta extends StatelessWidget {
-  const _BotonTarjeta({required this.texto, required this.icono, required this.onTap, this.ayuda, this.activo = false});
+  const _BotonTarjeta({
+    required this.texto,
+    required this.icono,
+    required this.onTap,
+    this.ayuda,
+    this.activo = false,
+  });
   final String texto;
   final String? ayuda;
   final IconData icono;
@@ -358,7 +543,9 @@ class _BotonTarjeta extends StatelessWidget {
                 onTap!();
               },
         child: AnimatedContainer(
-          duration: MediaQuery.of(context).disableAnimations ? Duration.zero : const Duration(milliseconds: 220),
+          duration: MediaQuery.of(context).disableAnimations
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
           constraints: BoxConstraints(minHeight: ayuda == null ? 88 : 104),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
           decoration: BoxDecoration(
@@ -366,15 +553,33 @@ class _BotonTarjeta extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: Tono.azul, width: 2),
           ),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            _Pulso(activo: activo, child: Icon(icono, size: 36, color: tinta)),
-            const SizedBox(height: 6),
-            Text(texto, textAlign: TextAlign.center, style: Letra.lexend(19, color: tinta, alto: 1.15, espacio: 0)),
-            if (ayuda != null)
-              Text(ayuda!,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _Pulso(
+                activo: activo,
+                child: Icon(icono, size: 36, color: tinta),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                texto,
+                textAlign: TextAlign.center,
+                style: Letra.lexend(19, color: tinta, alto: 1.15, espacio: 0),
+              ),
+              if (ayuda != null)
+                Text(
+                  ayuda!,
                   textAlign: TextAlign.center,
-                  style: Letra.lectura(15, color: activo ? Colors.white.withValues(alpha: 0.9) : Tono.gris, alto: 1.3)),
-          ]),
+                  style: Letra.lectura(
+                    15,
+                    color: activo
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : Tono.gris,
+                    alto: 1.3,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -392,7 +597,10 @@ class _Pulso extends StatefulWidget {
 }
 
 class _PulsoState extends State<_Pulso> with SingleTickerProviderStateMixin {
-  late final _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+  late final _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
 
   @override
   void didUpdateWidget(_Pulso old) {
@@ -424,13 +632,23 @@ class _PulsoState extends State<_Pulso> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     if (MediaQuery.of(context).disableAnimations) return widget.child;
-    return ScaleTransition(scale: Tween(begin: 1.0, end: 1.18).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut)), child: widget.child);
+    return ScaleTransition(
+      scale: Tween(
+        begin: 1.0,
+        end: 1.18,
+      ).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut)),
+      child: widget.child,
+    );
   }
 }
 
 /// Escala al presionar (100 ms).
 class _Presion extends StatefulWidget {
-  const _Presion({required this.child, required this.onTap, required this.escala});
+  const _Presion({
+    required this.child,
+    required this.onTap,
+    required this.escala,
+  });
   final Widget child;
   final VoidCallback? onTap;
   final double escala;
@@ -444,19 +662,23 @@ class _PresionState extends State<_Presion> {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapDown: widget.onTap == null ? null : (_) => setState(() => _abajo = true),
-        onTapCancel: () => setState(() => _abajo = false),
-        onTapUp: widget.onTap == null
-            ? null
-            : (_) {
-                setState(() => _abajo = false);
-                widget.onTap!();
-              },
-        child: AnimatedScale(
-          scale: _abajo && !MediaQuery.of(context).disableAnimations ? widget.escala : 1,
-          duration: const Duration(milliseconds: 100),
-          child: widget.child,
-        ),
-      );
+    behavior: HitTestBehavior.opaque,
+    onTapDown: widget.onTap == null
+        ? null
+        : (_) => setState(() => _abajo = true),
+    onTapCancel: () => setState(() => _abajo = false),
+    onTapUp: widget.onTap == null
+        ? null
+        : (_) {
+            setState(() => _abajo = false);
+            widget.onTap!();
+          },
+    child: AnimatedScale(
+      scale: _abajo && !MediaQuery.of(context).disableAnimations
+          ? widget.escala
+          : 1,
+      duration: const Duration(milliseconds: 100),
+      child: widget.child,
+    ),
+  );
 }
