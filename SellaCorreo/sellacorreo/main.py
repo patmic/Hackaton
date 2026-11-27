@@ -702,7 +702,7 @@ def create_seal(user: dict, taxonomia: str, asunto: str, destinatario: str, pala
 
 
 @app.post("/genkey", response_class=HTMLResponse)
-def genkey_post(request: Request, csrf: str = Form(""), taxonomia: str = Form(...), asunto: str = Form(...),
+def genkey_post(request: Request, csrf: str = Form(""), taxonomia: str = Form(...), asunto: str = Form(""),
                 destinatario: str = Form(""), pol_palabra: str = Form(""), palabra: str = Form(""),
                 pol_caducidad: str = Form(""), caducidad: str = Form(""), pol_asunto: str = Form("")):
     user = current_user(request)
