@@ -203,6 +203,14 @@ class AiessHomeScreen extends StatelessWidget {
   Widget _acciones() {
     switch (estado) {
       case EstadoHoja.analizando:
+        // Escuchando: un botón grande para PARAR (callarse 4 s también termina y revisa).
+        if (escuchando) {
+          return _BotonPrincipal(
+            texto: 'Parar y revisar',
+            icono: Icons.stop_circle_rounded,
+            onTap: onVoiceInput,
+          );
+        }
         // Mientras revisa no hay nada más que tocar: un solo botón que explica qué pasa.
         return _BotonPrincipal(
           texto: 'Revisando…',

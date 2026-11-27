@@ -107,9 +107,17 @@ class Cerebro {
     // IA LOCAL primero: el modelo LFM2 entrenado corre en el celular y el correo no sale del equipo.
     // El servidor de AIESS es opcional (Ajustes) y solo se consulta si la persona lo activó.
     await ServidorIA.i.cargarAjustes();
-    if (ServidorIA.i.permitido) unawaited(ServidorIA.i.comprobar());
     final prefs = await SharedPreferences.getInstance();
     final lista = await disponibles();
+    // Celular SIN el modelo entrenado de AIESS (quien recibe solo el APK): se usa el servidor, salvo que la
+    // persona lo haya apagado en Ajustes. Antes de leer cualquier correo el permiso dice que va al servidor.
+    final hayAiess = lista.any(
+      (f) => f.path.split('/').last.startsWith('aiess'),
+    );
+    if (!hayAiess && prefs.getBool('usar_servidor') == null) {
+      ServidorIA.i.permitido = true;
+    }
+    if (ServidorIA.i.permitido) unawaited(ServidorIA.i.comprobar());
     if (lista.isEmpty) return _servidorUsable;
     final guardado = prefs.getString('modelo');
     final aiess = lista.where(
