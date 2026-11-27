@@ -51,6 +51,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    Cerebro.i.cargando.addListener(_alCambiarCerebro);
     _compartir.setMethodCallHandler((c) async {
       if (c.method == 'compartido')
         _recibir(Map<String, dynamic>.from(c.arguments as Map));
@@ -79,8 +80,14 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    Cerebro.i.cargando.removeListener(_alCambiarCerebro);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  /// El modelo terminó de cargar: el botón pasa a decir «Revisar con la IA local».
+  void _alCambiarCerebro() {
+    if (mounted) setState(() {});
   }
 
   @override
