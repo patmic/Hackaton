@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:material_ui/material_ui.dart';
 import 'package:theme_light/theme_light.dart';
 
-import '../../ui/tema.dart';
 import '../voz/voz.dart';
 
 enum EstadoRobot { reposo, escuchando, analizando, seguro, alerta }

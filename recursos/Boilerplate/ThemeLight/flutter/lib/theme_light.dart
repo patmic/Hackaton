@@ -1,4 +1,7 @@
-import 'package:flutter/material.dart';
+// Usa material_ui (la librería Material de Flutter 3.50), la misma que AIESS y Capacitación:
+// si se mezclara con package:flutter/material.dart, los temas no serían compatibles.
+import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Colores de `ThemeLight/tokens/tokens.json`, convertidos a colores Flutter.
 abstract final class ThemeLightTokens {
@@ -48,13 +51,8 @@ ThemeData themeLight() {
     useMaterial3: true,
     brightness: Brightness.light,
     fontFamily: fuenteTexto,
-    textTheme: ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-    ).textTheme.apply(
-      bodyFontFamily: fuenteTexto,
-      displayFontFamily: fuenteTitulos,
-    ),
+    // Lectura en Atkinson Hyperlegible; títulos y etiquetas en Lexend.
+    textTheme: _textos(fuenteTexto, fuenteTitulos),
     scaffoldBackgroundColor: ThemeLightTokens.page,
     colorScheme: const ColorScheme.light(
       primary: ThemeLightTokens.theme,
@@ -172,5 +170,25 @@ ThemeData themeLight() {
         borderRadius: BorderRadius.circular(ThemeLightTokens.largeRadius),
       ),
     ),
+  );
+  return theme;
+}
+
+TextTheme _textos(String texto, String titulos) {
+  final base = ThemeData(useMaterial3: true, brightness: Brightness.light).textTheme.apply(fontFamily: texto);
+  TextStyle? t(TextStyle? e) => e?.copyWith(fontFamily: titulos);
+  return base.copyWith(
+    displayLarge: t(base.displayLarge),
+    displayMedium: t(base.displayMedium),
+    displaySmall: t(base.displaySmall),
+    headlineLarge: t(base.headlineLarge),
+    headlineMedium: t(base.headlineMedium),
+    headlineSmall: t(base.headlineSmall),
+    titleLarge: t(base.titleLarge),
+    titleMedium: t(base.titleMedium),
+    titleSmall: t(base.titleSmall),
+    labelLarge: t(base.labelLarge),
+    labelMedium: t(base.labelMedium),
+    labelSmall: t(base.labelSmall),
   );
 }

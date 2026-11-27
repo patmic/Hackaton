@@ -1,2 +1,6 @@
 node_modules/
 .tmp_node_modules.tgz
+
+# Python
+__pycache__/
+*.pyc

@@ -34,6 +34,15 @@ class Tono {
   static const niebla = fondo;
 }
 
+/// Radios de ThemeLight (tokens.json).
+class Radios {
+  static const pildora = ThemeLightTokens.largeRadius; // botones grandes
+  static const xl = ThemeLightTokens.largeRadius;
+  static const lg = ThemeLightTokens.largeRadius;
+  static const md = ThemeLightTokens.mediumRadius;
+  static const sm = ThemeLightTokens.smallRadius;
+}
+
 /// Tipografía legible que se conserva también dentro del aula de capacitación.
 class Letra {
   static const titulos = 'packages/theme_light/ThemeLightLexend';
@@ -92,7 +101,6 @@ ThemeData temaAIess() {
   );
 
   return base.copyWith(
-    fontFamily: Letra.texto,
     textTheme: texto,
     appBarTheme: base.appBarTheme.copyWith(
       titleTextStyle: Letra.lexend(
