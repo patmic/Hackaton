@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -21,6 +23,9 @@ class _CazaSenalScreenState extends ConsumerState<CazaSenalScreen> {
   late final ContenidoCazaSenal _c =
       widget.actividad.contenido as ContenidoCazaSenal;
   final _encontradas = <String>{};
+
+  /// Señales que encontró con una pista: para el observador no las vio solo.
+  final _conPista = <String>{};
   SenalEscondida? _ultima;
   String? _fallo;
   int _sacudidas = 0;
@@ -61,6 +66,7 @@ class _CazaSenalScreenState extends ConsumerState<CazaSenalScreen> {
     final falta = _c.senales.firstWhere(
       (s) => !_encontradas.contains(s.zona.codigo),
     );
+    _conPista.add(falta.zona.codigo);
     setState(() {
       _pistas++;
       _pista = falta.zona.codigo;
@@ -72,6 +78,22 @@ class _CazaSenalScreenState extends ConsumerState<CazaSenalScreen> {
     if (_guardado) return;
     _guardado = true;
     final aciertos = (_total - _pistas).clamp(0, _total);
+    // Cada señal es un juicio: encontrarla sola es acierto; con pista, no.
+    final momento = ref.read(relojProvider)();
+    unawaited(
+      ref.read(observadorProvider.notifier).observarVarias([
+        for (final s in _c.senales)
+          ObservacionConducta.decision(
+            actividadId: widget.actividad.id,
+            itemId: '${widget.actividad.id}-${s.zona.codigo}',
+            esEstafa: true,
+            acerto: !_conPista.contains(s.zona.codigo),
+            indicios: [s.indicio],
+            tipologia: widget.actividad.tipologia,
+            momento: momento,
+          ),
+      ]),
+    );
     await ref
         .read(progresoProvider.notifier)
         .registrarResultado(

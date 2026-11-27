@@ -39,11 +39,26 @@ class MockCapacitacionApi implements CapacitacionApi {
     DateTime Function()? reloj,
     this.entorno = Entorno.demo,
     this.plantillas = plantillasPrueba,
+    this.mapaObservado,
+    this.alReaccionar,
   }) : _reloj = reloj ?? DateTime.now;
 
   final Entorno entorno;
   final List<PlantillaCorreoPrueba> plantillas;
   final DateTime Function() _reloj;
+
+  /// Mapa de indicios que aprendió el observador también con las
+  /// actividades. Completa lo que los correos de prueba aún no midieron, como
+  /// hace el servidor al consultar `POST /personas/{id}/siguiente`.
+  final MapaIndicios? Function()? mapaObservado;
+
+  /// Cada reacción a un correo de prueba (el servidor la envía al observador).
+  final void Function(
+    CorreoPrueba correo,
+    ResultadoSimulacro resultado,
+    DateTime momento,
+  )?
+  alReaccionar;
 
   SesionUsuario _sesion;
   EstadoCapacitacion _estado = const EstadoCapacitacion();
@@ -140,6 +155,7 @@ class MockCapacitacionApi implements CapacitacionApi {
       correo.nivel,
       resultado,
     );
+    alReaccionar?.call(correo, resultado, ahora);
     return _estado = _estado.copyWith(
       fase: FaseCapacitacion.enCurso,
       nivelInicial: _estado.nivelInicial ?? Escalera.diagnostico(resultado),
@@ -194,7 +210,10 @@ class MockCapacitacionApi implements CapacitacionApi {
       plantillas: plantillas,
       tipos: _sesion.tipos,
       nivel: base.nivelCorreo,
-      mapa: base.mapa,
+      // El primero es siempre el «primer correo por tipo» de §11.
+      mapa: _enviadas.isEmpty
+          ? base.mapa
+          : _combinar(base.mapa, mapaObservado?.call()),
       yaEnviadas: _enviadas,
       primerEnvio: _enviadas.isEmpty,
     );
@@ -216,5 +235,17 @@ class MockCapacitacionApi implements CapacitacionApi {
       ),
       ultimoEnvio: enviado,
     );
+  }
+
+  /// Lo que midieron los correos de prueba manda; lo que aún no midieron se
+  /// completa con lo que el observador aprendió en las actividades.
+  static MapaIndicios _combinar(MapaIndicios propio, MapaIndicios? observado) {
+    if (observado == null) return propio;
+    return MapaIndicios({
+      for (final i in Indicio.values)
+        i: propio.estadoDe(i) == EstadoIndicio.sinProbar
+            ? observado.estadoDe(i)
+            : propio.estadoDe(i),
+    });
   }
 }

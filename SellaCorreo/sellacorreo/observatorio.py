@@ -127,7 +127,7 @@ def _calibracion(filas) -> str:
 
 def _plan(plan: dict | None, consulta: str, error: str) -> str:
     form = (f'<form class="sc-obs-buscar" method="get" action="/observatorio#plan">'
-            f'<label class="tl-field__label" for="persona">Código de capacitación (lo muestra la app en «Mi plan»)</label>'
+            f'<label class="tl-field__label" for="persona">Código de capacitación (lo muestra el aula en «Para ti» al compartir las prácticas)</label>'
             f'<div class="sc-obs-buscar__fila"><input class="tl-input" id="persona" name="persona" value="{E(consulta)}" '
             f'placeholder="por ejemplo a3f9c2e17b4d48e0b6c1" autocomplete="off">'
             f'<button class="tl-btn tl-btn--default" type="submit">Ver plan</button></div></form>')
