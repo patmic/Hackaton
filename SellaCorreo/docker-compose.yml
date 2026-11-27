@@ -32,8 +32,10 @@ services:
       SELLACORREO_OBSERVATORIO_LIMIT_PER_MIN: ${SELLACORREO_OBSERVATORIO_LIMIT_PER_MIN:-120}
       # Orígenes que pueden llamar a /api/v1/observatorio desde el navegador (vacío = solo localhost)
       SELLACORREO_OBSERVATORIO_ORIGENES: ${SELLACORREO_OBSERVATORIO_ORIGENES:-}
+    # Puerto publicado configurable (por defecto 8090). En un servidor compartido detrás de un túnel:
+    # SELLACORREO_PUERTO=127.0.0.1:8091 (solo escucha dentro del servidor).
     ports:
-      - "8090:8090"
+      - "${SELLACORREO_PUERTO:-8090}:8090"
     volumes:
       - sellacorreo-data:/data
 

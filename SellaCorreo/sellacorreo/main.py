@@ -864,6 +864,32 @@ def checkin(link: str, request: Request):
     return _valido(seal, user, request)
 
 
+@app.get("/api/v1/verificar/{link:path}")
+def api_verificar(link: str, request: Request):
+    """Verificación para apps (robot AIESS): la MISMA comprobación que CheckIn (hash, firma Ed25519, emisor,
+    caducidad), en JSON. Acepta el enlace completo o solo «token.huella». Nunca devuelve la palabra segura
+    (esa solo se muestra en la página de CheckIn, a la persona)."""
+    cors = {"Access-Control-Allow-Origin": "*", "Cache-Control": "no-store"}
+    if not checkin_limiter.allow(ip_of(request)):
+        return JSONResponse({"valido": False, "motivo": "limite", "mensaje": "Demasiadas consultas. Intente en un minuto."},
+                            status_code=429, headers=cors)
+    ok, motivo, seal = check_link(_extract_link(link))
+    store.record_verification(motivo, ip_hash(request))
+    if not ok:
+        return JSONResponse({"valido": False, "motivo": motivo,
+                             "mensaje": MOTIVOS[motivo] + " Podría ser phishing: no haga clic en sus enlaces ni entregue datos."},
+                            headers=cors)
+    datos = {"valido": True, "motivo": "valido",
+             "mensaje": f"Emitido por {seal['nombre_emisor']} ({seal['institucion']}). El hash, la firma digital "
+                        "y el correo del emisor coinciden.",
+             "emisor": seal["nombre_emisor"], "unidad": seal["unidad"], "buzon": seal["emisor"],
+             "institucion": seal["institucion"], "taxonomia": seal["taxonomia"], "fecha_utc": seal["ts_utc"],
+             "codigo": fmt_code(seal["codigo"]), "expira_utc": seal.get("expira_utc")}
+    if seal.get("exige_asunto", 1):
+        datos["asunto"] = seal["asunto"]
+    return JSONResponse(datos, headers=cors)
+
+
 @app.get("/img/{token}.png")
 def image(token: str):
     seal = store.get_seal(token) if re.fullmatch(r"[A-Za-z0-9_-]{20,64}", token) else None
