@@ -205,7 +205,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         });
       },
       // Reacción inmediata (reglas, en milisegundos) mientras el modelo piensa.
-      alSospechar: () => Voz.i.decir('Mmm, aquí hay algo raro. Déjame confirmarlo.'),
+      alSospechar: () =>
+          Voz.i.decir('Mmm, aquí hay algo raro. Déjame confirmarlo.'),
       // El modelo ya escribió veredicto y voz: el robot habla sin esperar el resto.
       alAdelantar: (phishing, voz) {
         if (!mounted || estadoSello != null) return;
@@ -268,7 +269,9 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       _pasos = ['Comprobando el sello con el IESS (solo el asunto)'];
       _progreso = null;
     });
-    unawaited(Voz.i.decir('Voy a verificar el sello de ese correo con el IESS.'));
+    unawaited(
+      Voz.i.decir('Voy a verificar el sello de ese correo con el IESS.'),
+    );
     final r = await Sello.porAsunto(asunto);
     if (!mounted) return;
     final v = Sello.veredictoPorAsunto(r, asunto);
@@ -326,11 +329,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     // Desde el aviso o con solo el enlace del sello no tenemos el texto del correo: se toma lo copiado.
     final soloEnlace = Sello.codigoEn(t) != null && t.length < 160;
     if (_entrada?.canal == 'aviso' || soloEnlace || t.length < 40) {
-      ClipboardData? d;
-      try {
-        d = await Clipboard.getData(Clipboard.kTextPlain);
-      } catch (_) {}
-      final copiado = d?.text?.trim() ?? '';
+      final copiado = await _leerPortapapeles();
       if (copiado.length >= 40 && copiado != t) {
         t = copiado;
       } else {
@@ -649,13 +648,54 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     context,
   ).push(MaterialPageRoute(builder: (_) => const PracticarPage()));
 
+  /// Lo copiado, con los ENLACES REALES. Al copiar un correo en Gmail o Yahoo, el texto plano pierde el enlace
+  /// de la imagen del sello (y de los botones); Android los guarda en la versión HTML de lo copiado. Se agregan
+  /// al final como «texto [enlace]» para que el bot verifique el sello y vea a dónde llevan de verdad.
+  Future<String> _leerPortapapeles() async {
+    var t = '';
+    try {
+      t = (await Clipboard.getData(Clipboard.kTextPlain))?.text?.trim() ?? '';
+    } catch (_) {}
+    String? html;
+    if (!kIsWeb) {
+      try {
+        html = await const MethodChannel(
+          'aiess/plataforma',
+        ).invokeMethod<String>('portapapelesHtml');
+      } catch (_) {}
+    }
+    if (html == null || html.isEmpty) return t;
+    final enlaces = <String>[];
+    for (final m in RegExp(
+      r'''<a\s[^>]*href\s*=\s*["']([^"']+)["'][^>]*>(.*?)</a>''',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(html)) {
+      final destino = m.group(1)!.replaceAll('&amp;', '&').trim();
+      if (!destino.startsWith('http') || t.contains(destino)) continue;
+      final visible = m
+          .group(2)!
+          .replaceAll(RegExp(r'<[^>]+>'), ' ')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim();
+      enlaces.add('${visible.isEmpty ? 'imagen' : visible} [$destino]');
+    }
+    if (t.isEmpty) {
+      t = html
+          .replaceAll(
+            RegExp(r'<(br|/p|/div)[^>]*>', caseSensitive: false),
+            '\n',
+          )
+          .replaceAll(RegExp(r'<[^>]+>'), ' ')
+          .replaceAll('&nbsp;', ' ')
+          .trim();
+    }
+    return enlaces.isEmpty ? t : '$t\n\n${enlaces.join('\n')}';
+  }
+
   /// Pegar y revisar: lee el portapapeles en el momento (poka-yoke: si no hay nada, el robot explica qué hacer).
   Future<void> _pegarYRevisar() async {
-    ClipboardData? d;
-    try {
-      d = await Clipboard.getData(Clipboard.kTextPlain);
-    } catch (_) {}
-    final t = d?.text?.trim() ?? '';
+    final t = await _leerPortapapeles();
     // Un enlace de sello se verifica directo (no hace falta leer el correo).
     if (Sello.codigoEn(t) != null) {
       await _revisarTexto(t);
@@ -677,7 +717,9 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     if (motivo != null && (motivo.contains('diagrama') || !soloEnlace)) {
       HapticFeedback.mediumImpact();
       setState(() => _titular = 'No es un correo');
-      await _decir('$motivo Copia el texto del correo o el enlace que te preocupa.');
+      await _decir(
+        '$motivo Copia el texto del correo o el enlace que te preocupa.',
+      );
       if (mounted && _modo != _Modo.resultado)
         setState(() => _titular = 'Hola, soy Leo');
       return;

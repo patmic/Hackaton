@@ -95,9 +95,16 @@ class Voz {
         if (turno != _turno) return;
         final ms = pos.inMilliseconds;
         if (total > 0) {
-          avance.value = p.inicio + ((p.fin - p.inicio) * ms / total).round().clamp(0, p.fin - p.inicio);
+          avance.value =
+              p.inicio +
+              ((p.fin - p.inicio) * ms / total).round().clamp(
+                0,
+                p.fin - p.inicio,
+              );
         }
-        silaba.value = (ms ~/ 160).isEven ? 0.85 : 0.35; // la cabeza de Leo se mueve mientras habla
+        silaba.value = (ms ~/ 160).isEven
+            ? 0.85
+            : 0.35; // la cabeza de Leo se mueve mientras habla
       });
       unawaited(_audio.play());
       await _audio.processingStateStream.firstWhere(

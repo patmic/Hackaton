@@ -436,8 +436,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                               children: [
                                 Center(
                                   child: Enfocable(
-                                    etiqueta:
-                                        'Leo. Actívalo para escucharlo',
+                                    etiqueta: 'Leo. Actívalo para escucharlo',
                                     alActivar: _hablarRobot,
                                     child: RobotGuardia(
                                       estado: _estado,

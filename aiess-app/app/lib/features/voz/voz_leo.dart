@@ -31,7 +31,9 @@ class VozLeo {
 
   Future<void> _leer() async {
     try {
-      final m = jsonDecode(await rootBundle.loadString('assets/voz/manifiesto.json')) as Map<String, dynamic>;
+      final m =
+          jsonDecode(await rootBundle.loadString('assets/voz/manifiesto.json'))
+              as Map<String, dynamic>;
       _audios = [
         for (final a in (m['audios'] as List).cast<Map<String, dynamic>>())
           ((a['texto'] as String).trim().toLowerCase(), a['archivo'] as String),
@@ -66,11 +68,15 @@ class VozLeo {
     while (i < texto.length) {
       // Los audios solo pueden empezar al inicio o después de un espacio.
       final inicioPalabra = i == 0 || texto[i - 1].trim().isEmpty;
-      final hallado = inicioPalabra && texto[i].trim().isNotEmpty ? _audioEn(bajo, i) : null;
+      final hallado = inicioPalabra && texto[i].trim().isNotEmpty
+          ? _audioEn(bajo, i)
+          : null;
       if (hallado != null) {
         cerrarLibre(i);
         final (largo, archivo) = hallado;
-        partes.add(ParteVoz(texto.substring(i, i + largo), i, i + largo, archivo));
+        partes.add(
+          ParteVoz(texto.substring(i, i + largo), i, i + largo, archivo),
+        );
         i += largo;
       } else {
         if (libre < 0 && texto[i].trim().isNotEmpty) libre = i;

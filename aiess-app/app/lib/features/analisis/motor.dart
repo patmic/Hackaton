@@ -81,7 +81,18 @@ const riesgoIndicio = {
 };
 
 const _numeros = [
-  'cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once',
+  'cero',
+  'un',
+  'dos',
+  'tres',
+  'cuatro',
+  'cinco',
+  'seis',
+  'siete',
+  'ocho',
+  'nueve',
+  'diez',
+  'once',
 ];
 
 /// «seis indicios» / «un indicio» (así lo dice el audio de Leo).
