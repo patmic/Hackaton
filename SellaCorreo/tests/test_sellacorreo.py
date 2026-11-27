@@ -294,9 +294,9 @@ def test_pagina_de_inicio(anon):
     assert r.status_code == 200 and "AI-IESS" in r.text
     assert 'data-home-card="validador"' in r.text and 'href="/checkin"' in r.text
     assert 'data-home-card="sello"' in r.text and 'href="/genkey"' in r.text
-    assert "suplantación de identidad" in r.text and "/static/img/escudo-correo.png" in r.text
+    assert "suplantación de identidad" in r.text and "/static/img/robot-aiess.svg" in r.text
     assert "Haga clic en el encabezado de su correo o pegue su enlace en este Validador." in r.text
-    assert "/static/img/escudo-correo.png" in r.text and anon.get("/static/img/escudo-correo.png").status_code == 200
+    assert "/static/img/robot-aiess.svg" in r.text and anon.get("/static/img/robot-aiess.svg").status_code == 200
     assert "sc-dial__img--sello" in r.text and anon.get("/static/img/sello.jpg").status_code == 200
     for label in (">Inicio<", ">Sello<", ">Sellar Correo<", ">Validador<"):
         assert label in r.text

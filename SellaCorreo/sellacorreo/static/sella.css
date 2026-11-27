@@ -336,3 +336,6 @@ svg.sc-radar__bar{display:block;margin:0 auto}
 .sc-radar__mal{fill:#d52b1e}
 .sc-radar__ult td:first-child,.sc-radar__ult th:first-child{white-space:nowrap}
 @media (max-width:760px){.sc-radar__ult td:nth-child(2),.sc-radar__ult th:nth-child(2){display:none}.sc-radar__lbl{writing-mode:vertical-rl;transform:rotate(180deg)}}
+
+/* Imagen central: robot AIESS en SVG sobre círculo blanco */
+.sc-dial__img--robot{border-radius:50%;inset:12%;width:76%;height:76%;object-fit:contain;-webkit-mask-image:none;mask-image:none;background:#fff;box-shadow:0 0 0 1px var(--slate-200,#e2e8f0),0 10px 30px rgba(15,23,42,.08)}

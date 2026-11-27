@@ -264,7 +264,7 @@ def home(request: Request):
   <p class="sc-home__sub">ANTI-PHISHING</p>
   <div class="sc-home__stage" id="sc-home-stage">
     <div class="sc-dial">{dial_svg()}
-      <img class="sc-dial__img sc-dial__img--base sc-dial__img--escudo" src="/static/img/escudo-correo.png" alt="Escudo azul con un sobre de correo" width="410" height="410">
+      <img class="sc-dial__img sc-dial__img--base sc-dial__img--robot" src="/static/img/robot-aiess.svg" alt="Robot AIESS" width="410" height="410">
       <img class="sc-dial__img sc-dial__img--sello" src="/static/img/sello.jpg" alt="Sobre digital protegido por un escudo" width="410" height="410" aria-hidden="true">
     </div>
     {home_card("sello", "/genkey", "Sellar Correo", "Crea tu sello de seguridad y evita el phishing", ICON_DOC)}
