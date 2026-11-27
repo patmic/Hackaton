@@ -60,8 +60,11 @@ class _AparecerState extends State<Aparecer>
     );
     return AnimatedBuilder(
       animation: a,
+      // El lector de pantalla lee el contenido aunque todavía se esté desvaneciendo (o si el navegador
+      // pausa las animaciones en una pestaña de fondo).
       builder: (_, child) => Opacity(
         opacity: a.value,
+        alwaysIncludeSemantics: true,
         child: Transform.translate(
           offset: Offset(0, (1 - a.value) * widget.desplazamiento),
           child: child,

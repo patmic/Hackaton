@@ -172,6 +172,7 @@ Widget transicionResultado(Widget child, Animation<double> a) {
   final c = CurvedAnimation(parent: a, curve: Curves.easeOutCubic);
   return FadeTransition(
     opacity: c,
+    alwaysIncludeSemantics: true,
     child: SlideTransition(
       position: Tween(
         begin: const Offset(0, 0.06),
