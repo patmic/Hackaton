@@ -5,7 +5,12 @@ name: sellacorreo
 
 services:
   sellacorreo:
-    build: .
+    build:
+      context: .
+      # El Observatorio usa el observador de ../Analisis-de-comportamiento y ../tipologias-correo
+      additional_contexts:
+        observador: ../Analisis-de-comportamiento
+        tipologias: ../tipologias-correo
     restart: unless-stopped
     environment:
       SELLACORREO_PUBLIC_URL: ${SELLACORREO_PUBLIC_URL:-http://localhost:8090}
@@ -22,8 +27,15 @@ services:
       SELLACORREO_INSTITUCION: ${SELLACORREO_INSTITUCION:-IESS · entorno de demostración}
       SELLACORREO_RATE_LIMIT_PER_MIN: ${SELLACORREO_RATE_LIMIT_PER_MIN:-30}
       SELLACORREO_LOGIN_LIMIT_PER_MIN: ${SELLACORREO_LOGIN_LIMIT_PER_MIN:-10}
+      # Observatorio: población sintética de demostración (se puede quitar desde la página)
+      SELLACORREO_OBSERVATORIO_DEMO: ${SELLACORREO_OBSERVATORIO_DEMO:-true}
+      SELLACORREO_OBSERVATORIO_LIMIT_PER_MIN: ${SELLACORREO_OBSERVATORIO_LIMIT_PER_MIN:-120}
+      # Orígenes que pueden llamar a /api/v1/observatorio desde el navegador (vacío = solo localhost)
+      SELLACORREO_OBSERVATORIO_ORIGENES: ${SELLACORREO_OBSERVATORIO_ORIGENES:-}
+    # Puerto publicado configurable (por defecto 8090). En un servidor compartido detrás de un túnel:
+    # SELLACORREO_PUERTO=127.0.0.1:8091 (solo escucha dentro del servidor).
     ports:
-      - "8090:8090"
+      - "${SELLACORREO_PUERTO:-8090}:8090"
     volumes:
       - sellacorreo-data:/data
 

@@ -1,0 +1,9 @@
+# API de Capacitación · Escudo Cognitivo IESS
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+pydantic[email]==2.10.3
+httpx==0.28.1
+
+# Opcional: genera códigos QR reales (indicio I11). Sin esto se usa un QR de
+# respaldo embebido, y todo lo demás funciona igual.
+# qrcode[pil]==8.0

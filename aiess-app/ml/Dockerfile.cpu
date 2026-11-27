@@ -1,0 +1,7 @@
+# Pipeline de datos sin GPU: análisis del CSV, simulaciones, dataset SFT y evaluación por reglas.
+FROM python:3.12-slim
+WORKDIR /work
+COPY shared ./shared
+COPY ml ./ml
+ENV PYTHONUTF8=1
+CMD ["bash", "-lc", "python -I ml/scripts/01_analizar_dataset.py && python -I ml/scripts/02_generar_simulaciones.py && python -I ml/scripts/03_construir_sft.py && python -I ml/scripts/05_evaluar.py --backend reglas"]

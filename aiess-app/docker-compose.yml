@@ -1,0 +1,31 @@
+# AIESS dockerizado.
+#   docker compose run --rm datos     # analiza el CSV y arma el dataset (sin GPU)
+#   docker compose run --rm entrenar  # fine-tuning LoRA de LFM2 + exporta GGUF (requiere GPU NVIDIA)
+#   docker compose run --rm apk       # compila la APK -> ./dist/AIESS.apk
+# El CSV se monta desde ./datos/ (copia ahí dataset_entrenamiento_IESS_1000.csv).
+services:
+  datos:
+    build: { context: ., dockerfile: ml/Dockerfile.cpu }
+    environment:
+      AIESS_CSV: /datos/dataset_entrenamiento_IESS_1000.csv
+    volumes:
+      - ./datos:/datos:ro
+      - ./ml/data:/work/ml/data
+      - ./ml/reports:/work/ml/reports
+
+  entrenar:
+    build: { context: ., dockerfile: ml/Dockerfile }
+    environment:
+      AIESS_CSV: /datos/dataset_entrenamiento_IESS_1000.csv
+    volumes:
+      - ./datos:/datos:ro
+      - ./:/work
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, count: all, capabilities: [gpu] }]
+
+  apk:
+    build: { context: ., dockerfile: app/Dockerfile }
+    volumes:
+      - ./dist:/out

@@ -5,6 +5,7 @@ export 'capacitacion.dart';
 export 'contenido_actividad.dart';
 export 'enlace_verificacion.dart';
 export 'escalera.dart';
+export 'ficha_tipologia.dart';
 export 'evento_app.dart';
 export 'indicio.dart';
 export 'mecanica.dart';

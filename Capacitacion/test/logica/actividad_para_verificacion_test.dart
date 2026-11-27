@@ -51,7 +51,11 @@ void main() {
 
     final conIndiciosCatalogo = [
       actividad('t2-general', tipologia: Tipologia.t2),
-      actividad('m1-qr', tipologia: Tipologia.t1, indicios: const [Indicio.i11]),
+      actividad(
+        'm1-qr',
+        tipologia: Tipologia.t1,
+        indicios: const [Indicio.i11],
+      ),
       actividad(
         'm6-qr',
         modulo: 'M6',

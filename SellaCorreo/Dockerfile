@@ -7,6 +7,12 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY common/autenticidad ./autenticidad
 COPY sellacorreo ./sellacorreo
+# Observatorio: paquete observador (Analisis-de-comportamiento/) y tipologías de correo.
+# Llegan como contextos de compilación con nombre (additional_contexts en docker-compose.yml).
+COPY --from=observador observador ./observador
+COPY --from=observador datos ./datos
+COPY --from=tipologias tipologias.json ./datos/tipologias.json
+ENV OBSERVADOR_TIPOLOGIAS=/app/datos/tipologias.json
 RUN useradd -r -u 10005 sella && mkdir -p /data && chown sella /data
 USER sella
 VOLUME ["/data"]

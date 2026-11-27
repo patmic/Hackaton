@@ -69,9 +69,9 @@ class ContenidoCazaSenal extends ContenidoActividad {
         mensaje: MensajeSimulado.fromJson(
           json['mensaje'] as Map<String, dynamic>,
         ),
-        senales: listaDeMapas(
-          json['senales'],
-        ).map(SenalEscondida.fromJson).toList(),
+        senales: listaDeMapas(json['senales'])
+            .map(SenalEscondida.fromJson)
+            .toList(),
       );
 
   final MensajeSimulado mensaje;
@@ -103,9 +103,9 @@ class TarjetaRealOEstafa {
         ),
         esEstafa: json['es_estafa'] as bool,
         explicacion: json['explicacion'] as String,
-        indicios: listaDeTextos(
-          json['indicios'],
-        ).map(Indicio.desdeCodigo).toList(),
+        indicios: listaDeTextos(json['indicios'])
+            .map(Indicio.desdeCodigo)
+            .toList(),
       );
 
   final String id;
@@ -124,9 +124,9 @@ class ContenidoRealOEstafa extends ContenidoActividad {
 
   factory ContenidoRealOEstafa.fromJson(Map<String, dynamic> json) =>
       ContenidoRealOEstafa(
-        tarjetas: listaDeMapas(
-          json['tarjetas'],
-        ).map(TarjetaRealOEstafa.fromJson).toList(),
+        tarjetas: listaDeMapas(json['tarjetas'])
+            .map(TarjetaRealOEstafa.fromJson)
+            .toList(),
       );
 
   /// Cinco por ronda (CLAUDE.md §10.3).
@@ -136,9 +136,7 @@ class ContenidoRealOEstafa extends ContenidoActividad {
   int get totalItems => tarjetas.length;
 
   @override
-  Set<Indicio> get indiciosUsados => {
-    for (final t in tarjetas) ...t.indicios,
-  };
+  Set<Indicio> get indiciosUsados => {for (final t in tarjetas) ...t.indicios};
 }
 
 // ---------- A3 · Bandeja simulada ----------
@@ -176,9 +174,7 @@ class ItemBandeja {
       json['accion_correcta'] as String,
     ),
     explicacion: json['explicacion'] as String,
-    indicios: listaDeTextos(
-      json['indicios'],
-    ).map(Indicio.desdeCodigo).toList(),
+    indicios: listaDeTextos(json['indicios']).map(Indicio.desdeCodigo).toList(),
   );
 
   final String id;
@@ -193,9 +189,9 @@ class ContenidoBandeja extends ContenidoActividad {
 
   factory ContenidoBandeja.fromJson(Map<String, dynamic> json) =>
       ContenidoBandeja(
-        mensajes: listaDeMapas(
-          json['bandeja'],
-        ).map(ItemBandeja.fromJson).toList(),
+        mensajes: listaDeMapas(json['bandeja'])
+            .map(ItemBandeja.fromJson)
+            .toList(),
       );
 
   /// Cinco mensajes (CLAUDE.md §10.3).
@@ -205,9 +201,7 @@ class ContenidoBandeja extends ContenidoActividad {
   int get totalItems => mensajes.length;
 
   @override
-  Set<Indicio> get indiciosUsados => {
-    for (final m in mensajes) ...m.indicios,
-  };
+  Set<Indicio> get indiciosUsados => {for (final m in mensajes) ...m.indicios};
 }
 
 // ---------- A6 · Verifica en 3 pasos ----------
@@ -231,9 +225,9 @@ class CasoVerificacion {
         ),
         esEstafa: json['es_estafa'] as bool,
         explicacion: json['explicacion'] as String,
-        indicios: listaDeTextos(
-          json['indicios'],
-        ).map(Indicio.desdeCodigo).toList(),
+        indicios: listaDeTextos(json['indicios'])
+            .map(Indicio.desdeCodigo)
+            .toList(),
       );
 
   final String id;
@@ -250,9 +244,9 @@ class ContenidoVerifica extends ContenidoActividad {
 
   factory ContenidoVerifica.fromJson(Map<String, dynamic> json) =>
       ContenidoVerifica(
-        casos: listaDeMapas(
-          json['casos'],
-        ).map(CasoVerificacion.fromJson).toList(),
+        casos: listaDeMapas(json['casos'])
+            .map(CasoVerificacion.fromJson)
+            .toList(),
       );
 
   final List<CasoVerificacion> casos;
@@ -300,9 +294,9 @@ class ContenidoAudioReto extends ContenidoActividad {
     return ContenidoAudioReto(
       guion: audio['guion'] as String,
       audioUrl: audio['url'] as String?,
-      opciones: listaDeMapas(
-        json['opciones'],
-      ).map(OpcionAudio.fromJson).toList(),
+      opciones: listaDeMapas(json['opciones'])
+          .map(OpcionAudio.fromJson)
+          .toList(),
     );
   }
 

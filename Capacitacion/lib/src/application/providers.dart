@@ -7,6 +7,7 @@ import '../data/adaptador_verificacion.dart';
 import '../data/capacitacion_api.dart';
 import '../data/nucleo_api.dart';
 import '../data/progreso_repository.dart';
+import '../data/tipologia_repository.dart';
 import '../domain/domain.dart';
 import 'logica/logica.dart';
 
@@ -18,6 +19,15 @@ final actividadRepositoryProvider = Provider<ActividadRepository>(
 
 final progresoRepositoryProvider = Provider<ProgresoRepository>(
   (ref) => PreferenciasProgresoRepository(),
+);
+
+final tipologiaRepositoryProvider = Provider<TipologiaRepository>(
+  (ref) => AssetTipologiaRepository(),
+);
+
+/// Tipologías y Sello IESS de `tipologias.json`.
+final tipologiasProvider = FutureProvider<CatalogoTipologias>(
+  (ref) => ref.watch(tipologiaRepositoryProvider).obtener(),
 );
 
 final motorRecomendacionProvider = Provider(
@@ -87,8 +97,7 @@ class PerfilNotifier extends Notifier<Perfil> {
 
   void elegirRango(RangoEtario? rango) => state = state.conRango(rango);
 
-  void marcarCuidador(bool valor) =>
-      state = state.copyWith(esCuidador: valor);
+  void marcarCuidador(bool valor) => state = state.copyWith(esCuidador: valor);
 }
 
 final perfilProvider = NotifierProvider<PerfilNotifier, Perfil>(

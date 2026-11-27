@@ -6,7 +6,8 @@ import '../helpers.dart';
 void main() {
   group('CodigoVerificacion', () {
     test('normaliza espacios y mayúsculas', () {
-      final conEspacios = ' ${hashValido.substring(0, 32).toUpperCase()} '
+      final conEspacios =
+          ' ${hashValido.substring(0, 32).toUpperCase()} '
           '${hashValido.substring(32)}\n';
       expect(CodigoVerificacion.normalizar(conEspacios), hashValido);
     });
@@ -20,23 +21,29 @@ void main() {
   });
 
   group('EnlaceVerificacion (App Link, Fallo 1)', () {
-    test('acepta la ruta de Flutter, el dominio oficial y el de desarrollo', () {
-      expect(EnlaceVerificacion.hashDesde('/verificar/$hashValido'), hashValido);
-      expect(
-        EnlaceVerificacion.hashDesde(
-          'https://app.iess.gob.ec/verificar/$hashValido',
-        ),
-        hashValido,
-      );
-      expect(
-        EnlaceVerificacion.hashDesde('iessverifica://verificar/$hashValido'),
-        hashValido,
-      );
-      expect(
-        EnlaceVerificacion.hashDesde('/verificar/$hashValido/'),
-        hashValido,
-      );
-    });
+    test(
+      'acepta la ruta de Flutter, el dominio oficial y el de desarrollo',
+      () {
+        expect(
+          EnlaceVerificacion.hashDesde('/verificar/$hashValido'),
+          hashValido,
+        );
+        expect(
+          EnlaceVerificacion.hashDesde(
+            'https://app.iess.gob.ec/verificar/$hashValido',
+          ),
+          hashValido,
+        );
+        expect(
+          EnlaceVerificacion.hashDesde('iessverifica://verificar/$hashValido'),
+          hashValido,
+        );
+        expect(
+          EnlaceVerificacion.hashDesde('/verificar/$hashValido/'),
+          hashValido,
+        );
+      },
+    );
 
     test('rechaza otros dominios, http y rutas distintas', () {
       for (final enlace in [
@@ -59,7 +66,10 @@ void main() {
     });
 
     test('un enlace aceptado con código mal formado no da hash', () {
-      expect(EnlaceVerificacion.esEnlaceDeVerificacion('/verificar/abc'), isTrue);
+      expect(
+        EnlaceVerificacion.esEnlaceDeVerificacion('/verificar/abc'),
+        isTrue,
+      );
       expect(EnlaceVerificacion.codigoDesde('/verificar/abc'), 'abc');
       expect(EnlaceVerificacion.hashDesde('/verificar/abc'), isNull);
     });

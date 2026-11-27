@@ -4,6 +4,8 @@ import 'package:material_ui/material_ui.dart';
 import '../../application/providers.dart';
 import '../../domain/domain.dart';
 import '../widgets/actividad_tile.dart';
+import '../widgets/animaciones.dart';
+import '../widgets/responsivo.dart';
 import '../widgets/vista_async.dart';
 
 /// Actividades que le corresponden al usuario, con filtros.
@@ -52,12 +54,15 @@ class CatalogoTab extends ConsumerWidget {
                   padding: EdgeInsets.all(16),
                   child: Text('No hay actividades con estos filtros.'),
                 )
-              : Column(
+              : RejillaAdaptable(
                   children: [
-                    for (final a in lista)
-                      ActividadTile(
-                        actividad: a,
-                        completada: progreso?.estaCompletada(a.id) ?? false,
+                    for (final (i, a) in lista.indexed)
+                      Aparecer(
+                        orden: i,
+                        child: ActividadTile(
+                          actividad: a,
+                          completada: progreso?.estaCompletada(a.id) ?? false,
+                        ),
                       ),
                   ],
                 ),

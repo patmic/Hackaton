@@ -38,7 +38,7 @@ from autenticidad import canonical_content, composite_hash, normalize_email, rec
 from autenticidad.banner import invalid_png
 from autenticidad.sello import wax_seal_png
 
-from . import firma, store
+from . import firma, observatorio, store
 
 class _SinHealth(logging.Filter):
     """Oculta del log de acceso las llamadas del healthcheck de Docker a /health."""
@@ -62,12 +62,47 @@ E = html.escape
 async def lifespan(_app):
     firma.key()
     store.init()
+    observatorio.iniciar()
+    if not getattr(_app.state, "observatorio_montado", False):
+        obs_router = observatorio.router(
+            puede_ver_panel=lambda request: current_user(request) is not None,
+            permitir=lambda request: observatorio_limiter.allow(ip_hash(request)))
+        if obs_router is not None:
+            _app.include_router(obs_router, prefix="/api/v1/observatorio")
+            _app.state.observatorio_montado = True
     yield
 
 
 app = FastAPI(title="SellaCorreo", version="2.0.0", lifespan=lifespan,
               description="Sello anti-phishing para correos institucionales: GenKey y CheckIn.")
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
+
+
+OBS_API = "/api/v1/observatorio/"
+# Orígenes con permiso para llamar a la API desde el navegador (la app Flutter
+# web). Vacío o sin definir: solo localhost. Una expresión vacía no se acepta,
+# porque coincidiría con cualquier origen.
+OBS_ORIGENES = re.compile(os.environ.get("SELLACORREO_OBSERVATORIO_ORIGENES", "").strip()
+                          or r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$")
+
+
+@app.middleware("http")
+async def observatorio_cors(request: Request, call_next):
+    """CORS solo para la API del Observatorio: la app Flutter web corre en otro
+    origen. Sin cookies (allow-credentials no se envía), así que la sesión del
+    personal nunca viaja en estas llamadas."""
+    origen = request.headers.get("origin", "")
+    aplica = request.url.path.startswith(OBS_API) and OBS_ORIGENES.match(origen)
+    if aplica and request.method == "OPTIONS":
+        resp = Response(status_code=204)
+    else:
+        resp = await call_next(request)
+    if aplica:
+        resp.headers["Access-Control-Allow-Origin"] = origen
+        resp.headers["Access-Control-Allow-Methods"] = "GET, POST, DELETE, OPTIONS"
+        resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        resp.headers["Vary"] = "Origin"
+    return resp
 
 
 @app.middleware("http")
@@ -112,6 +147,7 @@ class RateLimiter:
 
 checkin_limiter = RateLimiter(int(os.environ.get("SELLACORREO_RATE_LIMIT_PER_MIN", "30")))
 login_limiter = RateLimiter(int(os.environ.get("SELLACORREO_LOGIN_LIMIT_PER_MIN", "10")))
+observatorio_limiter = RateLimiter(int(os.environ.get("SELLACORREO_OBSERVATORIO_LIMIT_PER_MIN", "120")))
 
 
 def ip_of(request: Request) -> str:
@@ -177,6 +213,7 @@ def page(title: str, body: str, user: dict | None = None, request: Request | Non
         return f'<a href="{href}"{cur}>{label}</a>'
     links = (f'<nav class="sc-foot-links" aria-label="Secciones">' + foot("/", "Inicio", "inicio")
              + foot("/genkey", "Sello", "genkey") + foot("/checkin", "Validador", "checkin")
+             + foot("/observatorio", "Observatorio", "observatorio")
              + foot("/reportar-incidente", "Reportar Incidente", "incidente") + sesion + "</nav>")
     head = ""
     return HTMLResponse(status_code=status, content=f"""<!doctype html><html lang="es"><head>
@@ -246,6 +283,8 @@ ICON_DOC = ('<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width
 ICON_RADAR = ('<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/>'
               '<path d="M12 12l6-6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>')
 ICON_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>'
+ICON_CHART = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'
+              '<path d="M4 8l6-4 6 7 5-4"/></svg>')
 
 
 def home_card(kind: str, href: str, title: str, text: str, icon: str, extra: str = "") -> str:
@@ -266,10 +305,13 @@ def home(request: Request):
     <div class="sc-dial">{dial_svg()}
       <img class="sc-dial__img sc-dial__img--base sc-dial__img--robot" src="/static/img/robot-aiess.svg" alt="Robot AIESS" width="410" height="410">
       <img class="sc-dial__img sc-dial__img--sello" src="/static/img/sello.jpg" alt="Sobre digital protegido por un escudo" width="410" height="410" aria-hidden="true">
+      <img class="sc-dial__img sc-dial__img--escudo sc-dial__img--observatorio" src="/static/img/observatorio.svg" alt="" width="410" height="410" aria-hidden="true">
     </div>
     {home_card("sello", "/genkey", "Sellar Correo", "Crea tu sello de seguridad y evita el phishing", ICON_DOC)}
     {home_card("validador", "/checkin", "Validador", "Valida el hash y evita la suplantación de identidad", ICON_SHIELD,
                 "Haga clic en el encabezado de su correo o pegue su enlace en este Validador.")}
+    {home_card("observatorio", "/observatorio", "Observatorio", "Aprende del comportamiento y personaliza la capacitación", ICON_CHART,
+                "Qué indicios engañan a cada grupo y qué debe practicar cada persona.")}
     {home_card("radar", "/radar", "Radar Phishing", "Monitorea en vivo los intentos de phishing detectados", ICON_RADAR)}
   </div>
 </section>
@@ -373,13 +415,25 @@ def public_key():
 
 
 # ------------------------------------------------------------------ login
-def demo_card() -> str:
+# Páginas a las que el login puede volver. Lista cerrada: nunca una URL arbitraria.
+DESTINOS_LOGIN = {"/genkey", "/observatorio"}
+
+
+def _destino(siguiente: str) -> str:
+    return siguiente if siguiente in DESTINOS_LOGIN else "/genkey"
+
+
+def _campo_siguiente(siguiente: str) -> str:
+    return f'<input type="hidden" name="siguiente" value="{E(siguiente)}">' if siguiente in DESTINOS_LOGIN else ""
+
+
+def demo_card(siguiente: str = "") -> str:
     if not store.demo_mode():
         return ""
     users = store.demo_users()
     if not users:
         return ""
-    rows = "".join(f"""<form method="post" action="/login" class="sc-quick__form">
+    rows = "".join(f"""<form method="post" action="/login" class="sc-quick__form">{_campo_siguiente(siguiente)}
 <input type="hidden" name="usuario" value="{E(u['emisor'])}"><input type="hidden" name="clave" value="{E(store.demo_password())}">
 <button type="submit" class="sc-quick__row" data-demo="{E(u['usuario'])}"><span class="sc-quick__text">
 <span class="sc-quick__title">{E(u['nombre'])}</span><span class="sc-quick__sub">{E(u['unidad'])} · {E(u['emisor'])}</span></span>
@@ -390,15 +444,15 @@ def demo_card() -> str:
 <div class="sc-quick__list">{rows}</div></div></section>"""
 
 
-def login_page(error: str = "", usuario: str = "", status: int = 200) -> HTMLResponse:
+def login_page(error: str = "", usuario: str = "", status: int = 200, siguiente: str = "") -> HTMLResponse:
     alert = f'<div class="tl-alert tl-alert--destructive" role="alert"><div class="tl-alert__body">{E(error)}</div></div>' if error else ""
-    demo = demo_card()
+    demo = demo_card(siguiente)
     return page("Ingresar", f"""<section class="sc-login{' sc-login--demo' if demo else ''}">
 <section class="tl-card"><div class="tl-card__body">
 <h1 class="sc-card-title sc-card-title--lg">Ingresar</h1>
 <p class="tl-page-desc">Acceso para el personal del IESS que genera sellos. Los destinatarios verifican sin cuenta en <a href="/checkin">CheckIn</a>.</p>
 {alert}
-<form class="sc-form" method="post" action="/login" autocomplete="on">
+<form class="sc-form" method="post" action="/login" autocomplete="on">{_campo_siguiente(siguiente)}
 <div class="tl-field"><label class="tl-field__label" for="usuario">Correo electrónico</label>
 <input class="tl-input" id="usuario" name="usuario" required autocomplete="username" placeholder="usuario@demo.institucion.test" value="{E(usuario)}"></div>
 <div class="tl-field"><label class="tl-field__label" for="clave">Contraseña</label>
@@ -408,20 +462,20 @@ def login_page(error: str = "", usuario: str = "", status: int = 200) -> HTMLRes
 
 
 @app.get("/login", response_class=HTMLResponse)
-def login_form(request: Request):
+def login_form(request: Request, siguiente: str = ""):
     if current_user(request):
-        return RedirectResponse("/genkey", status_code=303)
-    return login_page()
+        return RedirectResponse(_destino(siguiente), status_code=303)
+    return login_page(siguiente=siguiente)
 
 
 @app.post("/login")
-def login(request: Request, usuario: str = Form(...), clave: str = Form(...)):
+def login(request: Request, usuario: str = Form(...), clave: str = Form(...), siguiente: str = Form("")):
     if not login_limiter.allow(ip_of(request)):
-        return login_page("Demasiados intentos. Espere un minuto.", usuario, 429)
+        return login_page("Demasiados intentos. Espere un minuto.", usuario, 429, siguiente)
     user = store.authenticate(usuario, clave)
     if user is None:
-        return login_page("Usuario o contraseña incorrectos.", usuario, 401)
-    resp = RedirectResponse("/genkey", status_code=303)
+        return login_page("Usuario o contraseña incorrectos.", usuario, 401, siguiente)
+    resp = RedirectResponse(_destino(siguiente), status_code=303)
     resp.set_cookie(COOKIE, make_session(user["usuario"]), httponly=True, samesite="lax",
                     secure=os.environ.get("SELLACORREO_COOKIE_SECURE", "false").lower() == "true",
                     max_age=int(os.environ.get("SELLACORREO_SESSION_TTL", "28800")))
@@ -571,6 +625,27 @@ def history(user: dict) -> str:
     return (f'<section class="tl-card"><div class="tl-card__body"><h2 class="tl-title">Mis últimos sellos</h2>'
             f'<table class="sc-table"><tr><th>Fecha (UTC)</th><th>Taxonomía</th><th>Asunto</th><th>Código</th></tr>{trs}</table>'
             f'</div></section>')
+
+
+@app.get("/observatorio", response_class=HTMLResponse)
+def observatorio_get(request: Request, persona: str = ""):
+    """Panel del Observatorio: agregados con k = 10 y el plan de una persona por
+    su código. Es interno: pide sesión, como el Sello."""
+    user = current_user(request)
+    if not user:
+        return RedirectResponse("/login?siguiente=/observatorio", status_code=303)
+    return page("Observatorio", observatorio.panel(csrf_token(request), persona[:64]), user, request,
+                active="observatorio", chrome="observatorio")
+
+
+@app.post("/observatorio/borrar-sinteticos")
+def observatorio_borrar_sinteticos(request: Request, csrf: str = Form("")):
+    if not current_user(request):
+        return RedirectResponse("/login?siguiente=/observatorio", status_code=303)
+    if not csrf_ok(request, csrf):
+        return JSONResponse({"error": "CSRF"}, status_code=403)
+    observatorio.borrar_sinteticos()
+    return RedirectResponse("/observatorio", status_code=303)
 
 
 @app.get("/genkey", response_class=HTMLResponse)
@@ -752,7 +827,7 @@ def checkin_home(request: Request, enlace: str = ""):
 o pegue aquí el enlace de esa imagen.</p></header>
 <section class="tl-card"><div class="tl-card__body"><form class="sc-form" method="get" action="/checkin">
 <div class="tl-field"><label class="tl-field__label" for="enlace">Enlace de la imagen SellaCorreo</label>
-<input class="tl-input sc-code" id="enlace" name="enlace" required placeholder="http://localhost:8090/checkin/..."></div>
+<input class="tl-input sc-code" id="enlace" name="enlace" required placeholder=\"""" + html.escape(public_base()) + """/checkin/..."></div>
 <div class="tl-row"><button class="tl-btn tl-btn--default" type="submit">Verificar</button></div></form>
 <p class="tl-hint">Si el correo no trae imagen SellaCorreo, desconfíe: los correos institucionales sellados siempre la llevan.</p>
 </div></section>""", current_user(request), request, active="checkin")
@@ -787,6 +862,72 @@ def checkin(link: str, request: Request):
         store.record_verification(motivo, ip_hash(request))
         return _falso(motivo, user, request)
     return _valido(seal, user, request)
+
+
+@app.get("/api/v1/verificar/{link:path}")
+def api_verificar(link: str, request: Request):
+    """Verificación para apps (robot AIESS): la MISMA comprobación que CheckIn (hash, firma Ed25519, emisor,
+    caducidad), en JSON. Acepta el enlace completo o solo «token.huella». Nunca devuelve la palabra segura
+    (esa solo se muestra en la página de CheckIn, a la persona)."""
+    cors = {"Access-Control-Allow-Origin": "*", "Cache-Control": "no-store"}
+    if not checkin_limiter.allow(ip_of(request)):
+        return JSONResponse({"valido": False, "motivo": "limite", "mensaje": "Demasiadas consultas. Intente en un minuto."},
+                            status_code=429, headers=cors)
+    ok, motivo, seal = check_link(_extract_link(link))
+    store.record_verification(motivo, ip_hash(request))
+    if not ok:
+        return JSONResponse({"valido": False, "motivo": motivo,
+                             "mensaje": MOTIVOS[motivo] + " Podría ser phishing: no haga clic en sus enlaces ni entregue datos."},
+                            headers=cors)
+    datos = {"valido": True, "motivo": "valido",
+             "mensaje": f"Emitido por {seal['nombre_emisor']} ({seal['institucion']}). El hash, la firma digital "
+                        "y el correo del emisor coinciden.",
+             "emisor": seal["nombre_emisor"], "unidad": seal["unidad"], "buzon": seal["emisor"],
+             "institucion": seal["institucion"], "taxonomia": seal["taxonomia"], "fecha_utc": seal["ts_utc"],
+             "codigo": fmt_code(seal["codigo"]), "expira_utc": seal.get("expira_utc")}
+    if seal.get("exige_asunto", 1):
+        datos["asunto"] = seal["asunto"]
+    return JSONResponse(datos, headers=cors)
+
+
+_PREFIJO_RESPUESTA = re.compile(r"^\s*((re|rv|fw|fwd|reenviado|respuesta)\s*:\s*)+", re.I)
+
+
+def _normalizar_asunto(asunto: str) -> str:
+    """Mismo asunto aunque cambien mayúsculas, espacios o venga como «RE:» / «RV:» / «Fwd:»."""
+    return re.sub(r"\s+", " ", _PREFIJO_RESPUESTA.sub("", asunto or "")).strip().casefold()
+
+
+@app.get("/api/v1/asunto")
+def api_asunto(asunto: str, request: Request):
+    """Para el guardián de AIESS en el celular: solo ve el ASUNTO de la notificación (no el correo). Pregunta si el
+    IESS selló un correo con ese asunto. Cada coincidencia pasa la MISMA verificación que CheckIn (hash, firma
+    Ed25519, emisor, caducidad). Devuelve el buzón oficial para comparar con el remitente; nunca la palabra segura."""
+    cors = {"Access-Control-Allow-Origin": "*", "Cache-Control": "no-store"}
+    if not checkin_limiter.allow(ip_of(request)):
+        return JSONResponse({"sellado": False, "motivo": "limite", "mensaje": "Demasiadas consultas. Intente en un minuto."},
+                            status_code=429, headers=cors)
+    buscado = _normalizar_asunto(asunto)[:300]
+    if len(buscado) < 3:
+        return JSONResponse({"sellado": False, "motivo": "asunto_vacio", "mensaje": "Falta el asunto."}, headers=cors)
+    for cand in store.seals_with_subject():
+        if _normalizar_asunto(cand["asunto"]) != buscado:
+            continue
+        ok, motivo, seal = check_link(f"{cand['token']}.{cand['h'][:16]}")
+        if ok:
+            store.record_verification("asunto_sellado", ip_hash(request))
+            return JSONResponse({
+                "sellado": True, "motivo": "valido",
+                "mensaje": f"El IESS selló un correo con este asunto. Lo envía {seal['emisor']} "
+                           f"({seal['nombre_emisor']}). Si el remitente es otro, es una estafa.",
+                "buzon": seal["emisor"], "emisor": seal["nombre_emisor"], "unidad": seal["unidad"],
+                "institucion": seal["institucion"], "fecha_utc": seal["ts_utc"], "codigo": fmt_code(seal["codigo"]),
+                "expira_utc": seal.get("expira_utc"), "enlace": f"{public_base()}/checkin/{cand['token']}.{cand['h'][:16]}",
+            }, headers=cors)
+    store.record_verification("asunto_sin_sello", ip_hash(request))
+    return JSONResponse({"sellado": False, "motivo": "sin_sello",
+                         "mensaje": "El IESS no selló ningún correo con este asunto. Es una estafa: no lo abras, "
+                                    "no toques sus enlaces y no respondas."}, headers=cors)
 
 
 @app.get("/img/{token}.png")

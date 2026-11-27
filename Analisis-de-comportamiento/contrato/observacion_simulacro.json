@@ -1,0 +1,15 @@
+{
+  "id_seudonimo": "a3f9c2e17b4d48e0b6c1",
+  "tipo": "SIMULACRO",
+  "momento": "2026-11-26T15:42:10Z",
+  "tipos": ["EX1"],
+  "rango_etario": "30-49",
+  "plantilla_id": "N2-EX1-reembolso",
+  "nivel": 2,
+  "tipologia": "T2",
+  "indicios": ["I6", "I1", "I7"],
+  "indicios_implicitos": ["I2"],
+  "resultado": "CLIC",
+  "reporto_despues_de_clic": false,
+  "segundos_hasta_reaccion": 214
+}

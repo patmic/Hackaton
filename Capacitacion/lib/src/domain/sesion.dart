@@ -19,9 +19,9 @@ class SesionUsuario {
   factory SesionUsuario.fromJson(Map<String, dynamic> json) {
     final perfil = json['perfil_conducta'] as String?;
     final rango = json['rango_etario'] as String?;
-    final tipos = listaDeTextos(
-      json['tipos'],
-    ).map(TipoUsuario.desdeCodigo).toSet();
+    final tipos = listaDeTextos(json['tipos'])
+        .map(TipoUsuario.desdeCodigo)
+        .toSet();
     return SesionUsuario(
       tipos: tipos.isEmpty ? const {TipoUsuario.ex5} : tipos,
       perfilConducta: perfil == null
@@ -48,8 +48,7 @@ class SesionUsuario {
   /// confirmarlo (doble opt-in).
   bool get tieneCorreo => correoEnmascarado != null;
 
-  Zona get zona =>
-      tipos.any((t) => t.esInterno) ? Zona.interna : Zona.externa;
+  Zona get zona => tipos.any((t) => t.esInterno) ? Zona.interna : Zona.externa;
 
   /// Nombre para mostrar: el primer tipo, en el orden de [TipoUsuario].
   String get nombreTipo {

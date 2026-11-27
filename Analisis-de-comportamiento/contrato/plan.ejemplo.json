@@ -1,0 +1,220 @@
+{
+  "id_seudonimo": "a3f9c2e17b4d48e0b6c1",
+  "generado_en": "2026-11-26T18:00:00Z",
+  "version_modelo": "1.0",
+  "tipos": [
+    "EX1"
+  ],
+  "perfil_conducta": {
+    "codigo": "SIN_PERFIL",
+    "etiqueta": "Sin perfil",
+    "motivo": "Menos de 5 acciones en la ventana de 90 días."
+  },
+  "metricas": {
+    "acciones": 3,
+    "juicios": 2,
+    "precision": 0.5,
+    "simulacros": 1,
+    "reportes": 0,
+    "clics": 1,
+    "ignorados": 0,
+    "tasa_reporte": 0.0,
+    "clic_ajustado": 5.556,
+    "decisiones": 1,
+    "verificaciones": 1,
+    "falsos_positivos": 0,
+    "mediana_segundos_reporte": null
+  },
+  "indicios": [
+    {
+      "indicio": "I1",
+      "nombre": "Urgencia artificial",
+      "estado": "DEBIL",
+      "etiqueta": "Para practicar",
+      "dominio": 0.25,
+      "evidencia": 0.999,
+      "confianza": "BAJA",
+      "repasar": false
+    },
+    {
+      "indicio": "I2",
+      "nombre": "Enlace a dominio no oficial",
+      "estado": "DEBIL",
+      "etiqueta": "Para practicar",
+      "dominio": 0.333,
+      "evidencia": 0.499,
+      "confianza": "BAJA",
+      "repasar": false
+    },
+    {
+      "indicio": "I3",
+      "nombre": "Pide credenciales, claves, códigos o tarjeta",
+      "estado": "SIN_PROBAR",
+      "etiqueta": "Sin probar",
+      "dominio": 0.5,
+      "evidencia": 0.0,
+      "confianza": "BAJA",
+      "repasar": false
+    },
+    {
+      "indicio": "I4",
+      "nombre": "Enlace acortado u oculto",
+      "estado": "SIN_PROBAR",
+      "etiqueta": "Sin probar",
+      "dominio": 0.5,
+      "evidencia": 0.0,
+      "confianza": "BAJA",
+      "repasar": false
+    },
+    {
+      "indicio": "I5",
+      "nombre": "Adjunto o instalación sospechosa",
+      "estado": "SIN_PROBAR",
+      "etiqueta": "Sin probar",
+      "dominio": 0.5,
+      "evidencia": 0.0,
+      "confianza": "BAJA",
+      "repasar": false
+    },
+    {
+      "indicio": "I6",
+      "nombre": "Premio, bono o reembolso inesperado",
+      "estado": "DEBIL",
+      "etiqueta": "Para practicar",
+      "dominio": 0.4,
+      "evidencia": 1.498,
+      "confianza": "MEDIA",
+      "repasar": false
+    },
+    {
+      "indicio": "I7",
+      "nombre": "Remitente no oficial",
+      "estado": "DEBIL",
+      "etiqueta": "Para practicar",
+      "dominio": 0.25,
+      "evidencia": 0.999,
+      "confianza": "BAJA",
+      "repasar": false
+    },
+    {
+      "indicio": "I8",
+      "nombre": "Amenaza o pérdida de beneficio",
+      "estado": "SIN_PROBAR",
+      "etiqueta": "Sin probar",
+      "dominio": 0.5,
+      "evidencia": 0.0,
+      "confianza": "BAJA",
+      "repasar": false
+    },
+    {
+      "indicio": "I9",
+      "nombre": "Pide datos personales o documentos",
+      "estado": "SIN_PROBAR",
+      "etiqueta": "Sin probar",
+      "dominio": 0.5,
+      "evidencia": 0.0,
+      "confianza": "BAJA",
+      "repasar": false
+    },
+    {
+      "indicio": "I10",
+      "nombre": "Pide pago o transferencia",
+      "estado": "DOMINADO",
+      "etiqueta": "Lo dominas",
+      "dominio": 0.667,
+      "evidencia": 0.499,
+      "confianza": "BAJA",
+      "repasar": false
+    },
+    {
+      "indicio": "I11",
+      "nombre": "Código QR hacia sitio no verificable",
+      "estado": "SIN_PROBAR",
+      "etiqueta": "Sin probar",
+      "dominio": 0.5,
+      "evidencia": 0.0,
+      "confianza": "BAJA",
+      "repasar": false
+    }
+  ],
+  "falencias": [
+    {
+      "indicio": "I7",
+      "nombre": "Remitente no oficial",
+      "estado": "DEBIL",
+      "etiqueta": "Para practicar",
+      "prioridad": 0.73,
+      "riesgo": 0.75,
+      "motivos": [
+        "Hiciste clic una vez en correos de práctica que lo tenían.",
+        "Es de los que más se usan para imitar correos que recibes: Informativo y eventos, Financiero y previsional."
+      ],
+      "microcurso": {
+        "titulo": "Tus canales oficiales",
+        "modulo": "M2"
+      }
+    },
+    {
+      "indicio": "I2",
+      "nombre": "Enlace a dominio no oficial",
+      "estado": "DEBIL",
+      "etiqueta": "Para practicar",
+      "prioridad": 0.667,
+      "riesgo": 0.667,
+      "motivos": [
+        "Es de los que más se usan para imitar correos que recibes: Informativo y eventos, Financiero y previsional."
+      ],
+      "microcurso": {
+        "titulo": "Tus canales oficiales",
+        "modulo": "M2"
+      }
+    },
+    {
+      "indicio": "I1",
+      "nombre": "Urgencia artificial",
+      "estado": "DEBIL",
+      "etiqueta": "Para practicar",
+      "prioridad": 0.595,
+      "riesgo": 0.75,
+      "motivos": [
+        "Hiciste clic una vez en correos de práctica que lo tenían."
+      ],
+      "microcurso": {
+        "titulo": "La prisa es la trampa",
+        "modulo": "M1"
+      }
+    }
+  ],
+  "foco_tipologia": {
+    "tipologia": "T2",
+    "nombre": "Financiero y previsional",
+    "motivo": "Es la que más te ha costado reconocer cuando la imitan.",
+    "capsula": "El IESS nunca le pide datos, claves ni pagos para cobrar un reembolso, una pensión o una devolución."
+  },
+  "siguiente_correo": {
+    "nivel": 1,
+    "indicios_objetivo": [
+      "I7",
+      "I2",
+      "I1"
+    ],
+    "tipologia": "T2",
+    "motivo": "El siguiente correo será más fácil de reconocer, para practicar con calma."
+  },
+  "ritmo": {
+    "codigo": "BASE",
+    "descripcion": "El ritmo de la ruta de tu tipo de usuario.",
+    "adelantar_refuerzo": false
+  },
+  "retencion": {
+    "precision_inicial": null,
+    "precision_reciente": null,
+    "adelantar_refuerzo": false
+  },
+  "confianza": {
+    "nivel": "MEDIA",
+    "observaciones": 3,
+    "nota": "El plan se basa en 3 observaciones tuyas de los últimos meses."
+  },
+  "mensaje": "Esto es lo que más te conviene practicar ahora. Equivocarse en una práctica es parte de aprender: no tiene consecuencias."
+}

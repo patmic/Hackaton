@@ -29,24 +29,26 @@ void main() {
       ['b'],
     );
     expect(ids(const FiltroActividades(modulo: 'M3').aplicar(lista)), ['c']);
-    expect(
-      ids(const FiltroActividades(mecanica: Mecanica.a1).aplicar(lista)),
-      ['a'],
-    );
+    expect(ids(const FiltroActividades(mecanica: Mecanica.a1).aplicar(lista)), [
+      'a',
+    ]);
   });
 
   test('con perfil deja solo lo que le corresponde', () {
     // M4 es para EX1 y EX2: un EX5 no lo ve.
-    expect(ids(const FiltroActividades().aplicar(lista, perfil: const Perfil())), [
-      'a',
-      'c',
-    ]);
+    expect(
+      ids(const FiltroActividades().aplicar(lista, perfil: const Perfil())),
+      ['a', 'c'],
+    );
   });
 
   test('solo pendientes excluye completadas', () {
     final p = const Progreso().marcarCompletada('a');
     expect(
-      ids(const FiltroActividades(soloPendientes: true).aplicar(lista, progreso: p)),
+      ids(
+        const FiltroActividades(soloPendientes: true)
+            .aplicar(lista, progreso: p),
+      ),
       ['b', 'c'],
     );
   });

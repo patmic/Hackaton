@@ -62,27 +62,30 @@ void main() {
     expect(perfil.perfilConducta.etiquetaVisible, 'En aprendizaje');
   });
 
-  test('los eventos llevan contexto anónimo y nunca datos personales', () async {
-    final api = MockCapacitacionApi();
-    final c = await crear(api);
-    await c
-        .read(registroEventosProvider)
-        .registrar(
-          EventoApp.decisionTomada(
-            itemId: 't1',
-            opcion: 'ESTAFA',
-            esCorrecta: true,
-            momento: momento,
-          ),
-        );
-    final json = api.eventosRecibidos.single.toJson();
-    expect(json['evento'], 'DECISION_TOMADA');
-    expect(json['tipo_usuario'], ['EX5']);
-    expect(json['canal'], 'APP');
-    for (final prohibido in ['cedula', 'nombre', 'correo', 'id_seudonimo']) {
-      expect(json.containsKey(prohibido), isFalse, reason: prohibido);
-    }
-  });
+  test(
+    'los eventos llevan contexto anónimo y nunca datos personales',
+    () async {
+      final api = MockCapacitacionApi();
+      final c = await crear(api);
+      await c
+          .read(registroEventosProvider)
+          .registrar(
+            EventoApp.decisionTomada(
+              itemId: 't1',
+              opcion: 'ESTAFA',
+              esCorrecta: true,
+              momento: momento,
+            ),
+          );
+      final json = api.eventosRecibidos.single.toJson();
+      expect(json['evento'], 'DECISION_TOMADA');
+      expect(json['tipo_usuario'], ['EX5']);
+      expect(json['canal'], 'APP');
+      for (final prohibido in ['cedula', 'nombre', 'correo', 'id_seudonimo']) {
+        expect(json.containsKey(prohibido), isFalse, reason: prohibido);
+      }
+    },
+  );
 
   test('si la API falla, el evento espera y sale con el siguiente', () async {
     final api = _ApiIntermitente(1);

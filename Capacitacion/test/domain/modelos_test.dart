@@ -13,11 +13,11 @@ void main() {
     };
 
     test('se parsea completo y con ids únicos', () {
-      expect(catalogo, hasLength(9));
+      expect(catalogo, hasLength(12));
       expect(porId, hasLength(catalogo.length));
     });
 
-    test('cubre las tres tipologías', () {
+    test('cubre las seis tipologías', () {
       expect(
         catalogo.map((a) => a.tipologia).whereType<Tipologia>().toSet(),
         Tipologia.values.toSet(),
