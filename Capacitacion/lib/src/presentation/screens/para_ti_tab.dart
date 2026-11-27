@@ -5,6 +5,8 @@ import '../../application/logica/logica.dart';
 import '../../application/providers.dart';
 import '../../domain/domain.dart';
 import '../widgets/actividad_tile.dart';
+import '../widgets/animaciones.dart';
+import '../widgets/responsivo.dart';
 import '../widgets/selector_rango.dart';
 import '../widgets/vista_async.dart';
 import 'capacitacion_screen.dart';
@@ -109,11 +111,11 @@ class ParaTiTab extends ConsumerWidget {
             valor: recomendaciones,
             datos: (lista) => lista.isEmpty
                 ? const Text('Ya hiciste todas las actividades de tu ruta.')
-                : Column(
+                : RejillaAdaptable(
                     children: [
-                      for (final r in lista)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
+                      for (final (i, r) in lista.indexed)
+                        Aparecer(
+                          orden: i,
                           child: ActividadTile(
                             actividad: r.actividad,
                             completada:
