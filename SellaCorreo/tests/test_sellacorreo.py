@@ -521,3 +521,10 @@ def test_api_verificar_para_el_robot(staff, anon):
     d = anon.get(f"/api/v1/verificar/{token}.{otro}").json()
     assert d["valido"] is False and d["motivo"] == "hash_distinto" and "asunto" not in d
     assert anon.get("/api/v1/verificar/inventado.0000000000000000").json()["motivo"] in ("no_registrado", "enlace_malformado")
+
+    # Guardián del celular: solo conoce el ASUNTO de la notificación.
+    d = anon.get("/api/v1/asunto", params={"asunto": "RE:  boletín INFORMATIVO de diciembre "}).json()
+    assert d["sellado"] is True and d["buzon"] and "palabra" not in str(d).lower()
+    assert d["enlace"].endswith(token_h)
+    d = anon.get("/api/v1/asunto", params={"asunto": "IESS: su pensión será suspendida"}).json()
+    assert d["sellado"] is False and d["motivo"] == "sin_sello"

@@ -6,6 +6,7 @@
 // pone un enlace a su propio "verificador", se marca como falso.
 import 'dart:convert';
 
+import '../analisis/motor.dart';
 import 'package:http/http.dart' as http;
 
 import '../../core/canales.dart' show plegar;
@@ -93,6 +94,66 @@ class Sello {
             'No pude comprobar el sello ahora (sin conexión). Mientras tanto, no abras sus enlaces.',
       );
     }
+  }
+
+  /// El guardián del celular solo ve el ASUNTO de la notificación (no el correo ni sus enlaces). Le pregunta a
+  /// SellaCorreo si el IESS selló un correo con ese asunto; el servidor busca ese sello y verifica su firma.
+  /// Se envía SOLO el asunto. `valido` = hay un sello válido; si no, el correo se descarta como estafa.
+  static Future<ResultadoSello> porAsunto(
+    String asunto, {
+    http.Client? cliente,
+    String? servidorOficial,
+  }) async {
+    final servidor = servidorOficial ?? Sello.servidor;
+    if (servidor.isEmpty || asunto.trim().isEmpty) {
+      return const ResultadoSello(
+        valido: false,
+        motivo: 'sin_conexion',
+        mensaje: 'No pude comprobar el sello.',
+      );
+    }
+    try {
+      final c = cliente ?? http.Client();
+      final uri = Uri.parse(
+        '$servidor/api/v1/asunto',
+      ).replace(queryParameters: {'asunto': asunto.trim()});
+      final r = await c.get(uri).timeout(const Duration(seconds: 8));
+      if (r.statusCode != 200) throw Exception('http ${r.statusCode}');
+      final d = jsonDecode(utf8.decode(r.bodyBytes)) as Map<String, dynamic>;
+      return ResultadoSello(
+        valido: d['sellado'] == true,
+        motivo: '${d['motivo'] ?? 'desconocido'}',
+        mensaje: '${d['mensaje'] ?? ''}',
+        datos: d,
+      );
+    } catch (_) {
+      return const ResultadoSello(
+        valido: false,
+        motivo: 'sin_conexion',
+        mensaje:
+            'No pude comprobar el sello ahora (sin conexión). Mientras tanto, no abras sus enlaces.',
+      );
+    }
+  }
+
+  /// Veredicto a partir de la consulta por asunto (mismo formato en el aviso y en la app).
+  static Veredicto veredictoPorAsunto(ResultadoSello r) {
+    if (r.valido) {
+      final buzon = r.datos['buzon'] ?? 'el buzón oficial del IESS';
+      return Veredicto(
+        phishing: false,
+        puntaje: 0,
+        voz: r.mensaje,
+        indicios: const [],
+        explicacion: r.mensaje,
+        queHacer:
+            'Revisa que el remitente sea $buzon. Si es otro, es una estafa. Igual, nunca entregues tu clave.',
+        fuente: 'sello',
+      );
+    }
+    return descartarPorSello(
+      motivo: r.sinRespuesta ? 'sin_verificar' : 'sin_sello',
+    );
   }
 }
 

@@ -11,6 +11,58 @@ import 'package:material_ui/material_ui.dart';
 const _codigo = 'AbCdEfGhIjKlMnOp_q-1.0123456789abcdef';
 
 void main() {
+  group('Aviso: el robot verifica el sello solo con el asunto', () {
+    const oficial = 'https://sella.ejemplo.ec';
+    test('asunto sellado: del IESS, con el buzón para comparar', () async {
+      String? pedido;
+      final c = MockClient((r) async {
+        pedido = r.url.toString();
+        return http.Response.bytes(
+          utf8.encode(
+            jsonEncode({
+              'sellado': true,
+              'motivo': 'valido',
+              'mensaje': 'El IESS selló un correo con este asunto.',
+              'buzon': 'comunicacion@iess.gob.ec',
+            }),
+          ),
+          200,
+        );
+      });
+      final r = await Sello.porAsunto(
+        'IESS: Actualización de datos',
+        cliente: c,
+        servidorOficial: oficial,
+      );
+      expect(pedido, startsWith('$oficial/api/v1/asunto?asunto='));
+      final v = Sello.veredictoPorAsunto(r);
+      expect(v.phishing, isFalse);
+      expect(v.resumen, 'Phishing: NO · firma válida del IESS');
+      expect(v.queHacer, contains('comunicacion@iess.gob.ec'));
+    });
+    test('asunto sin sello: estafa al instante', () async {
+      final c = MockClient(
+        (_) async => http.Response(
+          jsonEncode({'sellado': false, 'motivo': 'sin_sello', 'mensaje': '-'}),
+          200,
+        ),
+      );
+      final v = Sello.veredictoPorAsunto(
+        await Sello.porAsunto('IESS: pensión suspendida', cliente: c, servidorOficial: oficial),
+      );
+      expect(v.phishing, isTrue);
+      expect(v.resumen, 'Phishing: SÍ · sin sello del IESS');
+    });
+    test('sin conexión: no se confía (sello sin comprobar)', () async {
+      final c = MockClient((_) async => throw Exception('sin red'));
+      final v = Sello.veredictoPorAsunto(
+        await Sello.porAsunto('IESS: aviso', cliente: c, servidorOficial: oficial),
+      );
+      expect(v.phishing, isTrue);
+      expect(v.resumen, 'Phishing: SÍ · sello sin comprobar');
+    });
+  });
+
   group('Sello del IESS', () {
     test('encuentra el enlace del sello en el texto del correo', () {
       expect(

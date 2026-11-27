@@ -1,3 +1,4 @@
+import 'dart:async';
 // Pop-up tipo Truecaller: aparece sobre la app donde llegó el mensaje, el robot dice por qué es (o no) una estafa.
 import 'dart:ui' show FontVariation;
 import 'package:material_ui/material_ui.dart';
@@ -70,17 +71,29 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  /// El guardián solo vio el ASUNTO (y solo porque habla del IESS). Aquí no se analiza nada:
-  /// se ofrece verificar el sello; la IA solo leería el correo si la persona lo acepta en la app.
+  bool _verificando = false;
+
+  /// El guardián solo vio el ASUNTO (y solo porque habla del IESS). El robot verifica SOLO el sello con
+  /// SellaCorreo (envía únicamente el asunto): sellado = del IESS; sin sello = estafa. No lee el correo.
   Future<void> _procesar(Map<String, dynamic> p) async {
     setState(() {
       _p = p;
       _v = null;
+      _verificando = true;
     });
     HapticFeedback.mediumImpact();
-    await Voz.i.decir(
-      'Te llegó un correo que dice ser del IESS. Antes de abrir sus enlaces, verifiquemos su sello.',
+    unawaited(
+      Voz.i.decir('Llegó un correo que dice ser del IESS. Verifico su sello.'),
     );
+    final r = await Sello.porAsunto('${p['texto'] ?? ''}');
+    if (!mounted) return;
+    final v = Sello.veredictoPorAsunto(r);
+    setState(() {
+      _v = v;
+      _verificando = false;
+    });
+    HapticFeedback.heavyImpact();
+    await Voz.i.decir('${v.voz} ${v.phishing ? v.queHacer : ''}');
   }
 
   Future<void> _cerrar() async {
@@ -121,7 +134,7 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
         : (v.phishing ? Tono.rojoSuave : Tono.verdeSuave);
     final veredicto = v == null
         ? '¿Es del IESS de verdad?'
-        : (v.phishing ? 'Posible estafa' : 'Correo seguro');
+        : (v.phishing ? 'Es una estafa' : 'Sellado por el IESS');
     final asunto = (_p['texto'] as String?)?.trim() ?? '';
     final origen = (_p['app'] as String?) ?? '';
     const blanco = Tono.tinta;
@@ -280,7 +293,9 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: Text(
-                          'Solo leí el asunto. Verifica el sello antes de abrir sus enlaces.',
+                          _verificando
+                              ? 'Verificando su sello con el IESS… (solo envío el asunto)'
+                              : 'Solo leí el asunto.',
                           style: TextStyle(
                             fontSize: 15,
                             height: 1.35,
@@ -293,16 +308,6 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                         padding: const EdgeInsets.only(right: 8),
                         child: Row(
                           children: [
-                            Expanded(
-                              child: _PildoraPopup(
-                                texto: 'Verificar sello',
-                                icono: Icons.verified_user_rounded,
-                                relleno: true,
-                                color: color,
-                                onTap: _verificar,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
                             Expanded(
                               child: _PildoraPopup(
                                 texto: 'Ahora no',
@@ -345,8 +350,8 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                             const SizedBox(width: 10),
                             Expanded(
                               child: _PildoraPopup(
-                                texto: 'Verificar sello',
-                                icono: Icons.verified_user_rounded,
+                                texto: 'Abrir AIESS',
+                                icono: Icons.open_in_new_rounded,
                                 relleno: false,
                                 color: color,
                                 onTap: _verificar,

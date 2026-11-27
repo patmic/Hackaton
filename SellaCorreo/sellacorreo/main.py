@@ -890,6 +890,46 @@ def api_verificar(link: str, request: Request):
     return JSONResponse(datos, headers=cors)
 
 
+_PREFIJO_RESPUESTA = re.compile(r"^\s*((re|rv|fw|fwd|reenviado|respuesta)\s*:\s*)+", re.I)
+
+
+def _normalizar_asunto(asunto: str) -> str:
+    """Mismo asunto aunque cambien mayúsculas, espacios o venga como «RE:» / «RV:» / «Fwd:»."""
+    return re.sub(r"\s+", " ", _PREFIJO_RESPUESTA.sub("", asunto or "")).strip().casefold()
+
+
+@app.get("/api/v1/asunto")
+def api_asunto(asunto: str, request: Request):
+    """Para el guardián de AIESS en el celular: solo ve el ASUNTO de la notificación (no el correo). Pregunta si el
+    IESS selló un correo con ese asunto. Cada coincidencia pasa la MISMA verificación que CheckIn (hash, firma
+    Ed25519, emisor, caducidad). Devuelve el buzón oficial para comparar con el remitente; nunca la palabra segura."""
+    cors = {"Access-Control-Allow-Origin": "*", "Cache-Control": "no-store"}
+    if not checkin_limiter.allow(ip_of(request)):
+        return JSONResponse({"sellado": False, "motivo": "limite", "mensaje": "Demasiadas consultas. Intente en un minuto."},
+                            status_code=429, headers=cors)
+    buscado = _normalizar_asunto(asunto)[:300]
+    if len(buscado) < 3:
+        return JSONResponse({"sellado": False, "motivo": "asunto_vacio", "mensaje": "Falta el asunto."}, headers=cors)
+    for cand in store.seals_with_subject():
+        if _normalizar_asunto(cand["asunto"]) != buscado:
+            continue
+        ok, motivo, seal = check_link(f"{cand['token']}.{cand['h'][:16]}")
+        if ok:
+            store.record_verification("asunto_sellado", ip_hash(request))
+            return JSONResponse({
+                "sellado": True, "motivo": "valido",
+                "mensaje": f"El IESS selló un correo con este asunto. Lo envía {seal['emisor']} "
+                           f"({seal['nombre_emisor']}). Si el remitente es otro, es una estafa.",
+                "buzon": seal["emisor"], "emisor": seal["nombre_emisor"], "unidad": seal["unidad"],
+                "institucion": seal["institucion"], "fecha_utc": seal["ts_utc"], "codigo": fmt_code(seal["codigo"]),
+                "expira_utc": seal.get("expira_utc"), "enlace": f"{public_base()}/checkin/{cand['token']}.{cand['h'][:16]}",
+            }, headers=cors)
+    store.record_verification("asunto_sin_sello", ip_hash(request))
+    return JSONResponse({"sellado": False, "motivo": "sin_sello",
+                         "mensaje": "El IESS no selló ningún correo con este asunto. Es una estafa: no lo abras, "
+                                    "no toques sus enlaces y no respondas."}, headers=cors)
+
+
 @app.get("/img/{token}.png")
 def image(token: str):
     seal = store.get_seal(token) if re.fullmatch(r"[A-Za-z0-9_-]{20,64}", token) else None

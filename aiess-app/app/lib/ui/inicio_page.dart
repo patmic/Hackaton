@@ -238,18 +238,32 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     }
   }
 
-  /// Llegó un correo cuyo ASUNTO habla del IESS (el aviso no leyó nada más): se guía a verificar el sello.
+  /// Llegó un correo cuyo ASUNTO habla del IESS (el aviso no leyó nada más): el robot verifica el sello él solo
+  /// con SellaCorreo (envía únicamente el asunto). Sellado = del IESS; sin sello = estafa.
   Future<void> _guiarVerificacion(String asunto) async {
+    HapticFeedback.mediumImpact();
     setState(() {
-      _estado = EstadoRobot.reposo;
-      _titular = 'Verifiquemos el sello';
-      _modo = _Modo.hablar;
+      _estado = EstadoRobot.analizando;
+      _titular = 'Revisando el sello…';
+      _subtitulo = asunto.isEmpty ? '' : '«$asunto»';
+      _pasos = ['Comprobando el sello con el IESS (solo el asunto)'];
+      _progreso = null;
     });
-    await _decir(
-      'Te llegó un correo que dice ser del IESS${asunto.isEmpty ? '' : ': «$asunto»'}. '
-      'Ábrelo y toca la imagen del sello, o copia su enlace y toca Pegar y revisar. '
-      'Si no trae sello, no abras sus enlaces.',
-    );
+    unawaited(Voz.i.decir('Verifico el sello de ese correo con el IESS.'));
+    final r = await Sello.porAsunto(asunto);
+    if (!mounted) return;
+    final v = Sello.veredictoPorAsunto(r);
+    HapticFeedback.heavyImpact();
+    setState(() {
+      _entrada = Entrada(asunto, canal: 'aviso');
+      _veredicto = v;
+      _estado = v.phishing ? EstadoRobot.alerta : EstadoRobot.seguro;
+      _titular = v.phishing ? '¡Es una estafa!' : 'Sellado por el IESS';
+      _subtitulo = '';
+      _modo = _Modo.resultado;
+      _pasos = [];
+    });
+    await _decir('${v.voz} ${v.queHacer}');
   }
 
   /// Primero la firma del IESS (sello SellaCorreo). La IA solo revisa el texto si la persona lo acepta.
