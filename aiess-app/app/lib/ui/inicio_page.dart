@@ -10,6 +10,7 @@ import '../core/canales.dart';
 import '../features/analisis/analizador.dart';
 import '../features/analisis/motor.dart';
 import '../features/chat/persona.dart';
+import '../features/llm/cerebro.dart';
 import '../features/mascota/robot_guardia.dart';
 import '../features/correo/eml.dart';
 import '../features/ocr/documento.dart';
@@ -19,7 +20,6 @@ import 'ajustes_sheet.dart';
 import 'practicar_page.dart';
 import 'aiess_home_screen.dart';
 import 'aula_virtual.dart';
-import 'consentimiento.dart';
 import '../features/sello/sello.dart';
 
 enum _Modo { copiado, hablar, resultado }
@@ -167,6 +167,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     // Correo ya descartado por el sello: la IA solo agrega señales; el veredicto sigue siendo SÍ.
     String? motivoSello,
     String? mensajeSello,
+    // La firma era válida: si la IA ve una estafa, es que cambiaron el texto del correo firmado.
+    bool firmaValida = false,
   }) async {
     HapticFeedback.mediumImpact();
     setState(() {
@@ -206,7 +208,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       },
     );
     final v = motivoSello == null
-        ? vIA
+        ? (firmaValida ? conFirmaValida(vIA) : vIA)
         : descartarPorSello(
             motivo: motivoSello,
             mensajeSello: mensajeSello,
@@ -266,42 +268,64 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     await _decir('${v.voz} ${v.queHacer}');
   }
 
-  /// Primero la firma del IESS (sello SellaCorreo). La IA solo revisa el texto si la persona lo acepta.
+  /// Primero la firma del IESS (sello SellaCorreo); el resultado sale al instante y NO se lee el correo.
+  /// Sin sello válido (o sin poder comprobarlo) es estafa. La IA solo lee el correo si la persona toca
+  /// «Revisar con la IA» en el resultado.
   Future<void> _revisarTexto(
     String t, {
     String canal = 'mensaje copiado',
     List<String> pasosPrevios = const [],
   }) async {
-    // Regla del sello: sin un sello válido el correo se descarta de inmediato (sin leerlo). La IA solo lo
-    // revisa si la persona quiere, y únicamente para explicar las señales.
-    String motivo;
-    String? mensaje;
     if (Sello.codigoEn(t) != null) {
       final r = await _verificarSello(t, pasosPrevios: pasosPrevios);
       if (r == null || !mounted) return;
-      if (r.valido) {
-        // Firma válida: el correo es del IESS. Revisarlo con la IA es opcional y con permiso.
-        if (!await pedirConsentimientoIA(context, firmaValida: true)) return;
-        if (!mounted) return;
-        await _analizar(Entrada(t, canal: canal), pasosPrevios: pasosPrevios);
-        return;
-      }
-      motivo = r.sinRespuesta ? 'sin_verificar' : 'sello';
-      mensaje = r.sinRespuesta ? null : r.mensaje;
-      if (r.sinRespuesta) _mostrarDescarte(t, motivo);
-    } else {
-      motivo = 'sin_sello';
-      _mostrarDescarte(t, motivo);
-    }
-    if (!await pedirConsentimientoIA(context, motivo: introPorSello(motivo))) {
+      if (r.sinRespuesta) _mostrarDescarte(t, 'sin_verificar');
       return;
     }
-    if (!mounted) return;
+    _mostrarDescarte(t, 'sin_sello');
+    await _decir('${_veredicto!.voz} ${_veredicto!.queHacer}');
+  }
+
+  /// Botón «Revisar con la IA» (tocarlo ES el permiso: el botón dice dónde corre y que todo se borra).
+  /// Sirve también para el caso de una firma válida pegada a un texto cambiado.
+  Future<void> _revisarConIA() async {
+    var t = _entrada?.texto.trim() ?? '';
+    // Desde el aviso o con solo el enlace del sello no tenemos el texto del correo: se toma lo copiado.
+    final soloEnlace = Sello.codigoEn(t) != null && t.length < 160;
+    if (_entrada?.canal == 'aviso' || soloEnlace || t.length < 40) {
+      ClipboardData? d;
+      try {
+        d = await Clipboard.getData(Clipboard.kTextPlain);
+      } catch (_) {}
+      final copiado = d?.text?.trim() ?? '';
+      if (copiado.length >= 40 && copiado != t) {
+        t = copiado;
+      } else {
+        HapticFeedback.mediumImpact();
+        await _decir(
+          'Para que la IA lo revise, abre el correo, copia todo su texto y vuelve a tocar «Revisar con la IA».',
+        );
+        return;
+      }
+    }
+    final previo = _veredicto;
+    final firmaValida =
+        previo != null && previo.fuente == 'sello' && !previo.phishing;
+    final motivo =
+        (previo != null &&
+            previo.phishing &&
+            const [
+              'sin_sello',
+              'sin_verificar',
+              'sello',
+            ].contains(previo.fuente))
+        ? previo.fuente
+        : null;
     await _analizar(
-      Entrada(t, canal: canal),
-      pasosPrevios: pasosPrevios,
+      Entrada(t, canal: 'correo revisado con la IA'),
       motivoSello: motivo,
-      mensajeSello: mensaje,
+      mensajeSello: motivo == 'sello' ? previo!.voz : null,
+      firmaValida: firmaValida,
     );
   }
 
@@ -665,6 +689,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       },
       onDone: _reiniciar,
       onReanalizar: _entrada == null ? null : () => _analizar(_entrada!),
+      onRevisarIA: _modo == _Modo.resultado ? _revisarConIA : null,
+      iaLocal: Cerebro.i.enEsteEquipo,
       onAula: () => abrirAulaVirtual(context),
       onPracticar: _abrirPractica,
       resumen: _modo == _Modo.resultado ? _veredicto?.resumen : null,

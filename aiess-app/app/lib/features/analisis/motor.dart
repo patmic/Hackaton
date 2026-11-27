@@ -340,3 +340,32 @@ String introPorSello(String motivo) =>
         ? 'El sello no es válido: es una estafa.'
         : 'No pude comprobar el sello: trátalo como estafa.'} '
     'Si quieres, la IA revisa qué otras señales tiene. ';
+
+/// La firma del IESS era válida, pero la IA ve señales de estafa en el TEXTO: alguien pudo pegar un sello
+/// verdadero a un contenido cambiado. Se avisa así, con las señales que vio la IA.
+Veredicto conFirmaValida(Veredicto ia) {
+  if (!ia.phishing) {
+    return Veredicto(
+      phishing: false,
+      puntaje: ia.puntaje,
+      voz:
+          'La firma es válida y el texto no tiene señales de estafa. ${ia.voz}',
+      indicios: ia.indicios,
+      explicacion: ia.explicacion,
+      queHacer: ia.queHacer,
+      fuente: ia.fuente,
+    );
+  }
+  final aviso =
+      'Ojo: la firma del IESS es válida, pero el texto tiene señales de estafa. Puede que hayan cambiado el '
+      'contenido de un correo firmado.';
+  return Veredicto(
+    phishing: true,
+    puntaje: ia.puntaje,
+    voz: '$aviso ${ia.voz}',
+    indicios: ia.indicios,
+    explicacion: '$aviso ${ia.explicacion}',
+    queHacer: ia.queHacer,
+    fuente: ia.fuente,
+  );
+}

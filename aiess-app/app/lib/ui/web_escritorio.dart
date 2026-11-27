@@ -9,11 +9,12 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/canales.dart';
 import '../features/analisis/analizador.dart';
 import '../features/analisis/motor.dart';
+import '../features/llm/cerebro.dart';
 import '../features/llm/remoto.dart';
+import 'aiess_home_screen.dart' show BotonRevisarIA;
 import '../features/mascota/robot_guardia.dart';
 import '../features/voz/voz.dart';
 import 'aula_virtual.dart';
-import 'consentimiento.dart';
 import '../features/correo/eml.dart';
 import '../features/ocr/documento.dart';
 import 'package:file_picker/file_picker.dart';
@@ -136,23 +137,6 @@ class _WebEscritorioState extends State<WebEscritorio> {
       _enfocarResultado();
       Voz.i.decir(texto);
       // Firma válida: el correo es del IESS. Revisar el texto con la IA es opcional y SOLO con un «Sí».
-      if (!mounted) return;
-      if (!r.valido) {
-        if (await pedirConsentimientoIA(
-          context,
-          motivo: introPorSello('sello'),
-        )) {
-          await _analizarConIA(
-            t,
-            motivoSello: 'sello',
-            mensajeSello: r.mensaje,
-          );
-        }
-        return;
-      }
-      if (await pedirConsentimientoIA(context, firmaValida: true)) {
-        await _analizarConIA(t);
-      }
       return;
     }
     if (t.length < 8) {
@@ -188,10 +172,40 @@ class _WebEscritorioState extends State<WebEscritorio> {
       _ultimoRevisado = t;
     });
     _enfocarResultado();
-    if (!mounted) return;
-    if (await pedirConsentimientoIA(context, motivo: introPorSello(motivo))) {
-      await _analizarConIA(t, motivoSello: motivo);
+    Voz.i.decir('${v.voz} ${v.queHacer}');
+  }
+
+  /// Botón «Revisar con la IA» del resultado (tocarlo ES el permiso). Sirve también para descubrir un sello
+  /// verdadero pegado a un texto cambiado.
+  Future<void> _revisarConIA() async {
+    final t = _texto.text.trim();
+    final soloEnlace = Sello.codigoEn(t) != null && t.length < 160;
+    if (t.length < 40 || soloEnlace) {
+      const m =
+          'Para que la IA lo revise, pega también el texto completo del correo en el campo y vuelve a tocar «Revisar con la IA».';
+      setState(() => _aviso = m);
+      Voz.i.decir(m);
+      return;
     }
+    final previo = _v;
+    final firmaValida =
+        previo != null && previo.fuente == 'sello' && !previo.phishing;
+    final motivo =
+        (previo != null &&
+            previo.phishing &&
+            const [
+              'sin_sello',
+              'sin_verificar',
+              'sello',
+            ].contains(previo.fuente))
+        ? previo.fuente
+        : null;
+    await _analizarConIA(
+      t,
+      motivoSello: motivo,
+      mensajeSello: motivo == 'sello' ? previo!.voz : null,
+      firmaValida: firmaValida,
+    );
   }
 
   /// La IA revisa el texto (ya con el permiso de la persona).
@@ -199,6 +213,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
     String t, {
     String? motivoSello,
     String? mensajeSello,
+    bool firmaValida = false,
   }) async {
     if (!mounted) return;
     HapticFeedback.mediumImpact();
@@ -220,7 +235,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
       },
     );
     final v = motivoSello == null
-        ? vIA
+        ? (firmaValida ? conFirmaValida(vIA) : vIA)
         : descartarPorSello(
             motivo: motivoSello,
             mensajeSello: mensajeSello,
@@ -1053,6 +1068,18 @@ class _WebEscritorioState extends State<WebEscritorio> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                // La IA solo lee el correo si la persona toca aquí (también descubre un sello verdadero
+                // pegado a un texto cambiado). El botón dice dónde corre y que todo se borra.
+                Aparecer(
+                  orden: 10,
+                  child: Flotar(
+                    child: BotonRevisarIA(
+                      local: Cerebro.i.enEsteEquipo,
+                      onTap: _revisarConIA,
+                    ),
                   ),
                 ),
               ],

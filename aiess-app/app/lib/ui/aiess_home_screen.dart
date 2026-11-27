@@ -39,6 +39,8 @@ class AiessHomeScreen extends StatelessWidget {
     this.onReport,
     this.onDone,
     this.onReanalizar,
+    this.onRevisarIA,
+    this.iaLocal = false,
     this.onAula,
     this.onPracticar,
     this.resumen,
@@ -56,12 +58,16 @@ class AiessHomeScreen extends StatelessWidget {
   final double? progreso;
   final bool escuchando;
 
+  /// ¿La IA corre en este equipo? (cambia el texto del botón «Revisar con la IA»).
+  final bool iaLocal;
+
   /// «Phishing: SÍ · 3 indicios» (veredicto claro).
   final String? resumen;
   final VoidCallback? onTapMascota,
       onReport,
       onDone,
       onReanalizar,
+      onRevisarIA,
       onAula,
       onPracticar;
 
@@ -254,6 +260,12 @@ class AiessHomeScreen extends StatelessWidget {
                 ],
               ),
             ),
+            if (onRevisarIA != null) ...[
+              const SizedBox(height: 12),
+              // La IA solo lee el correo si la persona toca aquí (sirve para detectar un sello verdadero
+              // pegado a un texto cambiado). El botón dice dónde corre y que todo se borra.
+              BotonRevisarIA(local: iaLocal, onTap: onRevisarIA!),
+            ],
           ],
         );
       case EstadoHoja.listo:
@@ -704,4 +716,87 @@ class _PresionState extends State<_Presion> {
       child: widget.child,
     ),
   );
+}
+
+/// «Revisar con la IA local» + «Nunca se guarda y la conversación se borra». Tocarlo es el permiso.
+class BotonRevisarIA extends StatelessWidget {
+  const BotonRevisarIA({super.key, required this.local, required this.onTap});
+  final bool local;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final titulo = local
+        ? 'Revisar con la IA local'
+        : 'Revisar con la IA de AIESS';
+    const nota = 'Nunca se guarda y la conversación se borra.';
+    return Semantics(
+      button: true,
+      label: '$titulo. $nota',
+      excludeSemantics: true,
+      child: Material(
+        color: Tono.superficie,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Tono.borde, width: 1.5),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 64),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.psychology_rounded,
+                    size: 30,
+                    color: Tono.tinta,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          titulo,
+                          style: const TextStyle(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w700,
+                            color: Tono.tinta,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.lock_rounded,
+                              size: 16,
+                              color: Tono.gris,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                nota,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Tono.gris,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

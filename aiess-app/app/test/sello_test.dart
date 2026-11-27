@@ -48,7 +48,11 @@ void main() {
         ),
       );
       final v = Sello.veredictoPorAsunto(
-        await Sello.porAsunto('IESS: pensión suspendida', cliente: c, servidorOficial: oficial),
+        await Sello.porAsunto(
+          'IESS: pensión suspendida',
+          cliente: c,
+          servidorOficial: oficial,
+        ),
       );
       expect(v.phishing, isTrue);
       expect(v.resumen, 'Phishing: SÍ · sin sello del IESS');
@@ -56,7 +60,11 @@ void main() {
     test('sin conexión: no se confía (sello sin comprobar)', () async {
       final c = MockClient((_) async => throw Exception('sin red'));
       final v = Sello.veredictoPorAsunto(
-        await Sello.porAsunto('IESS: aviso', cliente: c, servidorOficial: oficial),
+        await Sello.porAsunto(
+          'IESS: aviso',
+          cliente: c,
+          servidorOficial: oficial,
+        ),
       );
       expect(v.phishing, isTrue);
       expect(v.resumen, 'Phishing: SÍ · sello sin comprobar');
@@ -179,7 +187,9 @@ void main() {
     });
   });
 
-  testWidgets('web: sin sello es estafa al instante; sin un «Sí», la IA no lee el correo', (t) async {
+  testWidgets('web: sin sello es estafa al instante; la IA solo con su botón', (
+    t,
+  ) async {
     t.view.physicalSize = const Size(1366, 768);
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.reset);
@@ -199,9 +209,12 @@ void main() {
     );
     await t.tap(find.text('Revisar con AIess'));
     await t.pump(const Duration(milliseconds: 300));
-    expect(find.text('¿Revisar con la IA?'), findsOneWidget);
-    await t.tap(find.text('No, gracias'));
-    await t.pump(const Duration(milliseconds: 300));
+    // Sin diálogos: el veredicto sale al instante y la IA queda en un botón que la persona decide tocar.
+    expect(find.text('¿Revisar con la IA?'), findsNothing);
+    expect(
+      find.bySemanticsLabel(RegExp('Revisar con la IA.*se borra')),
+      findsOneWidget,
+    );
     // Regla del sello: sin sello válido se descarta de inmediato, aunque la IA no lo haya leído.
     expect(find.textContaining('sin sello del IESS'), findsOneWidget);
     expect(find.textContaining('indicio'), findsNothing);

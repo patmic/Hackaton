@@ -5,10 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../features/llm/cerebro.dart';
 import '../features/llm/remoto.dart';
 import '../features/osint/cti.dart';
+import '../features/sello/sello.dart';
 import 'aula_virtual.dart';
 import 'bienvenida_page.dart';
 import 'tema.dart';
@@ -366,6 +368,27 @@ class _AjustesState extends State<_Ajustes> {
                   abrirAulaVirtual(nav.context);
                 },
               ),
+              // Demo del reto: crear un correo con el sello del IESS (SellaCorreo, cuentas de prueba) para
+              // enviarlo y ver cómo el guardián lo reconoce. Se abre en el navegador.
+              if (Sello.servidor.isNotEmpty)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(
+                    Icons.forward_to_inbox_outlined,
+                    color: tinta,
+                  ),
+                  title: const Text(
+                    'Demo: enviar un correo sellado',
+                    style: TextStyle(color: tinta),
+                  ),
+                  subtitle: const Text(
+                    'Crea el sello en SellaCorreo, pégalo en tu correo y envíalo.',
+                  ),
+                  onTap: () => launchUrl(
+                    Uri.parse('${Sello.servidor}/login'),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                ),
               if (widget.alPracticar != null)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
