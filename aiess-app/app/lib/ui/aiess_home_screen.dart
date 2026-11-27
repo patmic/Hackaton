@@ -36,7 +36,7 @@ class AiessHomeScreen extends StatelessWidget {
     this.hasClipboardContent = true,
     this.estado = EstadoHoja.listo,
     this.estadoMascota = EstadoRobot.reposo,
-    this.titulo = 'Hola, soy AIess',
+    this.titulo = 'Hola, soy Leo',
     this.texto,
     this.pasos = const [],
     this.progreso,
@@ -187,7 +187,7 @@ class AiessHomeScreen extends StatelessWidget {
                   Center(
                     child: Semantics(
                       button: true,
-                      label: 'AIess, el robot. Toca para escucharlo otra vez',
+                      label: 'Leo. Toca para escucharlo otra vez',
                       excludeSemantics: true,
                       onTap: onTapMascota,
                       child: RobotGuardia(

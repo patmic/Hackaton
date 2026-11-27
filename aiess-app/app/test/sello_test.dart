@@ -254,7 +254,7 @@ void main() {
       find.byType(TextField),
       'Estimado afiliado: su pensión será suspendida HOY. Actualice su clave en http://iess-pagos.net/login',
     );
-    await t.tap(find.text('Revisar con AIess'));
+    await t.tap(find.text('Revisar con Leo'));
     // El análisis por indicios consulta fuentes públicas (en la prueba no hay red): se espera a que termine.
     await t.runAsync(() => Future.delayed(const Duration(milliseconds: 800)));
     for (var i = 0; i < 10; i++) {

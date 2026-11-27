@@ -1,15 +1,26 @@
-// Voz local: TTS del sistema para que el robot hable y reconocimiento de voz para escucharte.
+// Voz local: Leo habla con sus audios pregrabados (voz_leo.dart) y, para lo que no tiene audio, con el TTS del
+// sistema. Reconocimiento de voz para escucharte.
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+
+import 'voz_leo.dart';
 
 class Voz {
   Voz._();
   static final i = Voz._();
 
   final _tts = FlutterTts();
+  final _audio = AudioPlayer();
+
+  /// Cada frase nueva sube el turno: así una frase vieja deja de sonar si llega otra o se pide callar.
+  int _turno = 0;
+
+  /// Para el karaoke de la voz del sistema: dónde empieza y termina el trozo que está diciendo.
+  int _ttsBase = 0, _ttsFin = 0;
   final _stt = SpeechToText();
   final hablando = ValueNotifier(false);
   final escuchando = ValueNotifier(false);
@@ -36,15 +47,13 @@ class Voz {
     await _tts.setSpeechRate(0.46); // pausado, pensado para personas mayores
     await _tts.setPitch(1.05);
     await _tts.awaitSpeakCompletion(true);
-    _tts.setStartHandler(() => hablando.value = true);
-    _tts.setCompletionHandler(_fin);
-    _tts.setCancelHandler(_fin);
-    _tts.setErrorHandler((_) => _fin());
     _tts.setProgressHandler((texto, ini, fin, palabra) {
-      if (fin > avance.value) avance.value = fin;
+      final a = (_ttsBase + fin).clamp(_ttsBase, _ttsFin);
+      if (a > avance.value) avance.value = a;
       silaba.value = (palabra.length / 8).clamp(0.3, 1.0);
       Future.delayed(const Duration(milliseconds: 140), () => silaba.value = 0);
     });
+    unawaited(VozLeo.i.cargar());
   }
 
   void _fin() {
@@ -53,21 +62,73 @@ class Voz {
     avance.value = actual.length;
   }
 
+  /// Dice [texto] con la voz de Leo: cada trozo que tiene audio pregrabado suena con ese audio; el resto, con la
+  /// voz del sistema. Termina cuando acaba de hablar (o cuando otra frase o [callar] lo interrumpen).
   Future<void> decir(String texto) async {
     await iniciar();
-    await _tts.stop();
+    final turno = ++_turno;
+    await _detener();
     actual = texto;
     avance.value = 0;
-    if (texto.trim().isEmpty) return;
+    if (texto.trim().isEmpty) {
+      _fin();
+      return;
+    }
     hablando.value = true;
-    // En pantalla se escribe AIess; en voz se pronuncia como una palabra.
-    await _tts.speak(
-      texto.replaceAll('AIess', 'Ayés').replaceAll('AIESS', 'Ayés'),
-    );
+    final partes = await VozLeo.i.partir(texto);
+    for (final p in partes) {
+      if (turno != _turno) return;
+      final sono = p.archivo != null && await _reproducir(p, turno);
+      if (!sono && turno == _turno) await _decirSistema(p);
+      if (turno == _turno) avance.value = p.fin;
+    }
+    if (turno == _turno) _fin();
+  }
+
+  /// Un audio de Leo. false si no se pudo reproducir (entonces lo dice la voz del sistema).
+  Future<bool> _reproducir(ParteVoz p, int turno) async {
+    StreamSubscription<Duration>? sub;
+    try {
+      final dur = await _audio.setAsset('assets/voz/${p.archivo}');
+      final total = dur?.inMilliseconds ?? 0;
+      sub = _audio.positionStream.listen((pos) {
+        if (turno != _turno) return;
+        final ms = pos.inMilliseconds;
+        if (total > 0) {
+          avance.value = p.inicio + ((p.fin - p.inicio) * ms / total).round().clamp(0, p.fin - p.inicio);
+        }
+        silaba.value = (ms ~/ 160).isEven ? 0.85 : 0.35; // la cabeza de Leo se mueve mientras habla
+      });
+      unawaited(_audio.play());
+      await _audio.processingStateStream.firstWhere(
+        (s) => s == ProcessingState.completed || s == ProcessingState.idle,
+      );
+      await _audio.pause();
+      return true;
+    } catch (_) {
+      return false;
+    } finally {
+      await sub?.cancel();
+      silaba.value = 0;
+    }
+  }
+
+  Future<void> _decirSistema(ParteVoz p) async {
+    _ttsBase = p.inicio;
+    _ttsFin = p.fin;
+    await _tts.speak(pronunciar(p.texto));
+  }
+
+  Future<void> _detener() async {
+    try {
+      await _tts.stop();
+      await _audio.stop();
+    } catch (_) {}
   }
 
   Future<void> callar() async {
-    await _tts.stop();
+    _turno++;
+    await _detener();
     _fin();
   }
 
@@ -114,11 +175,11 @@ class Voz {
             problemaEscucha =
                 e.errorMsg.contains('permission') ||
                     e.errorMsg.contains('not-allowed')
-                ? 'No tengo permiso para usar el micrófono. Permítelo y vuelve a intentar.'
+                ? 'No tengo permiso para usar el micrófono. Actívalo y vuelve a intentarlo.'
                 : (e.errorMsg.contains('no-speech') ||
                       e.errorMsg.contains('no_match') ||
                       e.errorMsg.contains('speech_timeout'))
-                ? 'No te escuché. Habla un poco más fuerte, cerca del micrófono.'
+                ? 'No te escuché. Habla un poco más fuerte y cerca del micrófono.'
                 : 'El micrófono tuvo un problema. Vuelve a intentarlo.';
             _terminarActual(_ultimoParcial);
           },
@@ -136,7 +197,7 @@ class Voz {
       if (!_sttListo) {
         problemaEscucha = kIsWeb
             ? 'Este navegador no permite dictar. Abre AIESS en Chrome o Edge, o escribe el correo.'
-            : 'Este celular no tiene el dictado por voz activado. Puedes pegar el correo en su lugar.';
+            : 'Este celular no tiene activado el dictado por voz. Puedes pegar el correo en su lugar.';
         return null;
       }
       final locales = await _stt.locales();

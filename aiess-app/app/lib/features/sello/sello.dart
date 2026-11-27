@@ -31,6 +31,18 @@ class ResultadoSello {
   bool get sinRespuesta => motivo == 'sin_conexion' || motivo == 'limite';
 }
 
+/// Motivos de SellaCorreo dichos por Leo (guion de Leo, audios E10–E17 en assets/voz).
+const _cierreSello = 'Podría ser una estafa: no hagas clic en sus enlaces ni entregues tus datos.';
+const _motivoLeo = {
+  'enlace_malformado': 'Ese enlace no tiene el formato del sello del IESS. $_cierreSello',
+  'no_registrado': 'El IESS no tiene registrado ningún correo con este sello. $_cierreSello',
+  'hash_distinto': 'El enlace del sello fue alterado: no coincide con el registro del IESS. $_cierreSello',
+  'contenido_alterado': 'Los datos de este sello fueron alterados. $_cierreSello',
+  'firma_invalida': 'La firma digital de este sello no es válida. $_cierreSello',
+  'caducado': 'El sello de este correo ya caducó. $_cierreSello',
+  'sello_anterior': 'Este sello es de una versión anterior y ya no se puede verificar. $_cierreSello',
+};
+
 class Sello {
   /// Servidor oficial de SellaCorreo (secreto de compilación, igual que AIESS_SERVIDOR).
   static const servidor = String.fromEnvironment('AIESS_SELLO');
@@ -85,7 +97,8 @@ class Sello {
       return ResultadoSello(
         valido: d['valido'] == true,
         motivo: '${d['motivo'] ?? 'desconocido'}',
-        mensaje: '${d['mensaje'] ?? ''}',
+        // El servidor responde en «usted»; Leo lo dice con su propia frase (y su audio) según el motivo.
+        mensaje: _motivoLeo[d['motivo']] ?? '${d['mensaje'] ?? ''}',
         datos: d,
       );
     } catch (_) {
@@ -93,7 +106,7 @@ class Sello {
         valido: false,
         motivo: 'sin_conexion',
         mensaje:
-            'No pude comprobar el sello ahora (sin conexión). Mientras tanto, no abras sus enlaces.',
+            'No pude comprobar el sello ahora porque no hay conexión. Mientras tanto, no abras sus enlaces.',
       );
     }
   }
@@ -127,7 +140,8 @@ class Sello {
       return ResultadoSello(
         valido: d['sellado'] == true,
         motivo: '${d['motivo'] ?? 'desconocido'}',
-        mensaje: '${d['mensaje'] ?? ''}',
+        // El servidor responde en «usted»; Leo lo dice con su propia frase (y su audio) según el motivo.
+        mensaje: _motivoLeo[d['motivo']] ?? '${d['mensaje'] ?? ''}',
         datos: d,
       );
     } catch (_) {
@@ -135,7 +149,7 @@ class Sello {
         valido: false,
         motivo: 'sin_conexion',
         mensaje:
-            'No pude comprobar el sello ahora (sin conexión). Mientras tanto, no abras sus enlaces.',
+            'No pude comprobar el sello ahora porque no hay conexión. Mientras tanto, no abras sus enlaces.',
       );
     }
   }

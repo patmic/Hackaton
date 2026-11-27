@@ -51,7 +51,7 @@ class _PracticarPageState extends State<PracticarPage> {
       _actual = _ejercicios[_rnd.nextInt(_ejercicios.length)];
       _acerto = null;
     });
-    Voz.i.decir('Lee este mensaje. ¿Es una estafa o es seguro?');
+    Voz.i.decir('Lee este mensaje con calma. ¿Es una estafa o es seguro?');
   }
 
   Future<void> _responder(bool diceEstafa) async {
@@ -70,8 +70,8 @@ class _PracticarPageState extends State<PracticarPage> {
                 ? '¡Muy bien! Era una estafa. $pistas'
                 : '¡Muy bien! Era un mensaje seguro.')
           : (esEstafa
-                ? 'Cuidado, era una estafa. $pistas'
-                : 'Este era seguro. $pistas'),
+                ? 'Cuidado, este sí era una estafa. $pistas'
+                : 'Este mensaje era seguro. $pistas'),
     );
   }
 

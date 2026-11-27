@@ -50,6 +50,8 @@ dependencies:
   crypto: ^3.0.8
   url_launcher: ^6.3.3
   google_mlkit_text_recognition: ^0.16.0
+  # Voz de Leo: audios pregrabados con ElevenLabs (assets/voz). Reproduce en Android y en web.
+  just_audio: ">=0.9.40 <1.0.0"
 
 dev_dependencies:
   flutter_test:
@@ -71,3 +73,4 @@ flutter:
   assets:
     - assets/data/simulaciones.json
     - assets/data/canales_oficiales.json
+    - assets/voz/

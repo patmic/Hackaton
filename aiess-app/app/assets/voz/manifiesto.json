@@ -1,0 +1,1129 @@
+{
+ "voz": "El Faraon - Full, Clear, Mellow",
+ "voice_id": "8mBRP99B2Ng2QwsJMFQl",
+ "modelo": "eleven_v4",
+ "formato": "mp3 64 kbps mono",
+ "audios": [
+  {
+   "id": "A01",
+   "grupo": "presentacion",
+   "texto": "Hola, soy Leo. Te ayudo a reconocer correos falsos que usan el nombre del IESS. Antes de empezar, vamos a prepararme en cuatro pasos.",
+   "habla": "Hola, soy Leo. Te ayudo a reconocer correos falsos que usan el nombre del I-es. Antes de empezar, vamos a prepararme en cuatro pasos.",
+   "archivo": "a01.mp3",
+   "generation_id": "wSFxOeWkKBmpbIahCiQp"
+  },
+  {
+   "id": "A02",
+   "grupo": "presentacion",
+   "texto": "Para cuidarte, necesito leer los avisos de tus correos. Tranquilo, nada sale de tu celular. Toca el botón y activa Guardián AIESS.",
+   "habla": "Para cuidarte, necesito leer los avisos de tus correos. Tranquilo, nada sale de tu celular. Toca el botón y activa Guardián Ay-es.",
+   "archivo": "a02.mp3",
+   "generation_id": "XJAMp7v3gfLCNBlr0EbW"
+  },
+  {
+   "id": "A03",
+   "grupo": "presentacion",
+   "texto": "Para avisarte a tiempo, necesito aparecer sobre otras aplicaciones. Toca el botón y activa el permiso para AIESS.",
+   "habla": "Para avisarte a tiempo, necesito aparecer sobre otras aplicaciones. Toca el botón y activa el permiso para Ay-es.",
+   "archivo": "a03.mp3",
+   "generation_id": "TFn0cWErJLy0wu19GD0o"
+  },
+  {
+   "id": "A04",
+   "grupo": "presentacion",
+   "texto": "Para avisarte aunque no tengas la app abierta, necesito seguir atento en segundo plano. Toca el botón y elige Permitir.",
+   "habla": "Para avisarte aunque no tengas la app abierta, necesito seguir atento en segundo plano. Toca el botón y elige Permitir.",
+   "archivo": "a04.mp3",
+   "generation_id": "IeRsA7kCcpY3ylQbBUc5"
+  },
+  {
+   "id": "A05",
+   "grupo": "presentacion",
+   "texto": "Tu celular apaga algunas apps para ahorrar batería. Toca el botón, busca AIESS y activa el inicio automático.",
+   "habla": "Tu celular apaga algunas apps para ahorrar batería. Toca el botón, busca Ay-es y activa el inicio automático.",
+   "archivo": "a05.mp3",
+   "generation_id": "IIw0skoJV4jQ0s3tcSFf"
+  },
+  {
+   "id": "A06",
+   "grupo": "presentacion",
+   "texto": "Listo, ya estoy atento. Si llega un correo sospechoso, te aviso y te explico por qué.",
+   "habla": "Listo, ya estoy atento. Si llega un correo sospechoso, te aviso y te explico por qué.",
+   "archivo": "a06.mp3",
+   "generation_id": "rKeJSzDGOY4lstB97Gr3"
+  },
+  {
+   "id": "A07",
+   "grupo": "presentacion",
+   "texto": "Hola, soy Leo. Veo que copiaste un mensaje. Toca Pegar y revisar, y lo vemos juntos.",
+   "habla": "Hola, soy Leo. Veo que copiaste un mensaje. Toca Pegar y revisar, y lo vemos juntos.",
+   "archivo": "a07.mp3",
+   "generation_id": "E9sRtrZuH9AJqZ6TUW0c"
+  },
+  {
+   "id": "A08",
+   "grupo": "presentacion",
+   "texto": "Hola, soy Leo. Si te llegó un correo raro, cópialo y toca Pegar y revisar. También puedes tocar el micrófono y contarme.",
+   "habla": "Hola, soy Leo. Si te llegó un correo raro, cópialo y toca Pegar y revisar. También puedes tocar el micrófono y contarme.",
+   "archivo": "a08.mp3",
+   "generation_id": "2ZXDEGk7oglERDKIhMXb"
+  },
+  {
+   "id": "A09",
+   "grupo": "presentacion",
+   "texto": "Hola, soy Leo. Copia el mensaje que te preocupa y toca el botón. Yo lo reviso.",
+   "habla": "Hola, soy Leo. Copia el mensaje que te preocupa y toca el botón. Yo lo reviso.",
+   "archivo": "a09.mp3",
+   "generation_id": "bDEFo86R091WG5xLDC3u"
+  },
+  {
+   "id": "A10",
+   "grupo": "presentacion",
+   "texto": "Para avisarte aunque tu celular esté bloqueado, activa el permiso de pantalla completa para AIESS.",
+   "habla": "Para avisarte aunque tu celular esté bloqueado, activa el permiso de pantalla completa para Ay-es.",
+   "archivo": "a10.mp3",
+   "generation_id": "Fc6SHfkdK9RKR8jWJrp6"
+  },
+  {
+   "id": "A11",
+   "grupo": "presentacion",
+   "texto": "Tu celular congela algunas apps para ahorrar batería. En la siguiente pantalla, toca AIESS y elige Sin restricciones.",
+   "habla": "Tu celular congela algunas apps para ahorrar batería. En la siguiente pantalla, toca Ay-es y elige Sin restricciones.",
+   "archivo": "a11.mp3",
+   "generation_id": "oKHY4ZMSum3YiWourdvM"
+  },
+  {
+   "id": "A12",
+   "grupo": "presentacion",
+   "texto": "Para avisarte al instante, busca AIESS en la siguiente pantalla y activa el inicio automático.",
+   "habla": "Para avisarte al instante, busca Ay-es en la siguiente pantalla y activa el inicio automático.",
+   "archivo": "a12.mp3",
+   "generation_id": "6JjRFyBb72eKEIawEama"
+  },
+  {
+   "id": "A13",
+   "grupo": "presentacion",
+   "texto": "Para avisarte de correos peligrosos aunque no tengas la app abierta, toca Permitir en el siguiente mensaje.",
+   "habla": "Para avisarte de correos peligrosos aunque no tengas la app abierta, toca Permitir en el siguiente mensaje.",
+   "archivo": "a13.mp3",
+   "generation_id": "o7G4Dcl9PwQoQX0LpRMs"
+  },
+  {
+   "id": "B01",
+   "grupo": "revisando",
+   "texto": "Dame un momento, lo reviso.",
+   "habla": "Dame un momento, lo reviso.",
+   "archivo": "b01.mp3",
+   "generation_id": "e4SIZzm4gt9ujHo6xzo0"
+  },
+  {
+   "id": "B02",
+   "grupo": "revisando",
+   "texto": "Mmm, aquí hay algo raro. Déjame confirmarlo.",
+   "habla": "Mmm, aquí hay algo raro. Déjame confirmarlo.",
+   "archivo": "b02.mp3",
+   "generation_id": "xGdI5vl24FaZrQSbsgcI"
+  },
+  {
+   "id": "B03",
+   "grupo": "revisando",
+   "texto": "Voy a verificar el sello de ese correo con el IESS.",
+   "habla": "Voy a verificar el sello de ese correo con el I-es.",
+   "archivo": "b03.mp3",
+   "generation_id": "0VcGuiagYO5r64vdUqE0"
+  },
+  {
+   "id": "B04",
+   "grupo": "revisando",
+   "texto": "Déjame comprobar la firma del IESS.",
+   "habla": "Déjame comprobar la firma del I-es.",
+   "archivo": "b04.mp3",
+   "generation_id": "hLY2Zp3MRBL1YKKn9f6k"
+  },
+  {
+   "id": "B05",
+   "grupo": "revisando",
+   "texto": "Déjame leer el archivo.",
+   "habla": "Déjame leer el archivo.",
+   "archivo": "b05.mp3",
+   "generation_id": "xmlTj8LZPJTPZXjugdVb"
+  },
+  {
+   "id": "B06",
+   "grupo": "revisando",
+   "texto": "Déjame leer el PDF.",
+   "habla": "Déjame leer el pe de efe.",
+   "archivo": "b06.mp3",
+   "generation_id": "ZabuqOhGU2P0eMsSAdwO"
+  },
+  {
+   "id": "B07",
+   "grupo": "revisando",
+   "texto": "Déjame leer la imagen.",
+   "habla": "Déjame leer la imagen.",
+   "archivo": "b07.mp3",
+   "generation_id": "k5TUZMwlsRSOqpJhRPrg"
+  },
+  {
+   "id": "B08",
+   "grupo": "revisando",
+   "texto": "Te llegó un correo que dice ser del IESS. Voy a verificar su sello.",
+   "habla": "Te llegó un correo que dice ser del I-es. Voy a verificar su sello.",
+   "archivo": "b08.mp3",
+   "generation_id": "uAxPnVkRngfT0LfFjUSb"
+  },
+  {
+   "id": "C1-00",
+   "grupo": "cantidad",
+   "texto": "Cuidado, este mensaje no es confiable.",
+   "habla": "Cuidado, este mensaje no es confiable.",
+   "archivo": "c1-00.mp3",
+   "generation_id": "jMLhzKn1V6xtp5XdXG9U"
+  },
+  {
+   "id": "C1-01",
+   "grupo": "cantidad",
+   "texto": "Encontré un indicio de estafa en este correo.",
+   "habla": "Encontré un indicio de estafa en este correo.",
+   "archivo": "c1-01.mp3",
+   "generation_id": "OKCwm9vFkS0wYmmHJndG"
+  },
+  {
+   "id": "C1-02",
+   "grupo": "cantidad",
+   "texto": "Encontré dos indicios de estafa en este correo. Te los cuento.",
+   "habla": "Encontré dos indicios de estafa en este correo. Te los cuento.",
+   "archivo": "c1-02.mp3",
+   "generation_id": "3ymM25DJS0gmDNnrXE25"
+  },
+  {
+   "id": "C1-03",
+   "grupo": "cantidad",
+   "texto": "Encontré tres indicios de estafa en este correo. Te los cuento.",
+   "habla": "Encontré tres indicios de estafa en este correo. Te los cuento.",
+   "archivo": "c1-03.mp3",
+   "generation_id": "P5OWDc7wn8EmAEEyjst5"
+  },
+  {
+   "id": "C1-04",
+   "grupo": "cantidad",
+   "texto": "Encontré cuatro indicios de estafa en este correo. Te los cuento.",
+   "habla": "Encontré cuatro indicios de estafa en este correo. Te los cuento.",
+   "archivo": "c1-04.mp3",
+   "generation_id": "672dsxWKomlIkIp18XpY"
+  },
+  {
+   "id": "C1-05",
+   "grupo": "cantidad",
+   "texto": "Encontré cinco indicios de estafa en este correo. Te los cuento.",
+   "habla": "Encontré cinco indicios de estafa en este correo. Te los cuento.",
+   "archivo": "c1-05.mp3",
+   "generation_id": "Y3SXPEErfj6SK2Bj3LvG"
+  },
+  {
+   "id": "C1-06",
+   "grupo": "cantidad",
+   "texto": "Encontré seis indicios de estafa en este correo. Te los cuento.",
+   "habla": "Encontré seis indicios de estafa en este correo. Te los cuento.",
+   "archivo": "c1-06.mp3",
+   "generation_id": "Kwp2HOaztH2XT2vj1NfJ"
+  },
+  {
+   "id": "C1-07",
+   "grupo": "cantidad",
+   "texto": "Encontré siete indicios de estafa en este correo. Te los cuento.",
+   "habla": "Encontré siete indicios de estafa en este correo. Te los cuento.",
+   "archivo": "c1-07.mp3",
+   "generation_id": "xb19gngaDTsTYXr1csMD"
+  },
+  {
+   "id": "C1-08",
+   "grupo": "cantidad",
+   "texto": "Encontré ocho indicios de estafa en este correo. Te los cuento.",
+   "habla": "Encontré ocho indicios de estafa en este correo. Te los cuento.",
+   "archivo": "c1-08.mp3",
+   "generation_id": "o8yNKsCbBylXOYoG54w1"
+  },
+  {
+   "id": "C1-09",
+   "grupo": "cantidad",
+   "texto": "Encontré nueve indicios de estafa en este correo. Te los cuento.",
+   "habla": "Encontré nueve indicios de estafa en este correo. Te los cuento.",
+   "archivo": "c1-09.mp3",
+   "generation_id": "O2Ez5FpzFszzG0GEOjkt"
+  },
+  {
+   "id": "C1-10",
+   "grupo": "cantidad",
+   "texto": "Encontré diez indicios de estafa en este correo. Te los cuento.",
+   "habla": "Encontré diez indicios de estafa en este correo. Te los cuento.",
+   "archivo": "c1-10.mp3",
+   "generation_id": "R4ydISvzCOzNJ86vKY4p"
+  },
+  {
+   "id": "C1-11",
+   "grupo": "cantidad",
+   "texto": "Encontré once indicios de estafa en este correo. Te los cuento.",
+   "habla": "Encontré once indicios de estafa en este correo. Te los cuento.",
+   "archivo": "c1-11.mp3",
+   "generation_id": "BAU2Gry4HyPSHkT5rj3u"
+  },
+  {
+   "id": "C2-01",
+   "grupo": "ordinal",
+   "texto": "Primero:",
+   "habla": "Primero:",
+   "archivo": "c2-01.mp3",
+   "generation_id": "DsTie8gf7Bg65xhPnaXx"
+  },
+  {
+   "id": "C2-02",
+   "grupo": "ordinal",
+   "texto": "Segundo:",
+   "habla": "Segundo:",
+   "archivo": "c2-02.mp3",
+   "generation_id": "xTx91srmiLrgDimf3UqO"
+  },
+  {
+   "id": "C2-03",
+   "grupo": "ordinal",
+   "texto": "Tercero:",
+   "habla": "Tercero:",
+   "archivo": "c2-03.mp3",
+   "generation_id": "OaAtdUjGEK0phhbEUmO7"
+  },
+  {
+   "id": "C2-04",
+   "grupo": "ordinal",
+   "texto": "Cuarto:",
+   "habla": "Cuarto:",
+   "archivo": "c2-04.mp3",
+   "generation_id": "LeqZnp88cVncJCZxeibN"
+  },
+  {
+   "id": "C2-05",
+   "grupo": "ordinal",
+   "texto": "Quinto:",
+   "habla": "Quinto:",
+   "archivo": "c2-05.mp3",
+   "generation_id": "KZo6WCtm6JPcGyoFVaQJ"
+  },
+  {
+   "id": "C2-06",
+   "grupo": "ordinal",
+   "texto": "Sexto:",
+   "habla": "Sexto:",
+   "archivo": "c2-06.mp3",
+   "generation_id": "EaLwmMkh5usEy6pCPybR"
+  },
+  {
+   "id": "C2-07",
+   "grupo": "ordinal",
+   "texto": "Séptimo:",
+   "habla": "Séptimo:",
+   "archivo": "c2-07.mp3",
+   "generation_id": "GlkghD1s6PmynoqC3ATo"
+  },
+  {
+   "id": "C2-08",
+   "grupo": "ordinal",
+   "texto": "Octavo:",
+   "habla": "Octavo:",
+   "archivo": "c2-08.mp3",
+   "generation_id": "MoIPPLvASKtxbAuIUZIm"
+  },
+  {
+   "id": "C2-09",
+   "grupo": "ordinal",
+   "texto": "Noveno:",
+   "habla": "Noveno:",
+   "archivo": "c2-09.mp3",
+   "generation_id": "enwtCnXfbygE8EwhGYRE"
+  },
+  {
+   "id": "C2-10",
+   "grupo": "ordinal",
+   "texto": "Décimo:",
+   "habla": "Décimo:",
+   "archivo": "c2-10.mp3",
+   "generation_id": "gyORHKw9rre5YK3XYRHU"
+  },
+  {
+   "id": "C2-11",
+   "grupo": "ordinal",
+   "texto": "Undécimo:",
+   "habla": "Undécimo:",
+   "archivo": "c2-11.mp3",
+   "generation_id": "tUYN3SWCEnWo1wNwecVA"
+  },
+  {
+   "id": "C3-I3",
+   "grupo": "indicio",
+   "texto": "Te pide tu clave o un código. Tu clave es solo tuya: no se la des a nadie, ni siquiera al IESS.",
+   "habla": "Te pide tu clave o un código. Tu clave es solo tuya: no se la des a nadie, ni siquiera al I-es.",
+   "archivo": "c3-i3.mp3",
+   "generation_id": "vO7vVBRCow6n71xBAmMb"
+  },
+  {
+   "id": "C3-I10",
+   "grupo": "indicio",
+   "texto": "Te pide hacer un pago o una transferencia.",
+   "habla": "Te pide hacer un pago o una transferencia.",
+   "archivo": "c3-i10.mp3",
+   "generation_id": "BUyo1VdqEk7qQQFORFeG"
+  },
+  {
+   "id": "C3-I9",
+   "grupo": "indicio",
+   "texto": "Te pide tu cédula, una foto o tus datos personales.",
+   "habla": "Te pide tu cédula, una foto o tus datos personales.",
+   "archivo": "c3-i9.mp3",
+   "generation_id": "2nplL4FsoFDdY4kAVDat"
+  },
+  {
+   "id": "C3-I2",
+   "grupo": "indicio",
+   "texto": "El enlace no lleva a la página oficial del IESS.",
+   "habla": "El enlace no lleva a la página oficial del I-es.",
+   "archivo": "c3-i2.mp3",
+   "generation_id": "gs4J6Aghe31UyB9w5OQl"
+  },
+  {
+   "id": "C3-I4",
+   "grupo": "indicio",
+   "texto": "El enlace está escondido: dice una cosa, pero te lleva a otra.",
+   "habla": "El enlace está escondido: dice una cosa, pero te lleva a otra.",
+   "archivo": "c3-i4.mp3",
+   "generation_id": "fsyjBF5fAhjJGhiyGWmG"
+  },
+  {
+   "id": "C3-I5",
+   "grupo": "indicio",
+   "texto": "Trae un archivo o te pide instalar algo, y eso puede ser peligroso.",
+   "habla": "Trae un archivo o te pide instalar algo, y eso puede ser peligroso.",
+   "archivo": "c3-i5.mp3",
+   "generation_id": "qvNnhhgizKeZzu8Q13E8"
+  },
+  {
+   "id": "C3-I8",
+   "grupo": "indicio",
+   "texto": "Te amenaza con quitarte un beneficio para asustarte.",
+   "habla": "Te amenaza con quitarte un beneficio para asustarte.",
+   "archivo": "c3-i8.mp3",
+   "generation_id": "rporojCFU658UMFiRakC"
+  },
+  {
+   "id": "C3-I1",
+   "grupo": "indicio",
+   "texto": "Te apura para que no tengas tiempo de pensar.",
+   "habla": "Te apura para que no tengas tiempo de pensar.",
+   "archivo": "c3-i1.mp3",
+   "generation_id": "KRwtqlDAr6vNJDSLBdaV"
+  },
+  {
+   "id": "C3-I6",
+   "grupo": "indicio",
+   "texto": "Te ofrece un dinero o un premio que tú no pediste.",
+   "habla": "Te ofrece un dinero o un premio que tú no pediste.",
+   "archivo": "c3-i6.mp3",
+   "generation_id": "nrhhD17MR8L7ieNqof1Y"
+  },
+  {
+   "id": "C3-I11",
+   "grupo": "indicio",
+   "texto": "Te pide escanear un código QR que no sabes a dónde lleva.",
+   "habla": "Te pide escanear un código cu erre que no sabes a dónde lleva.",
+   "archivo": "c3-i11.mp3",
+   "generation_id": "83lKqaYEHEcom6KZJ7xC"
+  },
+  {
+   "id": "C3-I7",
+   "grupo": "indicio",
+   "texto": "Quien lo envía no usa una dirección oficial del IESS.",
+   "habla": "Quien lo envía no usa una dirección oficial del I-es.",
+   "archivo": "c3-i7.mp3",
+   "generation_id": "UIYbPEN6FSJBtS0CMGe0"
+  },
+  {
+   "id": "C4-I3",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, podrían entrar a tu cuenta del IESS y quedarse con tu pensión o tus préstamos.",
+   "habla": "Si caes en el engaño, podrían entrar a tu cuenta del I-es y quedarse con tu pensión o tus préstamos.",
+   "archivo": "c4-i3.mp3",
+   "generation_id": "zg8grQ66MbebrVfoZRmO"
+  },
+  {
+   "id": "C4-I9",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, con tu cédula y tu foto podrían sacar préstamos o abrir cuentas a tu nombre.",
+   "habla": "Si caes en el engaño, con tu cédula y tu foto podrían sacar préstamos o abrir cuentas a tu nombre.",
+   "archivo": "c4-i9.mp3",
+   "generation_id": "3nFBx7YoMWhDv82CS4Pd"
+  },
+  {
+   "id": "C4-I10",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, perderías ese dinero, y recuperarlo es muy difícil.",
+   "habla": "Si caes en el engaño, perderías ese dinero, y recuperarlo es muy difícil.",
+   "archivo": "c4-i10.mp3",
+   "generation_id": "ti2UK0PBRSF2eArDBLxe"
+  },
+  {
+   "id": "C4-I6",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, te pedirían un pago o tus datos para cobrar un premio que no existe.",
+   "habla": "Si caes en el engaño, te pedirían un pago o tus datos para cobrar un premio que no existe.",
+   "archivo": "c4-i6.mp3",
+   "generation_id": "ZHpcCLAA2OINT6x03q7L"
+  },
+  {
+   "id": "C4-I5",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, ese archivo podría meter un virus que espía tu celular o tu computadora.",
+   "habla": "Si caes en el engaño, ese archivo podría meter un virus que espía tu celular o tu computadora.",
+   "archivo": "c4-i5.mp3",
+   "generation_id": "FRq5kGTj5PQ3FB1IBLZA"
+  },
+  {
+   "id": "C4-I2",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, esa página es una copia falsa que roba todo lo que escribas.",
+   "habla": "Si caes en el engaño, esa página es una copia falsa que roba todo lo que escribas.",
+   "archivo": "c4-i2.mp3",
+   "generation_id": "h40awLsVpZ6gpRGBIcQe"
+  },
+  {
+   "id": "C4-I4",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, terminarías en un sitio distinto del que crees.",
+   "habla": "Si caes en el engaño, terminarías en un sitio distinto del que crees.",
+   "archivo": "c4-i4.mp3",
+   "generation_id": "mUPM9K9ViqPeGdBHtHBO"
+  },
+  {
+   "id": "C4-I11",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, ese código te llevaría a una página falsa sin que te des cuenta.",
+   "habla": "Si caes en el engaño, ese código te llevaría a una página falsa sin que te des cuenta.",
+   "archivo": "c4-i11.mp3",
+   "generation_id": "VTSS9F2NWHJo8cb5iYUD"
+  },
+  {
+   "id": "C4-I7",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, no te está escribiendo el IESS, aunque lo parezca.",
+   "habla": "Si caes en el engaño, no te está escribiendo el I-es, aunque lo parezca.",
+   "archivo": "c4-i7.mp3",
+   "generation_id": "tPsuGuvQv6RK22nP5rTz"
+  },
+  {
+   "id": "C4-I8",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, el susto es para que actúes sin pensar.",
+   "habla": "Si caes en el engaño, el susto es para que actúes sin pensar.",
+   "archivo": "c4-i8.mp3",
+   "generation_id": "GVAJcuAE0zVSeJ2oZTB6"
+  },
+  {
+   "id": "C4-I1",
+   "grupo": "riesgo1",
+   "texto": "Si caes en el engaño, el apuro es para que no alcances a verificar.",
+   "habla": "Si caes en el engaño, el apuro es para que no alcances a verificar.",
+   "archivo": "c4-i1.mp3",
+   "generation_id": "snn5ubZDGZcCkaHiSeNA"
+  },
+  {
+   "id": "C5-I3",
+   "grupo": "riesgo2",
+   "texto": "Y además, podrían entrar a tu cuenta del IESS y quedarse con tu pensión o tus préstamos.",
+   "habla": "Y además, podrían entrar a tu cuenta del I-es y quedarse con tu pensión o tus préstamos.",
+   "archivo": "c5-i3.mp3",
+   "generation_id": "Uw6k7jA2ofjYYmz7UlTD"
+  },
+  {
+   "id": "C5-I9",
+   "grupo": "riesgo2",
+   "texto": "Y además, con tu cédula y tu foto podrían sacar préstamos o abrir cuentas a tu nombre.",
+   "habla": "Y además, con tu cédula y tu foto podrían sacar préstamos o abrir cuentas a tu nombre.",
+   "archivo": "c5-i9.mp3",
+   "generation_id": "SPeUG0EvaLtcljiBTXOf"
+  },
+  {
+   "id": "C5-I10",
+   "grupo": "riesgo2",
+   "texto": "Y además, perderías ese dinero, y recuperarlo es muy difícil.",
+   "habla": "Y además, perderías ese dinero, y recuperarlo es muy difícil.",
+   "archivo": "c5-i10.mp3",
+   "generation_id": "1jgX4Xphgw9GzkXSao5D"
+  },
+  {
+   "id": "C5-I6",
+   "grupo": "riesgo2",
+   "texto": "Y además, te pedirían un pago o tus datos para cobrar un premio que no existe.",
+   "habla": "Y además, te pedirían un pago o tus datos para cobrar un premio que no existe.",
+   "archivo": "c5-i6.mp3",
+   "generation_id": "2QAJ6GhZTEVUyuMB4ft5"
+  },
+  {
+   "id": "C5-I5",
+   "grupo": "riesgo2",
+   "texto": "Y además, ese archivo podría meter un virus que espía tu celular o tu computadora.",
+   "habla": "Y además, ese archivo podría meter un virus que espía tu celular o tu computadora.",
+   "archivo": "c5-i5.mp3",
+   "generation_id": "Hn781LFkgP5vYO3a2vei"
+  },
+  {
+   "id": "C5-I2",
+   "grupo": "riesgo2",
+   "texto": "Y además, esa página es una copia falsa que roba todo lo que escribas.",
+   "habla": "Y además, esa página es una copia falsa que roba todo lo que escribas.",
+   "archivo": "c5-i2.mp3",
+   "generation_id": "GkEGeHbsNljIqdcwCuit"
+  },
+  {
+   "id": "C5-I4",
+   "grupo": "riesgo2",
+   "texto": "Y además, terminarías en un sitio distinto del que crees.",
+   "habla": "Y además, terminarías en un sitio distinto del que crees.",
+   "archivo": "c5-i4.mp3",
+   "generation_id": "D6k5QTIbJROVuuLI5UWt"
+  },
+  {
+   "id": "C5-I11",
+   "grupo": "riesgo2",
+   "texto": "Y además, ese código te llevaría a una página falsa sin que te des cuenta.",
+   "habla": "Y además, ese código te llevaría a una página falsa sin que te des cuenta.",
+   "archivo": "c5-i11.mp3",
+   "generation_id": "dFhMAs8Y1X3M15JnepKP"
+  },
+  {
+   "id": "C5-I7",
+   "grupo": "riesgo2",
+   "texto": "Y además, no te está escribiendo el IESS, aunque lo parezca.",
+   "habla": "Y además, no te está escribiendo el I-es, aunque lo parezca.",
+   "archivo": "c5-i7.mp3",
+   "generation_id": "vR8RFtC0UQZFE5MKm0VS"
+  },
+  {
+   "id": "C5-I8",
+   "grupo": "riesgo2",
+   "texto": "Y además, el susto es para que actúes sin pensar.",
+   "habla": "Y además, el susto es para que actúes sin pensar.",
+   "archivo": "c5-i8.mp3",
+   "generation_id": "BQkK3QI8nJb0zjNjPmyS"
+  },
+  {
+   "id": "C5-I1",
+   "grupo": "riesgo2",
+   "texto": "Y además, el apuro es para que no alcances a verificar.",
+   "habla": "Y además, el apuro es para que no alcances a verificar.",
+   "archivo": "c5-i1.mp3",
+   "generation_id": "7HF7HwlheYnfzSjSEWp2"
+  },
+  {
+   "id": "C6",
+   "grupo": "deepfake",
+   "texto": "Y un consejo más, sobre los deepfakes: con tus fotos o videos de redes sociales pueden crear un video falso tuyo, con tu cara y tu voz, para pedirles dinero a tus amigos y familiares. Si alguien te pide dinero por video, cuelga y llámalo tú a su número de siempre.",
+   "habla": "Y un consejo más, sobre los deepfakes: con tus fotos o videos de redes sociales pueden crear un video falso tuyo, con tu cara y tu voz, para pedirles dinero a tus amigos y familiares. Si alguien te pide dinero por video, cuelga y llámalo tú a su número de siempre.",
+   "archivo": "c6.mp3",
+   "generation_id": "nvjoUJOGeQpjPgTVlFHM"
+  },
+  {
+   "id": "C7",
+   "grupo": "que_hacer",
+   "texto": "No abras sus enlaces ni sus adjuntos, y no respondas. Repórtalo al IESS: escribe a seguridad.informacion@iess.gob.ec, entra a denuncias.iess.gob.ec o escribe al WhatsApp +593 9 62532338. Y si ya diste tu clave, cámbiala en app.iess.gob.ec o llama al 593 2 3945666.",
+   "habla": "No abras sus enlaces ni sus adjuntos, y no respondas. Repórtalo al I-es: escribe a seguridad punto información arroba I-es punto gob punto e-ce, entra a denuncias punto I-es punto gob punto e-ce o escribe al WhatsApp más cinco nueve tres, nueve, seis dos, cinco tres, dos tres, tres ocho. Y si ya diste tu clave, cámbiala en app punto I-es punto gob punto e-ce o llama al cinco nueve tres, dos, tres nueve cuatro, cinco seis, seis seis.",
+   "archivo": "c7.mp3",
+   "generation_id": "3zF1qbhv6qSknkMWMO4x"
+  },
+  {
+   "id": "D01",
+   "grupo": "seguro",
+   "texto": "Buenas noticias: no encontré indicios de estafa en este correo. Igual, recuerda que tu clave no se comparte con nadie.",
+   "habla": "Buenas noticias: no encontré indicios de estafa en este correo. Igual, recuerda que tu clave no se comparte con nadie.",
+   "archivo": "d01.mp3",
+   "generation_id": "BIYIsreQPr7cA5n55z9Z"
+  },
+  {
+   "id": "D02",
+   "grupo": "seguro",
+   "texto": "Buenas noticias: el enlace es oficial y no te pide datos. Igual, recuerda que tu clave no se comparte con nadie.",
+   "habla": "Buenas noticias: el enlace es oficial y no te pide datos. Igual, recuerda que tu clave no se comparte con nadie.",
+   "archivo": "d02.mp3",
+   "generation_id": "RyjoxehHOw2UenBhvOBS"
+  },
+  {
+   "id": "D03",
+   "grupo": "seguro",
+   "texto": "No encontré señales de engaño.",
+   "habla": "No encontré señales de engaño.",
+   "archivo": "d03.mp3",
+   "generation_id": "taUeqQJzo5L9gYV75mvs"
+  },
+  {
+   "id": "D04",
+   "grupo": "seguro",
+   "texto": "Si tienes dudas, escribe tú mismo www.iess.gob.ec en el navegador.",
+   "habla": "Si tienes dudas, escribe tú mismo doble ve, doble ve, doble ve, punto I-es punto gob punto e-ce en el navegador.",
+   "archivo": "d04.mp3",
+   "generation_id": "qq4UgrCVmAxjeGMgEt0U"
+  },
+  {
+   "id": "E01",
+   "grupo": "sello",
+   "texto": "Este correo no trae el sello del IESS. Si dice ser del IESS, no confíes todavía: confírmalo por un canal oficial.",
+   "habla": "Este correo no trae el sello del I-es. Si dice ser del I-es, no confíes todavía: confírmalo por un canal oficial.",
+   "archivo": "e01.mp3",
+   "generation_id": "N78k3s9aC4UHO3PcWH1f"
+  },
+  {
+   "id": "E02",
+   "grupo": "sello",
+   "texto": "Ahora no pude comprobar el sello del IESS porque no hay conexión. Mejor no confíes hasta poder comprobarlo.",
+   "habla": "Ahora no pude comprobar el sello del I-es porque no hay conexión. Mejor no confíes hasta poder comprobarlo.",
+   "archivo": "e02.mp3",
+   "generation_id": "wRmrXyg8AwTwXLkixBoP"
+  },
+  {
+   "id": "E03",
+   "grupo": "sello",
+   "texto": "La firma del IESS es válida y el texto no tiene señales de estafa.",
+   "habla": "La firma del I-es es válida y el texto no tiene señales de estafa.",
+   "archivo": "e03.mp3",
+   "generation_id": "CaP6gcPqwbn775MteT9A"
+  },
+  {
+   "id": "E04",
+   "grupo": "sello",
+   "texto": "Ojo: la firma del IESS es verdadera, pero el texto tiene señales de estafa. Es posible que hayan cambiado el contenido de un correo firmado.",
+   "habla": "Ojo: la firma del I-es es verdadera, pero el texto tiene señales de estafa. Es posible que hayan cambiado el contenido de un correo firmado.",
+   "archivo": "e04.mp3",
+   "generation_id": "ViABSMMuExzV5cMS1vDJ"
+  },
+  {
+   "id": "E05",
+   "grupo": "sello",
+   "texto": "Uy, el sello de este correo es falso: lo copiaron o lo alteraron.",
+   "habla": "Uy, el sello de este correo es falso: lo copiaron o lo alteraron.",
+   "archivo": "e05.mp3",
+   "generation_id": "RzB1ylcBA38kN6gzmeUe"
+  },
+  {
+   "id": "E06",
+   "grupo": "sello",
+   "texto": "Puedes confiar en este correo. Igual, nunca entregues tu clave.",
+   "habla": "Puedes confiar en este correo. Igual, nunca entregues tu clave.",
+   "archivo": "e06.mp3",
+   "generation_id": "0lGJCGYm8vhnSwOQb1CL"
+  },
+  {
+   "id": "E07",
+   "grupo": "sello",
+   "texto": "No abras sus enlaces ni entregues datos. Si quieres, avisa al IESS.",
+   "habla": "No abras sus enlaces ni entregues datos. Si quieres, avisa al I-es.",
+   "archivo": "e07.mp3",
+   "generation_id": "brNIiUIpRYVUyWMOzUmg"
+  },
+  {
+   "id": "E08",
+   "grupo": "sello",
+   "texto": "Este correo no trae el sello del IESS.",
+   "habla": "Este correo no trae el sello del I-es.",
+   "archivo": "e08.mp3",
+   "generation_id": "bGhzXCmCCNVuJVVCWaOf"
+  },
+  {
+   "id": "E09",
+   "grupo": "sello",
+   "texto": "No pude comprobar el sello ahora porque no hay conexión. Mientras tanto, no abras sus enlaces.",
+   "habla": "No pude comprobar el sello ahora porque no hay conexión. Mientras tanto, no abras sus enlaces.",
+   "archivo": "e09.mp3",
+   "generation_id": "gSy6n0rSXna56VVssN1v"
+  },
+  {
+   "id": "E10",
+   "grupo": "sello",
+   "texto": "Ese enlace no tiene el formato del sello del IESS.",
+   "habla": "Ese enlace no tiene el formato del sello del I-es.",
+   "archivo": "e10.mp3",
+   "generation_id": "5BBMQN6aXAFzeQnoIKwv"
+  },
+  {
+   "id": "E11",
+   "grupo": "sello",
+   "texto": "El IESS no tiene registrado ningún correo con este sello.",
+   "habla": "El I-es no tiene registrado ningún correo con este sello.",
+   "archivo": "e11.mp3",
+   "generation_id": "CLfaqfgXpZoB52YDTw8q"
+  },
+  {
+   "id": "E12",
+   "grupo": "sello",
+   "texto": "El enlace del sello fue alterado: no coincide con el registro del IESS.",
+   "habla": "El enlace del sello fue alterado: no coincide con el registro del I-es.",
+   "archivo": "e12.mp3",
+   "generation_id": "N3KBiVKdXBSqi7OZNsBL"
+  },
+  {
+   "id": "E13",
+   "grupo": "sello",
+   "texto": "Los datos de este sello fueron alterados.",
+   "habla": "Los datos de este sello fueron alterados.",
+   "archivo": "e13.mp3",
+   "generation_id": "KCCEDzwXthbvaLm7G2f1"
+  },
+  {
+   "id": "E14",
+   "grupo": "sello",
+   "texto": "La firma digital de este sello no es válida.",
+   "habla": "La firma digital de este sello no es válida.",
+   "archivo": "e14.mp3",
+   "generation_id": "B2DCNcMQ8KYGklAYMowm"
+  },
+  {
+   "id": "E15",
+   "grupo": "sello",
+   "texto": "El sello de este correo ya caducó.",
+   "habla": "El sello de este correo ya caducó.",
+   "archivo": "e15.mp3",
+   "generation_id": "hTL07S7SiNxHG50WwtFh"
+  },
+  {
+   "id": "E16",
+   "grupo": "sello",
+   "texto": "Este sello es de una versión anterior y ya no se puede verificar.",
+   "habla": "Este sello es de una versión anterior y ya no se puede verificar.",
+   "archivo": "e16.mp3",
+   "generation_id": "LG7fUDxA8axKVpaap6qv"
+  },
+  {
+   "id": "E17",
+   "grupo": "sello",
+   "texto": "Podría ser una estafa: no hagas clic en sus enlaces ni entregues tus datos.",
+   "habla": "Podría ser una estafa: no hagas clic en sus enlaces ni entregues tus datos.",
+   "archivo": "e17.mp3",
+   "generation_id": "ZoneYW8tnLQr21nfgLKQ"
+  },
+  {
+   "id": "F01",
+   "grupo": "reporte",
+   "texto": "Listo, preparé el reporte para el IESS. Como es una demostración, no sale de tu celular.",
+   "habla": "Listo, preparé el reporte para el I-es. Como es una demostración, no sale de tu celular.",
+   "archivo": "f01.mp3",
+   "generation_id": "KKAw3aX9RKxm8IsCcmkD"
+  },
+  {
+   "id": "G01",
+   "grupo": "error",
+   "texto": "No pude leer texto en ese archivo. Prueba con una captura más clara.",
+   "habla": "No pude leer texto en ese archivo. Prueba con una captura más clara.",
+   "archivo": "g01.mp3",
+   "generation_id": "eQqXhqhQS5I8rQfkTGqz"
+  },
+  {
+   "id": "G02",
+   "grupo": "error",
+   "texto": "No pude leer el PDF. Prueba con una captura del correo.",
+   "habla": "No pude leer el pe de efe. Prueba con una captura del correo.",
+   "archivo": "g02.mp3",
+   "generation_id": "EYB2HHSzkwuccgcIWPba"
+  },
+  {
+   "id": "G03",
+   "grupo": "error",
+   "texto": "No pude leer texto en esa imagen. Prueba con una captura más clara.",
+   "habla": "No pude leer texto en esa imagen. Prueba con una captura más clara.",
+   "archivo": "g03.mp3",
+   "generation_id": "liDIN1HJoLjCrVpScaqx"
+  },
+  {
+   "id": "G04",
+   "grupo": "error",
+   "texto": "No te escuché bien. Toca el botón y vuelve a intentarlo.",
+   "habla": "No te escuché bien. Toca el botón y vuelve a intentarlo.",
+   "archivo": "g04.mp3",
+   "generation_id": "BjlCn364v4uSNnPfKaoL"
+  },
+  {
+   "id": "G05",
+   "grupo": "error",
+   "texto": "Primero copia el correo o el enlace que te preocupa. Luego toca Pegar y revisar.",
+   "habla": "Primero copia el correo o el enlace que te preocupa. Luego toca Pegar y revisar.",
+   "archivo": "g05.mp3",
+   "generation_id": "utZoIdhh3jfgwD3eC1Iz"
+  },
+  {
+   "id": "G06",
+   "grupo": "error",
+   "texto": "Para que la IA lo revise, abre el correo, copia todo el texto y vuelve a tocar Revisar con la IA.",
+   "habla": "Para que la i a lo revise, abre el correo, copia todo el texto y vuelve a tocar Revisar con la i a.",
+   "archivo": "g06.mp3",
+   "generation_id": "yEUqNz4BiRgvWvLmUVKA"
+  },
+  {
+   "id": "G07",
+   "grupo": "error",
+   "texto": "No encontré texto suficiente en la imagen.",
+   "habla": "No encontré texto suficiente en la imagen.",
+   "archivo": "g07.mp3",
+   "generation_id": "xHoWn2qBVyWix3wGVMmM"
+  },
+  {
+   "id": "G08",
+   "grupo": "error",
+   "texto": "Esto parece un documento o un diagrama técnico, no un correo.",
+   "habla": "Esto parece un documento o un diagrama técnico, no un correo.",
+   "archivo": "g08.mp3",
+   "generation_id": "jWUIz7v3yQtMK90atDfz"
+  },
+  {
+   "id": "G09",
+   "grupo": "error",
+   "texto": "Esa imagen no parece un correo ni un mensaje.",
+   "habla": "Esa imagen no parece un correo ni un mensaje.",
+   "archivo": "g09.mp3",
+   "generation_id": "FVUg9JDhJG8MflquU6LF"
+  },
+  {
+   "id": "G10",
+   "grupo": "error",
+   "texto": "Toma una captura del correo completo y vuelve a intentarlo.",
+   "habla": "Toma una captura del correo completo y vuelve a intentarlo.",
+   "archivo": "g10.mp3",
+   "generation_id": "FlV6ZMKFE7cGcJLpFpvS"
+  },
+  {
+   "id": "G11",
+   "grupo": "error",
+   "texto": "Copia el texto del correo o el enlace que te preocupa.",
+   "habla": "Copia el texto del correo o el enlace que te preocupa.",
+   "archivo": "g11.mp3",
+   "generation_id": "oZ7WRGtY2zJHX4ZjWJGu"
+  },
+  {
+   "id": "G12",
+   "grupo": "error",
+   "texto": "No tengo permiso para usar el micrófono. Actívalo y vuelve a intentarlo.",
+   "habla": "No tengo permiso para usar el micrófono. Actívalo y vuelve a intentarlo.",
+   "archivo": "g12.mp3",
+   "generation_id": "BzYrL1nFOLM2grTh01Kl"
+  },
+  {
+   "id": "G13",
+   "grupo": "error",
+   "texto": "No te escuché. Habla un poco más fuerte y cerca del micrófono.",
+   "habla": "No te escuché. Habla un poco más fuerte y cerca del micrófono.",
+   "archivo": "g13.mp3",
+   "generation_id": "bqFNbeR0htm4NmtulB4o"
+  },
+  {
+   "id": "G14",
+   "grupo": "error",
+   "texto": "El micrófono tuvo un problema. Vuelve a intentarlo.",
+   "habla": "El micrófono tuvo un problema. Vuelve a intentarlo.",
+   "archivo": "g14.mp3",
+   "generation_id": "xS63MobaJKLC664igP2d"
+  },
+  {
+   "id": "G15",
+   "grupo": "error",
+   "texto": "Este celular no tiene activado el dictado por voz. Puedes pegar el correo en su lugar.",
+   "habla": "Este celular no tiene activado el dictado por voz. Puedes pegar el correo en su lugar.",
+   "archivo": "g15.mp3",
+   "generation_id": "Rfzx75wP65DaymBq7idL"
+  },
+  {
+   "id": "G16",
+   "grupo": "error",
+   "texto": "El micrófono no está disponible ahora. Puedes pegar el correo en su lugar.",
+   "habla": "El micrófono no está disponible ahora. Puedes pegar el correo en su lugar.",
+   "archivo": "g16.mp3",
+   "generation_id": "bYE5rwi8aAbUbfaPqNLZ"
+  },
+  {
+   "id": "H01",
+   "grupo": "conversacion",
+   "texto": "Tranquilo, actuemos rápido. Cambia tu clave en app.iess.gob.ec, llama a tu banco si diste tu tarjeta y avisa al IESS a seguridad.informacion@iess.gob.ec.",
+   "habla": "Tranquilo, actuemos rápido. Cambia tu clave en app punto I-es punto gob punto e-ce, llama a tu banco si diste tu tarjeta y avisa al I-es a seguridad punto información arroba I-es punto gob punto e-ce.",
+   "archivo": "h01.mp3",
+   "generation_id": "NidKRW8Ytml9P9GvBZs2"
+  },
+  {
+   "id": "H02",
+   "grupo": "conversacion",
+   "texto": "La página oficial es www.iess.gob.ec, y los trámites están en app.iess.gob.ec. Escríbela tú mismo en el navegador.",
+   "habla": "La página oficial es doble ve, doble ve, doble ve, punto I-es punto gob punto e-ce, y los trámites están en app punto I-es punto gob punto e-ce. Escríbela tú mismo en el navegador.",
+   "archivo": "h02.mp3",
+   "generation_id": "k8dSl4O4ssqriLyfCSxP"
+  },
+  {
+   "id": "H03",
+   "grupo": "conversacion",
+   "texto": "El WhatsApp del IESS es +593 9 62532338, y el teléfono es 593 2 3945666.",
+   "habla": "El WhatsApp del I-es es más cinco nueve tres, nueve, seis dos, cinco tres, dos tres, tres ocho, y el teléfono es cinco nueve tres, dos, tres nueve cuatro, cinco seis, seis seis.",
+   "archivo": "h03.mp3",
+   "generation_id": "cuR3fC7LgeyaNkzfmnzN"
+  },
+  {
+   "id": "H04",
+   "grupo": "conversacion",
+   "texto": "Reenvía el mensaje a seguridad.informacion@iess.gob.ec y no le respondas al estafador.",
+   "habla": "Reenvía el mensaje a seguridad punto información arroba I-es punto gob punto e-ce y no le respondas al estafador.",
+   "archivo": "h04.mp3",
+   "generation_id": "LfpjPunnvFmmPW6qTTNQ"
+  },
+  {
+   "id": "H05",
+   "grupo": "conversacion",
+   "texto": "El IESS nunca te va a pedir tu clave por mensaje. Si alguien te la pide, es una estafa.",
+   "habla": "El I-es nunca te va a pedir tu clave por mensaje. Si alguien te la pide, es una estafa.",
+   "archivo": "h05.mp3",
+   "generation_id": "E5T3B2iLVtEpE0URKzHF"
+  },
+  {
+   "id": "H06",
+   "grupo": "conversacion",
+   "texto": "Phishing es cuando alguien se hace pasar por el IESS para robarte tus claves o tu dinero. Cópiame el mensaje y lo reviso.",
+   "habla": "Phishing es cuando alguien se hace pasar por el I-es para robarte tus claves o tu dinero. Cópiame el mensaje y lo reviso.",
+   "archivo": "h06.mp3",
+   "generation_id": "Yqxre9FDf18h8gEQFFJr"
+  },
+  {
+   "id": "H07",
+   "grupo": "conversacion",
+   "texto": "Con gusto. Y recuerda: ante la duda, no hagas clic.",
+   "habla": "Con gusto. Y recuerda: ante la duda, no hagas clic.",
+   "archivo": "h07.mp3",
+   "generation_id": "5hkSB9pRPyfVPuznOIwE"
+  },
+  {
+   "id": "H08",
+   "grupo": "conversacion",
+   "texto": "Puedo revisar mensajes por ti. Copia el mensaje o el enlace y toca el botón. Si quieres practicar, dime: juguemos.",
+   "habla": "Puedo revisar mensajes por ti. Copia el mensaje o el enlace y toca el botón. Si quieres practicar, dime: juguemos.",
+   "archivo": "h08.mp3",
+   "generation_id": "3yVplRMnuC82vKmtH3Ih"
+  },
+  {
+   "id": "H09",
+   "grupo": "conversacion",
+   "texto": "Pega un correo y te digo si es una estafa.",
+   "habla": "Pega un correo y te digo si es una estafa.",
+   "archivo": "h09.mp3",
+   "generation_id": "Uz5Prrpzil6C3CUVlGwW"
+  },
+  {
+   "id": "I01",
+   "grupo": "practica",
+   "texto": "Lee este mensaje con calma. ¿Es una estafa o es seguro?",
+   "habla": "Lee este mensaje con calma. ¿Es una estafa o es seguro?",
+   "archivo": "i01.mp3",
+   "generation_id": "Eu8JHawjkY4VfAaSEw0E"
+  },
+  {
+   "id": "I02",
+   "grupo": "practica",
+   "texto": "¡Muy bien! Era una estafa.",
+   "habla": "¡Muy bien! Era una estafa.",
+   "archivo": "i02.mp3",
+   "generation_id": "XKjKeDBsV3JlM5ufbtyI"
+  },
+  {
+   "id": "I03",
+   "grupo": "practica",
+   "texto": "¡Muy bien! Era un mensaje seguro.",
+   "habla": "¡Muy bien! Era un mensaje seguro.",
+   "archivo": "i03.mp3",
+   "generation_id": "v0ihDACDgnZzUoAnUxvb"
+  },
+  {
+   "id": "I04",
+   "grupo": "practica",
+   "texto": "Cuidado, este sí era una estafa.",
+   "habla": "Cuidado, este sí era una estafa.",
+   "archivo": "i04.mp3",
+   "generation_id": "IGE3ya24zJiSs4MYoFwP"
+  },
+  {
+   "id": "I05",
+   "grupo": "practica",
+   "texto": "Este mensaje era seguro.",
+   "habla": "Este mensaje era seguro.",
+   "archivo": "i05.mp3",
+   "generation_id": "g5VNmp1mmBdzcpkKT3xK"
+  },
+  {
+   "id": "J00",
+   "grupo": "deepfake_aula",
+   "texto": "¿Sabes qué es un deepfake y cómo te puede afectar? Toca aquí y te cuento.",
+   "habla": "¿Sabes qué es un deepfake y cómo te puede afectar? Toca aquí y te cuento.",
+   "archivo": "j00.mp3",
+   "generation_id": "EyiFUri88koVJNYwLN3J"
+  },
+  {
+   "id": "J01",
+   "grupo": "deepfake_aula",
+   "texto": "Un deepfake es un audio, un video o una foto hechos con inteligencia artificial, para que parezca que alguien dijo o hizo algo que nunca hizo. Los estafadores los usan para hacerse pasar por tu familia, tu jefe o un funcionario del IESS, y pedirte dinero o datos. Vamos a practicar con cinco mensajes: ¿cuáles son reales? Recuerda: si una voz, un video o una foto te pide dinero, datos o un secreto con prisa, detente, cuelga y verifica tú por el canal oficial.",
+   "habla": "Un deepfake es un audio, un video o una foto hechos con inteligencia artificial, para que parezca que alguien dijo o hizo algo que nunca hizo. Los estafadores los usan para hacerse pasar por tu familia, tu jefe o un funcionario del I-es, y pedirte dinero o datos. Vamos a practicar con cinco mensajes: ¿cuáles son reales? Recuerda: si una voz, un video o una foto te pide dinero, datos o un secreto con prisa, detente, cuelga y verifica tú por el canal oficial.",
+   "archivo": "j01.mp3",
+   "generation_id": "GNn0mUIR8pyaLkqsHoBn"
+  },
+  {
+   "id": "J02",
+   "grupo": "deepfake_aula",
+   "texto": "Con los audios y videos que publicas en redes, la inteligencia artificial puede imitar la voz de un familiar. Te llaman o te mandan una nota de voz con una emergencia, y te piden dinero o un código. Busca las señales en este mensaje. Recuerda: si un familiar te pide dinero o códigos con prisa, cuelga y llámalo tú al número de siempre. Y acuerden en familia una palabra clave.",
+   "habla": "Con los audios y videos que publicas en redes, la inteligencia artificial puede imitar la voz de un familiar. Te llaman o te mandan una nota de voz con una emergencia, y te piden dinero o un código. Busca las señales en este mensaje. Recuerda: si un familiar te pide dinero o códigos con prisa, cuelga y llámalo tú al número de siempre. Y acuerden en familia una palabra clave.",
+   "archivo": "j02.mp3",
+   "generation_id": "XHRuEKSd64ebJc5AnLO9"
+  },
+  {
+   "id": "J03",
+   "grupo": "deepfake_aula",
+   "texto": "La inteligencia artificial puede poner la cara y la voz de una autoridad o de un famoso en un video que nunca grabó. Lo usan en redes para ofrecer bonos o inversiones, y quedarse con tus datos o tu dinero. Encuentra las señales. Recuerda: un video de una autoridad puede ser falso. Si ofrece dinero o pide datos, no hagas nada desde ahí: entra tú mismo a www.iess.gob.ec.",
+   "habla": "La inteligencia artificial puede poner la cara y la voz de una autoridad o de un famoso en un video que nunca grabó. Lo usan en redes para ofrecer bonos o inversiones, y quedarse con tus datos o tu dinero. Encuentra las señales. Recuerda: un video de una autoridad puede ser falso. Si ofrece dinero o pide datos, no hagas nada desde ahí: entra tú mismo a doble ve, doble ve, doble ve, punto I-es punto gob punto e-ce.",
+   "archivo": "j03.mp3",
+   "generation_id": "f7gYbFmYQdRDxh4L5Dl3"
+  },
+  {
+   "id": "J04",
+   "grupo": "deepfake_aula",
+   "texto": "También se puede falsificar a una persona en vivo, en una videollamada. Así se hacen pasar por jefes o gerentes para pedir pagos urgentes o claves. Encuentra las señales de esta llamada. Recuerda: si tu jefe te pide por videollamada un pago urgente o tu clave, corta y confírmalo por otro canal que ya conozcas.",
+   "habla": "También se puede falsificar a una persona en vivo, en una videollamada. Así se hacen pasar por jefes o gerentes para pedir pagos urgentes o claves. Encuentra las señales de esta llamada. Recuerda: si tu jefe te pide por videollamada un pago urgente o tu clave, corta y confírmalo por otro canal que ya conozcas.",
+   "archivo": "j04.mp3",
+   "generation_id": "CL1SCpDy0uBDTlfUntSP"
+  },
+  {
+   "id": "J05",
+   "grupo": "deepfake_aula",
+   "texto": "Con un video o una foto de tu cara y tu cédula, un estafador puede crear un deepfake tuyo para engañar a un banco o a tu familia. Por eso te los piden con la excusa de verificar tu identidad. Encuentra las señales. Recuerda: nunca envíes un video o una foto de tu cara con tu cédula a quien te lo pida por correo o mensaje.",
+   "habla": "Con un video o una foto de tu cara y tu cédula, un estafador puede crear un deepfake tuyo para engañar a un banco o a tu familia. Por eso te los piden con la excusa de verificar tu identidad. Encuentra las señales. Recuerda: nunca envíes un video o una foto de tu cara con tu cédula a quien te lo pida por correo o mensaje.",
+   "archivo": "j05.mp3",
+   "generation_id": "oE9n62tGn1HhjxHFYXbO"
+  },
+  {
+   "id": "K01",
+   "grupo": "tutorial",
+   "texto": "En la computadora. Paso uno: abre el correo que te parece raro, en Gmail, Outlook u otro. Paso dos: selecciona todo el texto; haz clic antes del remitente y arrastra hasta el final del correo. Paso tres: cópialo con Control C, o en Mac con Comando C, o con clic derecho y Copiar. Paso cuatro: vuelve a AIESS, haz clic en el cuadro del correo y pégalo con Control V, o en Mac con Comando V. Copia también el remitente y el asunto.",
+   "habla": "En la computadora. Paso uno: abre el correo que te parece raro, en Gmail, Outlook u otro. Paso dos: selecciona todo el texto; haz clic antes del remitente y arrastra hasta el final del correo. Paso tres: cópialo con Control C, o en Mac con Comando C, o con clic derecho y Copiar. Paso cuatro: vuelve a Ay-es, haz clic en el cuadro del correo y pégalo con Control V, o en Mac con Comando V. Copia también el remitente y el asunto.",
+   "archivo": "k01.mp3",
+   "generation_id": "AhiUal2PDkfpqTB0YHzP"
+  },
+  {
+   "id": "K02",
+   "grupo": "tutorial",
+   "texto": "En el celular. Paso uno: abre el correo en la aplicación de correo de tu celular. Paso dos: mantén el dedo sobre el texto hasta que se marque y toca Seleccionar todo. Paso tres: toca Copiar. Paso cuatro: vuelve a AIESS y toca Pegar y revisar. Copia también el remitente y el asunto.",
+   "habla": "En el celular. Paso uno: abre el correo en la aplicación de correo de tu celular. Paso dos: mantén el dedo sobre el texto hasta que se marque y toca Seleccionar todo. Paso tres: toca Copiar. Paso cuatro: vuelve a Ay-es y toca Pegar y revisar. Copia también el remitente y el asunto.",
+   "archivo": "k02.mp3",
+   "generation_id": "E9oGOr7QhgboHibPxX84"
+  },
+  {
+   "id": "K03",
+   "grupo": "tutorial",
+   "texto": "Como archivo. Paso uno: en Gmail, abre el correo, toca el menú de tres puntos y elige Descargar mensaje. Paso dos: en otros programas, busca Descargar o Guardar como en el menú del correo. Paso tres: en AIESS, toca Subir correo, o en el celular, Escanear o subir, y elige el archivo. Copia también el remitente y el asunto.",
+   "habla": "Como archivo. Paso uno: en Gmail, abre el correo, toca el menú de tres puntos y elige Descargar mensaje. Paso dos: en otros programas, busca Descargar o Guardar como en el menú del correo. Paso tres: en Ay-es, toca Subir correo, o en el celular, Escanear o subir, y elige el archivo. Copia también el remitente y el asunto.",
+   "archivo": "k03.mp3",
+   "generation_id": "CBvknGVNAWpVfuLeTjWI"
+  }
+ ],
+ "flow_id": "7ho0Jy9QeGZDjUOsJ5Fz"
+}

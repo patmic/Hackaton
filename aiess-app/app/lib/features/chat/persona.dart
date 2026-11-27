@@ -37,25 +37,25 @@ class Persona {
           'y avisa al IESS a ${c['seguridad_informacion']}.';
     }
     if (tiene(r'(pagina|sitio|web|oficial|tramite)')) {
-      return 'La página oficial es ${c['portal']}. Los trámites están en ${c['aplicaciones']}. Escríbela tú mismo.';
+      return 'La página oficial es ${c['portal']}, y los trámites están en ${c['aplicaciones']}. Escríbela tú mismo en el navegador.';
     }
     if (tiene(r'(whatsapp|telefono|numero|llamar)')) {
-      return 'El WhatsApp del IESS es ${c['whatsapp']} y el teléfono es ${c['atencion_telefono']}.';
+      return 'El WhatsApp del IESS es ${c['whatsapp']}, y el teléfono es ${c['atencion_telefono']}.';
     }
     if (tiene(r'(denunci|report|avisar)')) {
-      return 'Reenvía el mensaje a ${c['seguridad_informacion']}. No respondas al estafador.';
+      return 'Reenvía el mensaje a ${c['seguridad_informacion']} y no le respondas al estafador.';
     }
     if (tiene(r'(clave|contrasena)')) {
-      return 'El IESS nunca te pedirá tu clave por mensaje. Si alguien la pide, es una estafa.';
+      return 'El IESS nunca te va a pedir tu clave por mensaje. Si alguien te la pide, es una estafa.';
     }
     if (tiene(r'(phishing|estafa|que es)')) {
-      return 'Es cuando alguien finge ser el IESS para robarte claves o dinero. Cópiame el mensaje y lo reviso.';
+      return 'Phishing es cuando alguien se hace pasar por el IESS para robarte tus claves o tu dinero. Cópiame el mensaje y lo reviso.';
     }
     if (tiene(r'(gracias|chao|adios)'))
-      return 'Con gusto. Ante la duda, no hagas clic.';
+      return 'Con gusto. Y recuerda: ante la duda, no hagas clic.';
     if (tiene(r'(hola|buenas|quien eres)')) {
-      return 'Hola, soy $nombreMascota, tu robot guardián. Copia un mensaje sospechoso y toca el botón.';
+      return 'Hola, soy $nombreMascota. Copia el mensaje que te preocupa y toca el botón. Yo lo reviso.';
     }
-    return 'Puedo revisar mensajes por ti. Copia el mensaje o el enlace y toca el botón. Para practicar, dime: juguemos.';
+    return 'Puedo revisar mensajes por ti. Copia el mensaje o el enlace y toca el botón. Si quieres practicar, dime: juguemos.';
   }
 }

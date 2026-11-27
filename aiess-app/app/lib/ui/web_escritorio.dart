@@ -141,7 +141,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
           explicacion: texto,
           queHacer: r.valido
               ? 'La firma prueba que lo envió el IESS. Si quieres, la IA también revisa el texto (solo con tu permiso).'
-              : 'No abras sus enlaces ni entregues datos. Puedes avisar al IESS.',
+              : 'No abras sus enlaces ni entregues datos. Si quieres, avisa al IESS.',
           fuente: 'sello',
           selloEstado: 'valido',
         );
@@ -437,7 +437,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                 Center(
                                   child: Enfocable(
                                     etiqueta:
-                                        'AIess, el robot. Actívalo para escucharlo',
+                                        'Leo. Actívalo para escucharlo',
                                     alActivar: _hablarRobot,
                                     child: RobotGuardia(
                                       estado: _estado,
@@ -470,7 +470,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                   child: Semantics(
                                     header: true,
                                     child: Text(
-                                      'Tu robot guardián contra estafas',
+                                      'Leo, tu guía contra estafas',
                                       style: Letra.lexend(
                                         40,
                                         peso: FontWeight.w700,
@@ -663,7 +663,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                   : (
                                       Icons.check_circle_outline_rounded,
                                       _W.verde,
-                                      'Listo para revisar: pulsa «Revisar con AIess» o Ctrl + Enter.',
+                                      'Listo para revisar: pulsa «Revisar con Leo» o Ctrl + Enter.',
                                     );
                               return Semantics(
                                 liveRegion: true,
@@ -772,7 +772,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                         label: Text(
                                           _estado == EstadoRobot.analizando
                                               ? 'Revisando…'
-                                              : 'Revisar con AIess',
+                                              : 'Revisar con Leo',
                                         ),
                                       ),
                                     ),

@@ -43,14 +43,26 @@ class TutorialCopiar extends StatefulWidget {
 class _TutorialCopiarState extends State<TutorialCopiar> {
   late var _donde = widget.enComputadora ? _Donde.computadora : _Donde.celular;
 
-  void _escuchar() {
-    final pasos = [
-      for (final (i, p) in _donde.pasos.indexed) 'Paso ${i + 1}: $p',
-    ];
-    Voz.i.decir(
-      '${_donde.titulo}. ${pasos.join(' ')} Copia también el remitente y el asunto.',
-    );
-  }
+  /// Lo que Leo dice en cada caso (guion de Leo, audios K01–K03 en assets/voz).
+  static const _leo = {
+    _Donde.computadora:
+        'En la computadora. Paso uno: abre el correo que te parece raro, en Gmail, Outlook u otro. Paso dos: '
+        'selecciona todo el texto; haz clic antes del remitente y arrastra hasta el final del correo. Paso tres: '
+        'cópialo con Control C, o en Mac con Comando C, o con clic derecho y Copiar. Paso cuatro: vuelve a AIESS, '
+        'haz clic en el cuadro del correo y pégalo con Control V, o en Mac con Comando V. Copia también el remitente '
+        'y el asunto.',
+    _Donde.celular:
+        'En el celular. Paso uno: abre el correo en la aplicación de correo de tu celular. Paso dos: mantén el dedo '
+        'sobre el texto hasta que se marque y toca Seleccionar todo. Paso tres: toca Copiar. Paso cuatro: vuelve a '
+        'AIESS y toca Pegar y revisar. Copia también el remitente y el asunto.',
+    _Donde.archivo:
+        'Como archivo. Paso uno: en Gmail, abre el correo, toca el menú de tres puntos y elige Descargar mensaje. '
+        'Paso dos: en otros programas, busca Descargar o Guardar como en el menú del correo. Paso tres: en AIESS, '
+        'toca Subir correo, o en el celular, Escanear o subir, y elige el archivo. Copia también el remitente y el '
+        'asunto.',
+  };
+
+  void _escuchar() => Voz.i.decir(_leo[_donde]!);
 
   @override
   Widget build(BuildContext context) {

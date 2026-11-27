@@ -17,6 +17,34 @@ import 'tema.dart';
 /// Módulo del aula con las lecciones de deepfakes.
 const moduloDeepfakes = 'M15';
 
+/// Lo que Leo dice de cada lección del M15 (guion de Leo, audios J01–J05 en assets/voz).
+const _leccionLeo = {
+  'M15-A2-01':
+      'Un deepfake es un audio, un video o una foto hechos con inteligencia artificial, para que parezca que '
+      'alguien dijo o hizo algo que nunca hizo. Los estafadores los usan para hacerse pasar por tu familia, tu jefe '
+      'o un funcionario del IESS, y pedirte dinero o datos. Vamos a practicar con cinco mensajes: ¿cuáles son '
+      'reales? Recuerda: si una voz, un video o una foto te pide dinero, datos o un secreto con prisa, detente, '
+      'cuelga y verifica tú por el canal oficial.',
+  'M15-A1-01':
+      'Con los audios y videos que publicas en redes, la inteligencia artificial puede imitar la voz de un familiar. '
+      'Te llaman o te mandan una nota de voz con una emergencia, y te piden dinero o un código. Busca las señales en '
+      'este mensaje. Recuerda: si un familiar te pide dinero o códigos con prisa, cuelga y llámalo tú al número de '
+      'siempre. Y acuerden en familia una palabra clave.',
+  'M15-A1-02':
+      'La inteligencia artificial puede poner la cara y la voz de una autoridad o de un famoso en un video que nunca '
+      'grabó. Lo usan en redes para ofrecer bonos o inversiones, y quedarse con tus datos o tu dinero. Encuentra las '
+      'señales. Recuerda: un video de una autoridad puede ser falso. Si ofrece dinero o pide datos, no hagas nada '
+      'desde ahí: entra tú mismo a www.iess.gob.ec.',
+  'M15-A1-03':
+      'También se puede falsificar a una persona en vivo, en una videollamada. Así se hacen pasar por jefes o '
+      'gerentes para pedir pagos urgentes o claves. Encuentra las señales de esta llamada. Recuerda: si tu jefe te '
+      'pide por videollamada un pago urgente o tu clave, corta y confírmalo por otro canal que ya conozcas.',
+  'M15-A1-04':
+      'Con un video o una foto de tu cara y tu cédula, un estafador puede crear un deepfake tuyo para engañar a un '
+      'banco o a tu familia. Por eso te los piden con la excusa de verificar tu identidad. Encuentra las señales. '
+      'Recuerda: nunca envíes un video o una foto de tu cara con tu cédula a quien te lo pida por correo o mensaje.',
+};
+
 const _invitacion =
     '¿Sabes qué es un deepfake y cómo te puede afectar? Toca aquí y te cuento.';
 
@@ -31,8 +59,9 @@ class _GloboDeepfakeState extends ConsumerState<GloboDeepfake> {
   /// Sugerencia que se muestra. Null: todavía la invitación.
   int? _actual;
 
-  void _decir(Actividad a) =>
-      Voz.i.decir('${a.resumen} Recuerda: ${a.mensajeClave}');
+  void _decir(Actividad a) => Voz.i.decir(
+    _leccionLeo[a.id] ?? '${a.resumen} Recuerda: ${a.mensajeClave}',
+  );
 
   void _mostrar(List<Actividad> sugerencias, int i) {
     setState(() => _actual = i);
