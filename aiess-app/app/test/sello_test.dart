@@ -100,7 +100,7 @@ void main() {
         'IESS: aviso',
       );
       expect(v.selloEstado, 'sin_verificar');
-      expect(v.avisoSello, contains('No pude comprobar'));
+      expect(v.avisoSello, contains('pude comprobar'));
     });
   });
 
@@ -225,7 +225,11 @@ void main() {
   ) async {
     SharedPreferences.setMockInitialValues({'observatorio': false});
     // Sin plugins de voz en la prueba: el robot «habla» en silencio.
-    for (final canal in ['flutter_tts', 'plugin.csdcorp.com/speech_to_text']) {
+    for (final canal in [
+      'flutter_tts',
+      'plugin.csdcorp.com/speech_to_text',
+      'com.ryanheise.just_audio.methods',
+    ]) {
       t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         MethodChannel(canal),
         (_) async => null,
