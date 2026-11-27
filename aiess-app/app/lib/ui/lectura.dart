@@ -94,7 +94,7 @@ class Lectura extends ChangeNotifier {
   }
 }
 
-/// Controles «A−  A+  Lectura fácil». [claro] = sobre fondo oscuro (panel izquierdo de la web).
+/// Controles «letra más pequeña / más grande / Lectura fácil». [claro] = sobre fondo oscuro (panel izquierdo de la web).
 class ControlesLectura extends StatelessWidget {
   const ControlesLectura({super.key, this.claro = false});
   final bool claro;
@@ -129,10 +129,7 @@ class ControlesLectura extends StatelessWidget {
                 child: Semantics(
                   label: 'Letra más pequeña',
                   excludeSemantics: true,
-                  child: const Text(
-                    'A−',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
+                  child: const Icon(Icons.text_decrease_rounded, size: 24),
                 ),
               ),
             ),
@@ -145,10 +142,7 @@ class ControlesLectura extends StatelessWidget {
                   label:
                       'Letra más grande. Tamaño actual ${(l.escala * 100).round()} por ciento',
                   excludeSemantics: true,
-                  child: const Text(
-                    'A+',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                  ),
+                  child: const Icon(Icons.text_increase_rounded, size: 26),
                 ),
               ),
             ),

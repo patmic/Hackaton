@@ -129,7 +129,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
           indicios: const [],
           explicacion: texto,
           queHacer: r.valido
-              ? 'Puedes confiar en este correo. Si igual quieres, pega su texto y la IA lo revisa (con tu permiso).'
+              ? 'La firma prueba que lo envió el IESS. Si quieres, la IA también revisa el texto (solo con tu permiso).'
               : 'No abras sus enlaces ni entregues datos. Puedes avisar al IESS.',
           fuente: 'sello',
         );
@@ -139,6 +139,11 @@ class _WebEscritorioState extends State<WebEscritorio> {
       });
       _enfocarResultado();
       Voz.i.decir(texto);
+      // Firma válida: el correo es del IESS. Revisar el texto con la IA es opcional y SOLO con un «Sí».
+      if (!r.valido || !mounted) return;
+      if (await pedirConsentimientoIA(context, firmaValida: true)) {
+        await _analizarConIA(t);
+      }
       return;
     }
     if (t.length < 8) {
@@ -166,6 +171,12 @@ class _WebEscritorioState extends State<WebEscritorio> {
       );
       return;
     }
+    if (!mounted) return;
+    await _analizarConIA(t);
+  }
+
+  /// La IA revisa el texto (ya con el permiso de la persona).
+  Future<void> _analizarConIA(String t) async {
     if (!mounted) return;
     HapticFeedback.mediumImpact();
     setState(() {
