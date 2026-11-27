@@ -24,7 +24,9 @@ import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
 import 'tema.dart';
 import 'texto_vivo.dart';
 import 'animaciones_web.dart';
+import 'globo_deepfake.dart';
 import 'lectura.dart';
+import 'tutorial_copiar.dart';
 
 /// Colores de escritorio mapeados a los tokens compartidos de ThemeLight.
 class _W {
@@ -60,6 +62,9 @@ class _WebEscritorioState extends State<WebEscritorio> {
 
   /// Poka-yoke: el mismo correo no se vuelve a analizar (se repite el veredicto).
   String? _ultimoRevisado;
+
+  /// Pasos para copiar un correo, plegados al abrir.
+  bool _verTutorial = false;
 
   void _enfocarResultado() => WidgetsBinding.instance.addPostFrameCallback((_) {
     if (mounted && _v != null) _focoResultado.requestFocus();
@@ -456,6 +461,20 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                     ),
                                   ),
                                 ),
+                                const SizedBox(height: 8),
+                                // El globo de texto sale del robot: si quiere aprender más, sugerencias sobre
+                                // deepfakes que dice el robot.
+                                Aparecer(
+                                  orden: 1,
+                                  child: Center(
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxWidth: 560,
+                                      ),
+                                      child: const GloboDeepfake(),
+                                    ),
+                                  ),
+                                ),
                                 const SizedBox(height: 24),
 
                                 Aparecer(
@@ -683,6 +702,38 @@ class _WebEscritorioState extends State<WebEscritorio> {
                             },
                           ),
                         ),
+                        // Tutorial corto: cómo copiar el contenido de un correo para pegarlo aquí.
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton.icon(
+                            key: const ValueKey('boton-tutorial-copiar'),
+                            style: TextButton.styleFrom(
+                              minimumSize: const Size(48, 48),
+                              textStyle: const TextStyle(fontSize: 17),
+                            ),
+                            onPressed: () =>
+                                setState(() => _verTutorial = !_verTutorial),
+                            icon: Icon(
+                              _verTutorial
+                                  ? Icons.expand_less_rounded
+                                  : Icons.help_outline_rounded,
+                            ),
+                            label: Text(
+                              _verTutorial
+                                  ? 'Ocultar los pasos'
+                                  : '¿Cómo copio un correo? Mira los pasos',
+                            ),
+                          ),
+                        ),
+                        // Sin animaciones (reducir movimiento) se muestra directo: AnimatedSize no admite duración 0.
+                        if (sinMovimiento(context))
+                          _tutorial()
+                        else
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 260),
+                            alignment: Alignment.topCenter,
+                            child: _tutorial(),
+                          ),
                         const SizedBox(height: 16),
                         Aparecer(
                           orden: 3,
@@ -824,6 +875,13 @@ class _WebEscritorioState extends State<WebEscritorio> {
       ),
     );
   }
+
+  Widget _tutorial() => _verTutorial
+      ? const Padding(
+          padding: EdgeInsets.only(top: 4, bottom: 8),
+          child: TutorialCopiar(),
+        )
+      : const SizedBox(width: double.infinity);
 
   Widget _resultado() {
     if (_pasos.isNotEmpty) {

@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:aiess/features/sello/sello.dart';
+import 'package:aiess/ui/aula_virtual.dart';
 import 'package:aiess/ui/tema.dart';
 import 'package:aiess/ui/web_escritorio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -194,11 +196,17 @@ void main() {
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.reset);
     await t.pumpWidget(
-      MaterialApp(
-        theme: temaAIess(),
-        home: const MediaQuery(
-          data: MediaQueryData(size: Size(1366, 768), disableAnimations: true),
-          child: WebEscritorio(),
+      ProviderScope(
+        overrides: overridesAula,
+        child: MaterialApp(
+          theme: temaAIess(),
+          home: const MediaQuery(
+            data: MediaQueryData(
+              size: Size(1366, 768),
+              disableAnimations: true,
+            ),
+            child: WebEscritorio(),
+          ),
         ),
       ),
     );

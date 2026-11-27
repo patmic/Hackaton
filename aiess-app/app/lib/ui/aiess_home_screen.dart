@@ -14,8 +14,10 @@ import 'package:material_ui/material_ui.dart';
 import '../features/mascota/robot_guardia.dart';
 import 'package:capacitacion/src/presentation/widgets/marca_iess.dart';
 
+import 'globo_deepfake.dart';
 import 'tema.dart';
 import 'texto_vivo.dart';
+import 'tutorial_copiar.dart';
 
 /// Estado visual de la pantalla.
 enum EstadoHoja { listo, analizando, estafa, seguro }
@@ -186,13 +188,18 @@ class AiessHomeScreen extends StatelessWidget {
                     dur: dur,
                     resumen: resumen,
                   ),
+                  // Si quiere aprender más: sugerencias sobre deepfakes que dice el robot.
+                  if (estado == EstadoHoja.listo) ...[
+                    const SizedBox(height: 12),
+                    const GloboDeepfake(),
+                  ],
                   const Spacer(),
                   const SizedBox(height: 16),
                   AnimatedSwitcher(
                     duration: dur,
                     child: KeyedSubtree(
                       key: ValueKey(estado),
-                      child: _acciones(),
+                      child: _acciones(context),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -206,7 +213,7 @@ class AiessHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _acciones() {
+  Widget _acciones(BuildContext context) {
     switch (estado) {
       case EstadoHoja.analizando:
         // Escuchando: un botón grande para PARAR (callarse 4 s también termina y revisa).
@@ -312,6 +319,15 @@ class AiessHomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            const SizedBox(height: 4),
+            // Tutorial corto: cómo copiar el contenido de un correo para pegarlo.
+            TextButton.icon(
+              key: const ValueKey('boton-tutorial-copiar'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: () => mostrarTutorialCopiar(context),
+              icon: const Icon(Icons.help_outline_rounded),
+              label: const Text('¿Cómo copio un correo?'),
             ),
           ],
         );
