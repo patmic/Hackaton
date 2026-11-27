@@ -166,4 +166,33 @@ void main() {
       expect(guardado, isNot(contains('iess-pagos')));
     },
   );
+
+  test(
+    'un consejo de seguridad no es un indicio, pero una estafa con consejo sí se detecta',
+    () {
+      final legitimo = reglas(
+        'Estimado afiliado: su afiliación quedó registrada. El IESS nunca le pedirá su clave por correo. '
+        'Atentamente, IESS',
+      );
+      expect(legitimo.resumen, 'Phishing: NO · 0 indicios');
+      expect(
+        reglas(
+          'No comparta su contraseña con nadie. Atentamente, IESS',
+        ).phishing,
+        isFalse,
+      );
+      expect(
+        reglas(
+          'De no hacerlo, su cuenta será suspendida. Ingrese su clave aquí.',
+        ).indicios,
+        contains('I3'),
+      );
+      expect(
+        reglas(
+          'El IESS nunca le pedirá su clave, por eso ingrese su clave aquí: http://iess-pagos.net',
+        ).indicios,
+        contains('I3'),
+      );
+    },
+  );
 }

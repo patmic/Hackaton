@@ -333,8 +333,15 @@ String? motivoNoEsMensaje(String texto) {
   return esMensaje ? null : 'Esa imagen no parece un correo ni un mensaje.';
 }
 
+/// Frases de CONSEJO de seguridad («el IESS nunca le pedirá su clave», «no comparta su contraseña»): avisan
+/// del peligro, no lo piden. Se quitan antes de buscar indicios para no marcar como estafa a un correo legítimo.
+final _consejo = RegExp(
+  r'\b(nunca|jamas|no)\b[^.!?\n,;]{0,50}?\b(pedira|pediran|pediremos|solicitara|solicitaran|solicitaremos|'
+  r'comparta|compartas|entregue|entregues|revele|reveles)\b[^.!?\n,;]{0,40}',
+);
+
 Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
-  final t = plegar('${e.asunto} ${e.texto}');
+  final t = plegar('${e.asunto} ${e.texto}').replaceAll(_consejo, ' ');
   final ind = <String>{
     for (final MapEntry(key: k, value: re) in lexico.entries)
       if (re.hasMatch(t)) k,

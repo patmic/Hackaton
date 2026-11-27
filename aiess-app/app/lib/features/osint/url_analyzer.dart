@@ -202,6 +202,9 @@ List<String> _tokensHost(String host) {
   return toks;
 }
 
+final _verificadorSellos =
+    Uri.tryParse(const String.fromEnvironment('AIESS_SELLO'))?.host ?? '';
+
 AnalisisUrl analizarUrl(String url) {
   final c = Canales.i;
   final hs = <Hallazgo>[];
@@ -217,7 +220,10 @@ AnalisisUrl analizarUrl(String url) {
     );
     return AnalisisUrl(url, host, hs, false, false);
   }
-  final oficial = c.dominiosIess.any((d) => _coincide(host, d));
+  // El verificador oficial de sellos del IESS (SellaCorreo, configurado al compilar) también es oficial.
+  final oficial =
+      c.dominiosIess.any((d) => _coincide(host, d)) ||
+      (_verificadorSellos.isNotEmpty && host == _verificadorSellos);
   final confiable = oficial || c.confiables.any((d) => _coincide(host, d));
   final reg = dominioRegistrable(host);
   final tld = host.split('.').last;
