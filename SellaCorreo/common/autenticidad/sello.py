@@ -107,8 +107,10 @@ def _asterisco(draw: ImageDraw.ImageDraw, cx: float, cy: float, r: float, color)
             draw.ellipse([sx - ancho / 2, sy - ancho / 2, sx + ancho / 2, sy + ancho / 2], fill=color)
 
 
-def wax_seal_png(codigo: str, tipologia: str = "comunicacional", asteriscos: int = 1, size: int = SIZE) -> bytes:
-    """PNG cuadrado (transparente) del sello. `asteriscos` = opciones de «Hash de seguridad» integradas."""
+def wax_seal_png(codigo: str, tipologia: str = "comunicacional", asteriscos: int = 1, size: int = SIZE,
+                 saludo: str | None = None) -> bytes:
+    """PNG cuadrado (transparente) del sello. `asteriscos` = opciones de «Hash de seguridad» integradas.
+    `saludo` = palabra saludo del emisor: si se da, es lo único que va en el arco inferior."""
     n = max(0, min(int(asteriscos), MAX_ASTERISCOS))
     W = int(_u(300))
     canvas = Image.new("RGBA", (W, W), (0, 0, 0, 0))
@@ -162,7 +164,10 @@ def wax_seal_png(codigo: str, tipologia: str = "comunicacional", asteriscos: int
     texto = Image.new("RGBA", (W, W), (0, 0, 0, 0))
     _arc_text(texto, "★ VALIDAR CORREO ★", 93, True, _font(int(_u(11.5)), True), (24, 56, 2, 255), 2.4)
     tip = (tipologia or "").upper()[:14]
-    _arc_text(texto, f"SHA-256 · {tip}", 93, False, _font(int(_u(10)), True), (29, 66, 3, 255), 1.6)
+    abajo = f"SHA-256 · {tip}"
+    if saludo and saludo.strip():
+        abajo = " ".join(saludo.split()).upper()[:24]  # solo la palabra saludo, sin la taxonomía
+    _arc_text(texto, abajo, 93, False, _font(int(_u(10)), True), (29, 66, 3, 255), 1.6)
     canvas.alpha_composite(texto)
 
     # escudo central

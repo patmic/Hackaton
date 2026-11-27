@@ -255,7 +255,7 @@ def test_palabra_segura_oculta_si_se_altera_el_registro(staff, anon):
 
 def test_palabra_segura_requiere_longitud(staff):
     r = _genkey(staff, pol_palabra="1", palabra="ab")
-    assert r.status_code == 422 and "palabra segura" in r.text
+    assert r.status_code == 422 and "palabra saludo" in r.text
 
 
 def test_caducidad(staff, anon):
@@ -436,7 +436,7 @@ def test_sello_de_cera_con_asteriscos(staff, anon):
     from autenticidad.sello import wax_seal_png
     r = _genkey(staff, pol_palabra="1", palabra="girasol-azul", pol_caducidad="1", caducidad="7")
     assert 'data-asteriscos="4"' in r.text and "4 asteriscos" in r.text
-    assert "Correo del emisor, Asunto del correo, Palabra segura, Caducidad del enlace" in r.text
+    assert "Correo del emisor, Asunto del correo, Palabra saludo, Caducidad del enlace" in r.text
     token = _link(r.text).rsplit("/", 1)[1].split(".")[0]
     img = staff.get(f"/img/{token}.png")
     im = Image.open(io.BytesIO(img.content))
@@ -461,7 +461,7 @@ def test_sello_de_cera_con_asteriscos(staff, anon):
 def test_asteriscos_segun_opciones(staff):
     assert m.hash_options({"exige_asunto": 0}) == ["Correo del emisor"]
     assert m.hash_options({"exige_asunto": 1, "palabra_tag": "x", "expira_utc": "2030-01-01T00:00:00Z"}) == [
-        "Correo del emisor", "Asunto del correo", "Palabra segura", "Caducidad del enlace"]
+        "Correo del emisor", "Asunto del correo", "Palabra saludo", "Caducidad del enlace"]
     solo = _genkey(staff, pol_asunto="")  # mínimo: emisor + palabra segura (obligatoria)
     assert 'data-asteriscos="2"' in solo.text and "2 asteriscos:" in solo.text
 
@@ -530,3 +530,75 @@ def test_api_verificar_para_el_robot(staff, anon):
     assert d["enlace"].endswith(token_h)
     d = anon.get("/api/v1/asunto", params={"asunto": "IESS: su pensión será suspendida"}).json()
     assert d["sellado"] is False and d["motivo"] == "sin_sello"
+
+
+def test_genkey_sin_campo_asunto(staff):
+    """Al desmarcar «Asunto del correo» el navegador no envía el campo: el botón igual debe generar el sello."""
+    r = staff.post("/genkey", data={"csrf": _csrf(staff), "taxonomia": "comunicacional", "palabra": "IESS-KEY"})
+    assert r.status_code == 200 and "Sello generado" in r.text
+    sin_tax = staff.post("/genkey", data={"csrf": _csrf(staff), "palabra": "IESS-KEY"})
+    assert sin_tax.status_code == 422 and "Taxonomía no válida" in sin_tax.text and '"detail"' not in sin_tax.text
+
+
+def test_palabra_saludo_en_el_sello(staff):
+    """La imagen del sello lleva la palabra saludo en el arco inferior (cambia la imagen, no la zona del escudo)."""
+    import io
+    from PIL import Image, ImageChops
+    from autenticidad.sello import wax_seal_png
+    base = Image.open(io.BytesIO(wax_seal_png("ABCD-EFGH-12", "comunicacional", 2))).convert("RGBA")
+    con = Image.open(io.BytesIO(wax_seal_png("ABCD-EFGH-12", "comunicacional", 2, saludo="IESS-KEY"))).convert("RGBA")
+    caja = ImageChops.difference(base.convert("RGB"), con.convert("RGB")).getbbox()
+    assert caja and caja[1] > 280  # solo cambia el arco inferior
+    r1 = _genkey(staff, palabra="IESS-KEY")
+    r2 = _genkey(staff, palabra="HOLA-AMIGO")
+    t1, t2 = (_link(r.text).rsplit("/", 1)[1].split(".")[0] for r in (r1, r2))
+    assert staff.get(f"/img/{t1}.png").content != staff.get(f"/img/{t2}.png").content
+
+
+def test_palabra_saludo_del_destinatario(staff, anon):
+    """El destinatario valida su correo, escribe su palabra saludo y los próximos sellos para él la llevan."""
+    para = "afiliada.lopez@correo.test"
+    link1 = _link(_genkey(staff, para=para, palabra="PALABRA-FORM", asunto="Planilla de enero").text)
+    pagina = _verificar(anon, link1.replace(BASE, "")).text
+    assert "Elija su palabra saludo" in pagina and "data-saludo" in pagina
+    token1, h16 = link1.rsplit("/", 1)[1].split(".")
+    csrf = re.search(r'name="csrf" value="([0-9a-f]+)"', pagina).group(1)
+    assert para in pagina.replace("<strong>", "").replace("</strong>", "")  # el correo se muestra como confirmación
+    assert 'name="correo"' not in pagina  # ya no se vuelve a pedir
+    ok = anon.post(f"/checkin/{token1}.{h16}/saludo", data={"csrf": csrf, "palabra": "HOLA-MARIA"})
+    assert "Listo" in ok.text
+    token2 = _link(_genkey(staff, para=para, palabra="OTRA-PALABRA", asunto="Planilla de febrero").text).rsplit("/", 1)[1].split(".")[0]
+    conn = sqlite3.connect(TEST_ENV["SELLACORREO_DB_PATH"])
+    blob = conn.execute("SELECT palabra_cifrada FROM sellos WHERE token=?", (token2,)).fetchone()[0]
+    conn.close()
+    assert m.decrypt_word(token2, blob) == "HOLA-MARIA"  # la palabra elegida por el destinatario manda
+
+
+def test_sello_sin_destinatario_no_pide_palabra_saludo(staff, anon):
+    link = _link(_genkey(staff, asunto="Sin destinatario").text)
+    pagina = _verificar(anon, link.replace(BASE, "")).text
+    assert "Elija su palabra saludo" not in pagina
+
+
+def test_palabra_predeterminada_pide_cambio(staff, anon):
+    """Si el sello lleva la palabra predeterminada IESS-KEY, el validador pide cambiarla; con una propia, no."""
+    link = _link(_genkey(staff, asunto="Aviso predeterminado").text)
+    assert "predeterminada" in _verificar(anon, link.replace(BASE, "")).text
+    propia = _link(_genkey(staff, palabra="MI-PALABRA-2026", asunto="Aviso propio").text)
+    assert "predeterminada" not in _verificar(anon, propia.replace(BASE, "")).text
+
+
+def test_segundo_sello_no_pide_cambio_de_saludo(staff, anon):
+    """Tras elegir su palabra saludo, los sellos siguientes a ese destinatario no vuelven a pedirle el cambio."""
+    para = "afiliado.segundo@correo.test"
+    link1 = _link(_genkey(staff, para=para, palabra="IESS-KEY", asunto="Primer envío").text)
+    pagina1 = _verificar(anon, link1.replace(BASE, "")).text
+    assert "Elija su palabra saludo" in pagina1 and "predeterminada" in pagina1
+    token1, h16 = link1.rsplit("/", 1)[1].split(".")
+    csrf = re.search(r'name="csrf" value="([0-9a-f]+)"', pagina1).group(1)
+    ok = anon.post(f"/checkin/{token1}.{h16}/saludo", data={"csrf": csrf, "correo": para, "palabra": "HOLA-MARIA"})
+    assert "Listo" in ok.text
+    link2 = _link(_genkey(staff, para=para, palabra="IESS-KEY", asunto="Segundo envío").text)
+    pagina2 = _verificar(anon, link2.replace(BASE, "")).text
+    assert "Elija su palabra saludo" not in pagina2 and "predeterminada" not in pagina2
+    assert "Correo válido y seguro" in pagina2
