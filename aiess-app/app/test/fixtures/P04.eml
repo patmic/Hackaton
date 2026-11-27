@@ -1,0 +1,60 @@
+From: Equipo de cuentas de Microsoft
+ <account-security-noreply@accountprotection.microsoft.com>
+To: afiliado@correo.test
+Subject: =?utf-8?q?Informaci=C3=B3n?= de seguridad de la cuenta actualizada
+Date: Tue, 16 Sep 2025 12:05:00 -0500
+Message-ID: <knh63vykzhuhi7u71ndtn9ia@accountprotection.microsoft.com>
+Received: from mx1.gw.example by mx2.gateway.test with SMTP id 5hsmvjd54y;
+ Tue, 16 Sep 2025 12:04:45 -0500
+Received: from mx2.mail.example by mx3.gateway.test with SMTP id yr25s45g7i;
+ Tue, 16 Sep 2025 12:04:40 -0500
+Received: from mx3.gw.example by mx4.gateway.test with SMTP id a8upo0d009;
+ Tue, 16 Sep 2025 12:04:48 -0500
+Received: from mx4.gw.example by mx5.gateway.test with SMTP id mkthmxgu9z;
+ Tue, 16 Sep 2025 12:04:50 -0500
+Received: from mx5.relay-a.test by mx6.gateway.test with SMTP id vv7afvkhnd;
+ Tue, 16 Sep 2025 12:04:59 -0500
+X-Simulacion: Correo sintetico - Hackaton Codigo Confianza IESS 2026 - P04
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="===============2528711601226293414=="
+
+--===============2528711601226293414==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+Estimado usuario:
+
+Se inici=C3=B3 sesi=C3=B3n en su cuenta Microsoft desde un nuevo dispositivo.=
+ Si fue usted, no es necesario hacer nada.
+
+Este mensaje es informativo.
+
+Puede administrar sus opciones de seguridad en: https://account.microsoft.com=
+/activity
+
+Reciba un cordial saludo.
+
+El equipo de cuentas de Microsoft
+
+Este correo y sus anexos son confidenciales y est=C3=A1n dirigidos =C3=BAnica=
+mente a su destinatario.
+
+--===============2528711601226293414==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html><body style=3D'font-family:Arial,sans-serif;font-size:14px'><p>Estimado=
+ usuario:</p>
+<p>Se inici=C3=B3 sesi=C3=B3n en su cuenta Microsoft desde un nuevo dispositi=
+vo. Si fue usted, no es necesario hacer nada.</p>
+<p>Este mensaje es informativo.</p>
+<p>Puede administrar sus opciones de seguridad en: <a href=3D"https://account=
+.microsoft.com/activity">https://account.microsoft.com/activity</a></p>
+<p>Reciba un cordial saludo.</p>
+<p>El equipo de cuentas de Microsoft</p>
+<p>Este correo y sus anexos son confidenciales y est=C3=A1n dirigidos =C3=BAn=
+icamente a su destinatario.</p></body></html>
+
+--===============2528711601226293414==--
