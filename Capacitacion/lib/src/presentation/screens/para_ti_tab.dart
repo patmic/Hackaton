@@ -10,12 +10,16 @@ import '../widgets/responsivo.dart';
 import '../widgets/selector_rango.dart';
 import '../widgets/vista_async.dart';
 import 'capacitacion_screen.dart';
+import 'progreso_tab.dart' show TiraInsignias;
 import 'sesion_demo_screen.dart';
 
 /// Inicio del aula. Orden por importancia (una cosa a la vez):
 /// 1. Qué es esto y cuánto llevo  2. La acción principal  3. Qué hacer ahora  4. Ajustes opcionales.
 class ParaTiTab extends ConsumerWidget {
-  const ParaTiTab({super.key});
+  const ParaTiTab({super.key, this.onVerInsignias});
+
+  /// Lleva a «Mi avance», donde están todas las insignias.
+  final VoidCallback? onVerInsignias;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,6 +28,7 @@ class ParaTiTab extends ConsumerWidget {
     final capacitacion = ref.watch(capacitacionProvider).value;
     final recomendaciones = ref.watch(recomendacionesProvider);
     final progreso = ref.watch(progresoProvider).value;
+    final insignias = ref.watch(insigniasProvider).value;
     final total = ref.watch(actividadesDelPerfilProvider).value?.length ?? 0;
     final hechas = progreso?.completadas.length ?? 0;
     final textos = Theme.of(context).textTheme;
@@ -68,6 +73,11 @@ class ParaTiTab extends ConsumerWidget {
                 ],
               ),
             ),
+          ],
+          // Insignias ganadas: se ve lo logrado y dan ganas de seguir.
+          if (insignias != null) ...[
+            const SizedBox(height: 16),
+            TiraInsignias(resumen: insignias, onVerTodas: onVerInsignias),
           ],
           const SizedBox(height: 20),
 

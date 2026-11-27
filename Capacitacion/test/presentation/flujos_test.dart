@@ -4,6 +4,7 @@ import 'package:capacitacion/src/application/providers.dart';
 import 'package:capacitacion/src/data/actividad_repository.dart';
 import 'package:capacitacion/src/data/nucleo_api.dart';
 import 'package:capacitacion/src/data/progreso_repository.dart';
+import 'package:capacitacion/src/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -13,11 +14,14 @@ import '../helpers.dart';
 void main() {
   late MemoriaProgresoRepository progreso;
 
-  Future<void> abrirApp(WidgetTester tester) async {
+  Future<void> abrirApp(
+    WidgetTester tester, {
+    Progreso inicial = const Progreso(),
+  }) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.5;
     addTearDown(tester.view.reset);
-    progreso = MemoriaProgresoRepository();
+    progreso = MemoriaProgresoRepository(inicial);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -34,6 +38,37 @@ void main() {
     );
     await tester.pumpAndSettle();
   }
+
+  testWidgets('al ganar una insignia se avisa, se guarda y se ve en Progreso', (
+    tester,
+  ) async {
+    // Ya terminó una lección: al abrir el aula gana «Primer paso».
+    await abrirApp(
+      tester,
+      inicial: const Progreso().marcarCompletada('M1-A1-01'),
+    );
+    expect(find.text('¡Ganaste la insignia «Primer paso»!'), findsOneWidget);
+    expect((await progreso.cargar()).insignias, {Insignias.primerPaso});
+    expect(find.byKey(const ValueKey('tira-insignias')), findsOneWidget);
+
+    await tocar(tester, find.widgetWithText(SnackBarAction, 'Ver'));
+    expect(find.byKey(const ValueKey('seccion-insignias')), findsOneWidget);
+    expect(find.textContaining('Ganaste 1 de '), findsOneWidget);
+
+    // Tocar una insignia explica qué significa; una que falta, cómo ganarla.
+    await tocar(
+      tester,
+      find.byKey(const ValueKey('insignia-${Insignias.primerPaso}')),
+    );
+    expect(find.text('Empezaste a protegerte'), findsOneWidget);
+    await tocar(tester, find.text('Entendido'));
+    await tocar(
+      tester,
+      find.byKey(const ValueKey('insignia-${Insignias.meCapacito}')),
+    );
+    expect(find.textContaining('Toca «Quiero capacitarme»'), findsOneWidget);
+    expect(find.text('Llevas 0 de 1'), findsOneWidget);
+  });
 
   testWidgets('la alerta T2 para 65+ aparece solo al elegir ese rango', (
     tester,
