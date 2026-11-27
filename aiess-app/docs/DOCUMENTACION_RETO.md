@@ -16,7 +16,7 @@ con voz y con subtítulos si es phishing (Sí o No y cuántos indicios), por qu�
 | **Avatar que explica** (voz y subtítulos, lenguaje simple) | Robot guardián animado: habla con voz sintética del sistema (TTS) y el texto aparece en pantalla al ritmo de la voz; frases cortas, sin tecnicismos. Escucha por voz con subtítulos en vivo. | `lib/features/mascota/robot_guardia.dart`, `lib/features/voz/voz.dart`, `lib/ui/texto_vivo.dart` |
 | **IA local** (el modelo corre en el equipo; el correo no sale) | **En la PC:** `servidor/iniciar_windows.bat` arranca el modelo y la web en `http://localhost:8090` (solo escucha en la propia PC). **En el celular:** el modelo corre dentro del celular (llama.cpp); sin el modelo, deciden las reglas locales. El servidor es opcional, viene apagado y el APK de la demo no trae su clave. Antes de leer el correo se pide permiso y se dice **dónde** corre la IA. | `servidor/iniciar_windows.bat`, `lib/features/llm/llm.dart`, `lib/ui/consentimiento.dart` |
 | **Fuentes OSINT y CTI** (declaradas; solo dominio o URL) | 1) **Reglas locales** (dominios parecidos al IESS, acortadores, enlace que dice una cosa y lleva a otra, remitente gratuito, TLD de riesgo). 2) **RDAP** (rdap.org): edad del dominio; se envía **solo el dominio**. 3) **OpenPhish** (lista pública): se descarga y se compara **en el equipo**; no se envía nada. Declaradas en Ajustes y en la web. | `lib/features/osint/url_analyzer.dart`, `lib/features/osint/cti.dart` |
-| **Documentación** | Este archivo, `ARQUITECTURA.md` y las guías de `servidor/`. | `docs/` |
+| **Documentación** | Este archivo, `FICHA_TECNICA.md`, `ARQUITECTURA.md` y las guías de `servidor/`. | `docs/` |
 
 ## Rúbrica del jurado (100 pts): dónde se cumple
 
@@ -29,9 +29,9 @@ experiencia → evidencia.
 | **Funcionalidad (20)** · completa el flujo; la cantidad coincide con la lista | Sí/No según el catálogo (Sí con al menos un indicio). El resumen («Phishing: SÍ · 3 indicios»), lo que dice el avatar y la **lista completa** de indicios en pantalla salen de la misma lista. Al instante con reglas locales; el botón «Revisar con la IA local» da la lista del modelo afinado con el dataset. | `Veredicto.resumen`, `indiciosValidos`; tarjetas en `lib/ui/web_escritorio.dart` y `lib/ui/aiess_home_screen.dart` |
 | **Seguridad y datos (20)** · modelo local; solo dominio o URL sale; no abre enlaces ni adjuntos | Modelo LFM2 en la PC (`localhost`) o en el celular. A internet sale solo: el **dominio** (RDAP), la **huella SHA-256 del asunto** (consulta del sello, no el texto) y, al Observatorio, un **semáforo y códigos I1–I11** con un seudónimo al azar (se puede apagar). El panel **«Partes del correo»** muestra remitente, asunto, a dónde llevan de verdad los enlaces y los adjuntos **sin abrir nada**. | `lib/features/osint/cti.dart`, `Sello.huellaAsunto`, `lib/features/observatorio/observatorio.dart`, `lib/ui/partes_correo.dart` |
 | **Innovación (15)** · IA y fuentes útiles | Modelo pequeño afinado con el dataset del reto, corriendo en el equipo; **sello SellaCorreo** (firma Ed25519) que el robot verifica solo desde el aviso del celular; OSINT/CTI con RDAP y OpenPhish; Observatorio de comportamiento. | `ml/`, `SellaCorreo/`, `Analisis-de-comportamiento/` |
-| **Viabilidad (10)** · llega a un piloto | Funciona hoy en Android, web y PC; servidor en Docker detrás de Cloudflare (sin IP expuesta); el sello se integra al correo institucional sin cambiar el servidor de correo. | `servidor/LEEME_ORACLE.md`, `SellaCorreo/docker-compose.yml` |
+| **Viabilidad (10)** · llega a un piloto | Funciona hoy en Android, web y PC; servidor en Docker detrás de Cloudflare (sin IP expuesta); el sello se integra al correo institucional sin cambiar el servidor de correo. Ficha técnica con requisitos, plan de piloto de 3 meses, métricas y costo. | `docs/FICHA_TECNICA.md`, `servidor/LEEME_ORACLE.md`, `SellaCorreo/docker-compose.yml` |
 | **Experiencia (5)** · fácil para no técnicos | Un botón grande, voz y subtítulos, letra grande y «Lectura fácil» (dislexia), lector de pantalla, navegación con Tab, dictado con «Parar», sin tecnicismos. | `lib/ui/lectura.dart`, `lib/ui/animaciones_web.dart` |
-| **Evidencia (5)** · pruebas, fuentes y licencias | Prueba de oro con los 5 correos de práctica, 5 de 5 exactos (`test/correos_practica_test.dart`); pruebas de la rúbrica (`test/rubrica_test.dart`) y del sello; fuentes declaradas abajo; licencias en «IA declarada» y «Componentes». Métrica de las reglas frente al dataset en `ml/reports/eval_reglas.json`. | `test/`, `ml/reports/` |
+| **Evidencia (5)** · pruebas, fuentes y licencias | Prueba de oro con los 5 correos de práctica, 5 de 5 exactos (`test/correos_practica_test.dart`); pruebas de la rúbrica (`test/rubrica_test.dart`) y del sello; fuentes declaradas abajo; licencias de cada componente en «Fuentes y licencias». Métrica de las reglas frente al dataset en `ml/reports/eval_reglas.json`. | `test/`, `ml/reports/` |
 
 **Sello y veredicto.** El sello no reemplaza a los indicios: con **sello válido** el correo es del IESS
 («Phishing: NO · firma válida»); con **sello falso** es phishing y se suma el indicio que corresponde (I2 o I4);
@@ -62,6 +62,68 @@ La IA no decide sola: el veredicto y la lista de indicios salen siempre de las r
 | SellaCorreo | Creado (equipo) + adaptado | Sello Ed25519 del IESS; AIESS lo verifica por `/api/v1/verificar` |
 | Módulo Capacitación (aula virtual) | Creado (equipo) + adaptado | Microlecciones animadas, «Caza la señal», «¿Real o estafa?» |
 | Robot guardián, aviso tipo Truecaller, anonimizador, lector .eml, CTI, flujo de firma y consentimiento | **Creado** | Núcleo de AIESS |
+
+## Fuentes y licencias
+
+Regla del juego: declarar lo preexistente, adaptado o creado, **con fuente y licencia**. Las licencias marcadas
+con ✔ se comprobaron en su página oficial el 27-11-2026; las demás son las publicadas por cada proyecto en su
+repositorio.
+
+**Modelo, datos y fuentes de inteligencia**
+
+| Pieza | Tipo | Fuente | Licencia o términos |
+|---|---|---|---|
+| LFM2-1.2B (Liquid AI) | Preexistente | huggingface.co/LiquidAI/LFM2-1.2B | LFM Open License v1.0 ✔ |
+| Ajuste fino AIESS (LoRA sobre LFM2) | Adaptado | `aiess-app/ml/` | Hereda la LFM Open License v1.0 |
+| Dataset sintético del reto (1.000 correos, I1–I11) y correos P01–P05 | Preexistente (organizadores) | Material del Hackatón Código Confianza 2026 | Uso dentro del reto |
+| llama.cpp | Preexistente | github.com/ggml-org/llama.cpp (submódulo `third_party/llama.cpp`) | MIT |
+| RDAP (edad del dominio) | Preexistente, servicio público | rdap.org → registros RDAP (RFC 9082/9083) | Servicio público; solo se envía el dominio |
+| OpenPhish Community Feed | Preexistente, lista pública | openphish.com | Términos de OpenPhish ✔: gratis solo para uso personal, académico o de investigación independiente. **Un piloto en el IESS necesita su permiso por escrito o la licencia comercial** (ver ficha técnica) |
+| Canales oficiales del IESS | Preexistente | iess.gob.ec | Información pública |
+
+**App AIESS (Flutter)**
+
+| Componente | Tipo | Licencia |
+|---|---|---|
+| Flutter y Dart SDK | Preexistente | BSD-3-Clause |
+| flutter_riverpod | Preexistente | MIT ✔ |
+| material_ui | Preexistente | BSD-3-Clause ✔ |
+| flutter_tts (voz del robot) | Preexistente | MIT ✔ |
+| speech_to_text (dictado) | Preexistente | BSD-3-Clause ✔ |
+| file_picker | Preexistente | MIT ✔ |
+| google_mlkit_text_recognition | Preexistente | MIT ✔ (plugin); el SDK de ML Kit usa los términos de Google APIs |
+| http, crypto, shared_preferences, path_provider, url_launcher | Preexistente | BSD-3-Clause |
+| cupertino_icons | Preexistente | MIT |
+| Tesseract.js 5.1.1 (OCR en la web) | Preexistente | Apache-2.0 |
+| PDF.js 3.11.174 (`pdfjs-dist`, PDF en la web) | Preexistente | Apache-2.0 |
+| Fuentes Lexend y Atkinson Hyperlegible | Preexistente | SIL Open Font License 1.1 |
+| ThemeLight (`recursos/Boilerplate/ThemeLight`) | Adaptado (del equipo) | Del equipo |
+| Capacitación (`Capacitacion/`) | Creado (equipo) | Del equipo |
+| Robot guardián, motor de indicios, lector `.eml`, partes del correo, reporte simulado, anonimizador, CTI | Creado | Del equipo |
+
+**Servicios en Python (SellaCorreo, Capacitación, Observatorio)**
+
+| Componente | Tipo | Licencia |
+|---|---|---|
+| FastAPI | Preexistente | MIT |
+| Uvicorn | Preexistente | BSD-3-Clause |
+| Pydantic | Preexistente | MIT |
+| httpx | Preexistente | BSD-3-Clause |
+| cryptography (Ed25519) | Preexistente | Apache-2.0 o BSD-3-Clause |
+| Pillow | Preexistente | MIT-CMU (HPND) |
+| python-multipart | Preexistente | Apache-2.0 |
+| Fuentes DejaVu (sello en imagen) | Preexistente | Licencia de Bitstream Vera / DejaVu (`SellaCorreo/common/autenticidad/fonts/LICENSE-DejaVu.txt`) |
+| Observador de comportamiento (`Analisis-de-comportamiento/`) | Creado (equipo) | Solo biblioteca estándar de Python |
+
+**Entrenamiento del modelo (`aiess-app/ml/`, no va en la app)**
+
+| Componente | Licencia |
+|---|---|
+| PyTorch | BSD-3-Clause |
+| Transformers, PEFT, TRL, Datasets, Accelerate, safetensors (Hugging Face) | Apache-2.0 |
+| bitsandbytes | MIT |
+| SentencePiece | Apache-2.0 |
+| llama-cpp-python | MIT |
 
 ## Privacidad (por diseño)
 

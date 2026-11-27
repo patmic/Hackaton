@@ -1,0 +1,508 @@
+<title>Ficha técnica AIESS</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Mismo sistema visual que presentacion/index.html (ThemeGreen): oscuro, acento lima, paneles glass.
+   Layout: documento vertical de "diapositivas" apiladas; cada sección abre con kicker mono + título con acento. */
+:root{
+  --bg:#070807; --bg-2:#0b0d0a;
+  --ink:#f4f6f1; --ink-dim:#8b918a; --ink-faint:#4a4f49; --ink-soft:#dfe3dc;
+  --line:rgba(255,255,255,.10);
+  --lime:#9dff32; --lime-soft:#6fd21a; --on-lime:#0c1206;
+  --lime-a06:rgba(157,255,50,.06); --lime-a10:rgba(157,255,50,.10); --lime-a14:rgba(157,255,50,.14); --lime-a30:rgba(157,255,50,.30); --lime-a45:rgba(157,255,50,.45);
+  --blue:#4c8dff; --sky:#8ec6ea; --cyan:#4fd3e6;
+  --ok:#3ddc4a; --bad:#ff4d6d; --amber:#ffb020;
+  --ok-a:rgba(61,220,74,.12); --bad-a:rgba(255,77,109,.12); --amber-a:rgba(255,176,32,.12);
+  --surface-panel:rgba(10,12,9,.74); --surface-ghost:rgba(255,255,255,.03); --surface-sunken:rgba(0,0,0,.38);
+  --font:"Plus Jakarta Sans", ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", "Roboto Mono", Menlo, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{background:radial-gradient(70% 50% at 0% 0%,rgba(76,141,255,.10),transparent 60%),radial-gradient(60% 40% at 100% 30%,rgba(157,255,50,.05),transparent 60%),var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.55;letter-spacing:-.006em;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+em{font-style:normal;color:var(--lime)}
+code{font-family:var(--mono);font-size:.84em;color:var(--sky);background:var(--surface-sunken);padding:.05em .35em;border-radius:6px}
+svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.kicker{font:600 13px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--lime)}
+.h2{margin-top:10px;font:800 clamp(30px,4.2vw,46px)/1.04 var(--font);letter-spacing:-.035em}
+.sub{margin-top:12px;color:var(--ink-dim);font-size:clamp(16px,1.5vw,19px);line-height:1.5;max-width:62ch}
+.tech{font:600 12px var(--mono);color:var(--lime-soft);letter-spacing:.02em}
+.muted{color:var(--ink-dim)}
+.small{font-size:14.5px}
+
+/* ---------- Portada ---------- */
+.cover{padding-block:56px 40px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:48px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:6px 12px;font:500 13px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lime);border:1px solid rgba(157,255,50,.28);border-radius:999px;background:var(--lime-a06)}
+.cover h1{margin-top:20px;font:800 clamp(52px,8vw,96px)/.92 var(--font);letter-spacing:-.05em}
+.cover .lead{margin-top:20px;max-width:54ch;font-size:clamp(16px,1.4vw,19px);line-height:1.55;color:var(--ink-soft)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;font:600 15px/1 var(--font);background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.pill svg.i{color:var(--lime);font-size:16px}
+
+.ans{border-radius:26px;padding:24px 26px;display:grid;gap:14px;background:linear-gradient(160deg,rgba(255,77,109,.16),rgba(255,77,109,.03));border:1px solid rgba(255,77,109,.45)}
+.ans .lbl{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+.ans .big{font:800 clamp(44px,5vw,64px)/1 var(--font);letter-spacing:-.045em;color:var(--bad)}
+.bubble{display:flex;gap:14px;align-items:flex-start}
+.bubble .av{width:48px;height:48px;border-radius:16px;background:var(--lime-a14);color:var(--lime);display:grid;place-items:center;font-size:27px;flex:none}
+.bubble p{font-size:clamp(17px,1.6vw,20px);font-weight:700;line-height:1.3;letter-spacing:-.015em;color:var(--ink)}
+.sigs{display:flex;flex-wrap:wrap;gap:7px}
+.sigs span{padding:6px 11px;border-radius:999px;background:rgba(255,77,109,.14);border:1px solid rgba(255,77,109,.35);font-size:13.5px}
+.sigs span b{font-family:var(--mono);font-weight:600;margin-right:4px}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;padding-bottom:20px}
+.sc{padding:16px 14px;border-radius:16px;border:1px solid var(--lime-a14);background:var(--lime-a06);min-width:0}
+.sc svg.i{font-size:26px;color:var(--lime)}
+.sc b{display:block;margin-top:8px;font-size:16px;letter-spacing:-.01em}
+.sc span{display:block;font-size:13px;color:var(--ink-dim);margin-top:2px}
+
+/* ---------- Secciones ---------- */
+.sec{padding-block:56px;border-top:1px solid var(--line);display:grid;gap:28px}
+.sec header{display:grid}
+
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.tile{padding:22px;border-radius:22px;border:1px solid var(--line);background:var(--surface-panel);min-width:0}
+.tile .ic{font-size:34px;color:var(--lime)}
+.tile b{display:block;margin-top:12px;font-size:19px;letter-spacing:-.01em}
+.tile > span{display:block;margin-top:6px;color:var(--ink-dim);font-size:15px;line-height:1.5}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;counter-reset:n}
+.steps li{counter-increment:n;display:grid;gap:10px;justify-items:center;text-align:center;align-content:start;min-width:0}
+.steps .c{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;font-size:34px;color:var(--lime);background:#10140f;border:2px solid var(--lime);box-shadow:0 0 0 6px rgba(157,255,50,.10),0 0 30px rgba(157,255,50,.25)}
+.steps li::before{content:"0" counter(n);font:600 12px var(--mono);letter-spacing:.14em;color:var(--ink-faint)}
+.steps b{font-size:16px;line-height:1.25}
+.steps li > span:last-child{font-size:13.5px;color:var(--ink-dim);line-height:1.45}
+.rulebox{display:flex;gap:18px;align-items:flex-start;padding:20px 22px;border-radius:22px;border:1px solid var(--line);background:var(--surface-panel)}
+.rulebox .ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:26px;background:var(--lime-a10);color:var(--lime);flex:none}
+.rulebox b{display:block;font-size:19px;margin-bottom:4px}
+.rulebox span{color:var(--ink-dim);font-size:15.5px;line-height:1.5}
+
+.arch{display:grid;grid-template-columns:minmax(0,1.5fr) auto minmax(0,1fr);gap:20px;align-items:stretch}
+.pane{border:1px solid var(--line);border-radius:22px;padding:22px 24px;background:var(--surface-panel);display:grid;gap:12px;align-content:start;min-width:0}
+.pane.inside{border-color:var(--lime-a45);background:radial-gradient(100% 80% at 0% 0%,rgba(157,255,50,.08),transparent 60%),var(--surface-panel)}
+.pane .t{font:600 13px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}
+.node{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);min-width:0}
+.node .c{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:21px;background:var(--lime-a10);color:var(--lime);flex:none}
+.node b{display:block;font-size:15px}
+.node span{display:block;font-size:13px;color:var(--ink-dim)}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.down{text-align:center;color:var(--ink-faint);font-size:18px;line-height:1}
+.gate{display:grid;align-content:center;justify-items:center;gap:8px;text-align:center;width:130px}
+.gate .arrow{font-size:30px;color:var(--lime)}
+.gate p{font:600 12px var(--mono);letter-spacing:.06em;color:var(--ink-dim)}
+.out{padding:10px 0;border-bottom:1px solid var(--line);display:grid;gap:2px}
+.out:last-child{border-bottom:0}
+.out b{font-size:15px}
+.out span{font-size:13.5px;color:var(--ink-dim)}
+
+.catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.cat{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--surface-panel);font-size:15px;min-width:0}
+.cat b{font:600 14px var(--mono);color:var(--lime);min-width:2.6em}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:22px;background:var(--surface-panel)}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);background:rgba(255,255,255,.03)}
+td.code{font:600 12.5px var(--mono);color:var(--sky);white-space:nowrap}
+td.num{font:600 13px var(--mono);text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-soft)}
+.tag{display:inline-flex;font:600 12px var(--mono);padding:3px 9px;border-radius:999px;white-space:nowrap}
+.tag.bad{background:rgba(255,77,109,.14);border:1px solid rgba(255,77,109,.35);color:#ff9aac}
+.tag.dim{background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink-dim)}
+.tag.ok{background:var(--ok-a);border:1px solid rgba(61,220,74,.45);color:var(--ok)}
+
+.feeds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.feed{padding:22px;border-radius:22px;border:1px solid var(--line);background:var(--surface-panel);display:grid;gap:14px;align-content:start;min-width:0}
+.feed .hd{display:flex;align-items:center;gap:12px}
+.feed .hd .ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:var(--lime-a10);color:var(--lime);flex:none}
+.feed .hd b{font-size:20px;letter-spacing:-.01em;flex:1}
+.feed dl{margin:0;display:grid;gap:10px}
+.feed dt{font:600 11.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.feed dd{margin:2px 0 0;font-size:14.5px;color:var(--ink-soft)}
+.out-line{display:flex;gap:14px;align-items:center;padding:14px 18px;border-radius:18px;background:var(--ok-a);border:1px solid rgba(61,220,74,.45)}
+.out-line svg.i{font-size:24px;color:var(--ok)}
+.out-line b{color:var(--ok)}
+
+.gold{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.g{border-radius:20px;padding:16px;display:grid;gap:6px;min-width:0}
+.g.si{background:linear-gradient(160deg,rgba(255,77,109,.16),rgba(255,77,109,.03));border:1px solid rgba(255,77,109,.45)}
+.g.no{background:linear-gradient(160deg,rgba(61,220,74,.16),rgba(61,220,74,.03));border:1px solid rgba(61,220,74,.45)}
+.g .id{font:600 12px var(--mono);letter-spacing:.14em;color:var(--ink-dim)}
+.g .v{font:800 30px/1 var(--font);letter-spacing:-.03em}
+.g.si .v{color:var(--bad)} .g.no .v{color:var(--ok)}
+.g small{font:500 12px var(--mono);color:var(--ink-soft);overflow-wrap:anywhere}
+.bars{display:grid;gap:14px;padding:22px 24px;border-radius:22px;border:1px solid var(--line);background:var(--surface-panel)}
+.bar{display:grid;grid-template-columns:minmax(0,14rem) minmax(0,1fr) 3.6rem;gap:14px;align-items:center;font-size:15px}
+.track{height:8px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.fill{height:100%;background:var(--lime);border-radius:99px;box-shadow:0 0 10px rgba(157,255,50,.6)}
+.fill.low{background:var(--amber);box-shadow:0 0 10px rgba(255,176,32,.5)}
+.bar .v{font:600 15px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.sub2{font:600 13px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+
+.months{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.month{padding:22px;border-radius:22px;border:1px solid var(--line);background:var(--surface-panel);display:grid;gap:8px;align-content:start;min-width:0}
+.month .m{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}
+.month b{font-size:20px;letter-spacing:-.01em}
+.month span:last-child{color:var(--ink-dim);font-size:15px;line-height:1.5}
+ul.list{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+ul.list li{display:flex;gap:10px;align-items:flex-start;color:var(--ink-dim);font-size:15px;line-height:1.45}
+ul.list li svg.i{color:var(--lime);margin-top:3px}
+.warnbox{display:flex;gap:16px;align-items:flex-start;padding:18px 22px;border-radius:20px;background:var(--amber-a);border:1px solid rgba(255,176,32,.45)}
+.warnbox svg.i{font-size:26px;color:var(--amber)}
+.warnbox b{color:var(--amber)}
+.warnbox span{color:var(--ink-soft);font-size:15px;line-height:1.5}
+
+footer{border-top:1px solid var(--line);padding-block:28px 44px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+footer .slogan{font:800 clamp(24px,3vw,34px)/1 var(--font);letter-spacing:-.035em}
+footer .meta{font:500 13px var(--mono);color:var(--ink-dim)}
+
+@media (max-width:1000px){
+  .steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:28px}
+  .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:860px){
+  .cover{grid-template-columns:minmax(0,1fr);gap:32px;padding-top:36px}
+  .tiles,.feeds,.months{grid-template-columns:minmax(0,1fr)}
+  .arch{grid-template-columns:minmax(0,1fr)}
+  .gate{width:auto;grid-auto-flow:column;justify-content:start}
+  .gate .arrow{transform:rotate(90deg)}
+  .gold{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .sec{padding-block:40px}
+}
+@media (max-width:540px){
+  .steps,.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two{grid-template-columns:minmax(0,1fr)}
+  .gold{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bar{grid-template-columns:minmax(0,1fr) 3.6rem}
+  .bar .track{grid-column:1 / -1;grid-row:2}
+}
+@media print{
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sec{break-inside:avoid;padding-block:28px}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></symbol>
+  <symbol id="i-stamp" viewBox="0 0 24 24"><path d="M9 3h6l-1 7h-4zM5 14h14v3H5zM7 20h10M12 10v4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.6-4 3.8-6.5 7.5-6.5s6.9 2.5 7.5 6.5"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><path d="M3 21h18M5 21V9.5L12 4l7 5.5V21M9.5 21v-5h5v5M8.5 12h.01M12 12h.01M15.5 12h.01"/></symbol>
+  <symbol id="i-robot" viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="3.5"/><path d="M12 8V4.5"/><circle cx="12" cy="3.6" r="1"/><circle cx="9.5" cy="13" r="1.1"/><circle cx="14.5" cy="13" r="1.1"/><path d="M10 16.3h4M3 12v3.5M21 12v3.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.4 2.8 2.8L16.2 9.8"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.2h.01"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c0 1.6 2.7 3 6 3s6-1.4 6-3v-5M22 9v6"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16.5 6.5l2 2M14 9l2 2"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/></symbol>
+  <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="7" rx="1.5"/><rect x="4" y="13.5" width="16" height="7" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M6 20h12M5 8h14M5 8l-2.5 6a2.8 2.8 0 0 0 5 0zM19 8l-2.5 6a2.8 2.8 0 0 0 5 0z"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 11v2"/></symbol>
+</svg>
+
+<div class="wrap">
+
+<header class="cover">
+  <div>
+    <span class="eyebrow">Ficha técnica · Hackatón Código Confianza 2026</span>
+    <h1>AIESS, <em>el guardián</em> que lee por ti.</h1>
+    <p class="lead">Un robot que habla revisa el correo en tu propio equipo, te dice si es phishing y cuántos indicios encontró, te explica cada uno con voz y subtítulos, y te guía para reportarlo al IESS. El correo nunca sale del equipo.</p>
+    <div class="pills">
+      <span class="pill"><svg class="i"><use href="#i-phone"/></svg>Android</span>
+      <span class="pill"><svg class="i"><use href="#i-laptop"/></svg>Web y PC</span>
+      <span class="pill"><svg class="i"><use href="#i-lock"/></svg>IA local</span>
+      <span class="pill"><svg class="i"><use href="#i-stamp"/></svg>Sello del IESS</span>
+    </div>
+  </div>
+  <div class="ans" aria-label="Resultado real con el correo de práctica P01">
+    <span class="lbl">Resultado real · correo P01</span>
+    <span class="big">Phishing: SÍ</span>
+    <div class="bubble">
+      <span class="av"><svg class="i"><use href="#i-robot"/></svg></span>
+      <p>«Encontré 6 indicios de estafa. Primero: te pide tu clave o códigos, y eso nunca se comparte.»</p>
+    </div>
+    <div class="sigs">
+      <span><b>I3</b>Pide clave</span><span><b>I10</b>Pide pago</span><span><b>I2</b>Dominio falso</span>
+      <span><b>I4</b>Enlace oculto</span><span><b>I6</b>Premio</span><span><b>I7</b>Remitente</span>
+    </div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="sc"><svg class="i"><use href="#i-layers"/></svg><b>Android · Web · PC</b><span>Una sola app Flutter</span></div>
+  <div class="sc"><svg class="i"><use href="#i-robot"/></svg><b>LFM2-1.2B afinado</b><span>Corre en el equipo</span></div>
+  <div class="sc"><svg class="i"><use href="#i-list"/></svg><b>Catálogo I1–I11</b><span>Los 11 indicios del reto</span></div>
+  <div class="sc"><svg class="i"><use href="#i-globe"/></svg><b>Solo el dominio</b><span>Lo único que sale</span></div>
+  <div class="sc"><svg class="i"><use href="#i-check"/></svg><b>P01–P05: 5 de 5</b><span>Veredicto e indicios exactos</span></div>
+</div>
+
+<section class="sec">
+  <header><span class="kicker">01 · Problema</span><h2 class="h2">Un correo falso se ve <em>igual</em> que uno real.</h2>
+  <p class="sub">Los asegurados y colaboradores del IESS reciben correos que se hacen pasar por el Instituto para robar claves, datos o dinero. Quien no tiene perfil técnico no sabe qué revisar, qué le puede pasar ni dónde reportarlo.</p></header>
+  <div class="tiles">
+    <div class="tile"><svg class="i ic"><use href="#i-user"/></svg><b>Afiliados, jubilados y pensionistas</b><span>App Android o web con letra grande, voz, «Lectura fácil», lector de pantalla y dictado. Sin tecnicismos.</span></div>
+    <div class="tile"><svg class="i ic"><use href="#i-building"/></svg><b>Colaboradores del IESS</b><span>Web en la PC del puesto, con el modelo corriendo en la misma PC (<code>localhost</code>).</span></div>
+    <div class="tile"><svg class="i ic"><use href="#i-lock"/></svg><b>Seguridad de la Información</b><span>Recibe el reporte (simulado en la demo) y ve tendencias anónimas en el Observatorio.</span></div>
+  </div>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">02 · Flujo</span><h2 class="h2">Seis pasos, <em>sin abrir nada.</em></h2>
+  <p class="sub">Los seis pasos que pide el reto, en el mismo orden en que los hace la app.</p></header>
+  <ol class="steps">
+    <li><span class="c"><svg class="i"><use href="#i-mail"/></svg></span><b>Cargar el correo</b><span>.eml, PDF, captura con OCR, texto o dictado. Se lee en el equipo.</span></li>
+    <li><span class="c"><svg class="i"><use href="#i-eye"/></svg></span><b>Mostrar sus partes</b><span>Remitente, asunto, destino real de enlaces y adjuntos, como texto.</span></li>
+    <li><span class="c"><svg class="i"><use href="#i-search"/></svg></span><b>Detectar indicios</b><span>Reglas I1–I11, OSINT local, CTI pública e IA local.</span></li>
+    <li><span class="c"><svg class="i"><use href="#i-scale"/></svg></span><b>Veredicto</b><span>«Phishing: SÍ · N indicios» o «NO · 0». Un indicio basta.</span></li>
+    <li><span class="c"><svg class="i"><use href="#i-wave"/></svg></span><b>El robot explica</b><span>Voz y subtítulos: cada indicio, qué te pasaría y el deepfake.</span></li>
+    <li><span class="c"><svg class="i"><use href="#i-flag"/></svg></span><b>Reportar al IESS</b><span>Canales oficiales y caso <code>AIESS-AAAAMMDD-XXXX</code>.</span></li>
+  </ol>
+  <div class="rulebox"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><div><b>La IA no decide sola.</b><span>El veredicto y la lista de indicios salen siempre de las reglas del catálogo. El modelo solo agrega explicación cuando habla de los mismos indicios; si propone otros, se ignoran. Por eso la cantidad que dice el robot siempre coincide con la lista en pantalla.</span></div></div>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">03 · Arquitectura</span><h2 class="h2">Todo pasa <em>dentro</em> de tu equipo.</h2>
+  <p class="sub">La frontera de confianza es el celular o la PC de la persona. Hacia afuera solo viajan metadatos mínimos, y cada servicio recibe lo justo.</p></header>
+  <div class="arch">
+    <div class="pane inside">
+      <span class="t">Dentro del celular o la PC</span>
+      <div class="node"><span class="c"><svg class="i"><use href="#i-mail"/></svg></span><div><b>Lector .eml · PDF.js · OCR</b><span>ML Kit en Android, Tesseract.js en la web</span></div></div>
+      <div class="down" aria-hidden="true">↓</div>
+      <div class="two">
+        <div class="node"><span class="c"><svg class="i"><use href="#i-search"/></svg></span><div><b>Reglas + OSINT</b><span>Léxico, enlaces, remitente</span></div></div>
+        <div class="node"><span class="c"><svg class="i"><use href="#i-robot"/></svg></span><div><b>IA local LFM2</b><span>llama.cpp, sin GPU</span></div></div>
+      </div>
+      <div class="down" aria-hidden="true">↓</div>
+      <div class="node"><span class="c"><svg class="i"><use href="#i-wave"/></svg></span><div><b>Veredicto · robot · reporte simulado</b><span>Anonimizador antes de cualquier envío · borrado al terminar</span></div></div>
+    </div>
+    <div class="gate"><span class="arrow" aria-hidden="true">→</span><p>Nunca el texto del correo</p></div>
+    <div class="pane">
+      <span class="t">Internet</span>
+      <div class="out"><b>rdap.org</b><span>El dominio, para saber su edad</span></div>
+      <div class="out"><b>OpenPhish</b><span>Nada: la lista se descarga y se compara aquí</span></div>
+      <div class="out"><b>SellaCorreo</b><span>El enlace del sello o la huella SHA-256 del asunto</span></div>
+      <div class="out"><b>Observatorio</b><span>Semáforo y códigos I1–I11 con seudónimo. Se apaga en Ajustes</span></div>
+    </div>
+  </div>
+  <p class="muted small">Sin conexión la app sigue funcionando: reglas, OSINT local e IA local no necesitan red. Solo se pierden la edad del dominio y la lista de OpenPhish.</p>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">04 · Catálogo</span><h2 class="h2">Los <em>11 indicios</em> del reto.</h2>
+  <p class="sub">I1, I3, I5, I6, I8, I9, I10 e I11 salen del léxico del texto. I2, I4 e I7 salen del análisis OSINT de enlaces y remitente, y de la CTI.</p></header>
+  <div class="catalog">
+    <div class="cat"><b>I1</b>Urgencia artificial</div>
+    <div class="cat"><b>I2</b>Enlace a dominio no oficial</div>
+    <div class="cat"><b>I3</b>Pide claves, códigos o tarjeta</div>
+    <div class="cat"><b>I4</b>Enlace acortado u oculto</div>
+    <div class="cat"><b>I5</b>Adjunto o instalación sospechosa</div>
+    <div class="cat"><b>I6</b>Premio, bono o reembolso inesperado</div>
+    <div class="cat"><b>I7</b>Remitente no oficial</div>
+    <div class="cat"><b>I8</b>Amenaza o pérdida de beneficio</div>
+    <div class="cat"><b>I9</b>Pide datos personales o documentos</div>
+    <div class="cat"><b>I10</b>Pide pago o transferencia</div>
+    <div class="cat"><b>I11</b>Código QR a un sitio no verificable</div>
+  </div>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">05 · OSINT local</span><h2 class="h2">Revisa cada enlace <em>sin visitarlo.</em></h2>
+  <p class="sub">Se parte la URL, se obtiene el dominio registrable (con sufijos como <code>gob.ec</code> y <code>com.ec</code>) y se compara con los dominios oficiales del IESS, entidades conocidas, acortadores, alojamientos gratuitos y terminaciones de riesgo. Son las mismas reglas con las que se entrenó el modelo.</p>
+  <p class="tech" style="margin-top:10px">ml/aiess_ml/osint_rules.py ↔ app/lib/features/osint/url_analyzer.dart</p></header>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Señal</th><th>Qué detecta</th><th>Indicio</th><th style="text-align:right">Peso</th></tr></thead>
+      <tbody>
+        <tr><td class="code">Enlace engañoso</td><td>El texto del enlace muestra un sitio y el destino real es otro</td><td><span class="tag bad">I4</span></td><td class="num">60</td></tr>
+        <tr><td class="code">TYPOSQUATTING</td><td>Imita una marca con letras cambiadas (distancia Damerau-Levenshtein + homoglifos como <code>rn→m</code> y <code>0→o</code>)</td><td><span class="tag bad">I2</span></td><td class="num">40</td></tr>
+        <tr><td class="code">Remitente</td><td>Correo gratuito (Gmail, Hotmail…) o dominio no oficial que dice ser del IESS</td><td><span class="tag bad">I7</span></td><td class="num">40</td></tr>
+        <tr><td class="code">USUARIO_EN_URL</td><td>Destino real escondido detrás de una <code>@</code></td><td><span class="tag bad">I4</span></td><td class="num">35</td></tr>
+        <tr><td class="code">ACORTADOR</td><td>bit.ly y similares: ocultan a dónde llevan</td><td><span class="tag bad">I4</span></td><td class="num">35</td></tr>
+        <tr><td class="code">IP_DIRECTA</td><td>Apunta a una dirección IP en lugar de un dominio</td><td><span class="tag bad">I2</span></td><td class="num">35</td></tr>
+        <tr><td class="code">SUBDOMINIO_ENGANOSO</td><td><code>iess.gob.ec.sitio-falso.com</code>: pone el dominio oficial al inicio</td><td><span class="tag bad">I2</span></td><td class="num">35</td></tr>
+        <tr><td class="code">PUNYCODE</td><td>Caracteres especiales (<code>xn--</code>) para imitar otro dominio</td><td><span class="tag bad">I2</span></td><td class="num">30</td></tr>
+        <tr><td class="code">DOMINIO_NO_OFICIAL</td><td>No es del IESS ni de una entidad conocida</td><td><span class="tag bad">I2</span></td><td class="num">30</td></tr>
+        <tr><td class="code">SUPLANTA_MARCA</td><td>Usa el nombre de una marca conocida sin ser su sitio</td><td><span class="tag bad">I2</span></td><td class="num">25</td></tr>
+        <tr><td class="code">ALOJAMIENTO_GENERICO</td><td>Sitio en un servicio gratuito que cualquiera puede usar</td><td><span class="tag bad">I2</span></td><td class="num">25</td></tr>
+        <tr><td class="code">TLD_RIESGOSO</td><td>Terminaciones frecuentes en estafas (<code>.xyz</code>, <code>.top</code>…)</td><td><span class="tag dim">apoyo</span></td><td class="num">20</td></tr>
+        <tr><td class="code">SIN_HTTPS</td><td>Enlace sin cifrado</td><td><span class="tag dim">apoyo</span></td><td class="num">15</td></tr>
+        <tr><td class="code">RUTA_SENSIBLE</td><td>La ruta pide verificar, actualizar, pagar o ingresar clave</td><td><span class="tag dim">apoyo</span></td><td class="num">10</td></tr>
+        <tr><td class="code">MUCHOS_SUBDOMINIOS</td><td>Cuatro o más niveles de subdominio</td><td><span class="tag dim">apoyo</span></td><td class="num">10</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">Un enlace que suma 30 puntos o más, o que es engañoso, cuenta como enlace riesgoso. Las señales de «apoyo» suben el riesgo, pero por sí solas no son indicios del catálogo.</p>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">06 · CTI pública</span><h2 class="h2">Inteligencia de amenazas, <em>declarada y mínima.</em></h2>
+  <p class="sub">Solo se consultan los enlaces no oficiales del correo, hasta 3. Si una fuente no responde en 5 o 6 segundos, el análisis sigue con las reglas locales. Las fuentes se declaran a la persona en Ajustes y en la web.</p>
+  <p class="tech" style="margin-top:10px">app/lib/features/osint/cti.dart</p></header>
+  <div class="feeds">
+    <div class="feed">
+      <div class="hd"><span class="ic"><svg class="i"><use href="#i-clock"/></svg></span><b>RDAP</b><span class="tag ok">activo</span></div>
+      <dl>
+        <div><dt>Qué aporta</dt><dd>Fecha de registro del dominio</dd></div>
+        <div><dt>Qué sale</dt><dd>Solo el dominio registrable, por HTTPS a <code>rdap.org</code></dd></div>
+        <div><dt>Regla</dt><dd>Creado hace 30 días o menos → <span class="tag bad">I2</span></dd></div>
+      </dl>
+    </div>
+    <div class="feed">
+      <div class="hd"><span class="ic"><svg class="i"><use href="#i-alert"/></svg></span><b>OpenPhish</b><span class="tag ok">activo</span></div>
+      <dl>
+        <div><dt>Qué aporta</dt><dd>Lista pública de sitios de phishing activos</dd></div>
+        <div><dt>Qué sale</dt><dd>Nada: la lista se descarga (caché de 1 hora) y se compara en el equipo</dd></div>
+        <div><dt>Regla</dt><dd>URL o dominio en la lista → <span class="tag bad">I2</span> con riesgo máximo</dd></div>
+      </dl>
+    </div>
+    <div class="feed">
+      <div class="hd"><span class="ic"><svg class="i"><use href="#i-stamp"/></svg></span><b>Sello del IESS</b><span class="tag ok">activo</span></div>
+      <dl>
+        <div><dt>Qué aporta</dt><dd>Firma Ed25519 de SellaCorreo: prueba que el correo lo emitió el IESS</dd></div>
+        <div><dt>Qué sale</dt><dd>El enlace del sello o la huella SHA-256 del asunto, nunca su texto</dd></div>
+        <div><dt>Regla</dt><dd>Válido → NO · falso → SÍ + <span class="tag bad">I2</span> <span class="tag bad">I4</span> · sin sello → deciden los indicios</dd></div>
+      </dl>
+    </div>
+  </div>
+  <div class="out-line"><svg class="i"><use href="#i-check"/></svg><span>Cada resultado muestra <b>«Lo que salió del equipo»</b>, armado con lo que de verdad se consultó. Por ejemplo: «solo el dominio x a RDAP. El correo no salió».</span></div>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">07 · IA declarada</span><h2 class="h2">Un modelo pequeño, <em>afinado</em> para el reto.</h2></header>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Pieza</th><th>Tipo</th><th>Detalle</th></tr></thead>
+      <tbody>
+        <tr><td><b>LFM2-1.2B</b> (Liquid AI)</td><td><span class="tag dim">Preexistente</span></td><td>Cuantizado a GGUF Q4_K_M (~730 MB), corre en CPU. LFM Open License v1.0</td></tr>
+        <tr><td><b>Ajuste fino AIESS</b></td><td><span class="tag dim">Adaptado</span></td><td>LoRA/QLoRA con el dataset sintético del reto (1.000 correos) y casos simulados. Responde JSON con veredicto, indicios y explicación</td></tr>
+        <tr><td><b>llama.cpp</b></td><td><span class="tag dim">Preexistente</span></td><td>Ejecuta el modelo en la PC (<code>llama-server</code>) y en Android (JNI). MIT</td></tr>
+        <tr><td><b>Reglas de indicios y OSINT</b></td><td><span class="tag ok">Creado</span></td><td>Deciden el veredicto y la lista. Espejo exacto entre Python (entrenamiento) y Dart (app)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">08 · Seguridad y datos</span><h2 class="h2">Cada control, <em>con su marco.</em></h2></header>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Control</th><th>Cómo se cumple</th><th>Marco</th></tr></thead>
+      <tbody>
+        <tr><td><b>Minimización de datos</b></td><td>El correo no sale del equipo; a internet va solo el dominio o una huella</td><td class="code">LOPDP · ISO 27001 A.5.34</td></tr>
+        <tr><td><b>No tocar contenido malicioso</b></td><td>No se visitan enlaces ni se abren adjuntos; los enlaces se muestran como texto</td><td class="code">ISO 27001 A.8.7</td></tr>
+        <tr><td><b>IA local por defecto</b></td><td>En Android el servidor remoto viene apagado y es opcional; en la PC el modelo escucha solo en <code>localhost</code></td><td class="code">LOPDP · ISO/IEC 42001</td></tr>
+        <tr><td><b>Cifrado en tránsito</b></td><td>Android solo permite HTTPS; HTTP plano únicamente hacia el propio equipo</td><td class="code">OWASP MASVS-NETWORK</td></tr>
+        <tr><td><b>Consentimiento</b></td><td>Antes de leer el correo se pide permiso y se dice dónde corre la IA</td><td class="code">LOPDP</td></tr>
+        <tr><td><b>Anonimización y borrado</b></td><td>Cédula, RUC, teléfono, tarjeta, cuenta y correo se quitan antes de cualquier envío; el texto se borra al terminar</td><td class="code">LOPDP · ISO 27701</td></tr>
+        <tr><td><b>Reporte simulado</b></td><td>Caso con indicios, dominio y asunto, sin datos personales; en el equipo queda solo hora, caso y huella</td><td class="code">Reglas del reto</td></tr>
+        <tr><td><b>Integridad del emisor</b></td><td>Sello Ed25519 con <code>kid</code> y bitácora encadenada en SellaCorreo</td><td class="code">ISO 27001 A.8.24 · A.8.15</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">09 · Resultados</span><h2 class="h2">Evidencia <em>medida</em>, no estimada.</h2></header>
+  <span class="sub2">Prueba de oro · correos de práctica del reto</span>
+  <div class="gold">
+    <div class="g si"><span class="id">P01</span><span class="v">SÍ · 6</span><small>I2 I3 I4 I6 I7 I10</small></div>
+    <div class="g no"><span class="id">P02</span><span class="v">NO · 0</span><small>sin indicios</small></div>
+    <div class="g si"><span class="id">P03</span><span class="v">SÍ · 1</span><small>I2</small></div>
+    <div class="g no"><span class="id">P04</span><span class="v">NO · 0</span><small>sin indicios</small></div>
+    <div class="g si"><span class="id">P05</span><span class="v">SÍ · 3</span><small>I7 I9 I11</small></div>
+  </div>
+  <p class="muted small">Veredicto y conjunto exacto de indicios iguales a la clave en los 5 casos. <span class="tech">test/correos_practica_test.dart</span></p>
+  <span class="sub2">Reglas frente a 100 correos del dataset</span>
+  <div class="bars" role="list">
+    <div class="bar" role="listitem"><span>Exactitud del veredicto</span><div class="track"><div class="fill" style="width:90%"></div></div><span class="v">0,90</span></div>
+    <div class="bar" role="listitem"><span>Recall de phishing</span><div class="track"><div class="fill" style="width:98%"></div></div><span class="v">0,98</span></div>
+    <div class="bar" role="listitem"><span>Precisión de phishing</span><div class="track"><div class="fill" style="width:84.5%"></div></div><span class="v">0,85</span></div>
+    <div class="bar" role="listitem"><span>Precisión de indicios</span><div class="track"><div class="fill" style="width:82.1%"></div></div><span class="v">0,82</span></div>
+    <div class="bar" role="listitem"><span>Recall de indicios</span><div class="track"><div class="fill low" style="width:52.9%"></div></div><span class="v">0,53</span></div>
+  </div>
+  <p class="muted small">Fuente: <span class="tech">ml/reports/eval_reglas.json</span>. El recall de indicios es lo que se mejorará en el piloto con casos reales. También hay pruebas de accesibilidad (botones de 48 dp, contraste, letra grande), del sello, del lector .eml, de la CTI y del anonimizador.</p>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">10 · Requisitos</span><h2 class="h2">Lo que hace falta <em>para correrlo hoy.</em></h2></header>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Pieza</th><th>Requisito</th></tr></thead>
+      <tbody>
+        <tr><td><b>App Android</b></td><td>Android 8 o superior, 64 bits (arm64), ~1 GB libre para el modelo</td></tr>
+        <tr><td><b>PC (web + IA local)</b></td><td>Windows 10/11, 8 GB de RAM, CPU x64. <code>servidor\iniciar_windows.bat</code> abre <code>http://localhost:8090</code></td></tr>
+        <tr><td><b>Modelo</b></td><td>GGUF Q4_K_M de ~730 MB; corre en CPU, sin GPU</td></tr>
+        <tr><td><b>SellaCorreo y Observatorio</b></td><td>Docker en una VM pequeña (probado en Oracle Cloud Always Free, ARM 4 OCPU / 24 GB) detrás de Cloudflare Tunnel</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">11 · Viabilidad</span><h2 class="h2">De la demo <em>al piloto</em> en tres meses.</h2></header>
+  <div class="months">
+    <div class="month"><span class="m">Mes 1</span><b>Preparar</b><span>Seguridad de la Información revisa el código y la evaluación de impacto (LOPDP). El reporte simulado se conecta a un buzón real de pruebas. Se resuelve la licencia de OpenPhish.</span></div>
+    <div class="month"><span class="m">Mes 2</span><b>Piloto cerrado</b><span>Unos 100 colaboradores y 100 jubilados voluntarios. El IESS empieza a sellar con SellaCorreo una tipología de correos, por ejemplo los avisos de pensión.</span></div>
+    <div class="month"><span class="m">Mes 3</span><b>Medir y decidir</b><span>Ajuste del léxico y del modelo con los casos reportados. Decisión de ampliar a más usuarios y tipologías.</span></div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><svg class="i ic"><use href="#i-list"/></svg><b>Métricas del piloto</b>
+      <ul class="list">
+        <li><svg class="i"><use href="#i-check"/></svg>Correos sospechosos reportados</li>
+        <li><svg class="i"><use href="#i-check"/></svg>Clics en simulacros éticos, antes y después</li>
+        <li><svg class="i"><use href="#i-check"/></svg>Falsos positivos que marcan los usuarios</li>
+        <li><svg class="i"><use href="#i-check"/></svg>Tiempo hasta el reporte</li>
+      </ul></div>
+    <div class="tile"><svg class="i ic"><use href="#i-server"/></svg><b>Costo estimado</b>
+      <ul class="list">
+        <li><svg class="i"><use href="#i-check"/></svg>IA: 0 por consulta, corre en el equipo del usuario</li>
+        <li><svg class="i"><use href="#i-check"/></svg>Servidor: una VM pequeña o nube gratuita</li>
+        <li><svg class="i"><use href="#i-check"/></svg>Software: código abierto, licencias declaradas</li>
+        <li><svg class="i"><use href="#i-check"/></svg>Personas: quien administre el sello y atienda los reportes</li>
+      </ul></div>
+    <div class="tile"><svg class="i ic"><use href="#i-cap"/></svg><b>Encaje institucional</b><span>Concientiza (aula y robot), detecta (indicios), canaliza el reporte a Seguridad de la Información y permite al IESS firmar sus correos para que los afiliados distingan los verdaderos.</span></div>
+  </div>
+  <div class="warnbox"><svg class="i"><use href="#i-alert"/></svg><span><b>Licencia de OpenPhish.</b> Su feed gratuito solo permite uso personal, académico o de investigación independiente. Para un piloto institucional hace falta su permiso por escrito o la licencia comercial; la alternativa es una lista propia del IESS.</span></div>
+</section>
+
+<section class="sec">
+  <header><span class="kicker">12 · Evidencia</span><h2 class="h2">Fuentes y <em>licencias.</em></h2>
+  <p class="sub">El detalle completo, con cada paquete, está en <code>aiess-app/docs/DOCUMENTACION_RETO.md</code>.</p></header>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Componente</th><th>Tipo</th><th>Licencia</th></tr></thead>
+      <tbody>
+        <tr><td>LFM2-1.2B (Liquid AI)</td><td><span class="tag dim">Preexistente</span></td><td class="code">LFM Open License v1.0</td></tr>
+        <tr><td>llama.cpp</td><td><span class="tag dim">Preexistente</span></td><td class="code">MIT</td></tr>
+        <tr><td>Flutter, http, crypto, shared_preferences, url_launcher</td><td><span class="tag dim">Preexistente</span></td><td class="code">BSD-3-Clause</td></tr>
+        <tr><td>flutter_riverpod, flutter_tts, file_picker, google_mlkit_text_recognition</td><td><span class="tag dim">Preexistente</span></td><td class="code">MIT</td></tr>
+        <tr><td>speech_to_text, material_ui</td><td><span class="tag dim">Preexistente</span></td><td class="code">BSD-3-Clause</td></tr>
+        <tr><td>Tesseract.js 5.1.1, PDF.js 3.11.174</td><td><span class="tag dim">Preexistente</span></td><td class="code">Apache-2.0</td></tr>
+        <tr><td>Lexend, Atkinson Hyperlegible</td><td><span class="tag dim">Preexistente</span></td><td class="code">SIL OFL 1.1</td></tr>
+        <tr><td>FastAPI · cryptography (SellaCorreo)</td><td><span class="tag dim">Preexistente</span></td><td class="code">MIT · Apache-2.0/BSD</td></tr>
+        <tr><td>RDAP (rdap.org) · OpenPhish Community Feed</td><td><span class="tag dim">Fuente pública</span></td><td class="code">Servicio público · términos OpenPhish</td></tr>
+        <tr><td>Robot guardián, motor de indicios, OSINT, lector .eml, reporte simulado, anonimizador</td><td><span class="tag ok">Creado</span></td><td class="code">Del equipo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <span class="slogan">Ahí no es. <em>AIESS</em></span>
+  <span class="meta">Ficha técnica · 27-11-2026 · aiess-app/docs/</span>
+</footer>
+
+</div>
