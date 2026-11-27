@@ -1,8 +1,15 @@
-// Pantalla principal AIESS con el mismo estilo del aula virtual: AppBar azul IESS, fondo claro,
-// tarjeta blanca y barra de navegación inferior (Revisar · Aula virtual · Practicar).
-// El cóndor es un medallón cuyo anillo muestra el estado; la tarjeta se tiñe de rojo o verde con el veredicto.
-import 'package:material_ui/material_ui.dart';
+// Pantalla principal AIESS, pensada para personas mayores y con discapacidad.
+// Heurísticas aplicadas:
+// - Una sola acción principal por momento; lo demás aparece solo cuando hace falta (menos saturación).
+// - Todo botón lleva ícono + TEXTO (nada de íconos sueltos que haya que adivinar).
+// - Botones de 64–104 dp, separados ≥ 12 dp (temblor, poca precisión al tocar).
+// - Texto ≥ 17 sp; respeta el tamaño de letra del sistema (la pantalla se desplaza si no cabe).
+// - Estado visible: el cóndor, el color de la tarjeta y un texto dicen lo que pasa; lo que se dice también se escribe.
+// - Lector de pantalla: cada cambio importante se anuncia (liveRegion) y cada botón tiene nombre.
+// - Si el sistema pide "quitar animaciones", se quitan.
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../features/mascota/pantera.dart';
 import 'tema.dart';
@@ -46,24 +53,18 @@ class AiessHomeScreen extends StatelessWidget {
   final bool escuchando;
   final VoidCallback? onTapMascota, onReport, onDone, onReanalizar, onAula, onPracticar;
 
-  String get _indicacion => hasClipboardContent
-      ? 'Tienes un texto copiado. Toca «Pegar y revisar» y te digo si es seguro.'
-      : 'Copia el correo o enlace que te parezca raro y toca «Pegar y revisar». También puedes hablarme.';
-
-  (Color, Color, IconData, String) get _tarjeta => switch (estado) {
-        EstadoHoja.estafa => (Tono.rojoSuave, Tono.rojo, Icons.gpp_bad_rounded, 'Posible estafa'),
-        EstadoHoja.seguro => (Tono.verdeSuave, Tono.verde, Icons.verified_user_rounded, 'Parece seguro'),
-        EstadoHoja.analizando => (Colors.white, Tono.azul, Icons.manage_search_rounded, 'Revisando'),
-        EstadoHoja.listo => (Colors.white, Colors.white, Icons.shield_rounded, 'Listo para revisar'),
-      };
+  String get _indicacion => escuchando
+      ? 'Te escucho. Lee el correo en voz alta o dime el enlace.'
+      : hasClipboardContent
+          ? 'Ya copiaste algo. Toca el botón azul y te digo si es seguro.'
+          : 'Copia el correo que te parezca raro y toca el botón azul.';
 
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
-    final alto = mq.size.height;
-    final medallon = (mq.size.width * 0.5).clamp(140.0, alto * 0.24);
-    final (fondo, borde, icono, etiqueta) = _tarjeta;
-    final colorEtiqueta = estado == EstadoHoja.listo ? Tono.azul : borde;
+    final sinAnimar = mq.disableAnimations;
+    final dur = sinAnimar ? Duration.zero : const Duration(milliseconds: 280);
+    final medallon = (mq.size.width * 0.42).clamp(120.0, mq.size.height * 0.2);
 
     return Scaffold(
       appBar: AppBar(
@@ -73,23 +74,19 @@ class AiessHomeScreen extends StatelessWidget {
           Text('AIESS'),
         ]),
         actions: [
-          IconButton(
-            tooltip: 'Revisar una captura',
-            icon: const Icon(Icons.add_photo_alternate_rounded),
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              onPickImage();
-            },
+          // Ajustes con texto: los mayores no reconocen el engranaje solo.
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: TextButton.icon(
+              style: TextButton.styleFrom(foregroundColor: Colors.white, minimumSize: const Size(48, 48)),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                onOpenSettings();
+              },
+              icon: const Icon(Icons.settings_rounded),
+              label: const Text('Ajustes'),
+            ),
           ),
-          IconButton(
-            tooltip: 'Ajustes y ayuda',
-            icon: const Icon(Icons.settings_rounded),
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              onOpenSettings();
-            },
-          ),
-          const SizedBox(width: 4),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -101,112 +98,92 @@ class AiessHomeScreen extends StatelessWidget {
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.shield_outlined), selectedIcon: Icon(Icons.shield_rounded), label: 'Revisar'),
-          NavigationDestination(icon: Icon(Icons.school_outlined), label: 'Aula virtual'),
+          NavigationDestination(icon: Icon(Icons.school_outlined), label: 'Aprender'),
           NavigationDestination(icon: Icon(Icons.sports_esports_outlined), label: 'Practicar'),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-        child: Column(
-          children: [
-            const Spacer(),
-            Pantera(estado: estadoMascota, tam: medallon, encuadre: Encuadre.medallon, alTocar: onTapMascota),
-            const SizedBox(height: 16),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 350),
-              curve: Curves.easeOutCubic,
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: fondo,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: borde, width: 1.5),
-                boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 12, offset: Offset(0, 4))],
-              ),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  Icon(icono, color: colorEtiqueta, size: 22),
-                  const SizedBox(width: 6),
-                  Text(etiqueta, style: TextStyle(color: colorEtiqueta, fontSize: 15, fontWeight: FontWeight.w700)),
-                ]),
-                const SizedBox(height: 8),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 280),
-                  layoutBuilder: (a, p) => Stack(alignment: Alignment.topLeft, children: [...p, if (a != null) a]),
-                  child: Text(titulo,
-                      key: ValueKey(titulo),
-                      maxLines: 2,
-                      style: const TextStyle(color: Tono.tinta, fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6, height: 1.15)),
-                ),
-                const SizedBox(height: 8),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: alto * 0.2),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 280),
-                    layoutBuilder: (a, p) => Stack(alignment: Alignment.topLeft, children: [...p, if (a != null) a]),
-                    child: pasos.isNotEmpty
-                        ? Align(key: const ValueKey('pasos'), alignment: Alignment.topLeft, child: PasosCarga(pasos: pasos, progreso: progreso))
-                        : SingleChildScrollView(
-                            key: ValueKey(texto ?? _indicacion),
-                            child: texto == null
-                                ? Text(_indicacion, style: const TextStyle(color: Tono.gris, fontSize: 17, height: 1.45))
-                                : TextoVivo(texto!, estilo: const TextStyle(color: Tono.tinta, fontSize: 17, height: 1.45)),
-                          ),
+      body: LayoutBuilder(
+        builder: (context, caja) => SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: caja.maxHeight - 28),
+            child: IntrinsicHeight(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Semantics(
+                      button: true,
+                      label: 'AIess, el cóndor. Toca para escucharlo otra vez',
+                      child: Pantera(estado: estadoMascota, tam: medallon, encuadre: Encuadre.medallon, alTocar: onTapMascota),
+                    ),
                   ),
-                ),
-              ]),
-            ),
-            const Spacer(),
-            _acciones(),
-            const SizedBox(height: 10),
-            const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(Icons.lock_outline_rounded, size: 16, color: Tono.gris),
-              SizedBox(width: 6),
-              Flexible(
-                child: Text('Tu correo se analiza y se elimina. Nunca te pediremos claves.',
-                    textAlign: TextAlign.center, style: TextStyle(color: Tono.gris, fontSize: 13)),
+                  const SizedBox(height: 12),
+                  _Globo(estado: estado, titulo: titulo, texto: texto, indicacion: _indicacion, pasos: pasos, progreso: progreso, dur: dur),
+                  const Spacer(),
+                  const SizedBox(height: 16),
+                  AnimatedSwitcher(duration: dur, child: KeyedSubtree(key: ValueKey(estado), child: _acciones())),
+                  const SizedBox(height: 12),
+                  const _Privacidad(),
+                ],
               ),
-            ]),
-          ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  /// Botón principal + "Analizar de nuevo" (repite el análisis del mismo correo).
-  Widget _conReanalizar(Widget principal) => Column(mainAxisSize: MainAxisSize.min, children: [
-        principal,
-        if (onReanalizar != null)
-          TextButton.icon(
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              onReanalizar!();
-            },
-            style: TextButton.styleFrom(foregroundColor: Tono.azul, minimumSize: const Size(0, 48)),
-            icon: const Icon(Icons.refresh_rounded, size: 22),
-            label: const Text('Analizar de nuevo', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-          ),
-      ]);
-
   Widget _acciones() {
-    final ocupado = estado == EstadoHoja.analizando;
     switch (estado) {
+      case EstadoHoja.analizando:
+        // Mientras revisa no hay nada más que tocar: un solo botón que explica qué pasa.
+        return _BotonPrincipal(texto: 'Revisando…', icono: Icons.hourglass_top_rounded, onTap: null, cargando: true);
       case EstadoHoja.estafa:
-        return _conReanalizar(
-            _PrimaryActionButton(texto: 'Avisar al IESS', icono: Icons.campaign_rounded, onTap: onReport ?? () {}, fondo: Tono.rojo));
       case EstadoHoja.seguro:
-        return _conReanalizar(_PrimaryActionButton(texto: 'Listo', icono: Icons.check_rounded, onTap: onDone ?? () {}, fondo: Tono.verde));
-      default:
-        return Row(children: [
-          Expanded(
-            child: _PrimaryActionButton(
-              texto: 'Pegar y revisar',
-              icono: Icons.content_paste_search_rounded,
-              onTap: ocupado ? null : onPasteAndCheck,
-            ),
+        final estafa = estado == EstadoHoja.estafa;
+        return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          _BotonPrincipal(
+            texto: estafa ? 'Avisar al IESS' : 'Listo, entendido',
+            icono: estafa ? Icons.campaign_rounded : Icons.check_rounded,
+            fondo: estafa ? Tono.rojo : Tono.verde,
+            onTap: estafa ? (onReport ?? () {}) : (onDone ?? () {}),
           ),
-          const SizedBox(width: 12),
-          _VoiceActionButton(onTap: ocupado ? null : onVoiceInput, activo: escuchando),
+          const SizedBox(height: 12),
+          IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Expanded(child: _BotonTarjeta(texto: 'Escuchar otra vez', icono: Icons.volume_up_rounded, onTap: onTapMascota)),
+            const SizedBox(width: 12),
+            // Vuelve al inicio para revisar un correo NUEVO, sin cerrar la app (control y libertad).
+            Expanded(child: _BotonTarjeta(texto: 'Revisar otro correo', icono: Icons.forward_to_inbox_rounded, onTap: onDone)),
+          ])),
+        ]);
+      case EstadoHoja.listo:
+        return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          _BotonPrincipal(texto: 'Pegar y revisar', icono: Icons.content_paste_search_rounded, onTap: onPasteAndCheck),
+          const SizedBox(height: 12),
+          IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            // En la web no hay lector de imágenes: no se muestra un botón que no funciona.
+            if (!kIsWeb) ...[
+              Expanded(
+                child: _BotonTarjeta(
+                  texto: 'Escanear foto',
+                  ayuda: 'De una captura',
+                  icono: Icons.document_scanner_rounded,
+                  onTap: onPickImage,
+                ),
+              ),
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: _BotonTarjeta(
+                texto: escuchando ? 'Te escucho…' : 'Hablar',
+                ayuda: escuchando ? 'Habla ahora' : 'Dicta el correo',
+                icono: escuchando ? Icons.graphic_eq_rounded : Icons.mic_rounded,
+                activo: escuchando,
+                onTap: onVoiceInput,
+              ),
+            ),
+          ])),
         ]);
     }
   }
@@ -214,19 +191,113 @@ class AiessHomeScreen extends StatelessWidget {
 
 // ---------------------------------------------------------------- piezas
 
-class _PrimaryActionButton extends StatelessWidget {
-  const _PrimaryActionButton({required this.texto, required this.icono, required this.onTap, this.fondo = Tono.azul});
+/// Lo que dice el cóndor: título + texto (o los pasos de carga). Se anuncia al lector de pantalla.
+class _Globo extends StatelessWidget {
+  const _Globo({
+    required this.estado,
+    required this.titulo,
+    required this.texto,
+    required this.indicacion,
+    required this.pasos,
+    required this.progreso,
+    required this.dur,
+  });
+  final EstadoHoja estado;
+  final String titulo, indicacion;
+  final String? texto;
+  final List<String> pasos;
+  final double? progreso;
+  final Duration dur;
+
+  @override
+  Widget build(BuildContext context) {
+    // El color nunca va solo: siempre lo acompañan un ícono y una palabra.
+    final (fondo, borde, icono, etiqueta) = switch (estado) {
+      EstadoHoja.estafa => (Tono.rojoSuave, Tono.rojo, Icons.gpp_bad_rounded, 'Posible estafa'),
+      EstadoHoja.seguro => (Tono.verdeSuave, Tono.verde, Icons.verified_user_rounded, 'Parece seguro'),
+      _ => (Colors.white, const Color(0xFFDCE3EE), null, null),
+    };
+    final alto = MediaQuery.sizeOf(context).height;
+    return Semantics(
+      liveRegion: true,
+      child: AnimatedContainer(
+        duration: dur,
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+        decoration: BoxDecoration(
+          color: fondo,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: borde, width: estado == EstadoHoja.listo || estado == EstadoHoja.analizando ? 1 : 2),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          if (etiqueta != null) ...[
+            Row(children: [
+              Icon(icono, color: borde, size: 26),
+              const SizedBox(width: 8),
+              Text(etiqueta, style: Letra.lexend(18, peso: FontWeight.w700, color: borde, espacio: 0)),
+            ]),
+            const SizedBox(height: 6),
+          ],
+          AnimatedSwitcher(
+            duration: dur,
+            layoutBuilder: (a, p) => Stack(alignment: Alignment.topLeft, children: [...p, ?a]),
+            child: Text(titulo,
+                key: ValueKey(titulo),
+                style: Letra.lexend(26, peso: FontWeight.w700, color: Tono.tinta, alto: 1.15, espacio: -0.4)),
+          ),
+          const SizedBox(height: 8),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: alto * 0.26),
+            child: AnimatedSwitcher(
+              duration: dur,
+              layoutBuilder: (a, p) => Stack(alignment: Alignment.topLeft, children: [...p, ?a]),
+              child: pasos.isNotEmpty
+                  ? Align(key: const ValueKey('pasos'), alignment: Alignment.topLeft, child: PasosCarga(pasos: pasos, progreso: progreso))
+                  : SingleChildScrollView(
+                      key: ValueKey(texto ?? indicacion),
+                      child: texto == null
+                          ? Text(indicacion, style: Letra.lectura(19, color: Tono.gris))
+                          : TextoVivo(texto!, estilo: Letra.lectura(19, color: Tono.tinta)),
+                    ),
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _Privacidad extends StatelessWidget {
+  const _Privacidad();
+
+  @override
+  Widget build(BuildContext context) => const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(Icons.lock_outline_rounded, size: 18, color: Tono.gris),
+        SizedBox(width: 6),
+        Flexible(
+          child: Text('Quitamos tus datos personales y luego se borra todo. Nunca te pediremos claves.',
+              textAlign: TextAlign.center, style: TextStyle(color: Tono.gris, fontSize: 15, height: 1.35)),
+        ),
+      ]);
+}
+
+/// Botón principal: ancho completo, mínimo 72 dp, ícono + texto. Vibra y se hunde al tocarlo.
+class _BotonPrincipal extends StatelessWidget {
+  const _BotonPrincipal({required this.texto, required this.icono, required this.onTap, this.fondo = Tono.azul, this.cargando = false});
   final String texto;
   final IconData icono;
   final VoidCallback? onTap;
   final Color fondo;
+  final bool cargando;
 
   @override
   Widget build(BuildContext context) {
     final activo = onTap != null;
     return Semantics(
       button: true,
+      enabled: activo,
       label: texto,
+      excludeSemantics: true,
       child: _Presion(
         escala: 0.97,
         onTap: activo
@@ -235,59 +306,126 @@ class _PrimaryActionButton extends StatelessWidget {
                 onTap!();
               }
             : null,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: activo ? 1 : 0.5,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            height: 64,
-            decoration: BoxDecoration(color: fondo, borderRadius: BorderRadius.circular(16)),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(icono, size: 28, color: Colors.white),
-              const SizedBox(width: 10),
-              Flexible(
-                child: Text(texto,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.2)),
-              ),
-            ]),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 72),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: activo || cargando ? fondo : fondo.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(18),
           ),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            if (cargando)
+              const SizedBox(width: 26, height: 26, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white))
+            else
+              Icon(icono, size: 30, color: Colors.white),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(texto,
+                  textAlign: TextAlign.center,
+                  style: Letra.lexend(21, color: Colors.white, alto: 1.15, espacio: 0)),
+            ),
+          ]),
         ),
       ),
     );
   }
 }
 
-class _VoiceActionButton extends StatelessWidget {
-  const _VoiceActionButton({required this.onTap, required this.activo});
+/// Botón secundario tipo tarjeta: ícono grande arriba, nombre y una ayuda corta debajo.
+/// Pensado para baja visión (ícono 36 + texto) y temblor (≥ 104 dp de alto).
+class _BotonTarjeta extends StatelessWidget {
+  const _BotonTarjeta({required this.texto, required this.icono, required this.onTap, this.ayuda, this.activo = false});
+  final String texto;
+  final String? ayuda;
+  final IconData icono;
   final VoidCallback? onTap;
   final bool activo;
 
   @override
-  Widget build(BuildContext context) => Tooltip(
-        message: 'Hablar con AIess',
-        child: Semantics(
-          button: true,
-          label: 'Hablar con AIess',
-          child: _Presion(
-            escala: 0.94,
-            onTap: onTap == null
-                ? null
-                : () {
-                    HapticFeedback.selectionClick();
-                    onTap!();
-                  },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(color: activo ? Tono.azul : Tono.amarillo, borderRadius: BorderRadius.circular(16)),
-              child: Icon(Icons.mic_rounded, size: 30, color: activo ? Colors.white : Tono.tinta),
-            ),
+  Widget build(BuildContext context) {
+    final tinta = activo ? Colors.white : Tono.azul;
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: ayuda == null ? texto : '$texto. $ayuda',
+      excludeSemantics: true,
+      child: _Presion(
+        escala: 0.95,
+        onTap: onTap == null
+            ? null
+            : () {
+                HapticFeedback.selectionClick();
+                onTap!();
+              },
+        child: AnimatedContainer(
+          duration: MediaQuery.of(context).disableAnimations ? Duration.zero : const Duration(milliseconds: 220),
+          constraints: BoxConstraints(minHeight: ayuda == null ? 88 : 104),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          decoration: BoxDecoration(
+            color: activo ? Tono.azul : Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Tono.azul, width: 2),
           ),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            _Pulso(activo: activo, child: Icon(icono, size: 36, color: tinta)),
+            const SizedBox(height: 6),
+            Text(texto, textAlign: TextAlign.center, style: Letra.lexend(19, color: tinta, alto: 1.15, espacio: 0)),
+            if (ayuda != null)
+              Text(ayuda!,
+                  textAlign: TextAlign.center,
+                  style: Letra.lectura(15, color: activo ? Colors.white.withValues(alpha: 0.9) : Tono.gris, alto: 1.3)),
+          ]),
         ),
-      );
+      ),
+    );
+  }
+}
+
+/// Late suave mientras el micrófono escucha (señal visible para quien no oye el aviso sonoro).
+class _Pulso extends StatefulWidget {
+  const _Pulso({required this.activo, required this.child});
+  final bool activo;
+  final Widget child;
+
+  @override
+  State<_Pulso> createState() => _PulsoState();
+}
+
+class _PulsoState extends State<_Pulso> with SingleTickerProviderStateMixin {
+  late final _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+
+  @override
+  void didUpdateWidget(_Pulso old) {
+    super.didUpdateWidget(old);
+    _sincronizar();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _sincronizar();
+  }
+
+  void _sincronizar() {
+    if (widget.activo) {
+      if (!_c.isAnimating) _c.repeat(reverse: true);
+    } else {
+      _c.stop();
+      _c.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.of(context).disableAnimations) return widget.child;
+    return ScaleTransition(scale: Tween(begin: 1.0, end: 1.18).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut)), child: widget.child);
+  }
 }
 
 /// Escala al presionar (100 ms).
@@ -315,6 +453,10 @@ class _PresionState extends State<_Presion> {
                 setState(() => _abajo = false);
                 widget.onTap!();
               },
-        child: AnimatedScale(scale: _abajo ? widget.escala : 1, duration: const Duration(milliseconds: 100), child: widget.child),
+        child: AnimatedScale(
+          scale: _abajo && !MediaQuery.of(context).disableAnimations ? widget.escala : 1,
+          duration: const Duration(milliseconds: 100),
+          child: widget.child,
+        ),
       );
 }

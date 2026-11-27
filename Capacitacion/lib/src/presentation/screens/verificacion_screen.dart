@@ -14,8 +14,7 @@ class VerificacionScreen extends ConsumerStatefulWidget {
   final String codigo;
 
   @override
-  ConsumerState<VerificacionScreen> createState() =>
-      _VerificacionScreenState();
+  ConsumerState<VerificacionScreen> createState() => _VerificacionScreenState();
 }
 
 class _VerificacionScreenState extends ConsumerState<VerificacionScreen> {

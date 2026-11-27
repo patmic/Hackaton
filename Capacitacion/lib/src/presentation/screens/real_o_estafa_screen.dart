@@ -128,7 +128,9 @@ class _Resultado extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         OutlinedButton(
-          onPressed: ref.read(realOEstafaProvider(actividad).notifier).reiniciar,
+          onPressed: ref
+              .read(realOEstafaProvider(actividad).notifier)
+              .reiniciar,
           child: const Text('Intentar de nuevo'),
         ),
         const SizedBox(height: 8),

@@ -38,9 +38,7 @@ class SesionDemoScreen extends ConsumerWidget {
               ),
               subtitle: Text(_detalle(s)),
               onTap: () async {
-                await ref
-                    .read(sesionProvider.notifier)
-                    .iniciarSesionDemo(s);
+                await ref.read(sesionProvider.notifier).iniciarSesionDemo(s);
                 if (context.mounted) Navigator.of(context).pop();
               },
             ),

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../llm/cerebro.dart';
 import '../osint/url_analyzer.dart';
+import 'anonimizar.dart';
 import 'motor.dart';
 import 'red.dart';
 
@@ -31,9 +32,15 @@ class Analizador {
     final cerebro = Cerebro.i;
     if (!usarModelo || !cerebro.afinado) return reglas;
     if (reglas.phishing) alSospechar?.call();
+    // Antes de que el texto salga del celular se tapan los datos personales (cédula, teléfono, nombre…).
+    final anonimo = anonimizar(promptAnalisis(e, osint));
+    if (anonimo.cambios > 0) {
+      alAvanzar?.call('Quitando tus datos personales', null);
+      if (usarModelo) await Future.delayed(const Duration(milliseconds: 350));
+    }
     alAvanzar?.call('Pensándolo con mi cerebro', 0);
     final system = systemPrompt();
-    final prompt = formatoLfm2(system, [('user', promptAnalisis(e, osint))]);
+    final prompt = formatoLfm2(system, [('user', anonimo.texto)]);
     final fuerte = osint.puntaje >= 60 || reglas.puntaje >= 80;
     final buffer = StringBuffer();
     var n = 0;

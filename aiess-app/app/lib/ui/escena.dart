@@ -1,5 +1,6 @@
 // Escena única de la app: foto del cóndor a sangre arriba y, abajo, un panel cuyo borde superior
 // es una onda sinusoidal viva (se agita cuando el cóndor habla o te escucha). El color del panel es el mensaje.
+import 'dart:ui' show FontVariation;
 import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';
@@ -100,7 +101,7 @@ class EscenaPantera extends StatelessWidget {
                         titular,
                         key: ValueKey(titular),
                         maxLines: 2,
-                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, height: 1.1, letterSpacing: -0.8, color: Colors.white),
+                        style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], fontSize: 32, fontWeight: FontWeight.w700, height: 1.1, letterSpacing: -0.8, color: Colors.white),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -360,7 +361,7 @@ class BotonUnico extends StatelessWidget {
                 child: Text(texto,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: tinta, fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -0.2)),
+                    style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: tinta, fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -0.2)),
               ),
               const SizedBox(width: 12),
             ],

@@ -1,3 +1,5 @@
+import 'dart:ui' show FontVariation;
+
 import 'dart:convert';
 import 'dart:math';
 
@@ -83,7 +85,7 @@ class _PracticarPageState extends State<PracticarPage> {
             child: Row(children: [
               const Icon(Icons.local_fire_department_rounded, color: Paleta.ambar, size: 20),
               const SizedBox(width: 4),
-              Text('$_racha', style: const TextStyle(color: Paleta.ambar, fontSize: 18, fontWeight: FontWeight.w700)),
+              Text('$_racha', style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: Paleta.ambar, fontSize: 18, fontWeight: FontWeight.w700)),
             ]),
           ),
         ],
@@ -116,7 +118,7 @@ class _PracticarPageState extends State<PracticarPage> {
                         Expanded(
                           child: Text(
                             _acerto == null ? '¿Estafa o seguro?' : (_acerto! ? '¡Correcto!' : 'Casi…'),
-                            style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700, letterSpacing: -0.8),
+                            style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700, letterSpacing: -0.8),
                           ),
                         ),
                       ]),
@@ -160,7 +162,7 @@ class _Opcion extends StatelessWidget {
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(icono, color: color, size: 30),
               const SizedBox(width: 8),
-              Text(texto, style: TextStyle(color: color, fontSize: 23, fontWeight: FontWeight.w700)),
+              Text(texto, style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: color, fontSize: 23, fontWeight: FontWeight.w700)),
             ]),
           ),
         ),
@@ -204,7 +206,7 @@ class _Tarjeta extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text((e['asunto'] as String).isEmpty ? 'Mensaje de texto' : e['asunto'] as String,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 19)),
+                  style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], fontWeight: FontWeight.w700, fontSize: 19)),
             ),
           ]),
           const SizedBox(height: 12),

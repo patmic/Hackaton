@@ -32,8 +32,7 @@ class MensajeCard extends StatelessWidget {
               Text('[${mensaje.boton}]', style: textos.labelLarge),
             if (mensaje.adjunto != null)
               Text('Adjunto: ${mensaje.adjunto}', style: textos.bodySmall),
-            if (mensaje.tieneQr)
-              Text('[Código QR]', style: textos.bodySmall),
+            if (mensaje.tieneQr) Text('[Código QR]', style: textos.bodySmall),
             if (mensaje.codigoVerificacion != null) ...[
               const SizedBox(height: 8),
               Text('[Incluye código de verificación]', style: textos.bodySmall),

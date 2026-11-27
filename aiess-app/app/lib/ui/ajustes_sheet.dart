@@ -1,3 +1,5 @@
+import 'dart:ui' show FontVariation;
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
@@ -90,7 +92,7 @@ class _AjustesState extends State<_Ajustes> {
               Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(3)))),
               const SizedBox(height: 16),
               // ---------- Servidor de IA (modo principal)
-              const Text('Inteligencia del cóndor', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+              const Text('Inteligencia del cóndor', style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], fontSize: 22, fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
               Row(children: [
                 Icon(ServidorIA.i.disponible ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
@@ -141,7 +143,7 @@ class _AjustesState extends State<_Ajustes> {
               ),
               const Divider(height: 32),
               if (!kIsWeb) ...[
-              const Text('Modelo en este celular (respaldo, más lento)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              const Text('Modelo en este celular (respaldo, más lento)', style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(height: 6),
               Text(nombre == null
                   ? 'Solo se usa si no hay conexión al servidor. Ocupa entre 230 y 730 MB.'
@@ -236,8 +238,9 @@ class _AvisoPrivacidad extends StatelessWidget {
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Para revisar con inteligencia artificial, el texto del correo se envía al servidor de AIESS solo durante el análisis. '
-              'Se procesa en memoria y se elimina al terminar: no se guarda en archivos, no queda en registros y no se usa para entrenar.',
+              'Antes de salir de tu celular, AIESS tapa tus datos personales: nombre, cédula, teléfono, cuentas, tarjetas y tu dirección de correo. '
+              'Solo viajan las señales del engaño (enlaces, dominios, montos). El servidor lo procesa en memoria y lo borra al terminar: '
+              'no se guarda en archivos, no queda en registros y no se usa para entrenar.',
               style: TextStyle(color: Color(0xFF183675), fontSize: 15, height: 1.35),
             ),
           ),

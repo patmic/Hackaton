@@ -1,5 +1,6 @@
 // Versión web para computadora: dos columnas. Izquierda, el cóndor y cómo funciona; derecha, el espacio de
 // trabajo para pegar el correo y ver el veredicto (escrito y hablado). La IA corre en el servidor de AIESS.
+import 'dart:ui' show FontVariation;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,7 +16,6 @@ import 'practicar_page.dart';
 import 'texto_vivo.dart';
 
 class _W {
-  static const noche = Color(0xFF0A1B3A);
   static const azul = Color(0xFF004294);
   static const azulOscuro = Color(0xFF183675);
   static const amarillo = Color(0xFFFCC602);
@@ -130,27 +130,26 @@ class _WebEscritorioState extends State<WebEscritorio> {
                   Row(children: [
                     const Icon(Icons.shield_rounded, color: _W.amarillo, size: 26),
                     const SizedBox(width: 10),
-                    const Text('AIESS', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: 1)),
+                    const Text('AIESS', style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: 1)),
                     const Spacer(),
                     _EstadoServidor(),
                   ]),
                   const Spacer(flex: 2),
                   Center(child: Pantera(estado: _estado, tam: 260, encuadre: Encuadre.medallon, alTocar: () => _v == null ? Voz.i.decir('Pega un correo y te digo si es una estafa.') : Voz.i.decir('${_v!.explicacion} ${_v!.queHacer}'))),
                   const Spacer(),
-                  const Text('Tu cóndor guardián\ncontra estafas del IESS',
-                      style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w800, height: 1.08, letterSpacing: -1)),
-                  const SizedBox(height: 28),
-                  const _Paso(n: '1', texto: 'Copia el correo o el enlace que te parezca raro.'),
-                  const _Paso(n: '2', texto: 'Pégalo a la derecha y toca Revisar con AIess.'),
-                  const _Paso(n: '3', texto: 'Escucha al cóndor: te dice si es estafa y qué hacer.'),
+                  const Text('Tu cóndor guardián\ncontra estafas',
+                      style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: Colors.white, fontSize: 44, fontWeight: FontWeight.w700, height: 1.08, letterSpacing: -1)),
+                  const SizedBox(height: 16),
+                  Text('Pega un correo raro y te digo, con voz y por escrito, si es una estafa.',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 20, height: 1.45)),
                   const Spacer(),
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Icon(Icons.lock_outline_rounded, color: Colors.white.withValues(alpha: 0.7), size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                          'El correo se envía al servidor de AIESS solo para analizarlo: se procesa en memoria y se elimina al terminar. No se guarda ni se usa para entrenar. Nunca te pediremos claves.',
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14, height: 1.45)),
+                          'Antes de revisarlo quitamos tu nombre, cédula, teléfono y cuentas. Luego se borra todo. Nunca te pediremos claves.',
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 16, height: 1.45)),
                     ),
                   ]),
                 ],
@@ -169,10 +168,10 @@ class _WebEscritorioState extends State<WebEscritorio> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text('¿Te llegó un correo sospechoso?',
-                          style: TextStyle(color: _W.tinta, fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -0.6)),
+                      const Text('Pega aquí el correo sospechoso',
+                          style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: _W.tinta, fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.6)),
                       const SizedBox(height: 8),
-                      const Text('Pega aquí el texto completo del correo, un SMS o solo el enlace.',
+                      const Text('Sirve el texto completo, un SMS o solo el enlace.',
                           style: TextStyle(color: _W.gris, fontSize: 18, height: 1.4)),
                       const SizedBox(height: 24),
                       TextField(
@@ -181,6 +180,9 @@ class _WebEscritorioState extends State<WebEscritorio> {
                         maxLines: 14,
                         style: const TextStyle(color: _W.tinta, fontSize: 18, height: 1.45),
                         decoration: InputDecoration(
+                          labelText: 'Texto del correo',
+                          alignLabelWithHint: true,
+                          labelStyle: const TextStyle(fontSize: 18),
                           hintText: 'Ejemplo: "IESS: su afiliación será suspendida hoy. Actualice su clave en https://…"',
                           hintStyle: const TextStyle(color: Color(0xFF9AA3B5)),
                           filled: true,
@@ -200,7 +202,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                 backgroundColor: _W.azul,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                textStyle: const TextStyle(fontFamily: 'Atkinson', fontSize: 19, fontWeight: FontWeight.w800),
+                                textStyle: const TextStyle(fontFamily: 'Lexend', fontVariations: [FontVariation('wght', 600)], fontSize: 19, fontWeight: FontWeight.w600),
                               ),
                               onPressed: _ocupado ? null : _revisar,
                               icon: _estado == EstadoPantera.analizando
@@ -211,14 +213,14 @@ class _WebEscritorioState extends State<WebEscritorio> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        _BotonCuadrado(
+                        _BotonTexto(
                           icono: _escuchando ? Icons.graphic_eq_rounded : Icons.mic_rounded,
-                          texto: 'Dictar el correo',
+                          texto: _escuchando ? 'Te escucho…' : 'Dictar',
                           activo: _escuchando,
                           onTap: _ocupado ? null : _hablar,
                         ),
                         const SizedBox(width: 12),
-                        _BotonCuadrado(icono: Icons.restart_alt_rounded, texto: 'Empezar de nuevo', onTap: _limpiar),
+                        _BotonTexto(icono: Icons.backspace_outlined, texto: 'Borrar', onTap: _limpiar),
                       ]),
                       const SizedBox(height: 28),
                       AnimatedSwitcher(
@@ -226,20 +228,17 @@ class _WebEscritorioState extends State<WebEscritorio> {
                         child: _resultado(),
                       ),
                       const SizedBox(height: 32),
-                      Row(children: [
-                        FilledButton.tonalIcon(
+                      Wrap(spacing: 12, runSpacing: 8, children: [
+                        OutlinedButton.icon(
                           onPressed: () => abrirAulaVirtual(context),
                           icon: const Icon(Icons.school_rounded),
-                          label: const Text('Aula virtual: microlecciones', style: TextStyle(fontSize: 16)),
+                          label: const Text('Aprender con microlecciones'),
                         ),
-                        const SizedBox(width: 8),
-                        TextButton.icon(
+                        OutlinedButton.icon(
                           onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PracticarPage())),
                           icon: const Icon(Icons.sports_esports_rounded),
-                          label: const Text('Practicar a detectar estafas', style: TextStyle(fontSize: 16)),
+                          label: const Text('Practicar'),
                         ),
-                        const Spacer(),
-                        Text('Canal oficial: ${Canales.i.contacto['portal']}', style: const TextStyle(color: _W.gris, fontSize: 14)),
                       ]),
                     ],
                   ),
@@ -276,8 +275,10 @@ class _WebEscritorioState extends State<WebEscritorio> {
     final v = _v;
     if (v == null) return const SizedBox(key: ValueKey('vacio'));
     final color = v.phishing ? _W.rojo : _W.verde;
-    return Container(
+    return Semantics(
       key: ValueKey(v),
+      liveRegion: true,
+      child: Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withValues(alpha: 0.35), width: 1.5)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -289,20 +290,19 @@ class _WebEscritorioState extends State<WebEscritorio> {
             const SizedBox(width: 14),
             Expanded(
               child: Text(v.phishing ? 'Posible estafa' : 'Parece seguro',
-                  style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                  style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
             ),
-            Text('Riesgo ${v.puntaje}/100', style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 16, fontWeight: FontWeight.w700)),
           ]),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            TextoVivo(v.voz, estilo: const TextStyle(color: _W.tinta, fontSize: 20, height: 1.45, fontWeight: FontWeight.w600)),
+            TextoVivo(v.voz, estilo: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 600)], color: _W.tinta, fontSize: 20, height: 1.45, fontWeight: FontWeight.w600)),
             if (v.phishing && v.indicios.isNotEmpty) ...[
               const SizedBox(height: 18),
-              const Text('Señales que encontré', style: TextStyle(color: _W.gris, fontSize: 15, fontWeight: FontWeight.w700)),
+              const Text('Señales que encontré', style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: _W.gris, fontSize: 15, fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
-              for (final k in v.indicios)
+              for (final k in v.indicios.take(3))
                 if (motivoVoz[k] != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 6),
@@ -322,7 +322,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                   style: FilledButton.styleFrom(backgroundColor: color, minimumSize: const Size(0, 52), shape: const StadiumBorder()),
                   onPressed: _reportar,
                   icon: const Icon(Icons.campaign_rounded),
-                  label: const Text('Avisar al IESS', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                  label: const Text('Avisar al IESS', style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], fontSize: 17, fontWeight: FontWeight.w700)),
                 ),
               const SizedBox(width: 10),
               OutlinedButton.icon(
@@ -332,60 +332,38 @@ class _WebEscritorioState extends State<WebEscritorio> {
                 label: const Text('Escuchar de nuevo', style: TextStyle(fontSize: 17)),
               ),
               const SizedBox(width: 10),
-              TextButton.icon(onPressed: _revisar, icon: const Icon(Icons.refresh_rounded), label: const Text('Analizar de nuevo', style: TextStyle(fontSize: 17))),
+              TextButton.icon(onPressed: _limpiar, icon: const Icon(Icons.forward_to_inbox_rounded), label: const Text('Revisar otro correo', style: TextStyle(fontSize: 17))),
             ]),
           ]),
         ),
       ]),
-    );
+    ));
   }
 }
 
-class _Paso extends StatelessWidget {
-  const _Paso({required this.n, required this.texto});
-  final String n, texto;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 14),
-        child: Row(children: [
-          Container(
-            width: 34,
-            height: 34,
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(color: _W.amarillo, shape: BoxShape.circle),
-            child: Text(n, style: const TextStyle(color: _W.noche, fontWeight: FontWeight.w800, fontSize: 17)),
-          ),
-          const SizedBox(width: 14),
-          Expanded(child: Text(texto, style: TextStyle(color: Colors.white.withValues(alpha: 0.92), fontSize: 18, height: 1.35))),
-        ]),
-      );
-}
-
-class _BotonCuadrado extends StatelessWidget {
-  const _BotonCuadrado({required this.icono, required this.texto, required this.onTap, this.activo = false});
+/// Botón secundario con ícono + texto (60 dp de alto).
+class _BotonTexto extends StatelessWidget {
+  const _BotonTexto({required this.icono, required this.texto, required this.onTap, this.activo = false});
   final IconData icono;
   final String texto;
   final VoidCallback? onTap;
   final bool activo;
 
   @override
-  Widget build(BuildContext context) => Tooltip(
-        message: texto,
-        child: SizedBox(
-          width: 60,
-          height: 60,
-          child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              padding: EdgeInsets.zero,
-              backgroundColor: activo ? _W.amarillo : Colors.white,
-              foregroundColor: _W.azul,
-              side: const BorderSide(color: Color(0xFFD5DBE6), width: 1.5),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            ),
-            onPressed: onTap,
-            child: Icon(icono, size: 26, semanticLabel: texto),
+  Widget build(BuildContext context) => SizedBox(
+        height: 60,
+        child: OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            backgroundColor: activo ? _W.azul : Colors.white,
+            foregroundColor: activo ? Colors.white : _W.azul,
+            side: const BorderSide(color: _W.azul, width: 2),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            textStyle: const TextStyle(fontFamily: 'Lexend', fontVariations: [FontVariation('wght', 600)], fontSize: 18, fontWeight: FontWeight.w600),
           ),
+          onPressed: onTap,
+          icon: Icon(icono, size: 26),
+          label: Text(texto),
         ),
       );
 }

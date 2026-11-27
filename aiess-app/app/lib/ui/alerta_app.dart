@@ -1,4 +1,5 @@
 // Pop-up tipo Truecaller: aparece sobre la app donde llegó el mensaje, el cóndor dice por qué es (o no) una estafa.
+import 'dart:ui' show FontVariation;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -210,7 +211,7 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(veredicto, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5, height: 1.1)),
+                        Text(veredicto, style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: -0.5, height: 1.1)),
                         const SizedBox(height: 3),
                         Text(origen, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, color: blanco.withValues(alpha: 0.85))),
                       ]),
@@ -289,7 +290,7 @@ class _PildoraPopup extends StatelessWidget {
                   child: Text(texto,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontFamily: 'Atkinson', fontSize: 17, fontWeight: FontWeight.w800, color: relleno ? color : Colors.white)),
+                      style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 600)], fontSize: 17, fontWeight: FontWeight.w600, color: relleno ? color : Colors.white)),
                 ),
               ]),
             ),

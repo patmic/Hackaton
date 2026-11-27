@@ -76,3 +76,7 @@ flutter:
         - asset: assets/fonts/AtkinsonHyperlegible-Regular.ttf
         - asset: assets/fonts/AtkinsonHyperlegible-Bold.ttf
           weight: 700
+    # Lexend (variable, OFL): títulos, botones y navegación. Diseñada para leer con menos esfuerzo.
+    - family: Lexend
+      fonts:
+        - asset: assets/fonts/Lexend-Variable.ttf

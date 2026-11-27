@@ -1,3 +1,5 @@
+import 'dart:ui' show FontVariation;
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -109,7 +111,7 @@ class _BienvenidaPageState extends State<BienvenidaPage> with WidgetsBindingObse
         padding: const EdgeInsets.symmetric(horizontal: 16),
         alignment: Alignment.center,
         decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.38), borderRadius: BorderRadius.circular(24)),
-        child: Text('Paso ${_i + 1} de ${_pasos.length}', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+        child: Text('Paso ${_i + 1} de ${_pasos.length}', style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
       ),
       boton: BotonUnico(texto: p.boton, icono: p.icono, alPulsar: _pulsar),
     );

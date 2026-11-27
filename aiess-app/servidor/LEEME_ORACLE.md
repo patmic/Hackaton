@@ -53,6 +53,8 @@ curl http://localhost/health   # {"status":"ok"}
 - **No se guarda en disco ni en registros:** llama-server sin `--log-prompts-dir`, sin el endpoint `/slots`
   (`--no-slots`), y Caddy descarta el log de solicitudes.
 - La memoria temporal se **reemplaza** con la siguiente revisión y se borra al reiniciar el servidor.
+- **Anonimización en el dispositivo:** antes de enviar, la app tapa nombre, cédula, RUC, teléfonos, tarjetas,
+  cuentas bancarias y la parte personal de los correos (`[NOMBRE]`, `[CÉDULA]`…). Solo viajan las señales del engaño.
 - Los correos **no se usan para entrenar** el modelo.
 - Usa **HTTPS** (con dominio) para que el texto viaje cifrado.
 
