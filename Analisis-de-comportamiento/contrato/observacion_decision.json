@@ -1,0 +1,13 @@
+{
+  "id_seudonimo": "a3f9c2e17b4d48e0b6c1",
+  "tipo": "DECISION",
+  "momento": "2026-11-26T15:50:03Z",
+  "tipos": ["EX1"],
+  "rango_etario": "30-49",
+  "actividad_id": "M1-A2-01",
+  "item_id": "M1-A2-01-t3",
+  "tipologia": "T2",
+  "indicios": ["I6", "I10"],
+  "es_estafa": true,
+  "acerto": true
+}
