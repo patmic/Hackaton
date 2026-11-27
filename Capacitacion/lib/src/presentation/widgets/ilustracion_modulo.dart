@@ -100,6 +100,12 @@ const _estilos = <String, EstiloModulo>{
     Icons.visibility_rounded,
     'Estafas con IA y WhatsApp',
   ),
+  'M15': EstiloModulo(
+    Color(0xFF5B3A29),
+    Icons.theater_comedy_rounded,
+    Icons.record_voice_over_rounded,
+    'Una voz o un video pueden ser falsos',
+  ),
 };
 
 EstiloModulo estiloModulo(String codigo) =>

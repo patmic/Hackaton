@@ -54,7 +54,7 @@ class Actividad {
   /// Ej.: `M1-A1-01`.
   final String id;
 
-  /// Código del módulo (M1…M14).
+  /// Código del módulo (M1…M15).
   final String modulo;
   final Mecanica mecanica;
   final String titulo;
@@ -71,7 +71,7 @@ class Actividad {
   /// Id de la versión en audio (A7) que ve un EX2 en lugar de esta.
   final String? varianteEx2;
 
-  /// Entre 1 y 5 minutos: poco y seguido (CLAUDE.md §10.1).
+  /// Entre 1 y 3 minutos (60 a 180 s): poco y seguido (CLAUDE.md §10.1).
   final int duracionSegundos;
 
   /// La regla única que el usuario debe recordar.

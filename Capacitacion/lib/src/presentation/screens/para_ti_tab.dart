@@ -44,7 +44,7 @@ class ParaTiTab extends ConsumerWidget {
           Text('Aprende a no caer en estafas', style: textos.headlineSmall),
           const SizedBox(height: 6),
           Text(
-            'Lecciones cortas, de 1 o 2 minutos. Puedes parar cuando quieras.',
+            'Lecciones cortas, de 1 a 3 minutos. Puedes parar cuando quieras.',
             style: textos.bodyLarge?.copyWith(color: esquema.onSurfaceVariant),
           ),
           if (total > 0) ...[
