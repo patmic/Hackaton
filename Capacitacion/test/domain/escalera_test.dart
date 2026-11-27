@@ -151,7 +151,58 @@ void main() {
         mapa: const MapaIndicios(),
         yaEnviadas: {'N1-EX-bloqueo'},
       );
-      expect(p?.id, 'N1-EX-premio');
+      expect(p?.nivel, NivelCorreo.facil);
+      expect(p?.id, isNot('N1-EX-bloqueo'));
+    });
+
+    test('el primer envío es el primer correo del tipo (§11)', () {
+      const esperado = {
+        TipoUsuario.ex1: 'N2-EX1-reembolso',
+        TipoUsuario.ex2: 'N2-EX2-pension',
+        TipoUsuario.ex3: 'N2-EX3-glosa',
+        TipoUsuario.ex4: 'N2-EX4-planillas',
+        TipoUsuario.ex5: 'N2-EX5-certificado',
+        TipoUsuario.in1: 'N2-IN-buzon',
+        TipoUsuario.in4: 'N2-IN-buzon',
+      };
+      for (final e in esperado.entries) {
+        final p = Escalera.elegirPlantilla(
+          plantillas: plantillasPrueba,
+          tipos: {e.key},
+          nivel: NivelCorreo.medio,
+          mapa: const MapaIndicios(),
+          primerEnvio: true,
+        );
+        expect(p?.id, e.value, reason: e.key.codigo);
+      }
+    });
+
+    test('cada plantilla está completa y nunca sale de iess.gob.ec', () {
+      final ids = <String>{};
+      for (final p in plantillasPrueba) {
+        expect(ids.add(p.id), isTrue, reason: 'id repetido ${p.id}');
+        expect(p.remitente, endsWith('@${DominioPractica.dominio}'));
+        expect(p.remitente, isNot(contains('iess.gob.ec')), reason: p.id);
+        expect(p.boton, isNotEmpty, reason: p.id);
+        expect(p.mensaje.parrafos.length, greaterThanOrEqualTo(2));
+        expect(p.mensaje.etiqueta, isEmpty, reason: 'sin aviso en la bandeja');
+      }
+    });
+
+    test('las plantillas suplantan las seis tipologías', () {
+      expect(
+        plantillasPrueba.map((p) => p.tipologiaSuplantada).toSet(),
+        Tipologia.values.toSet(),
+      );
+    });
+
+    test('I7 e I2 siempre son visibles, aunque no se busquen', () {
+      final n3 = plantillasPrueba.firstWhere((p) => p.id == 'N3-EX-adjunto');
+      expect(n3.indicios, [Indicio.i5]);
+      expect(n3.indiciosImplicitos, {Indicio.i7, Indicio.i2});
+      expect(n3.indiciosObservables, {Indicio.i5, Indicio.i7, Indicio.i2});
+      final buzon = plantillasPrueba.firstWhere((p) => p.id == 'N2-IN-buzon');
+      expect(buzon.indiciosImplicitos, {Indicio.i7});
     });
   });
 

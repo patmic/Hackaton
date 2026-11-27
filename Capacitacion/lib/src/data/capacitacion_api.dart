@@ -196,6 +196,7 @@ class MockCapacitacionApi implements CapacitacionApi {
       nivel: base.nivelCorreo,
       mapa: base.mapa,
       yaEnviadas: _enviadas,
+      primerEnvio: _enviadas.isEmpty,
     );
     if (plantilla == null) {
       return base.copyWith(fase: FaseCapacitacion.enCurso);
