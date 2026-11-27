@@ -156,6 +156,8 @@ class AiessHomeScreen extends StatelessWidget {
                     child: Semantics(
                       button: true,
                       label: 'AIess, el cóndor. Toca para escucharlo otra vez',
+                      excludeSemantics: true,
+                      onTap: onTapMascota,
                       child: Pantera(
                         estado: estadoMascota,
                         tam: medallon,
@@ -324,7 +326,7 @@ class _Globo extends StatelessWidget {
         Icons.verified_user_rounded,
         'Parece seguro',
       ),
-      _ => (Colors.white, const Color(0xFFDCE3EE), null, null),
+      _ => (Tono.superficie, Tono.linea, null, null),
     };
     final alto = MediaQuery.sizeOf(context).height;
     return Semantics(
@@ -443,7 +445,7 @@ class _BotonPrincipal extends StatelessWidget {
     required this.texto,
     required this.icono,
     required this.onTap,
-    this.fondo = Tono.azul,
+    this.fondo = Tono.lima,
     this.cargando = false,
   });
   final String texto;
@@ -473,7 +475,7 @@ class _BotonPrincipal extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: activo || cargando ? fondo : fondo.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(Radios.pildora),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -484,11 +486,11 @@ class _BotonPrincipal extends StatelessWidget {
                   height: 26,
                   child: CircularProgressIndicator(
                     strokeWidth: 3,
-                    color: Colors.white,
+                    color: Tono.sobreLima,
                   ),
                 )
               else
-                Icon(icono, size: 30, color: Colors.white),
+                Icon(icono, size: 30, color: Tono.sobreLima),
               const SizedBox(width: 12),
               Flexible(
                 child: Text(
@@ -496,7 +498,7 @@ class _BotonPrincipal extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: Letra.lexend(
                     21,
-                    color: Colors.white,
+                    color: Tono.sobreLima,
                     alto: 1.15,
                     espacio: 0,
                   ),
@@ -528,7 +530,8 @@ class _BotonTarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tinta = activo ? Colors.white : Tono.azul;
+    final tinta = activo ? Tono.sobreLima : Tono.tinta;
+    final colorIcono = activo ? Tono.sobreLima : Tono.lima;
     return Semantics(
       button: true,
       enabled: onTap != null,
@@ -549,16 +552,19 @@ class _BotonTarjeta extends StatelessWidget {
           constraints: BoxConstraints(minHeight: ayuda == null ? 88 : 104),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
           decoration: BoxDecoration(
-            color: activo ? Tono.azul : Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Tono.azul, width: 2),
+            color: activo ? Tono.lima : Tono.superficie,
+            borderRadius: BorderRadius.circular(Radios.xl),
+            border: Border.all(
+              color: activo ? Tono.lima : Tono.borde,
+              width: 1.5,
+            ),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _Pulso(
                 activo: activo,
-                child: Icon(icono, size: 36, color: tinta),
+                child: Icon(icono, size: 36, color: colorIcono),
               ),
               const SizedBox(height: 6),
               Text(
@@ -572,9 +578,7 @@ class _BotonTarjeta extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: Letra.lectura(
                     15,
-                    color: activo
-                        ? Colors.white.withValues(alpha: 0.9)
-                        : Tono.gris,
+                    color: activo ? Tono.sobreLima : Tono.gris,
                     alto: 1.3,
                   ),
                 ),

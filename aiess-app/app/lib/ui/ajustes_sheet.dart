@@ -14,13 +14,18 @@ import 'tema.dart';
 
 const _plataforma = MethodChannel('aiess/plataforma');
 
-Future<void> mostrarAjustes(BuildContext context, {VoidCallback? alPracticar}) => showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Tono.niebla,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      builder: (_) => _Ajustes(alPracticar: alPracticar),
-    );
+Future<void> mostrarAjustes(
+  BuildContext context, {
+  VoidCallback? alPracticar,
+}) => showModalBottomSheet(
+  context: context,
+  isScrollControlled: true,
+  backgroundColor: Tono.fondo2,
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+  ),
+  builder: (_) => _Ajustes(alPracticar: alPracticar),
+);
 
 class _Ajustes extends StatefulWidget {
   const _Ajustes({this.alPracticar});
@@ -41,7 +46,9 @@ class _AjustesState extends State<_Ajustes> {
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) => setState(() => _red = p.getBool('red') ?? false));
+    SharedPreferences.getInstance().then(
+      (p) => setState(() => _red = p.getBool('red') ?? false),
+    );
   }
 
   Future<void> _descargar(ModeloDescargable m) async {
@@ -54,7 +61,10 @@ class _AjustesState extends State<_Ajustes> {
         if (mounted) setState(() => _progreso = p);
       }
     } catch (e) {
-      setState(() => _error = 'No se pudo descargar. Revisa tu conexión a internet e inténtalo otra vez.');
+      setState(
+        () => _error =
+            'No se pudo descargar. Revisa tu conexión a internet e inténtalo otra vez.',
+      );
     }
     if (mounted) setState(() => _progreso = null);
   }
@@ -77,11 +87,15 @@ class _AjustesState extends State<_Ajustes> {
 
   @override
   Widget build(BuildContext context) {
-    const tinta = Tono.pelaje;
+    const tinta = Tono.tinta;
     final c = Cerebro.i;
     final nombre = c.ruta?.split(RegExp(r'[\\/]')).last;
     return DefaultTextStyle(
-      style: const TextStyle(color: tinta, fontFamily: 'Atkinson', fontSize: 17),
+      style: const TextStyle(
+        color: tinta,
+        fontFamily: 'Atkinson',
+        fontSize: 17,
+      ),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
@@ -89,21 +103,46 @@ class _AjustesState extends State<_Ajustes> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(3)))),
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Tono.borde,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              ),
               const SizedBox(height: 16),
               // ---------- Servidor de IA (modo principal)
-              const Text('Inteligencia del cóndor', style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], fontSize: 22, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 8),
-              Row(children: [
-                Icon(ServidorIA.i.disponible ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
-                    color: ServidorIA.i.disponible ? const Color(0xFF1B7F3B) : const Color(0xFFB3261E)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(ServidorIA.i.disponible
-                      ? 'Conectado al servidor${ServidorIA.i.afinado ? ' con el modelo entrenado para el IESS' : ''}.'
-                      : 'Sin conexión al servidor: el cóndor revisa con sus reglas de seguridad.'),
+              const Text(
+                'Inteligencia del cóndor',
+                style: TextStyle(
+                  fontFamily: 'Lexend',
+                  fontVariations: const [FontVariation('wght', 700)],
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
                 ),
-              ]),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(
+                    ServidorIA.i.disponible
+                        ? Icons.cloud_done_rounded
+                        : Icons.cloud_off_rounded,
+                    color: ServidorIA.i.disponible ? Tono.verde : Tono.rojo,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      ServidorIA.i.disponible
+                          ? 'Conectado al servidor${ServidorIA.i.afinado ? ' con el modelo entrenado para el IESS' : ''}.'
+                          : 'Sin conexión al servidor: el cóndor revisa con sus reglas de seguridad.',
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 10),
               const _AvisoPrivacidad(),
               if (!kIsWeb) ...[
@@ -112,19 +151,29 @@ class _AjustesState extends State<_Ajustes> {
                   controller: _url,
                   keyboardType: TextInputType.url,
                   style: const TextStyle(color: tinta),
-                  decoration: const InputDecoration(labelText: 'Dirección del servidor', hintText: 'https://ia.aiess.ec', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Dirección del servidor',
+                    hintText: 'https://ia.aiess.ec',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: _clave,
                   obscureText: true,
                   style: const TextStyle(color: tinta),
-                  decoration: const InputDecoration(labelText: 'Clave del servidor (opcional)', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Clave del servidor (opcional)',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ],
               const SizedBox(height: 10),
               FilledButton.icon(
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52), backgroundColor: tinta),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                  backgroundColor: Tono.lima,
+                ),
                 onPressed: _probando
                     ? null
                     : () async {
@@ -137,54 +186,102 @@ class _AjustesState extends State<_Ajustes> {
                         if (mounted) setState(() => _probando = false);
                       },
                 icon: _probando
-                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Tono.sobreLima,
+                        ),
+                      )
                     : const Icon(Icons.wifi_tethering_rounded),
-                label: Text(kIsWeb ? 'Probar conexión' : 'Guardar y probar conexión'),
+                label: Text(
+                  kIsWeb ? 'Probar conexión' : 'Guardar y probar conexión',
+                ),
               ),
               const Divider(height: 32),
               if (!kIsWeb) ...[
-              const Text('Modelo en este celular (respaldo, más lento)', style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], fontSize: 18, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 6),
-              Text(nombre == null
-                  ? 'Solo se usa si no hay conexión al servidor. Ocupa entre 230 y 730 MB.'
-                  : 'Respaldo: $nombre. Se usa si no hay conexión al servidor.'),
-              const SizedBox(height: 12),
-              if (_progreso != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: LinearProgressIndicator(value: _progreso! < 0 ? null : _progreso, minHeight: 10, borderRadius: BorderRadius.circular(6)),
-                )
-              else ...[
-                for (final m in modelosBase)
+                const Text(
+                  'Modelo en este celular (respaldo, más lento)',
+                  style: TextStyle(
+                    fontFamily: 'Lexend',
+                    fontVariations: const [FontVariation('wght', 700)],
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  nombre == null
+                      ? 'Solo se usa si no hay conexión al servidor. Ocupa entre 230 y 730 MB.'
+                      : 'Respaldo: $nombre. Se usa si no hay conexión al servidor.',
+                ),
+                const SizedBox(height: 12),
+                if (_progreso != null)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(56), foregroundColor: tinta,
-                          side: const BorderSide(color: tinta, width: 1.5), shape: const StadiumBorder()),
-                      onPressed: () => _descargar(m),
-                      child: Text('Descargar ${m.nombre} · ${m.mb} MB', style: const TextStyle(fontSize: 16)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: LinearProgressIndicator(
+                      value: _progreso! < 0 ? null : _progreso,
+                      minHeight: 10,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  )
+                else ...[
+                  for (final m in modelosBase)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(56),
+                          foregroundColor: tinta,
+                          side: const BorderSide(color: tinta, width: 1.5),
+                          shape: const StadiumBorder(),
+                        ),
+                        onPressed: () => _descargar(m),
+                        child: Text(
+                          'Descargar ${m.nombre} · ${m.mb} MB',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  TextButton(
+                    onPressed: _importar,
+                    child: const Text(
+                      'Usar un modelo entrenado (.gguf)',
+                      style: TextStyle(color: tinta, fontSize: 16),
                     ),
                   ),
-                TextButton(onPressed: _importar, child: const Text('Usar un modelo entrenado (.gguf)', style: TextStyle(color: tinta, fontSize: 16))),
-              ],
-              if (_error != null) Text(_error!, style: const TextStyle(color: Color(0xFFB3261E))),
+                ],
+                if (_error != null)
+                  Text(_error!, style: const TextStyle(color: Tono.rojo)),
               ],
               const Divider(height: 32),
-              if (!kIsWeb) SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                value: _red,
-                activeThumbColor: Tono.pelaje,
-                title: const Text('Revisar enlaces en internet', style: TextStyle(color: tinta, fontSize: 17)),
-                subtitle: const Text('Comprueba el certificado y las redirecciones sin abrir la página.', style: TextStyle(color: Colors.black54)),
-                onChanged: (v) async {
-                  (await SharedPreferences.getInstance()).setBool('red', v);
-                  setState(() => _red = v);
-                },
-              ),
+              if (!kIsWeb)
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: _red,
+                  activeThumbColor: Tono.sobreLima,
+                  activeTrackColor: Tono.lima,
+                  title: const Text(
+                    'Revisar enlaces en internet',
+                    style: TextStyle(color: tinta, fontSize: 17),
+                  ),
+                  subtitle: const Text(
+                    'Comprueba el certificado y las redirecciones sin abrir la página.',
+                    style: TextStyle(color: Tono.gris),
+                  ),
+                  onChanged: (v) async {
+                    (await SharedPreferences.getInstance()).setBool('red', v);
+                    setState(() => _red = v);
+                  },
+                ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.school_outlined, color: tinta),
-                title: const Text('Aula virtual: microlecciones', style: TextStyle(color: tinta)),
+                title: const Text(
+                  'Aula virtual: microlecciones',
+                  style: TextStyle(color: tinta),
+                ),
                 onTap: () {
                   final nav = Navigator.of(context);
                   nav.pop();
@@ -194,28 +291,53 @@ class _AjustesState extends State<_Ajustes> {
               if (widget.alPracticar != null)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.sports_esports_outlined, color: tinta),
-                  title: const Text('Practicar a detectar estafas', style: TextStyle(color: tinta)),
+                  leading: const Icon(
+                    Icons.sports_esports_outlined,
+                    color: tinta,
+                  ),
+                  title: const Text(
+                    'Practicar a detectar estafas',
+                    style: TextStyle(color: tinta),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     widget.alPracticar!();
                   },
                 ),
-              if (!kIsWeb) ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.notifications_active_outlined, color: tinta),
-                title: const Text('Probar el aviso', style: TextStyle(color: tinta)),
-                onTap: () => _plataforma.invokeMethod('probarAlerta'),
-              ),
-              if (!kIsWeb) ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.verified_user_outlined, color: tinta),
-                title: const Text('Revisar permisos', style: TextStyle(color: tinta)),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BienvenidaPage(desdeAjustes: true)));
-                },
-              ),
+              if (!kIsWeb)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(
+                    Icons.notifications_active_outlined,
+                    color: tinta,
+                  ),
+                  title: const Text(
+                    'Probar el aviso',
+                    style: TextStyle(color: tinta),
+                  ),
+                  onTap: () => _plataforma.invokeMethod('probarAlerta'),
+                ),
+              if (!kIsWeb)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(
+                    Icons.verified_user_outlined,
+                    color: tinta,
+                  ),
+                  title: const Text(
+                    'Revisar permisos',
+                    style: TextStyle(color: tinta),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const BienvenidaPage(desdeAjustes: true),
+                      ),
+                    );
+                  },
+                ),
             ],
           ),
         ),
@@ -224,26 +346,32 @@ class _AjustesState extends State<_Ajustes> {
   }
 }
 
-
 /// Aviso de privacidad del análisis en el servidor (escrito; el cóndor también lo dice la primera vez).
 class _AvisoPrivacidad extends StatelessWidget {
   const _AvisoPrivacidad();
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: const Color(0xFFE3ECF8), borderRadius: BorderRadius.circular(12)),
-        child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.lock_outline_rounded, color: Color(0xFF004294)),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Antes de salir de tu celular, AIESS tapa tus datos personales: nombre, cédula, teléfono, cuentas, tarjetas y tu dirección de correo. '
-              'Solo viajan las señales del engaño (enlaces, dominios, montos). El servidor lo procesa en memoria y lo borra al terminar: '
-              'no se guarda en archivos, no queda en registros y no se usa para entrenar.',
-              style: TextStyle(color: Color(0xFF183675), fontSize: 15, height: 1.35),
-            ),
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: Tono.superficie,
+      border: Border.all(color: Tono.linea),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: const Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.lock_outline_rounded, color: Tono.lima),
+        SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            'Antes de salir de tu celular, AIESS tapa tus datos personales: nombre, cédula, teléfono, cuentas, tarjetas y tu dirección de correo. '
+            'Solo viajan las señales del engaño (enlaces, dominios, montos). El servidor lo procesa en memoria y lo borra al terminar: '
+            'no se guarda en archivos, no queda en registros y no se usa para entrenar.',
+            style: TextStyle(color: Tono.tinta, fontSize: 15, height: 1.35),
           ),
-        ]),
-      );
+        ),
+      ],
+    ),
+  );
 }

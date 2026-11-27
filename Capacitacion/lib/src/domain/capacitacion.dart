@@ -83,10 +83,7 @@ class MapaIndicios {
       estados[indicio] ?? EstadoIndicio.sinProbar;
 
   MapaIndicios con(Iterable<Indicio> indicios, EstadoIndicio estado) =>
-      MapaIndicios({
-        ...estados,
-        for (final i in indicios) i: estado,
-      });
+      MapaIndicios({...estados, for (final i in indicios) i: estado});
 
   /// Indicios que conviene incluir en el siguiente correo: DEBIL o
   /// SIN_PROBAR.

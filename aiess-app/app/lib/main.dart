@@ -6,6 +6,7 @@ import 'package:capacitacion/src/data/actividad_repository.dart';
 import 'package:capacitacion/src/presentation/rutas.dart' as cap_rutas;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,6 +31,8 @@ Future<void> main() async {
   if (!kIsWeb) await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent, statusBarIconBrightness: Brightness.light));
+  // Web: el árbol de accesibilidad siempre activo, para que los lectores de pantalla (NVDA, VoiceOver) lean la página.
+  if (kIsWeb) SemanticsBinding.instance.ensureSemantics();
   final yaConfigurado = (await SharedPreferences.getInstance()).getBool('bienvenida') ?? false;
   runApp(ProviderScope(
     // El aula virtual lee su catálogo desde el paquete del módulo de capacitación.
@@ -45,7 +48,7 @@ Future<void> main() async {
     theme: temaAIess(),
     // En web no hay permisos de Android que configurar: se entra directo.
     // Web angosta (celular en el navegador): la pantalla de la app, centrada sobre el azul.
-    builder: (context, child) => kIsWeb && MediaQuery.sizeOf(context).width < 900
+    builder: (context, child) => kIsWeb && !WebEscritorio.cabe(context, MediaQuery.sizeOf(context).width)
         ? ColoredBox(
             color: const Color(0xFF0A1B3A),
             child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: child)),
@@ -53,7 +56,7 @@ Future<void> main() async {
         : child!,
     // Web en computadora: diseño propio de dos columnas.
     home: kIsWeb
-        ? LayoutBuilder(builder: (context, c) => c.maxWidth >= 900 ? const WebEscritorio() : const InicioPage())
+        ? LayoutBuilder(builder: (context, c) => WebEscritorio.cabe(context, c.maxWidth) ? const WebEscritorio() : const InicioPage())
         : (yaConfigurado ? const InicioPage() : const BienvenidaPage()),
   )));
 }

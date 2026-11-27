@@ -46,7 +46,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _compartir.setMethodCallHandler((c) async {
-      if (c.method == 'compartido') _recibir(Map<String, dynamic>.from(c.arguments as Map));
+      if (c.method == 'compartido')
+        _recibir(Map<String, dynamic>.from(c.arguments as Map));
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Map? inicial;
@@ -55,14 +56,17 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
           inicial = await _compartir.invokeMethod<Map>('inicial');
         } catch (_) {}
       }
-      if (inicial != null && (inicial['texto'] != null || inicial['imagen'] != null)) {
+      if (inicial != null &&
+          (inicial['texto'] != null || inicial['imagen'] != null)) {
         _recibir(Map<String, dynamic>.from(inicial));
       } else {
         if (await _faltaSegundoPlano()) return;
         await _revisarPortapapeles();
-        Voz.i.decir(_copiado != null
-            ? 'Hola, soy AIess. Veo que copiaste un mensaje. Toca Pegar y revisar.'
-            : 'Hola, soy AIess, tu cóndor guardián. Copia un correo sospechoso y toca Pegar y revisar, o tócame el micrófono y háblame.');
+        Voz.i.decir(
+          _copiado != null
+              ? 'Hola, soy AIess. Veo que copiaste un mensaje. Toca Pegar y revisar.'
+              : 'Hola, soy AIess, tu cóndor guardián. Copia un correo sospechoso y toca Pegar y revisar, o tócame el micrófono y háblame.',
+        );
       }
     });
   }
@@ -75,7 +79,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState s) {
-    if (s == AppLifecycleState.resumed && _modo != _Modo.resultado) _revisarPortapapeles();
+    if (s == AppLifecycleState.resumed && _modo != _Modo.resultado)
+      _revisarPortapapeles();
   }
 
   /// Sin permiso de segundo plano, Android duerme al guardián y no salen los pop-ups de correo.
@@ -83,17 +88,25 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     if (kIsWeb) return false;
     const plataforma = MethodChannel('aiess/plataforma');
     try {
-      final p = Map<String, dynamic>.from(await plataforma.invokeMethod('permisos'));
+      final p = Map<String, dynamic>.from(
+        await plataforma.invokeMethod('permisos'),
+      );
       if (p['pantallaCompleta'] == false) {
         setState(() => _titular = 'Un permiso más');
-        await Voz.i.decir('Para avisarte aunque tu celular esté bloqueado, activa el permiso de pantalla completa para AIESS.');
+        await Voz.i.decir(
+          'Para avisarte aunque tu celular esté bloqueado, activa el permiso de pantalla completa para AIESS.',
+        );
         await plataforma.invokeMethod('abrirAjustesPantallaCompleta');
         if (mounted) setState(() => _titular = 'Hola, soy AIess');
         return true;
       }
-      if (p['bateria'] == true && p['autoinicio'] == true && p['ahorroFabricante'] == false) {
+      if (p['bateria'] == true &&
+          p['autoinicio'] == true &&
+          p['ahorroFabricante'] == false) {
         setState(() => _titular = 'Último ajuste');
-        await Voz.i.decir('Tu celular congela las apps para ahorrar batería. En la siguiente pantalla toca AIESS y elige Sin restricciones.');
+        await Voz.i.decir(
+          'Tu celular congela las apps para ahorrar batería. En la siguiente pantalla toca AIESS y elige Sin restricciones.',
+        );
         await plataforma.invokeMethod('abrirAhorroFabricante');
         if (mounted) setState(() => _titular = 'Hola, soy AIess');
         return true;
@@ -101,13 +114,17 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       if (p['bateria'] == true && p['autoinicio'] == true) return false;
       if (p['bateria'] == true) {
         setState(() => _titular = 'Un ajuste más');
-        await Voz.i.decir('Para avisarte al instante, busca AIESS en la siguiente pantalla y activa el inicio automático.');
+        await Voz.i.decir(
+          'Para avisarte al instante, busca AIESS en la siguiente pantalla y activa el inicio automático.',
+        );
         await plataforma.invokeMethod('abrirInicioAutomatico');
         if (mounted) setState(() => _titular = 'Hola, soy AIess');
         return true;
       }
       setState(() => _titular = 'Necesito un permiso');
-      await Voz.i.decir('Para avisarte de correos peligrosos aunque no tengas la app abierta, toca Permitir en el siguiente mensaje.');
+      await Voz.i.decir(
+        'Para avisarte de correos peligrosos aunque no tengas la app abierta, toca Permitir en el siguiente mensaje.',
+      );
       await plataforma.invokeMethod('abrirAjustesBateria');
       if (mounted) setState(() => _titular = 'Hola, soy AIess');
       return true;
@@ -119,12 +136,17 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   Future<void> _revisarPortapapeles() async {
     ClipboardData? d;
     try {
-      d = await Clipboard.getData(Clipboard.kTextPlain); // en web puede pedir permiso o fallar
+      d = await Clipboard.getData(
+        Clipboard.kTextPlain,
+      ); // en web puede pedir permiso o fallar
     } catch (_) {}
     final t = d?.text?.trim();
     setState(() {
-      _copiado = (t != null && t.length >= 8 && t != _ultimoAnalizado) ? t : null;
-      if (_modo != _Modo.resultado) _modo = _copiado != null ? _Modo.copiado : _Modo.hablar;
+      _copiado = (t != null && t.length >= 8 && t != _ultimoAnalizado)
+          ? t
+          : null;
+      if (_modo != _Modo.resultado)
+        _modo = _copiado != null ? _Modo.copiado : _Modo.hablar;
     });
   }
 
@@ -134,7 +156,10 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     await Voz.i.decir(texto);
   }
 
-  Future<void> _analizar(Entrada e, {List<String> pasosPrevios = const []}) async {
+  Future<void> _analizar(
+    Entrada e, {
+    List<String> pasosPrevios = const [],
+  }) async {
     HapticFeedback.mediumImpact();
     setState(() {
       _estado = EstadoPantera.analizando;
@@ -198,7 +223,9 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
 
   Future<void> _elegirCaptura() async {
     if (kIsWeb) {
-      await _decir('En la versión web no puedo leer imágenes. Copia el texto del correo y toca Pegar y revisar.');
+      await _decir(
+        'En la versión web no puedo leer imágenes. Copia el texto del correo y toca Pegar y revisar.',
+      );
       return;
     }
     final r = await FilePicker.pickFiles(type: FileType.image);
@@ -230,7 +257,9 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         _titular = 'Hola, soy AIess';
         _pasos = [];
       });
-      await _decir('No pude leer texto en esa imagen. Prueba con una captura más clara.');
+      await _decir(
+        'No pude leer texto en esa imagen. Prueba con una captura más clara.',
+      );
       return;
     }
     // Regla determinista: si la imagen no es un correo o mensaje, no se inventa un veredicto.
@@ -242,10 +271,15 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         _titular = 'No es un correo';
         _pasos = [];
       });
-      await _decir('$motivo Toma una captura del correo o mensaje completo y vuelve a intentarlo.');
+      await _decir(
+        '$motivo Toma una captura del correo o mensaje completo y vuelve a intentarlo.',
+      );
       return;
     }
-    await _analizar(Entrada(lectura.paraAnalizar(), canal: 'captura de pantalla'), pasosPrevios: ['Leyendo la imagen']);
+    await _analizar(
+      Entrada(lectura.paraAnalizar(), canal: 'captura de pantalla'),
+      pasosPrevios: ['Leyendo la imagen'],
+    );
   }
 
   Future<void> _pulsar() async {
@@ -264,7 +298,9 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
             _estado = EstadoPantera.reposo;
             _titular = 'Hola, soy AIess';
           });
-          await _decir('No te escuché bien. Toca el botón y vuelve a intentarlo.');
+          await _decir(
+            'No te escuché bien. Toca el botón y vuelve a intentarlo.',
+          );
           return;
         }
         final p = plegar(dicho);
@@ -310,14 +346,21 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
 
   Future<void> _reportar() async {
     final c = Canales.i.contacto;
-    final uri = Uri(scheme: 'mailto', path: c['seguridad_informacion'], query: _query({
-      'subject': 'Reporte de posible phishing (AIESS)',
-      'body': 'Recibí este mensaje sospechoso:\n\n${_entrada?.texto ?? ''}\n\nSeñales detectadas: ${_veredicto?.explicacion ?? ''}',
-    }));
+    final uri = Uri(
+      scheme: 'mailto',
+      path: c['seguridad_informacion'],
+      query: _query({
+        'subject': 'Reporte de posible phishing (AIESS)',
+        'body':
+            'Recibí este mensaje sospechoso:\n\n${_entrada?.texto ?? ''}\n\nSeñales detectadas: ${_veredicto?.explicacion ?? ''}',
+      }),
+    );
     await launchUrl(uri);
   }
 
-  String _query(Map<String, String> m) => m.entries.map((e) => '${e.key}=${Uri.encodeComponent(e.value)}').join('&');
+  String _query(Map<String, String> m) => m.entries
+      .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+      .join('&');
 
   void _tocarPantera() {
     final v = _veredicto;
@@ -328,7 +371,9 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     }
   }
 
-  void _abrirPractica() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PracticarPage()));
+  void _abrirPractica() => Navigator.of(
+    context,
+  ).push(MaterialPageRoute(builder: (_) => const PracticarPage()));
 
   /// Pegar y revisar: lee el portapapeles en el momento (poka-yoke: si no hay nada, el cóndor explica qué hacer).
   Future<void> _pegarYRevisar() async {
@@ -340,8 +385,11 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     if (t.length < 8) {
       HapticFeedback.mediumImpact();
       setState(() => _titular = 'No hay nada copiado');
-      await _decir('Primero copia el correo o el enlace sospechoso. Luego toca Pegar y revisar.');
-      if (mounted && _modo != _Modo.resultado) setState(() => _titular = 'Hola, soy AIess');
+      await _decir(
+        'Primero copia el correo o el enlace sospechoso. Luego toca Pegar y revisar.',
+      );
+      if (mounted && _modo != _Modo.resultado)
+        setState(() => _titular = 'Hola, soy AIess');
       return;
     }
     // Misma regla determinista que en las imágenes; un enlace suelto sí se revisa.
@@ -351,7 +399,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       HapticFeedback.mediumImpact();
       setState(() => _titular = 'No es un correo');
       await _decir('$motivo Copia el texto del correo o el enlace sospechoso.');
-      if (mounted && _modo != _Modo.resultado) setState(() => _titular = 'Hola, soy AIess');
+      if (mounted && _modo != _Modo.resultado)
+        setState(() => _titular = 'Hola, soy AIess');
       return;
     }
     await _analizar(Entrada(t));
@@ -369,7 +418,9 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     final escuchando = _estado == EstadoPantera.escuchando;
     final hoja = _modo == _Modo.resultado
         ? (_veredicto!.phishing ? EstadoHoja.estafa : EstadoHoja.seguro)
-        : (_estado == EstadoPantera.analizando || escuchando ? EstadoHoja.analizando : EstadoHoja.listo);
+        : (_estado == EstadoPantera.analizando || escuchando
+              ? EstadoHoja.analizando
+              : EstadoHoja.listo);
     return AiessHomeScreen(
       estado: hoja,
       estadoMascota: _estado,
@@ -382,7 +433,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       onPasteAndCheck: _pegarYRevisar,
       onVoiceInput: _hablar,
       onPickImage: _elegirCaptura,
-      onOpenSettings: () => mostrarAjustes(context, alPracticar: _abrirPractica),
+      onOpenSettings: () =>
+          mostrarAjustes(context, alPracticar: _abrirPractica),
       onTapMascota: _tocarPantera,
       onReport: () async {
         await _reportar();

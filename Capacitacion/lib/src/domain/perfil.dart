@@ -23,8 +23,7 @@ class Perfil {
   /// Marca de riesgo «cuidador»: verifica por otra persona.
   final bool esCuidador;
 
-  Zona get zona =>
-      tipos.any((t) => t.esInterno) ? Zona.interna : Zona.externa;
+  Zona get zona => tipos.any((t) => t.esInterno) ? Zona.interna : Zona.externa;
 
   /// EX2: letra grande, menos pasos y audio. Se activa por tipo, no por la
   /// edad declarada (CLAUDE.md §14).

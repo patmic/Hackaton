@@ -3,6 +3,12 @@ import 'package:material_ui/material_ui.dart';
 import '../../domain/domain.dart';
 import '../screens/actividad_screen.dart';
 
+/// Verde de "hecho" con buen contraste en tema claro u oscuro.
+Color colorHecho(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+    ? const Color(0xFF3DDC4A)
+    : const Color(0xFF17703A);
+
 String duracionLegible(int segundos) =>
     segundos < 60 ? '$segundos s' : '${(segundos / 60).ceil()} min';
 
@@ -26,7 +32,7 @@ class ActividadTile extends StatelessWidget {
     final textos = Theme.of(context).textTheme;
     final detalle =
         '${actividad.mecanica.nombre} · ${duracionLegible(actividad.duracionSegundos)}';
-    const verde = Color(0xFF17703A);
+    final verde = colorHecho(context);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -44,7 +50,7 @@ class ActividadTile extends StatelessWidget {
               CircleAvatar(
                 radius: 24,
                 backgroundColor: completada
-                    ? const Color(0xFFE6F4EA)
+                    ? verde.withValues(alpha: 0.16)
                     : esquema.primaryContainer,
                 child: Icon(
                   completada ? Icons.check_rounded : Icons.play_arrow_rounded,

@@ -4,6 +4,8 @@ import 'dart:ui' show FontVariation;
 import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';
+
+import 'tema.dart';
 import 'package:flutter/services.dart';
 
 import '../features/mascota/pantera.dart';
@@ -13,25 +15,25 @@ import 'texto_vivo.dart';
 
 class Paleta {
   // Colores del IESS (sitio oficial): azul 004294, azul oscuro 183675, amarillo FCC602. Rojo/verde solo para el veredicto.
-  static const petroleo = Color(0xFF004294);
-  static const bermellon = Color(0xFFD6312B);
-  static const hoja = Color(0xFF1E8E3E);
-  static const ambar = Color(0xFFFCC602);
-  static const tintaPetroleo = Color(0xFF183675);
+  static const petroleo = Tono.fondo2; // ThemeGreen --bg-2
+  static const bermellon = Tono.rojo; // --live
+  static const hoja = Tono.verde;
+  static const ambar = Tono.lima; // --lime
+  static const tintaPetroleo = Tono.sobreLima; // --on-lime
 
   static Color panel(EstadoPantera e) => switch (e) {
-        EstadoPantera.alerta => bermellon,
-        EstadoPantera.seguro => hoja,
-        _ => petroleo,
-      };
+    EstadoPantera.alerta => const Color(0xFF4A1220),
+    EstadoPantera.seguro => const Color(0xFF123A1A),
+    _ => petroleo,
+  };
 
   /// Color de la onda fina que flota sobre la foto.
   static Color linea(EstadoPantera e) => switch (e) {
-        EstadoPantera.alerta => const Color(0xFFFFB4A9),
-        EstadoPantera.seguro => const Color(0xFFB7F0CB),
-        EstadoPantera.escuchando => const Color(0xFF9FE0FF),
-        _ => ambar,
-      };
+    EstadoPantera.alerta => Tono.rojo,
+    EstadoPantera.seguro => Tono.verde,
+    EstadoPantera.escuchando => Tono.cielo,
+    _ => ambar,
+  };
 }
 
 class EscenaPantera extends StatelessWidget {
@@ -51,6 +53,7 @@ class EscenaPantera extends StatelessWidget {
 
   final EstadoPantera estado;
   final String titular, subtitulo;
+
   /// Pasos de carga que se van generando (vacío = mostrar el texto del cóndor).
   final List<String> pasos;
   final double? progreso;
@@ -75,9 +78,20 @@ class EscenaPantera extends StatelessWidget {
             right: 0,
             top: 0,
             height: alto - panel + 56,
-            child: Pantera(estado: estado, forma: Forma.plena, alTocar: alTocarPantera),
+            child: Pantera(
+              estado: estado,
+              forma: Forma.plena,
+              alTocar: alTocarPantera,
+            ),
           ),
-          if (encima != null) Positioned(left: 0, right: 0, top: 0, height: alto - panel, child: encima!),
+          if (encima != null)
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              height: alto - panel,
+              child: encima!,
+            ),
           Positioned(
             left: 0,
             right: 0,
@@ -94,29 +108,68 @@ class EscenaPantera extends StatelessWidget {
                   children: [
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 320),
-                      layoutBuilder: (actual, previos) => Stack(alignment: Alignment.topLeft, children: [...previos, if (actual != null) actual]),
+                      layoutBuilder: (actual, previos) => Stack(
+                        alignment: Alignment.topLeft,
+                        children: [...previos, if (actual != null) actual],
+                      ),
                       transitionBuilder: (c, a) => FadeTransition(
-                          opacity: a, child: SlideTransition(position: Tween(begin: const Offset(0, .12), end: Offset.zero).animate(a), child: c)),
+                        opacity: a,
+                        child: SlideTransition(
+                          position: Tween(
+                            begin: const Offset(0, .12),
+                            end: Offset.zero,
+                          ).animate(a),
+                          child: c,
+                        ),
+                      ),
                       child: Text(
                         titular,
                         key: ValueKey(titular),
                         maxLines: 2,
-                        style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], fontSize: 32, fontWeight: FontWeight.w700, height: 1.1, letterSpacing: -0.8, color: Colors.white),
+                        style: const TextStyle(
+                          fontFamily: 'Lexend',
+                          fontVariations: const [FontVariation('wght', 700)],
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700,
+                          height: 1.1,
+                          letterSpacing: -0.8,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Expanded(
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
-                        layoutBuilder: (actual, previos) => Stack(alignment: Alignment.topLeft, children: [...previos, if (actual != null) actual]),
+                        layoutBuilder: (actual, previos) => Stack(
+                          alignment: Alignment.topLeft,
+                          children: [...previos, if (actual != null) actual],
+                        ),
                         child: pasos.isNotEmpty
-                            ? Align(key: const ValueKey('pasos'), alignment: Alignment.topLeft, child: PasosCarga(pasos: pasos, progreso: progreso, color: Colors.white, acento: Paleta.ambar))
+                            ? Align(
+                                key: const ValueKey('pasos'),
+                                alignment: Alignment.topLeft,
+                                child: PasosCarga(
+                                  pasos: pasos,
+                                  progreso: progreso,
+                                  color: Colors.white,
+                                  acento: Paleta.ambar,
+                                ),
+                              )
                             : SingleChildScrollView(
                                 key: ValueKey(subtitulo),
                                 child: subtitulo.isEmpty
                                     ? const SizedBox.shrink()
-                                    : TextoVivo(subtitulo,
-                                        estilo: TextStyle(fontSize: 18, height: 1.45, color: Colors.white.withValues(alpha: 0.95))),
+                                    : TextoVivo(
+                                        subtitulo,
+                                        estilo: TextStyle(
+                                          fontSize: 18,
+                                          height: 1.45,
+                                          color: Colors.white.withValues(
+                                            alpha: 0.95,
+                                          ),
+                                        ),
+                                      ),
                               ),
                       ),
                     ),
@@ -132,28 +185,49 @@ class EscenaPantera extends StatelessWidget {
             top: mq.padding.top + 8,
             left: m - 8,
             right: m - 8,
-            child: Row(children: [
-              if (izquierda != null) izquierda!,
-              const Spacer(),
-              ValueListenableBuilder<bool>(
-                valueListenable: Cerebro.i.cargando,
-                builder: (_, cargando, __) => AnimatedOpacity(
-                  opacity: cargando ? 1 : 0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.45), borderRadius: BorderRadius.circular(20)),
-                    child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                      SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2.2, color: Paleta.ambar)),
-                      SizedBox(width: 8),
-                      Text('Despertando…', style: TextStyle(color: Colors.white, fontSize: 14)),
-                    ]),
+            child: Row(
+              children: [
+                if (izquierda != null) izquierda!,
+                const Spacer(),
+                ValueListenableBuilder<bool>(
+                  valueListenable: Cerebro.i.cargando,
+                  builder: (_, cargando, __) => AnimatedOpacity(
+                    opacity: cargando ? 1 : 0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.2,
+                              color: Paleta.ambar,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Despertando…',
+                            style: TextStyle(color: Colors.white, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const Spacer(),
-              if (derecha != null) derecha!,
-            ]),
+                const Spacer(),
+                if (derecha != null) derecha!,
+              ],
+            ),
           ),
         ],
       ),
@@ -163,7 +237,12 @@ class EscenaPantera extends StatelessWidget {
 
 /// Retroalimentación al tocar: se hunde un poco y vibra suave. Usado por todos los botones.
 class Presionable extends StatefulWidget {
-  const Presionable({super.key, required this.child, required this.alPulsar, this.forma = const StadiumBorder()});
+  const Presionable({
+    super.key,
+    required this.child,
+    required this.alPulsar,
+    this.forma = const StadiumBorder(),
+  });
   final Widget child;
   final VoidCallback? alPulsar;
   final ShapeBorder forma;
@@ -192,7 +271,11 @@ class _PresionableState extends State<Presionable> {
         scale: _abajo ? 0.95 : 1,
         duration: const Duration(milliseconds: 90),
         curve: Curves.easeOut,
-        child: AnimatedOpacity(opacity: activo ? 1 : 0.5, duration: const Duration(milliseconds: 200), child: widget.child),
+        child: AnimatedOpacity(
+          opacity: activo ? 1 : 0.5,
+          duration: const Duration(milliseconds: 200),
+          child: widget.child,
+        ),
       ),
     );
   }
@@ -200,29 +283,42 @@ class _PresionableState extends State<Presionable> {
 
 /// Botón de ícono redondo de 48 dp sobre la foto (fondo translúcido para que se lea).
 class BotonCirculo extends StatelessWidget {
-  const BotonCirculo({super.key, required this.icono, required this.texto, required this.alPulsar});
+  const BotonCirculo({
+    super.key,
+    required this.icono,
+    required this.texto,
+    required this.alPulsar,
+  });
   final IconData icono;
   final String texto;
   final VoidCallback alPulsar;
 
   @override
   Widget build(BuildContext context) => Semantics(
-        button: true,
-        label: texto,
-        child: Presionable(
-          alPulsar: alPulsar,
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.38), shape: BoxShape.circle),
-            child: Icon(icono, color: Colors.white, size: 24),
-          ),
+    button: true,
+    label: texto,
+    child: Presionable(
+      alPulsar: alPulsar,
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.38),
+          shape: BoxShape.circle,
         ),
-      );
+        child: Icon(icono, color: Colors.white, size: 24),
+      ),
+    ),
+  );
 }
 
 class PanelOla extends StatefulWidget {
-  const PanelOla({super.key, required this.color, required this.linea, required this.child});
+  const PanelOla({
+    super.key,
+    required this.color,
+    required this.linea,
+    required this.child,
+  });
   final Color color, linea;
   final Widget child;
 
@@ -230,8 +326,12 @@ class PanelOla extends StatefulWidget {
   State<PanelOla> createState() => _PanelOlaState();
 }
 
-class _PanelOlaState extends State<PanelOla> with SingleTickerProviderStateMixin {
-  late final _t = AnimationController(vsync: this, duration: const Duration(seconds: 8))..repeat();
+class _PanelOlaState extends State<PanelOla>
+    with SingleTickerProviderStateMixin {
+  late final _t = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 8),
+  )..repeat();
   double _energia = 0.15;
 
   @override
@@ -248,13 +348,18 @@ class _PanelOlaState extends State<PanelOla> with SingleTickerProviderStateMixin
       duration: const Duration(milliseconds: 650),
       curve: Curves.easeOutCubic,
       builder: (_, color, child) => AnimatedBuilder(
-        animation: Listenable.merge([_t, Voz.i.silaba, Voz.i.hablando, Voz.i.escuchando]),
+        animation: Listenable.merge([
+          _t,
+          Voz.i.silaba,
+          Voz.i.hablando,
+          Voz.i.escuchando,
+        ]),
         builder: (_, __) {
           final meta = Voz.i.hablando.value
               ? 0.55 + Voz.i.silaba.value * 0.45
               : Voz.i.escuchando.value
-                  ? 0.6
-                  : 0.15;
+              ? 0.6
+              : 0.15;
           _energia += (meta - _energia) * 0.1;
           final fase = reducido ? 0.0 : _t.value * 2 * pi * 8;
           return CustomPaint(
@@ -273,11 +378,19 @@ class _PanelOlaState extends State<PanelOla> with SingleTickerProviderStateMixin
 }
 
 /// y del borde en x (0..ancho). `capa` desplaza fase y amplitud para las líneas finas.
-double _ola(double x, double ancho, double fase, double energia, [int capa = 0]) {
+double _ola(
+  double x,
+  double ancho,
+  double fase,
+  double energia, [
+  int capa = 0,
+]) {
   final u = x / ancho;
   final amp = 4 + 22 * energia;
   return 32 -
-      sin(u * 2 * pi * (1.15 + capa * 0.35) + fase * (1 + capa * 0.3) + capa) * amp * (1 - capa * 0.25) -
+      sin(u * 2 * pi * (1.15 + capa * 0.35) + fase * (1 + capa * 0.3) + capa) *
+          amp *
+          (1 - capa * 0.25) -
       sin(u * 2 * pi * 2.7 - fase * 0.7) * amp * 0.22;
 }
 
@@ -316,12 +429,13 @@ class _LineasOla extends CustomPainter {
         x == 0 ? p.moveTo(x, y) : p.lineTo(x, y);
       }
       canvas.drawPath(
-          p,
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 3.0 - capa * 0.6
-            ..strokeCap = StrokeCap.round
-            ..color = color.withValues(alpha: (0.25 + energia * 0.6) / capa));
+        p,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0 - capa * 0.6
+          ..strokeCap = StrokeCap.round
+          ..color = color.withValues(alpha: (0.25 + energia * 0.6) / capa),
+      );
     }
   }
 
@@ -331,7 +445,14 @@ class _LineasOla extends CustomPainter {
 
 /// Botón principal: 64 dp, radio 20, ícono en disco. Se hunde y vibra al tocarlo.
 class BotonUnico extends StatelessWidget {
-  const BotonUnico({super.key, required this.texto, required this.icono, required this.alPulsar, this.fondo = Paleta.ambar, this.tinta = Paleta.tintaPetroleo});
+  const BotonUnico({
+    super.key,
+    required this.texto,
+    required this.icono,
+    required this.alPulsar,
+    this.fondo = Paleta.ambar,
+    this.tinta = Paleta.tintaPetroleo,
+  });
   final String texto;
   final IconData icono;
   final VoidCallback? alPulsar;
@@ -346,7 +467,10 @@ class BotonUnico extends StatelessWidget {
         alPulsar: alPulsar,
         child: Container(
           height: 64,
-          decoration: BoxDecoration(color: fondo, borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(
+            color: fondo,
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Row(
             children: [
               const SizedBox(width: 10),
@@ -358,10 +482,19 @@ class BotonUnico extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(texto,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: tinta, fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -0.2)),
+                child: Text(
+                  texto,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Lexend',
+                    fontVariations: const [FontVariation('wght', 700)],
+                    color: tinta,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
             ],
@@ -374,7 +507,11 @@ class BotonUnico extends StatelessWidget {
 
 /// Botón redondo de micrófono (Háblame), 64 dp; se ilumina mientras escucha.
 class BotonMicrofono extends StatelessWidget {
-  const BotonMicrofono({super.key, required this.escuchando, required this.alPulsar});
+  const BotonMicrofono({
+    super.key,
+    required this.escuchando,
+    required this.alPulsar,
+  });
   final bool escuchando;
   final VoidCallback? alPulsar;
 
@@ -394,7 +531,11 @@ class BotonMicrofono extends StatelessWidget {
             color: escuchando ? Paleta.ambar : Paleta.tintaPetroleo,
             border: Border.all(color: Paleta.ambar, width: 3),
           ),
-          child: Icon(Icons.mic_rounded, size: 30, color: escuchando ? Paleta.tintaPetroleo : Paleta.ambar),
+          child: Icon(
+            Icons.mic_rounded,
+            size: 30,
+            color: escuchando ? Paleta.tintaPetroleo : Paleta.ambar,
+          ),
         ),
       ),
     );

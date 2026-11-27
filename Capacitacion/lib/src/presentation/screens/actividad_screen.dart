@@ -78,9 +78,9 @@ class _Contenido extends ConsumerWidget {
             for (final i in actividad.indicios)
               ListTile(
                 dense: true,
-                leading: const Icon(
+                leading: Icon(
                   Icons.warning_amber_rounded,
-                  color: Color(0xFFB3261E),
+                  color: Theme.of(context).colorScheme.error,
                   size: 28,
                 ),
                 title: Text(i.nombre),
@@ -120,9 +120,9 @@ class _Contenido extends ConsumerWidget {
             child: completada
                 ? OutlinedButton.icon(
                     onPressed: () => Navigator.of(context).maybePop(),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.check_circle_rounded,
-                      color: Color(0xFF17703A),
+                      color: colorHecho(context),
                     ),
                     label: const Text('Ya la hiciste · Volver'),
                   )

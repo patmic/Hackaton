@@ -22,14 +22,23 @@ curl -fsSL https://get.docker.com | sudo sh
 sudo usermod -aG docker $USER && newgrp docker
 ```
 
-## 4. Subir los archivos (desde tu PC)
+## 4. Compilar la web para el servidor
+La web usa la misma dirección desde la que se abre (Caddy pasa la API al modelo), así que se compila sin URL fija:
+```bash
+cd app
+flutter build web --release --no-web-resources-cdn --dart-define-from-file=secretos.json --dart-define=AIESS_SERVIDOR=
+```
+Para probarla en tu PC igual que en el servidor: `python servidor/servir_web_local.py app/build/web 8090 http://127.0.0.1:8080`
+y abre http://127.0.0.1:8090.
+
+## 5. Subir los archivos (desde tu PC)
 ```bash
 scp -r servidor ubuntu@IP_DEL_SERVIDOR:~/aiess
 scp modelos/aiess-lfm2-1.2b-Q4_K_M.gguf ubuntu@IP_DEL_SERVIDOR:~/aiess/modelos/
 scp -r app/build/web ubuntu@IP_DEL_SERVIDOR:~/aiess/web
 ```
 
-## 5. Arrancar
+## 6. Arrancar
 ```bash
 cd ~/aiess
 cp .env.ejemplo .env      # pon AIESS_CLAVE; con dominio: DOMINIO=ia.tudominio.com (HTTPS automático)

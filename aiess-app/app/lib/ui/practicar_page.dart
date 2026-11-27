@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';
+
+import 'tema.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,7 +36,9 @@ class _PracticarPageState extends State<PracticarPage> {
   }
 
   Future<void> _cargar() async {
-    final j = jsonDecode(await rootBundle.loadString('assets/data/simulaciones.json')) as Map<String, dynamic>;
+    final j =
+        jsonDecode(await rootBundle.loadString('assets/data/simulaciones.json'))
+            as Map<String, dynamic>;
     _ejercicios = List<Map<String, dynamic>>.from(j['ejercicios'] as List);
     _pistas = Map<String, String>.from(j['pistas'] as Map);
     _racha = (await SharedPreferences.getInstance()).getInt('racha') ?? 0;
@@ -56,10 +60,18 @@ class _PracticarPageState extends State<PracticarPage> {
     _racha = ok ? _racha + 1 : 0;
     (await SharedPreferences.getInstance()).setInt('racha', _racha);
     setState(() => _acerto = ok);
-    final pistas = List<String>.from(_actual!['pistas'] as List).take(2).join(' ');
-    await Voz.i.decir(ok
-        ? (esEstafa ? '¡Muy bien! Era una estafa. $pistas' : '¡Muy bien! Era un mensaje seguro.')
-        : (esEstafa ? 'Cuidado, era una estafa. $pistas' : 'Este era seguro. $pistas'));
+    final pistas = List<String>.from(
+      _actual!['pistas'] as List,
+    ).take(2).join(' ');
+    await Voz.i.decir(
+      ok
+          ? (esEstafa
+                ? '¡Muy bien! Era una estafa. $pistas'
+                : '¡Muy bien! Era un mensaje seguro.')
+          : (esEstafa
+                ? 'Cuidado, era una estafa. $pistas'
+                : 'Este era seguro. $pistas'),
+    );
   }
 
   @override
@@ -73,7 +85,9 @@ class _PracticarPageState extends State<PracticarPage> {
     final a = _actual;
     final estado = _acerto == null
         ? EstadoPantera.reposo
-        : (a!['respuesta'] == 'PHISHING' ? EstadoPantera.alerta : EstadoPantera.seguro);
+        : (a!['respuesta'] == 'PHISHING'
+              ? EstadoPantera.alerta
+              : EstadoPantera.seguro);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Practicar'),
@@ -81,12 +95,30 @@ class _PracticarPageState extends State<PracticarPage> {
           Container(
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(20)),
-            child: Row(children: [
-              const Icon(Icons.local_fire_department_rounded, color: Paleta.ambar, size: 20),
-              const SizedBox(width: 4),
-              Text('$_racha', style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: Paleta.ambar, fontSize: 18, fontWeight: FontWeight.w700)),
-            ]),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.local_fire_department_rounded,
+                  color: Paleta.ambar,
+                  size: 20,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '$_racha',
+                  style: const TextStyle(
+                    fontFamily: 'Lexend',
+                    fontVariations: const [FontVariation('wght', 700)],
+                    color: Paleta.ambar,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -99,7 +131,10 @@ class _PracticarPageState extends State<PracticarPage> {
             Expanded(
               child: a == null
                   ? const Center(child: CircularProgressIndicator())
-                  : SingleChildScrollView(padding: const EdgeInsets.fromLTRB(20, 4, 20, 20), child: _Tarjeta(a, _acerto != null, _pistas)),
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                      child: _Tarjeta(a, _acerto != null, _pistas),
+                    ),
             ),
             SizedBox(
               height: 300,
@@ -111,27 +146,66 @@ class _PracticarPageState extends State<PracticarPage> {
                   child: SafeArea(
                     top: false,
                     minimum: const EdgeInsets.only(bottom: 20),
-                    child: Column(children: [
-                      Row(children: [
-                        Pantera(estado: estado, tam: 64, encuadre: Encuadre.cara),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            _acerto == null ? '¿Estafa o seguro?' : (_acerto! ? '¡Correcto!' : 'Casi…'),
-                            style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700, letterSpacing: -0.8),
-                          ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Pantera(
+                              estado: estado,
+                              tam: 64,
+                              encuadre: Encuadre.cara,
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                _acerto == null
+                                    ? '¿Estafa o seguro?'
+                                    : (_acerto! ? '¡Correcto!' : 'Casi…'),
+                                style: const TextStyle(
+                                  fontFamily: 'Lexend',
+                                  fontVariations: const [
+                                    FontVariation('wght', 700),
+                                  ],
+                                  color: Colors.white,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.8,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ]),
-                      const Spacer(),
-                      if (_acerto == null)
-                        Row(children: [
-                          Expanded(child: _Opcion('Estafa', Icons.gpp_bad_rounded, Paleta.bermellon, () => _responder(true))),
-                          const SizedBox(width: 12),
-                          Expanded(child: _Opcion('Seguro', Icons.verified_user_rounded, Paleta.hoja, () => _responder(false))),
-                        ])
-                      else
-                        BotonUnico(texto: 'Otro mensaje', icono: Icons.arrow_forward_rounded, alPulsar: _siguiente),
-                    ]),
+                        const Spacer(),
+                        if (_acerto == null)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _Opcion(
+                                  'Estafa',
+                                  Icons.gpp_bad_rounded,
+                                  Paleta.bermellon,
+                                  () => _responder(true),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _Opcion(
+                                  'Seguro',
+                                  Icons.verified_user_rounded,
+                                  Paleta.hoja,
+                                  () => _responder(false),
+                                ),
+                              ),
+                            ],
+                          )
+                        else
+                          BotonUnico(
+                            texto: 'Otro mensaje',
+                            icono: Icons.arrow_forward_rounded,
+                            alPulsar: _siguiente,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -152,21 +226,33 @@ class _Opcion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: alPulsar,
-          child: SizedBox(
-            height: 80,
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(icono, color: color, size: 30),
-              const SizedBox(width: 8),
-              Text(texto, style: TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], color: color, fontSize: 23, fontWeight: FontWeight.w700)),
-            ]),
-          ),
+    color: Tono.superficie,
+    borderRadius: BorderRadius.circular(24),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(24),
+      onTap: alPulsar,
+      child: SizedBox(
+        height: 80,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icono, color: color, size: 30),
+            const SizedBox(width: 8),
+            Text(
+              texto,
+              style: TextStyle(
+                fontFamily: 'Lexend',
+                fontVariations: const [FontVariation('wght', 700)],
+                color: color,
+                fontSize: 23,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 /// El mensaje de práctica. Los enlaces se muestran como texto (nunca se pueden tocar).
@@ -180,7 +266,9 @@ class _Tarjeta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cuerpo = e['cuerpo'] as String;
-    final marcas = revelar ? List<Map<String, dynamic>>.from(e['resaltados'] as List) : <Map<String, dynamic>>[];
+    final marcas = revelar
+        ? List<Map<String, dynamic>>.from(e['resaltados'] as List)
+        : <Map<String, dynamic>>[];
     marcas.sort((x, y) => (x['inicio'] as int).compareTo(y['inicio'] as int));
     final trozos = <TextSpan>[];
     var pos = 0;
@@ -188,7 +276,15 @@ class _Tarjeta extends StatelessWidget {
       final ini = m['inicio'] as int, fin = m['fin'] as int;
       if (ini < pos || fin > cuerpo.length) continue;
       trozos.add(TextSpan(text: cuerpo.substring(pos, ini)));
-      trozos.add(TextSpan(text: cuerpo.substring(ini, fin), style: const TextStyle(backgroundColor: Color(0xFFFFE08A), fontWeight: FontWeight.w700)));
+      trozos.add(
+        TextSpan(
+          text: cuerpo.substring(ini, fin),
+          style: const TextStyle(
+            backgroundColor: Color(0xFFFFE08A),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      );
       pos = fin;
     }
     trozos.add(TextSpan(text: cuerpo.substring(pos)));
@@ -197,32 +293,75 @@ class _Tarjeta extends StatelessWidget {
     final esSms = e['tipo'] == 'sms';
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(esSms ? 28 : 18)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(esSms ? 28 : 18),
+      ),
       child: DefaultTextStyle(
-        style: const TextStyle(color: tinta, fontSize: 18, height: 1.45, fontFamily: 'Atkinson'),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Icon(esSms ? Icons.sms_rounded : Icons.mail_rounded, color: Paleta.petroleo, size: 22),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text((e['asunto'] as String).isEmpty ? 'Mensaje de texto' : e['asunto'] as String,
-                  style: const TextStyle(fontFamily: 'Lexend', fontVariations: const [FontVariation('wght', 700)], fontWeight: FontWeight.w700, fontSize: 19)),
+        style: const TextStyle(
+          color: tinta,
+          fontSize: 18,
+          height: 1.45,
+          fontFamily: 'Atkinson',
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  esSms ? Icons.sms_rounded : Icons.mail_rounded,
+                  color: Paleta.petroleo,
+                  size: 22,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    (e['asunto'] as String).isEmpty
+                        ? 'Mensaje de texto'
+                        : e['asunto'] as String,
+                    style: const TextStyle(
+                      fontFamily: 'Lexend',
+                      fontVariations: const [FontVariation('wght', 700)],
+                      fontWeight: FontWeight.w700,
+                      fontSize: 19,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ]),
-          const SizedBox(height: 12),
-          Text.rich(TextSpan(children: trozos)),
-          for (final l in enlaces)
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Row(children: [
-                const Icon(Icons.link_off_rounded, size: 20, color: Colors.black45),
-                const SizedBox(width: 6),
-                Expanded(child: Text(l['url'] as String, style: const TextStyle(color: Colors.black54, fontSize: 15))),
-              ]),
+            const SizedBox(height: 12),
+            Text.rich(TextSpan(children: trozos)),
+            for (final l in enlaces)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.link_off_rounded,
+                      size: 20,
+                      color: Colors.black45,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        l['url'] as String,
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 14),
+            const Text(
+              'Mensaje de práctica. No es real.',
+              style: TextStyle(color: Colors.black45, fontSize: 14),
             ),
-          const SizedBox(height: 14),
-          const Text('Mensaje de práctica. No es real.', style: TextStyle(color: Colors.black45, fontSize: 14)),
-        ]),
+          ],
+        ),
       ),
     );
   }

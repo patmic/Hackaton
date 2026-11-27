@@ -87,8 +87,7 @@ class PerfilNotifier extends Notifier<Perfil> {
 
   void elegirRango(RangoEtario? rango) => state = state.conRango(rango);
 
-  void marcarCuidador(bool valor) =>
-      state = state.copyWith(esCuidador: valor);
+  void marcarCuidador(bool valor) => state = state.copyWith(esCuidador: valor);
 }
 
 final perfilProvider = NotifierProvider<PerfilNotifier, Perfil>(
