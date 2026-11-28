@@ -144,6 +144,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
               : 'No abras sus enlaces ni entregues datos. Si quieres, avisa al IESS.',
           fuente: 'sello',
           selloEstado: 'valido',
+          salio: const ['el código del sello a SellaCorreo'],
         );
         _estado = r.valido ? EstadoRobot.seguro : EstadoRobot.alerta;
         _pasos = [];

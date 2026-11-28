@@ -396,6 +396,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
             : 'No abras sus enlaces ni entregues datos. Si quieres, avisa al IESS.',
         fuente: 'sello',
         selloEstado: 'valido',
+        salio: const ['el código del sello a SellaCorreo'],
       );
       _estado = r.valido ? EstadoRobot.seguro : EstadoRobot.alerta;
       _titular = r.valido ? 'Firma válida' : 'Sello falso';

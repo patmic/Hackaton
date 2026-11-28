@@ -260,7 +260,10 @@ Veredicto aplicarSello(
 }) {
   switch (estado) {
     case 'valido':
-      return conFirmaValida(v).copiar(selloEstado: 'valido');
+      return conFirmaValida(v).copiar(
+        selloEstado: 'valido',
+        salio: ['el código del sello a SellaCorreo', ...v.salio],
+      );
     case 'falso':
       final ind = indiciosValidos([
         ...v.indicios,
@@ -276,6 +279,7 @@ Veredicto aplicarSello(
         queHacer: queHacerEstafa(),
         fuente: 'sello',
         selloEstado: 'falso',
+        salio: ['el código del sello a SellaCorreo', ...v.salio],
       );
     case 'sin_verificar':
       return v.copiar(
