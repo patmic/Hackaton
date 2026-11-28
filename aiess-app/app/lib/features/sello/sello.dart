@@ -50,6 +50,41 @@ const _motivoLeo = {
       'Este sello es de una versión anterior y ya no se puede verificar. $_cierreSello',
 };
 
+/// Enlaces envueltos por el correo: Outlook («Vínculos seguros»: safelinks.protection.outlook.com/?url=…),
+/// Gmail (google.com/url?q=…) y otros protectores reescriben cada enlace y lo codifican (%2F…). Así el enlace del
+/// sello no se veía y el correo salía «sin sello». Se reemplazan por su destino real, ya decodificado.
+final _envoltorio = RegExp(
+  r'https?://[^\s<>"\]\)]*(safelinks\.protection\.outlook\.com|google\.com/url|urldefense\.(com|proofpoint\.com)|'
+  r'l\.facebook\.com/l\.php|t\.co/|lnks\.gd|mail\.yahoo\.com/[^\s]*redirect)[^\s<>"\]\)]*',
+  caseSensitive: false,
+);
+
+String desenvolverEnlaces(String texto) {
+  var t = texto.replaceAllMapped(_envoltorio, (m) {
+    final u = Uri.tryParse(m.group(0)!.replaceAll('&amp;', '&'));
+    final destino =
+        u?.queryParameters['url'] ??
+        u?.queryParameters['q'] ??
+        u?.queryParameters['u'] ??
+        u?.queryParameters['target'];
+    return (destino != null && destino.startsWith('http'))
+        ? destino
+        : m.group(0)!;
+  });
+  // Por si el enlace quedó codificado sin envoltorio (https%3A%2F%2F…%2Fcheckin%2F…).
+  t = t.replaceAllMapped(
+    RegExp(r'https?%3A%2F%2F[^\s<>"&]+', caseSensitive: false),
+    (m) {
+      try {
+        return Uri.decodeComponent(m.group(0)!);
+      } catch (_) {
+        return m.group(0)!;
+      }
+    },
+  );
+  return t;
+}
+
 class Sello {
   /// Servidor oficial de SellaCorreo (secreto de compilación, igual que AIESS_SERVIDOR).
   static const servidor = String.fromEnvironment('AIESS_SELLO');
@@ -59,7 +94,8 @@ class Sello {
   );
 
   /// ¿El texto trae el enlace de un sello? Devuelve «token.huella» o null.
-  static String? codigoEn(String texto) => _enlace.firstMatch(texto)?.group(2);
+  static String? codigoEn(String texto) => _codigoEn(desenvolverEnlaces(texto));
+  static String? _codigoEn(String texto) => _enlace.firstMatch(texto)?.group(2);
 
   static Future<ResultadoSello> verificar(
     String texto, {
@@ -67,7 +103,7 @@ class Sello {
     String? servidorOficial,
   }) async {
     final servidor = servidorOficial ?? Sello.servidor;
-    final m = _enlace.firstMatch(texto);
+    final m = _enlace.firstMatch(desenvolverEnlaces(texto));
     if (m == null) {
       return const ResultadoSello(
         valido: false,

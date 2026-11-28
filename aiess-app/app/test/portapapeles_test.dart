@@ -24,4 +24,27 @@ void main() {
     expect(conEnlacesDelHtml(texto, null), texto);
     expect(conEnlacesDelHtml('', html), contains('Estimado afiliado'));
   });
+
+  test(
+    'Outlook (Vínculos seguros) y Gmail envuelven el enlace del sello: se recupera',
+    () {
+      const outlook =
+          'Estimado afiliado: ver sello https://nam12.safelinks.protection.outlook.com/?url=https%3A%2F%2Fsella.ejemplo.ec'
+          '%2Fcheckin%2FmJgSxhVLg8t0ZtpOGrVdPrUy.ee183dcd83d7d994&data=05%7C02%7C&sdata=abc&reserved=0';
+      expect(
+        Sello.codigoEn(outlook),
+        'mJgSxhVLg8t0ZtpOGrVdPrUy.ee183dcd83d7d994',
+      );
+      expect(
+        desenvolverEnlaces(outlook),
+        contains('https://sella.ejemplo.ec/checkin/'),
+      );
+      const gmail =
+          'https://www.google.com/url?q=https://sella.ejemplo.ec/checkin/mJgSxhVLg8t0ZtpOGrVdPrUy.ee183dcd83d7d994&sa=D';
+      expect(
+        Sello.codigoEn(gmail),
+        'mJgSxhVLg8t0ZtpOGrVdPrUy.ee183dcd83d7d994',
+      );
+    },
+  );
 }

@@ -304,6 +304,13 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     String canal = 'mensaje copiado',
     List<String> pasosPrevios = const [],
   }) async {
+    // Outlook y Gmail envuelven los enlaces (también el del sello): se recupera el destino real.
+    t = desenvolverEnlaces(t);
+    // Diagnóstico sin datos personales (solo tamaños y si se encontró el sello): `adb logcat -s flutter`.
+    debugPrint(
+      'AIESS revisar: canal=$canal largo=${t.length} enlaces=${urlRe.allMatches(t).length} '
+      'sello=${Sello.codigoEn(t) != null}',
+    );
     var estado = 'sin_sello';
     String? mensaje;
     var ajeno = false;
@@ -667,7 +674,11 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         ).invokeMethod<String>('portapapelesHtml');
       } catch (_) {}
     }
-    return conEnlacesDelHtml(t, html);
+    debugPrint(
+      'AIESS portapapeles: texto=${t.length} html=${html?.length ?? -1} '
+      'enlacesHtml=${html == null ? 0 : RegExp('href', caseSensitive: false).allMatches(html).length}',
+    );
+    return desenvolverEnlaces(conEnlacesDelHtml(t, html));
   }
 
   /// Pegar y revisar: lee el portapapeles en el momento (poka-yoke: si no hay nada, el robot explica qué hacer).
