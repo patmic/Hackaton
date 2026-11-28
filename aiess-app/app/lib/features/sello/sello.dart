@@ -157,7 +157,38 @@ class Sello {
   /// El guardián del celular solo ve el ASUNTO de la notificación (no el correo ni sus enlaces). Le pregunta a
   /// SellaCorreo si el IESS selló un correo con ese asunto; el servidor busca ese sello y verifica su firma.
   /// Se envía SOLO la huella del asunto. `valido` = hay un sello válido.
+  /// Variantes del asunto por si el aviso del celular le pegó la vista previa («Asunto - inicio del correo»).
+  static List<String> variantesAsunto(String asunto) {
+    final a = asunto.trim();
+    final v = <String>[a];
+    for (final sep in [' - ', ' — ', ' – ', ' | ', '  ']) {
+      final k = a.indexOf(sep);
+      if (k > 8) v.add(a.substring(0, k).trim());
+    }
+    return v.toSet().toList();
+  }
+
+  /// Consulta por asunto probando sus variantes: se detiene en la primera que esté sellada o si no hay conexión.
   static Future<ResultadoSello> porAsunto(
+    String asunto, {
+    http.Client? cliente,
+    String? servidorOficial,
+  }) async {
+    ResultadoSello? ultimo;
+    for (final a in variantesAsunto(asunto)) {
+      final r = await _porAsuntoUno(
+        a,
+        cliente: cliente,
+        servidorOficial: servidorOficial,
+      );
+      if (r.valido || r.sinRespuesta) return r;
+      ultimo = r;
+    }
+    return ultimo ??
+        const ResultadoSello(valido: false, motivo: 'sin_sello', mensaje: '');
+  }
+
+  static Future<ResultadoSello> _porAsuntoUno(
     String asunto, {
     http.Client? cliente,
     String? servidorOficial,

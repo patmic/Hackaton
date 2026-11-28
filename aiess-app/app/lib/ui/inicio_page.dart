@@ -277,6 +277,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     );
     final r = await Sello.porAsunto(asunto);
     if (!mounted) return;
+    debugPrint('AIESS aviso: sellado=${r.valido} motivo=${r.motivo}');
     final v = Sello.veredictoPorAsunto(r, asunto);
     HapticFeedback.heavyImpact();
     setState(() {
