@@ -76,10 +76,20 @@ class Voz {
     }
     hablando.value = true;
     final partes = await VozLeo.i.partir(texto);
-    for (final p in partes) {
+    for (var k = 0; k < partes.length; k++) {
       if (turno != _turno) return;
+      final p = partes[k];
       final sono = p.archivo != null && await _reproducir(p, turno);
-      if (!sono && turno == _turno) await _decirSistema(p);
+      if (turno != _turno) return;
+      if (!sono && p.archivo != null) {
+        // Un audio de Leo no cargó o no sonó: TODO lo que falta lo dice la voz del sistema de una vez, para que
+        // nunca se quede a medias (antes se quedaba callado después de «Encontré N indicios»).
+        await _decirSistema(
+          ParteVoz(texto.substring(p.inicio), p.inicio, texto.length),
+        );
+        break;
+      }
+      if (!sono) await _decirSistema(p);
       if (turno == _turno) avance.value = p.fin;
     }
     if (turno == _turno) _fin();
@@ -89,8 +99,11 @@ class Voz {
   Future<bool> _reproducir(ParteVoz p, int turno) async {
     StreamSubscription<Duration>? sub;
     try {
-      final dur = await _audio.setAsset('assets/voz/${p.archivo}');
+      final dur = await _audio
+          .setAsset('assets/voz/${p.archivo}')
+          .timeout(const Duration(seconds: 4));
       final total = dur?.inMilliseconds ?? 0;
+      if (total <= 0) return false;
       sub = _audio.positionStream.listen((pos) {
         if (turno != _turno) return;
         final ms = pos.inMilliseconds;
@@ -107,9 +120,14 @@ class Voz {
             : 0.35; // la cabeza de Leo se mueve mientras habla
       });
       unawaited(_audio.play());
-      await _audio.processingStateStream.firstWhere(
-        (s) => s == ProcessingState.completed || s == ProcessingState.idle,
-      );
+      // Nunca se queda esperando: en el navegador el aviso de «terminó» a veces no llega. Se espera lo que dura
+      // el audio (más un margen) y se sigue con el siguiente trozo.
+      await Future.any([
+        _audio.processingStateStream.firstWhere(
+          (s) => s == ProcessingState.completed,
+        ),
+        Future.delayed(Duration(milliseconds: total + 700)),
+      ]);
       await _audio.pause();
       return true;
     } catch (_) {
@@ -123,7 +141,13 @@ class Voz {
   Future<void> _decirSistema(ParteVoz p) async {
     _ttsBase = p.inicio;
     _ttsFin = p.fin;
-    await _tts.speak(pronunciar(p.texto));
+    // Límite por si la voz del sistema no avisa que terminó (pasa en algunos navegadores).
+    await _tts
+        .speak(pronunciar(p.texto))
+        .timeout(
+          Duration(milliseconds: 4000 + p.texto.length * 90),
+          onTimeout: () => null,
+        );
   }
 
   Future<void> _detener() async {
