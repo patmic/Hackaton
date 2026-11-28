@@ -155,6 +155,19 @@ class _WebEscritorioState extends State<WebEscritorio> {
       // Firma válida: el correo es del IESS. Revisar el texto con la IA es opcional y SOLO con un «Sí».
       return;
     }
+    // Trae la IMAGEN del sello pero al copiarla se perdió su enlace (pasa al copiar desde Outlook o Gmail):
+    // no se marca «sin sello»; se pide traer el enlace.
+    if (t.contains('ANTI-PHISHING')) {
+      const m =
+          'Este correo trae la imagen del sello del IESS, pero al copiarlo se perdió su enlace. '
+          'Haz clic derecho sobre la imagen del sello, elige «Copiar dirección del enlace» y pégala aquí.';
+      setState(() {
+        _aviso = m;
+        _v = null;
+      });
+      Voz.i.decir(m);
+      return;
+    }
     if (t.length < 8) {
       setState(
         () => _aviso =
