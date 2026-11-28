@@ -161,7 +161,7 @@ class Sello {
   static List<String> variantesAsunto(String asunto) {
     final a = asunto.trim();
     final v = <String>[a];
-    for (final sep in [' - ', ' — ', ' – ', ' | ', '  ']) {
+    for (final sep in [' • ', ' - ', ' — ', ' – ', ' | ', '  ']) {
       final k = a.indexOf(sep);
       if (k > 8) v.add(a.substring(0, k).trim());
     }

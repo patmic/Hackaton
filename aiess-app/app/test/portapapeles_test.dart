@@ -47,4 +47,16 @@ void main() {
       );
     },
   );
+
+  test(
+    'aviso de Outlook: «Asunto • inicio del correo» → se usa solo el asunto',
+    () {
+      expect(
+        Sello.variantesAsunto(
+          'IESS: Su cita médica fue confirmada (caso 3) • Estimado afiliado: Su cita médica en el Hospital',
+        ),
+        contains('IESS: Su cita médica fue confirmada (caso 3)'),
+      );
+    },
+  );
 }

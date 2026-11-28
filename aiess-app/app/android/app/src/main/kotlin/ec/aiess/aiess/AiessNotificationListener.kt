@@ -142,7 +142,10 @@ class AiessNotificationListener : NotificationListenerService() {
         // y EXTRA_BIG_TEXT agrega el inicio del mensaje: ese NO se lee).
         // Cada app de correo arma el aviso distinto (Yahoo y Outlook a veces ponen el asunto en el título o junto
         // a la vista previa). Se toma el primer campo CORTO cuya primera línea habla del IESS.
-        fun linea(k: String) = n.extras.getCharSequence(k)?.toString()?.lineSequence()?.firstOrNull()?.trim().orEmpty()
+        // Outlook junta «Asunto • inicio del correo» en una sola línea: se corta en « • » para quedarse SOLO con el
+        // asunto (privacidad: el cuerpo nunca sale del aviso) y para que su huella coincida con la del sello.
+        fun linea(k: String) = n.extras.getCharSequence(k)?.toString()?.lineSequence()?.firstOrNull()
+            ?.substringBefore(" • ")?.trim().orEmpty()
         val candidatos = listOf(Notification.EXTRA_TEXT, Notification.EXTRA_TITLE, Notification.EXTRA_SUB_TEXT)
             .map { linea(it) }
         val asunto = candidatos.firstOrNull { it.isNotBlank() && PreFiltro.asuntoDelIess(it) }.orEmpty()
