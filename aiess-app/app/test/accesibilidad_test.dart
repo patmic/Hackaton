@@ -32,7 +32,7 @@ Widget _app(EstadoHoja estado, {double letra = 1, bool escuchando = false}) =>
             },
             titulo: estado == EstadoHoja.estafa
                 ? '¡Es una estafa!'
-                : 'Hola, soy AIess',
+                : 'Hola, soy Leo',
             pasos: estado == EstadoHoja.analizando
                 ? const ['Mirando el enlace', 'Pensándolo con mi cerebro']
                 : const [],

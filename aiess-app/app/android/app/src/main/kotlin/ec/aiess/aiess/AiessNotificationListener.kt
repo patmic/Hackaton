@@ -140,9 +140,18 @@ class AiessNotificationListener : NotificationListenerService() {
         if (n.flags and Notification.FLAG_ONGOING_EVENT != 0) return
         // En Gmail, Outlook y la mayoría de apps de correo, EXTRA_TEXT es el asunto (EXTRA_TITLE es el remitente
         // y EXTRA_BIG_TEXT agrega el inicio del mensaje: ese NO se lee).
-        val asunto = n.extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
-            ?.lineSequence()?.firstOrNull()?.trim().orEmpty()
-        if (asunto.isBlank() || !PreFiltro.asuntoDelIess(asunto)) return
+        // Cada app de correo arma el aviso distinto (Yahoo y Outlook a veces ponen el asunto en el título o junto
+        // a la vista previa). Se toma el primer campo CORTO cuya primera línea habla del IESS.
+        // Outlook junta «Asunto • inicio del correo» en una sola línea: se corta en « • » para quedarse SOLO con el
+        // asunto (privacidad: el cuerpo nunca sale del aviso) y para que su huella coincida con la del sello.
+        fun linea(k: String) = n.extras.getCharSequence(k)?.toString()?.lineSequence()?.firstOrNull()
+            ?.substringBefore(" • ")?.trim().orEmpty()
+        val candidatos = listOf(Notification.EXTRA_TEXT, Notification.EXTRA_TITLE, Notification.EXTRA_SUB_TEXT)
+            .map { linea(it) }
+        val asunto = candidatos.firstOrNull { it.isNotBlank() && PreFiltro.asuntoDelIess(it) }.orEmpty()
+        if (asunto.isBlank()) return
+        // Diagnóstico solo de correos del IESS y solo en el registro del propio celular (adb logcat -s AIESS).
+        Log.i(TAG, "aviso $app: texto=«${candidatos[0].take(90)}» titulo=«${candidatos[1].take(60)}» sub=«${candidatos[2].take(40)}» -> asunto=«$asunto»")
 
         val firma = (sbn.key + sbn.postTime + asunto).hashCode()
         synchronized(vistos) {

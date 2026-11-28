@@ -31,7 +31,10 @@ class MainActivity : FlutterActivity() {
     private fun leerCompartido(i: Intent?): Map<String, String?>? {
         if (i?.action != Intent.ACTION_SEND) return null
         val tipo = i.type ?: return null
-        if (tipo.startsWith("text/")) return mapOf("texto" to i.getStringExtra(Intent.EXTRA_TEXT))
+        if (tipo.startsWith("text/")) return mapOf(
+            "texto" to i.getStringExtra(Intent.EXTRA_TEXT),
+            "html" to i.getStringExtra(Intent.EXTRA_HTML_TEXT),
+        )
         if (tipo.startsWith("image/")) {
             val uri: Uri? = if (Build.VERSION.SDK_INT >= 33) i.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
             else @Suppress("DEPRECATION") i.getParcelableExtra(Intent.EXTRA_STREAM)

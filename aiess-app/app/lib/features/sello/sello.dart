@@ -31,6 +31,60 @@ class ResultadoSello {
   bool get sinRespuesta => motivo == 'sin_conexion' || motivo == 'limite';
 }
 
+/// Motivos de SellaCorreo dichos por Leo (guion de Leo, audios E10–E17 en assets/voz).
+const _cierreSello =
+    'Podría ser una estafa: no hagas clic en sus enlaces ni entregues tus datos.';
+const _motivoLeo = {
+  'enlace_malformado':
+      'Ese enlace no tiene el formato del sello del IESS. $_cierreSello',
+  'no_registrado':
+      'El IESS no tiene registrado ningún correo con este sello. $_cierreSello',
+  'hash_distinto':
+      'El enlace del sello fue alterado: no coincide con el registro del IESS. $_cierreSello',
+  'contenido_alterado':
+      'Los datos de este sello fueron alterados. $_cierreSello',
+  'firma_invalida':
+      'La firma digital de este sello no es válida. $_cierreSello',
+  'caducado': 'El sello de este correo ya caducó. $_cierreSello',
+  'sello_anterior':
+      'Este sello es de una versión anterior y ya no se puede verificar. $_cierreSello',
+};
+
+/// Enlaces envueltos por el correo: Outlook («Vínculos seguros»: safelinks.protection.outlook.com/?url=…),
+/// Gmail (google.com/url?q=…) y otros protectores reescriben cada enlace y lo codifican (%2F…). Así el enlace del
+/// sello no se veía y el correo salía «sin sello». Se reemplazan por su destino real, ya decodificado.
+final _envoltorio = RegExp(
+  r'https?://[^\s<>"\]\)]*(safelinks\.protection\.outlook\.com|google\.com/url|urldefense\.(com|proofpoint\.com)|'
+  r'l\.facebook\.com/l\.php|t\.co/|lnks\.gd|mail\.yahoo\.com/[^\s]*redirect)[^\s<>"\]\)]*',
+  caseSensitive: false,
+);
+
+String desenvolverEnlaces(String texto) {
+  var t = texto.replaceAllMapped(_envoltorio, (m) {
+    final u = Uri.tryParse(m.group(0)!.replaceAll('&amp;', '&'));
+    final destino =
+        u?.queryParameters['url'] ??
+        u?.queryParameters['q'] ??
+        u?.queryParameters['u'] ??
+        u?.queryParameters['target'];
+    return (destino != null && destino.startsWith('http'))
+        ? destino
+        : m.group(0)!;
+  });
+  // Por si el enlace quedó codificado sin envoltorio (https%3A%2F%2F…%2Fcheckin%2F…).
+  t = t.replaceAllMapped(
+    RegExp(r'https?%3A%2F%2F[^\s<>"&]+', caseSensitive: false),
+    (m) {
+      try {
+        return Uri.decodeComponent(m.group(0)!);
+      } catch (_) {
+        return m.group(0)!;
+      }
+    },
+  );
+  return t;
+}
+
 class Sello {
   /// Servidor oficial de SellaCorreo (secreto de compilación, igual que AIESS_SERVIDOR).
   static const servidor = String.fromEnvironment('AIESS_SELLO');
@@ -40,7 +94,8 @@ class Sello {
   );
 
   /// ¿El texto trae el enlace de un sello? Devuelve «token.huella» o null.
-  static String? codigoEn(String texto) => _enlace.firstMatch(texto)?.group(2);
+  static String? codigoEn(String texto) => _codigoEn(desenvolverEnlaces(texto));
+  static String? _codigoEn(String texto) => _enlace.firstMatch(texto)?.group(2);
 
   static Future<ResultadoSello> verificar(
     String texto, {
@@ -48,7 +103,7 @@ class Sello {
     String? servidorOficial,
   }) async {
     final servidor = servidorOficial ?? Sello.servidor;
-    final m = _enlace.firstMatch(texto);
+    final m = _enlace.firstMatch(desenvolverEnlaces(texto));
     if (m == null) {
       return const ResultadoSello(
         valido: false,
@@ -85,7 +140,8 @@ class Sello {
       return ResultadoSello(
         valido: d['valido'] == true,
         motivo: '${d['motivo'] ?? 'desconocido'}',
-        mensaje: '${d['mensaje'] ?? ''}',
+        // El servidor responde en «usted»; Leo lo dice con su propia frase (y su audio) según el motivo.
+        mensaje: _motivoLeo[d['motivo']] ?? '${d['mensaje'] ?? ''}',
         datos: d,
       );
     } catch (_) {
@@ -93,7 +149,7 @@ class Sello {
         valido: false,
         motivo: 'sin_conexion',
         mensaje:
-            'No pude comprobar el sello ahora (sin conexión). Mientras tanto, no abras sus enlaces.',
+            'No pude comprobar el sello ahora porque no hay conexión. Mientras tanto, no abras sus enlaces.',
       );
     }
   }
@@ -101,7 +157,38 @@ class Sello {
   /// El guardián del celular solo ve el ASUNTO de la notificación (no el correo ni sus enlaces). Le pregunta a
   /// SellaCorreo si el IESS selló un correo con ese asunto; el servidor busca ese sello y verifica su firma.
   /// Se envía SOLO la huella del asunto. `valido` = hay un sello válido.
+  /// Variantes del asunto por si el aviso del celular le pegó la vista previa («Asunto - inicio del correo»).
+  static List<String> variantesAsunto(String asunto) {
+    final a = asunto.trim();
+    final v = <String>[a];
+    for (final sep in [' • ', ' - ', ' — ', ' – ', ' | ', '  ']) {
+      final k = a.indexOf(sep);
+      if (k > 8) v.add(a.substring(0, k).trim());
+    }
+    return v.toSet().toList();
+  }
+
+  /// Consulta por asunto probando sus variantes: se detiene en la primera que esté sellada o si no hay conexión.
   static Future<ResultadoSello> porAsunto(
+    String asunto, {
+    http.Client? cliente,
+    String? servidorOficial,
+  }) async {
+    ResultadoSello? ultimo;
+    for (final a in variantesAsunto(asunto)) {
+      final r = await _porAsuntoUno(
+        a,
+        cliente: cliente,
+        servidorOficial: servidorOficial,
+      );
+      if (r.valido || r.sinRespuesta) return r;
+      ultimo = r;
+    }
+    return ultimo ??
+        const ResultadoSello(valido: false, motivo: 'sin_sello', mensaje: '');
+  }
+
+  static Future<ResultadoSello> _porAsuntoUno(
     String asunto, {
     http.Client? cliente,
     String? servidorOficial,
@@ -127,7 +214,8 @@ class Sello {
       return ResultadoSello(
         valido: d['sellado'] == true,
         motivo: '${d['motivo'] ?? 'desconocido'}',
-        mensaje: '${d['mensaje'] ?? ''}',
+        // El servidor responde en «usted»; Leo lo dice con su propia frase (y su audio) según el motivo.
+        mensaje: _motivoLeo[d['motivo']] ?? '${d['mensaje'] ?? ''}',
         datos: d,
       );
     } catch (_) {
@@ -135,7 +223,7 @@ class Sello {
         valido: false,
         motivo: 'sin_conexion',
         mensaje:
-            'No pude comprobar el sello ahora (sin conexión). Mientras tanto, no abras sus enlaces.',
+            'No pude comprobar el sello ahora porque no hay conexión. Mientras tanto, no abras sus enlaces.',
       );
     }
   }

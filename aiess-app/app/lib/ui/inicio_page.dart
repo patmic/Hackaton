@@ -38,7 +38,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
 
   var _estado = EstadoRobot.reposo;
   var _modo = _Modo.hablar;
-  var _titular = 'Hola, soy AIess';
+  var _titular = 'Hola, soy Leo';
   var _subtitulo = '';
   var _pasos = <String>[];
   double? _progreso;
@@ -71,8 +71,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         await _revisarPortapapeles();
         Voz.i.decir(
           _copiado != null
-              ? 'Hola, soy AIess. Veo que copiaste un mensaje. Toca Pegar y revisar.'
-              : 'Hola, soy AIess, tu robot guardián. Copia un correo sospechoso y toca Pegar y revisar, o tócame el micrófono y háblame.',
+              ? 'Hola, soy Leo. Veo que copiaste un mensaje. Toca Pegar y revisar, y lo vemos juntos.'
+              : 'Hola, soy Leo. Si te llegó un correo raro, cópialo y toca Pegar y revisar. También puedes tocar el micrófono y contarme.',
         );
       }
     });
@@ -110,7 +110,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
           'Para avisarte aunque tu celular esté bloqueado, activa el permiso de pantalla completa para AIESS.',
         );
         await plataforma.invokeMethod('abrirAjustesPantallaCompleta');
-        if (mounted) setState(() => _titular = 'Hola, soy AIess');
+        if (mounted) setState(() => _titular = 'Hola, soy Leo');
         return true;
       }
       if (p['bateria'] == true &&
@@ -118,10 +118,10 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
           p['ahorroFabricante'] == false) {
         setState(() => _titular = 'Último ajuste');
         await Voz.i.decir(
-          'Tu celular congela las apps para ahorrar batería. En la siguiente pantalla toca AIESS y elige Sin restricciones.',
+          'Tu celular congela algunas apps para ahorrar batería. En la siguiente pantalla, toca AIESS y elige Sin restricciones.',
         );
         await plataforma.invokeMethod('abrirAhorroFabricante');
-        if (mounted) setState(() => _titular = 'Hola, soy AIess');
+        if (mounted) setState(() => _titular = 'Hola, soy Leo');
         return true;
       }
       if (p['bateria'] == true && p['autoinicio'] == true) return false;
@@ -131,7 +131,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
           'Para avisarte al instante, busca AIESS en la siguiente pantalla y activa el inicio automático.',
         );
         await plataforma.invokeMethod('abrirInicioAutomatico');
-        if (mounted) setState(() => _titular = 'Hola, soy AIess');
+        if (mounted) setState(() => _titular = 'Hola, soy Leo');
         return true;
       }
       setState(() => _titular = 'Necesito un permiso');
@@ -139,7 +139,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         'Para avisarte de correos peligrosos aunque no tengas la app abierta, toca Permitir en el siguiente mensaje.',
       );
       await plataforma.invokeMethod('abrirAjustesBateria');
-      if (mounted) setState(() => _titular = 'Hola, soy AIess');
+      if (mounted) setState(() => _titular = 'Hola, soy Leo');
       return true;
     } on PlatformException {
       return false;
@@ -190,7 +190,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       _entrada = e;
     });
     if (pasosPrevios.isEmpty && usarModelo) {
-      unawaited(Voz.i.decir('Déjame revisarlo.'));
+      unawaited(Voz.i.decir('Dame un momento, lo reviso.'));
     }
     var adelantado = '';
     final vIA = await Analizador.analizar(
@@ -205,7 +205,8 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         });
       },
       // Reacción inmediata (reglas, en milisegundos) mientras el modelo piensa.
-      alSospechar: () => Voz.i.decir('Mmm, veo algo raro. Déjame confirmarlo.'),
+      alSospechar: () =>
+          Voz.i.decir('Mmm, aquí hay algo raro. Déjame confirmarlo.'),
       // El modelo ya escribió veredicto y voz: el robot habla sin esperar el resto.
       alAdelantar: (phishing, voz) {
         if (!mounted || estadoSello != null) return;
@@ -253,7 +254,10 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     } else if (txt != null && txt.startsWith(marcaAvisoIess)) {
       _guiarVerificacion(txt.substring(marcaAvisoIess.length).trim());
     } else if (txt != null && txt.trim().isNotEmpty) {
-      _revisarTexto(txt, canal: 'mensaje compartido');
+      _revisarTexto(
+        conEnlacesDelHtml(txt, m['html'] as String?),
+        canal: 'mensaje compartido',
+      );
     }
   }
 
@@ -268,9 +272,12 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       _pasos = ['Comprobando el sello con el IESS (solo el asunto)'];
       _progreso = null;
     });
-    unawaited(Voz.i.decir('Verifico el sello de ese correo con el IESS.'));
+    unawaited(
+      Voz.i.decir('Voy a verificar el sello de ese correo con el IESS.'),
+    );
     final r = await Sello.porAsunto(asunto);
     if (!mounted) return;
+    debugPrint('AIESS aviso: sellado=${r.valido} motivo=${r.motivo}');
     final v = Sello.veredictoPorAsunto(r, asunto);
     HapticFeedback.heavyImpact();
     setState(() {
@@ -298,6 +305,13 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     String canal = 'mensaje copiado',
     List<String> pasosPrevios = const [],
   }) async {
+    // Outlook y Gmail envuelven los enlaces (también el del sello): se recupera el destino real.
+    t = desenvolverEnlaces(t);
+    // Diagnóstico sin datos personales (solo tamaños y si se encontró el sello): `adb logcat -s flutter`.
+    debugPrint(
+      'AIESS revisar: canal=$canal largo=${t.length} enlaces=${urlRe.allMatches(t).length} '
+      'sello=${Sello.codigoEn(t) != null}',
+    );
     var estado = 'sin_sello';
     String? mensaje;
     var ajeno = false;
@@ -326,17 +340,13 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     // Desde el aviso o con solo el enlace del sello no tenemos el texto del correo: se toma lo copiado.
     final soloEnlace = Sello.codigoEn(t) != null && t.length < 160;
     if (_entrada?.canal == 'aviso' || soloEnlace || t.length < 40) {
-      ClipboardData? d;
-      try {
-        d = await Clipboard.getData(Clipboard.kTextPlain);
-      } catch (_) {}
-      final copiado = d?.text?.trim() ?? '';
+      final copiado = await _leerPortapapeles();
       if (copiado.length >= 40 && copiado != t) {
         t = copiado;
       } else {
         HapticFeedback.mediumImpact();
         await _decir(
-          'Para que la IA lo revise, abre el correo, copia todo su texto y vuelve a tocar «Revisar con la IA».',
+          'Para que la IA lo revise, abre el correo, copia todo el texto y vuelve a tocar Revisar con la IA.',
         );
         return;
       }
@@ -384,9 +394,10 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         explicacion: detalle,
         queHacer: r.valido
             ? 'Puedes confiar en este correo. Igual, nunca entregues tu clave.'
-            : 'No abras sus enlaces ni entregues datos. Puedes avisar al IESS.',
+            : 'No abras sus enlaces ni entregues datos. Si quieres, avisa al IESS.',
         fuente: 'sello',
         selloEstado: 'valido',
+        salio: const ['el código del sello a SellaCorreo'],
       );
       _estado = r.valido ? EstadoRobot.seguro : EstadoRobot.alerta;
       _titular = r.valido ? 'Firma válida' : 'Sello falso';
@@ -426,7 +437,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       if (texto.trim().length < 8) {
         setState(() {
           _estado = EstadoRobot.reposo;
-          _titular = 'Hola, soy AIess';
+          _titular = 'Hola, soy Leo';
           _pasos = [];
         });
         await _decir(
@@ -492,7 +503,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     if (texto.trim().length < 8) {
       setState(() {
         _estado = EstadoRobot.reposo;
-        _titular = 'Hola, soy AIess';
+        _titular = 'Hola, soy Leo';
         _pasos = [];
       });
       await _decir('No pude leer el PDF. Prueba con una captura del correo.');
@@ -526,7 +537,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     if (lectura.vacia) {
       setState(() {
         _estado = EstadoRobot.reposo;
-        _titular = 'Hola, soy AIess';
+        _titular = 'Hola, soy Leo';
         _pasos = [];
       });
       await _decir(
@@ -544,7 +555,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         _pasos = [];
       });
       await _decir(
-        '$motivo Toma una captura del correo o mensaje completo y vuelve a intentarlo.',
+        '$motivo Toma una captura del correo completo y vuelve a intentarlo.',
       );
       return;
     }
@@ -579,7 +590,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         if (dicho == null) {
           setState(() {
             _estado = EstadoRobot.reposo;
-            _titular = 'Hola, soy AIess';
+            _titular = 'Hola, soy Leo';
           });
           await _decir(
             Voz.i.problemaEscucha ??
@@ -605,7 +616,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
         if (!mounted) return;
         setState(() {
           _estado = EstadoRobot.reposo;
-          _titular = 'Hola, soy AIess';
+          _titular = 'Hola, soy Leo';
         });
         await _decir(r);
       case _Modo.resultado:
@@ -622,7 +633,7 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       _veredicto = null;
       _entrada = null; // la conversación se borra al terminar
       _estado = EstadoRobot.reposo;
-      _titular = 'Hola, soy AIess';
+      _titular = 'Hola, soy Leo';
       _subtitulo = '';
       _modo = _Modo.hablar;
     });
@@ -649,13 +660,41 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     context,
   ).push(MaterialPageRoute(builder: (_) => const PracticarPage()));
 
+  /// Lo copiado, con los ENLACES REALES. Al copiar un correo en Gmail o Yahoo, el texto plano pierde el enlace
+  /// de la imagen del sello (y de los botones); Android los guarda en la versión HTML de lo copiado. Se agregan
+  /// al final como «texto [enlace]» para que el bot verifique el sello y vea a dónde llevan de verdad.
+  Future<String> _leerPortapapeles() async {
+    var t = '';
+    try {
+      t = (await Clipboard.getData(Clipboard.kTextPlain))?.text?.trim() ?? '';
+    } catch (_) {}
+    String? html;
+    if (!kIsWeb) {
+      try {
+        html = await const MethodChannel(
+          'aiess/plataforma',
+        ).invokeMethod<String>('portapapelesHtml');
+      } catch (_) {}
+    }
+    debugPrint(
+      'AIESS portapapeles: texto=${t.length} html=${html?.length ?? -1} '
+      'enlacesHtml=${html == null ? 0 : RegExp('href', caseSensitive: false).allMatches(html).length}',
+    );
+    return desenvolverEnlaces(conEnlacesDelHtml(t, html));
+  }
+
   /// Pegar y revisar: lee el portapapeles en el momento (poka-yoke: si no hay nada, el robot explica qué hacer).
   Future<void> _pegarYRevisar() async {
-    ClipboardData? d;
-    try {
-      d = await Clipboard.getData(Clipboard.kTextPlain);
-    } catch (_) {}
-    final t = d?.text?.trim() ?? '';
+    final t = await _leerPortapapeles();
+    if (Sello.codigoEn(t) == null && t.contains('ANTI-PHISHING')) {
+      HapticFeedback.mediumImpact();
+      setState(() => _titular = 'Falta el enlace del sello');
+      await _decir(
+        'Este correo trae la imagen del sello del IESS, pero al copiarlo se perdió su enlace. '
+        'Mantén presionada la imagen del sello, toca Copiar enlace y vuelve a tocar Pegar y revisar.',
+      );
+      return;
+    }
     // Un enlace de sello se verifica directo (no hace falta leer el correo).
     if (Sello.codigoEn(t) != null) {
       await _revisarTexto(t);
@@ -665,10 +704,10 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       HapticFeedback.mediumImpact();
       setState(() => _titular = 'No hay nada copiado');
       await _decir(
-        'Primero copia el correo o el enlace sospechoso. Luego toca Pegar y revisar.',
+        'Primero copia el correo o el enlace que te preocupa. Luego toca Pegar y revisar.',
       );
       if (mounted && _modo != _Modo.resultado)
-        setState(() => _titular = 'Hola, soy AIess');
+        setState(() => _titular = 'Hola, soy Leo');
       return;
     }
     // Misma regla determinista que en las imágenes; un enlace suelto sí se revisa.
@@ -677,9 +716,11 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
     if (motivo != null && (motivo.contains('diagrama') || !soloEnlace)) {
       HapticFeedback.mediumImpact();
       setState(() => _titular = 'No es un correo');
-      await _decir('$motivo Copia el texto del correo o el enlace sospechoso.');
+      await _decir(
+        '$motivo Copia el texto del correo o el enlace que te preocupa.',
+      );
       if (mounted && _modo != _Modo.resultado)
-        setState(() => _titular = 'Hola, soy AIess');
+        setState(() => _titular = 'Hola, soy Leo');
       return;
     }
     await _revisarTexto(t);
@@ -747,4 +788,34 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       resumen: _modo == _Modo.resultado ? _veredicto?.resumen : null,
     );
   }
+}
+
+/// Texto + los ENLACES REALES de su versión HTML («texto [enlace]»). Al copiar o compartir un correo, el texto
+/// plano pierde el enlace de la imagen del sello y de los botones; el HTML los conserva.
+String conEnlacesDelHtml(String texto, String? html) {
+  var t = texto;
+  if (html == null || html.isEmpty) return t;
+  final enlaces = <String>[];
+  for (final m in RegExp(
+    r'''<a\s[^>]*href\s*=\s*["']([^"']+)["'][^>]*>(.*?)</a>''',
+    caseSensitive: false,
+    dotAll: true,
+  ).allMatches(html)) {
+    final destino = m.group(1)!.replaceAll('&amp;', '&').trim();
+    if (!destino.startsWith('http') || t.contains(destino)) continue;
+    final visible = m
+        .group(2)!
+        .replaceAll(RegExp(r'<[^>]+>'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    enlaces.add('${visible.isEmpty ? 'imagen' : visible} [$destino]');
+  }
+  if (t.isEmpty) {
+    t = html
+        .replaceAll(RegExp(r'<(br|/p|/div)[^>]*>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'<[^>]+>'), ' ')
+        .replaceAll('&nbsp;', ' ')
+        .trim();
+  }
+  return enlaces.isEmpty ? t : '$t\n\n${enlaces.join('\n')}';
 }

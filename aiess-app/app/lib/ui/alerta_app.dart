@@ -82,7 +82,9 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
     });
     HapticFeedback.mediumImpact();
     unawaited(
-      Voz.i.decir('Llegó un correo que dice ser del IESS. Verifico su sello.'),
+      Voz.i.decir(
+        'Te llegó un correo que dice ser del IESS. Voy a verificar su sello.',
+      ),
     );
     final r = await Sello.porAsunto('${p['texto'] ?? ''}');
     if (!mounted) return;
@@ -115,7 +117,7 @@ class _AlertaState extends State<_Alerta> with SingleTickerProviderStateMixin {
       ),
     );
     await Voz.i.decir(
-      'Listo, preparé el reporte. En la demo no sale de tu celular.',
+      'Listo, preparé el reporte para el IESS. Como es una demostración, no sale de tu celular.',
     );
   }
 

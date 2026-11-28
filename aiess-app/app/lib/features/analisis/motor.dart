@@ -6,7 +6,7 @@ import 'dart:math';
 import '../../core/canales.dart';
 import '../osint/url_analyzer.dart';
 
-const nombreMascota = 'AIess';
+const nombreMascota = 'Leo';
 
 final Map<String, RegExp> lexico = {
   'I1':
@@ -30,18 +30,21 @@ final Map<String, RegExp> lexico = {
 }.map((k, v) => MapEntry(k, RegExp(v)));
 
 /// Lo que el robot dice en voz alta por cada señal (orden = prioridad).
+/// Guion de Leo (aiess-app/docs/GUION_LEO.md): cada texto coincide con un audio de assets/voz, no cambiarlo sin
+/// regenerar el audio.
 const motivoVoz = {
-  'I3': 'Te pide tu clave o códigos, y eso nunca se comparte.',
-  'I10': 'Te pide hacer un pago.',
-  'I9': 'Te pide tus datos o tu cédula.',
-  'I2': 'El enlace no lleva a una página oficial del IESS.',
-  'I4': 'El enlace esconde a dónde te lleva.',
-  'I5': 'Trae un archivo peligroso.',
-  'I8': 'Te amenaza con quitarte un beneficio.',
-  'I1': 'Te apura para que no pienses.',
-  'I6': 'Te ofrece dinero que no pediste.',
-  'I11': 'Te pide escanear un código QR desconocido.',
-  'I7': 'Quien lo envía no es una dirección oficial.',
+  'I3':
+      'Te pide tu clave o un código. Tu clave es solo tuya: no se la des a nadie, ni siquiera al IESS.',
+  'I10': 'Te pide hacer un pago o una transferencia.',
+  'I9': 'Te pide tu cédula, una foto o tus datos personales.',
+  'I2': 'El enlace no lleva a la página oficial del IESS.',
+  'I4': 'El enlace está escondido: dice una cosa, pero te lleva a otra.',
+  'I5': 'Trae un archivo o te pide instalar algo, y eso puede ser peligroso.',
+  'I8': 'Te amenaza con quitarte un beneficio para asustarte.',
+  'I1': 'Te apura para que no tengas tiempo de pensar.',
+  'I6': 'Te ofrece un dinero o un premio que tú no pediste.',
+  'I11': 'Te pide escanear un código QR que no sabes a dónde lleva.',
+  'I7': 'Quien lo envía no usa una dirección oficial del IESS.',
 };
 
 /// Nombre de cada indicio (catálogo oficial del reto, sección 3).
@@ -62,20 +65,45 @@ const nombreIndicio = {
 /// «Qué te podría pasar si caes en el engaño», por indicio (lo dice el avatar).
 const riesgoIndicio = {
   'I3':
-      'podrían entrar a tu cuenta del IESS y quedarse con tu pensión o tus préstamos',
+      'podrían entrar a tu cuenta del IESS y quedarse con tu pensión o tus préstamos.',
   'I9':
-      'con tu cédula y tu foto podrían sacar préstamos o abrir cuentas a tu nombre',
-  'I10': 'perderías ese dinero y es muy difícil recuperarlo',
-  'I6': 'te pedirían un pago o tus datos para cobrar un premio que no existe',
+      'con tu cédula y tu foto podrían sacar préstamos o abrir cuentas a tu nombre.',
+  'I10': 'perderías ese dinero, y recuperarlo es muy difícil.',
+  'I6': 'te pedirían un pago o tus datos para cobrar un premio que no existe.',
   'I5':
-      'el archivo podría meter un virus que espía tu celular o tu computadora',
-  'I2': 'la página es una copia falsa que roba lo que escribas',
-  'I4': 'el enlace te lleva a un sitio distinto del que crees',
-  'I11': 'el código QR te lleva a una página falsa sin que lo notes',
-  'I7': 'no te escribe el IESS, aunque lo parezca',
-  'I8': 'te asustan para que actúes sin pensar',
-  'I1': 'el apuro es para que no tengas tiempo de verificar',
+      'ese archivo podría meter un virus que espía tu celular o tu computadora.',
+  'I2': 'esa página es una copia falsa que roba todo lo que escribas.',
+  'I4': 'terminarías en un sitio distinto del que crees.',
+  'I11': 'ese código te llevaría a una página falsa sin que te des cuenta.',
+  'I7': 'no te está escribiendo el IESS, aunque lo parezca.',
+  'I8': 'el susto es para que actúes sin pensar.',
+  'I1': 'el apuro es para que no alcances a verificar.',
 };
+
+const _numeros = [
+  'cero',
+  'un',
+  'dos',
+  'tres',
+  'cuatro',
+  'cinco',
+  'seis',
+  'siete',
+  'ocho',
+  'nueve',
+  'diez',
+  'once',
+];
+
+/// «seis indicios» / «un indicio» (así lo dice el audio de Leo).
+String cantidadIndicios(int n) =>
+    '${n < _numeros.length ? _numeros[n] : '$n'} ${n == 1 ? 'indicio' : 'indicios'}';
+
+/// Aviso de deepfake (rúbrica del jurado), al cierre de cada estafa.
+const avisoDeepfake =
+    'Y un consejo más, sobre los deepfakes: con tus fotos o videos de redes sociales pueden crear un video falso '
+    'tuyo, con tu cara y tu voz, para pedirles dinero a tus amigos y familiares. Si alguien te pide dinero por '
+    'video, cuelga y llámalo tú a su número de siempre.';
 
 /// Solo códigos del catálogo, sin repetir, en el orden en que el avatar los explica.
 List<String> indiciosValidos(Iterable<String> lista) {
@@ -107,7 +135,7 @@ String guionEstafa(List<String> indicios) {
   final b = StringBuffer(
     n == 0
         ? 'Cuidado, este mensaje no es confiable. '
-        : 'Encontré $n ${n == 1 ? 'indicio' : 'indicios'} de estafa. ',
+        : 'Encontré ${cantidadIndicios(n)} de estafa en este correo.${n == 1 ? '' : ' Te los cuento.'} ',
   );
   for (var i = 0; i < n; i++) {
     final k = indicios[i];
@@ -116,23 +144,18 @@ String guionEstafa(List<String> indicios) {
   final riesgos = [
     for (final k in indicios) riesgoIndicio[k]!,
   ].take(2).toList();
-  if (riesgos.isNotEmpty) {
-    b.write('Si caes en el engaño, ${riesgos.join(', y además ')}. ');
-  }
-  b.write(
-    'Y ojo con los deepfakes: con tus fotos o videos de redes sociales pueden crear un video falso tuyo, '
-    'con tu cara y tu voz, para pedirles dinero a tus amigos y familiares. Si alguien te pide dinero por video, '
-    'llámale tú a su número de siempre. ',
-  );
+  if (riesgos.isNotEmpty) b.write('Si caes en el engaño, ${riesgos[0]} ');
+  if (riesgos.length > 1) b.write('Y además, ${riesgos[1]} ');
+  b.write('$avisoDeepfake ');
   return b.toString().trim();
 }
 
 /// Qué hacer y dónde reportar al IESS (canales oficiales del catálogo, sección 4).
 String queHacerEstafa() {
   final c = Canales.i.contacto;
-  return 'No abras sus enlaces ni adjuntos y no respondas. Repórtalo al IESS a ${c['seguridad_informacion']}, '
-      'en ${c['denuncias_web']} o por WhatsApp al ${c['whatsapp']}. Si ya diste tu clave, cámbiala en '
-      '${c['aplicaciones']} o llama al ${c['atencion_telefono']}.';
+  return 'No abras sus enlaces ni sus adjuntos, y no respondas. Repórtalo al IESS: escribe a '
+      '${c['seguridad_informacion']}, entra a ${c['denuncias_web']} o escribe al WhatsApp ${c['whatsapp']}. '
+      'Y si ya diste tu clave, cámbiala en ${c['aplicaciones']} o llama al ${c['atencion_telefono']}.';
 }
 
 class Veredicto {
@@ -220,9 +243,9 @@ class Veredicto {
 
 /// Avisos del sello (SellaCorreo) que se muestran APARTE del veredicto.
 const avisoSinSello =
-    'Este correo no trae el sello del IESS. Si dice ser del IESS, no confíes hasta confirmarlo por un canal oficial.';
+    'Este correo no trae el sello del IESS. Si dice ser del IESS, no confíes todavía: confírmalo por un canal oficial.';
 const avisoSinVerificar =
-    'No pude comprobar el sello del IESS ahora (sin conexión). No confíes hasta poder comprobarlo.';
+    'Ahora no pude comprobar el sello del IESS porque no hay conexión. Mejor no confíes hasta poder comprobarlo.';
 
 /// Combina el resultado del sello con el análisis por indicios (catálogo: Sí si hay al menos un indicio).
 /// - 'valido': la firma es del IESS (si además la IA ve una estafa, cambiaron el texto: [conFirmaValida]).
@@ -237,7 +260,10 @@ Veredicto aplicarSello(
 }) {
   switch (estado) {
     case 'valido':
-      return conFirmaValida(v).copiar(selloEstado: 'valido');
+      return conFirmaValida(v).copiar(
+        selloEstado: 'valido',
+        salio: ['el código del sello a SellaCorreo', ...v.salio],
+      );
     case 'falso':
       final ind = indiciosValidos([
         ...v.indicios,
@@ -248,11 +274,12 @@ Veredicto aplicarSello(
         puntaje: v.puntaje > 90 ? v.puntaje : 90,
         indicios: ind,
         voz:
-            '${mensaje ?? 'El sello de este correo es falso: lo copiaron o lo alteraron.'} ${guionEstafa(ind)}',
+            '${mensaje ?? 'Uy, el sello de este correo es falso: lo copiaron o lo alteraron.'} ${guionEstafa(ind)}',
         explicacion: [for (final k in ind) motivoVoz[k]!].join(' '),
         queHacer: queHacerEstafa(),
         fuente: 'sello',
         selloEstado: 'falso',
+        salio: ['el código del sello a SellaCorreo', ...v.salio],
       );
     case 'sin_verificar':
       return v.copiar(
@@ -305,7 +332,7 @@ String? motivoNoEsMensaje(String texto) {
   );
   final nTecnico = tecnico.allMatches(t).map((m) => m.group(0)).toSet().length;
   if (nTecnico >= 3)
-    return 'Esto parece un documento o diagrama técnico, no un correo ni un mensaje.';
+    return 'Esto parece un documento o un diagrama técnico, no un correo.';
 
   final encabezados = RegExp(
     r'\b(de|para|asunto|cc|enviado|fecha|responder a)\s*:',
@@ -383,8 +410,8 @@ Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
     phishing: false,
     puntaje: min(15, 3 + osint.puntaje ~/ 4),
     voz: hosts.isEmpty
-        ? 'Tranquilo, no encontré señales de estafa. Igual, nunca compartas tu clave.'
-        : 'Tranquilo, el enlace es oficial y no te pide datos. Igual, nunca compartas tu clave.',
+        ? 'Buenas noticias: no encontré indicios de estafa en este correo. Igual, recuerda que tu clave no se comparte con nadie.'
+        : 'Buenas noticias: el enlace es oficial y no te pide datos. Igual, recuerda que tu clave no se comparte con nadie.',
     indicios: const [],
     explicacion: 'No encontré señales de engaño.',
     queHacer:
@@ -396,7 +423,7 @@ Veredicto analizarConReglas(Entrada e, AnalisisOsint osint) {
 
 String systemPrompt() {
   final c = Canales.i.contacto;
-  return 'Eres $nombreMascota, un robot guardián, valiente y cariñoso, mascota de la app AIESS. '
+  return 'Eres $nombreMascota, el guía de la app AIESS: un hombre maduro, tranquilo y de confianza. '
       'Ayudas a afiliados y jubilados del IESS a reconocer estafas. Hablas español de Ecuador, tratas de tú, '
       'con frases cortas y amables, sin emojis, sin listas ni símbolos, porque tus respuestas se leen en voz alta. '
       'Nunca pides claves, códigos, cédula ni datos personales. Solo recomiendas canales oficiales: '
@@ -494,7 +521,7 @@ Veredicto conFirmaValida(Veredicto ia) {
       phishing: false,
       puntaje: ia.puntaje,
       voz:
-          'La firma es válida y el texto no tiene señales de estafa. ${ia.voz}',
+          'La firma del IESS es válida y el texto no tiene señales de estafa. ${ia.voz}',
       indicios: ia.indicios,
       explicacion: ia.explicacion,
       queHacer: ia.queHacer,
@@ -502,7 +529,7 @@ Veredicto conFirmaValida(Veredicto ia) {
     );
   }
   final aviso =
-      'Ojo: la firma del IESS es válida, pero el texto tiene señales de estafa. Puede que hayan cambiado el '
+      'Ojo: la firma del IESS es verdadera, pero el texto tiene señales de estafa. Es posible que hayan cambiado el '
       'contenido de un correo firmado.';
   return Veredicto(
     phishing: true,

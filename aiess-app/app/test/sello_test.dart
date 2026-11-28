@@ -100,7 +100,7 @@ void main() {
         'IESS: aviso',
       );
       expect(v.selloEstado, 'sin_verificar');
-      expect(v.avisoSello, contains('No pude comprobar'));
+      expect(v.avisoSello, contains('pude comprobar'));
     });
   });
 
@@ -225,7 +225,11 @@ void main() {
   ) async {
     SharedPreferences.setMockInitialValues({'observatorio': false});
     // Sin plugins de voz en la prueba: el robot «habla» en silencio.
-    for (final canal in ['flutter_tts', 'plugin.csdcorp.com/speech_to_text']) {
+    for (final canal in [
+      'flutter_tts',
+      'plugin.csdcorp.com/speech_to_text',
+      'com.ryanheise.just_audio.methods',
+    ]) {
       t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         MethodChannel(canal),
         (_) async => null,
@@ -254,7 +258,7 @@ void main() {
       find.byType(TextField),
       'Estimado afiliado: su pensión será suspendida HOY. Actualice su clave en http://iess-pagos.net/login',
     );
-    await t.tap(find.text('Revisar con AIess'));
+    await t.tap(find.text('Revisar con Leo'));
     // El análisis por indicios consulta fuentes públicas (en la prueba no hay red): se espera a que termine.
     await t.runAsync(() => Future.delayed(const Duration(milliseconds: 800)));
     for (var i = 0; i < 10; i++) {

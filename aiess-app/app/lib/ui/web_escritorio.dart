@@ -141,9 +141,10 @@ class _WebEscritorioState extends State<WebEscritorio> {
           explicacion: texto,
           queHacer: r.valido
               ? 'La firma prueba que lo envió el IESS. Si quieres, la IA también revisa el texto (solo con tu permiso).'
-              : 'No abras sus enlaces ni entregues datos. Puedes avisar al IESS.',
+              : 'No abras sus enlaces ni entregues datos. Si quieres, avisa al IESS.',
           fuente: 'sello',
           selloEstado: 'valido',
+          salio: const ['el código del sello a SellaCorreo'],
         );
         _estado = r.valido ? EstadoRobot.seguro : EstadoRobot.alerta;
         _pasos = [];
@@ -153,6 +154,19 @@ class _WebEscritorioState extends State<WebEscritorio> {
       unawaited(Observatorio.registrar(_v!));
       Voz.i.decir(texto);
       // Firma válida: el correo es del IESS. Revisar el texto con la IA es opcional y SOLO con un «Sí».
+      return;
+    }
+    // Trae la IMAGEN del sello pero al copiarla se perdió su enlace (pasa al copiar desde Outlook o Gmail):
+    // no se marca «sin sello»; se pide traer el enlace.
+    if (t.contains('ANTI-PHISHING')) {
+      const m =
+          'Este correo trae la imagen del sello del IESS, pero al copiarlo se perdió su enlace. '
+          'Haz clic derecho sobre la imagen del sello, elige «Copiar dirección del enlace» y pégala aquí.';
+      setState(() {
+        _aviso = m;
+        _v = null;
+      });
+      Voz.i.decir(m);
       return;
     }
     if (t.length < 8) {
@@ -436,8 +450,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                               children: [
                                 Center(
                                   child: Enfocable(
-                                    etiqueta:
-                                        'AIess, el robot. Actívalo para escucharlo',
+                                    etiqueta: 'Leo. Actívalo para escucharlo',
                                     alActivar: _hablarRobot,
                                     child: RobotGuardia(
                                       estado: _estado,
@@ -470,7 +483,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                   child: Semantics(
                                     header: true,
                                     child: Text(
-                                      'Tu robot guardián contra estafas',
+                                      'Leo, tu guía contra estafas',
                                       style: Letra.lexend(
                                         40,
                                         peso: FontWeight.w700,
@@ -663,7 +676,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                   : (
                                       Icons.check_circle_outline_rounded,
                                       _W.verde,
-                                      'Listo para revisar: pulsa «Revisar con AIess» o Ctrl + Enter.',
+                                      'Listo para revisar: pulsa «Revisar con Leo» o Ctrl + Enter.',
                                     );
                               return Semantics(
                                 liveRegion: true,
@@ -772,7 +785,7 @@ class _WebEscritorioState extends State<WebEscritorio> {
                                         label: Text(
                                           _estado == EstadoRobot.analizando
                                               ? 'Revisando…'
-                                              : 'Revisar con AIess',
+                                              : 'Revisar con Leo',
                                         ),
                                       ),
                                     ),

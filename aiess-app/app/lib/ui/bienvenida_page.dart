@@ -34,8 +34,8 @@ class _Paso {
 
 const _pasos = [
   _Paso(
-    'Hola, soy AIess',
-    'Hola, soy AIess, tu robot guardián. Te ayudo a descubrir estafas que usan el nombre del IESS. Vamos a prepararme en cuatro pasos.',
+    'Hola, soy Leo',
+    'Hola, soy Leo. Te ayudo a reconocer correos falsos que usan el nombre del IESS. Antes de empezar, vamos a prepararme en cuatro pasos.',
     'Empecemos',
     Icons.pets_rounded,
     null,
@@ -43,7 +43,7 @@ const _pasos = [
   ),
   _Paso(
     'Déjame ver tus avisos',
-    'Para cuidarte, necesito leer los avisos de tus correos. Nada sale de tu celular. Toca el botón y activa Guardián AIESS.',
+    'Para cuidarte, necesito leer los avisos de tus correos. Tranquilo, nada sale de tu celular. Toca el botón y activa Guardián AIESS.',
     'Dar permiso',
     Icons.notifications_active_rounded,
     'abrirAjustesNotificaciones',
@@ -59,7 +59,7 @@ const _pasos = [
   ),
   _Paso(
     'Déjame cuidarte siempre',
-    'Para avisarte aunque no tengas la app abierta, necesito trabajar en segundo plano. Toca el botón y elige Permitir.',
+    'Para avisarte aunque no tengas la app abierta, necesito seguir atento en segundo plano. Toca el botón y elige Permitir.',
     'Dar permiso',
     Icons.battery_charging_full_rounded,
     'abrirAjustesBateria',
@@ -67,7 +67,7 @@ const _pasos = [
   ),
   _Paso(
     'Déjame despertar solo',
-    'Tu celular apaga las apps para ahorrar batería. Toca el botón, busca AIESS y activa el interruptor de inicio automático.',
+    'Tu celular apaga algunas apps para ahorrar batería. Toca el botón, busca AIESS y activa el inicio automático.',
     'Abrir ajuste',
     Icons.power_settings_new_rounded,
     'abrirInicioAutomatico',
@@ -75,7 +75,7 @@ const _pasos = [
   ),
   _Paso(
     '¡Listo!',
-    'Listo. Desde ahora reviso tus correos. Si llega algo sospechoso, aparezco y te digo por qué.',
+    'Listo, ya estoy atento. Si llega un correo sospechoso, te aviso y te explico por qué.',
     'Comenzar',
     Icons.check_rounded,
     null,

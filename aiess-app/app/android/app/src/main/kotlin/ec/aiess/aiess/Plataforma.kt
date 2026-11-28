@@ -130,6 +130,14 @@ object Plataforma {
                         "demo")
                     result.success(null)
                 }
+                // Portapapeles en HTML: al copiar un correo en Gmail o Yahoo, el enlace de la IMAGEN del sello
+                // solo viaja en la versión HTML (el texto plano lo pierde). Se devuelve para leer sus enlaces.
+                "portapapelesHtml" -> {
+                    val cm = act.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                    val clip = cm.primaryClip
+                    val html = if (clip != null && clip.itemCount > 0) clip.getItemAt(0).htmlText else null
+                    result.success(html)
+                }
                 // PDF en el celular: cada página se dibuja como imagen (PdfRenderer de Android, sin abrir enlaces
                 // ni ejecutar nada del PDF) y luego el OCR de ML Kit la lee en el equipo. Máximo 5 páginas.
                 "pdfAImagenes" -> {

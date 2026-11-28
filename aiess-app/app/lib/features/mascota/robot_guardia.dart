@@ -135,7 +135,7 @@ class _RobotGuardiaState extends State<RobotGuardia>
     // Capa de dibujo propia: la respiración del robot no obliga a redibujar el resto de la página.
     return RepaintBoundary(
       child: Semantics(
-        label: 'AIess, robot guardián. Toca para escucharle',
+        label: 'Leo, tu guía. Toca para escucharlo',
         button: widget.alTocar != null,
         child: GestureDetector(
           onTap: () {

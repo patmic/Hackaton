@@ -32,7 +32,7 @@ void main() {
       expect(v.phishing, isTrue);
       final n = v.indicios.length;
       expect(n, greaterThanOrEqualTo(3));
-      expect(v.voz, startsWith('Encontré $n indicios'));
+      expect(v.voz, startsWith('Encontré ${cantidadIndicios(n)}'));
       for (final k in v.indicios) {
         expect(v.voz, contains(motivoVoz[k]!), reason: 'explica $k');
       }
@@ -81,7 +81,7 @@ void main() {
     final ia = reglas('Actualice su clave hoy en http://iess-pagos.net');
     final v = aplicarSello(ia, estado: 'valido');
     expect(v.phishing, isTrue);
-    expect(v.voz, contains('la firma del IESS es válida'));
+    expect(v.voz, contains('la firma del IESS es verdadera'));
   });
 
   test('solo indicios del catálogo, sin repetir', () {
